@@ -7,7 +7,8 @@ const AppState = {
   bookmarks: [],
   activeWorkId: 'pixel-daylight-switch',
   works: [
-    { id: 'pixel-daylight-switch', title: '海边灯塔' }
+    { id: 'pixel-daylight-switch', title: '海边灯塔', cardId: 'lighthouse-card' },
+    { id: 'pixel-orbit', title: 'Pixel Orbit · 像素圆环', cardId: 'pixel-orbit-card' }
   ]
 };
 
@@ -26,7 +27,7 @@ const saveBookmarks = () => {
 const navHome = document.getElementById('nav-home');
 const navBookmark = document.getElementById('nav-bookmark');
 const card = document.getElementById('lighthouse-card');
-const galleryCards = [...document.querySelectorAll('.preview-card')];
+const galleryCards = AppState.works.map(work => document.getElementById(work.cardId)).filter(Boolean);
 const emptyState = document.getElementById('empty-state');
 const emptyDesc = document.getElementById('empty-desc');
 const searchInput = document.getElementById('search-input');
@@ -802,7 +803,8 @@ syncSearchUI();
   });
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && state !== 'closed') {
-      if (expanded) toggleExpanded();
+      if (animation) close();
+      else if (expanded) toggleExpanded();
       else close();
     }
   });
