@@ -21,6 +21,14 @@ body.viewing::before {
   opacity: 1; pointer-events: auto;
 }
 
+/* Fade the dimming layer out together with the card's return.
+   This avoids a second visual transition after the card has landed. */
+body.view-closing::before {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 460ms cubic-bezier(.22,.8,.2,1);
+}
+
 /* ---------- 左侧导航 ---------- */
 #mario-nav {
   position: fixed; left: 28px; top: 50%; transform: translateY(-50%);
