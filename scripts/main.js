@@ -624,3 +624,90 @@ syncSearchUI();
     }
   });
 })();
+
+
+/* Pixel Orbit uses the same card-to-detail spatial transition language. */
+(() => {
+  const orbitCard = document.getElementById('pixel-orbit-card');
+  const orbitPanel = document.getElementById('orbit-detail-panel');
+  if (!orbitCard || !orbitPanel) return;
+  let state = 'closed';
+  let animation = null;
+  let homeRect = null;
+  const closeOrbit = () => {
+    if (state !== 'open') return;
+    state = 'closing';
+    if (animation) animation.cancel();
+    const current = orbitCard.getBoundingClientRect();
+    orbitCard.style.position = 'fixed';
+    orbitCard.style.left = current.left + 'px';
+    orbitCard.style.top = current.top + 'px';
+    orbitCard.style.width = current.width + 'px';
+    orbitCard.style.height = current.height + 'px';
+    orbitCard.style.margin = '0';
+    orbitCard.classList.remove('is-orbit-open');
+    document.body.classList.add('orbit-view-closing');
+    document.body.classList.remove('orbit-viewing');
+    const end = homeRect;
+    animation = orbitCard.animate([
+      { transform: 'translate(0,0) scale(1)', borderRadius: '3px' },
+      { transform: 'translate(' + (end.left-current.left) + 'px,' + (end.top-current.top) + 'px) scale(' + (end.width/current.width) + ',' + (end.height/current.height) + ')', borderRadius:'3px' }
+    ], {duration:460,easing:'cubic-bezier(.22,.8,.2,1)',fill:'both'});
+    animation.finished.catch(()=>{}).then(()=>{
+      if(state!=='closing') return;
+      animation.cancel(); animation=null;
+      ['position','left','top','width','height','margin','transform'].forEach(p=>orbitCard.style.removeProperty(p));
+      document.body.classList.remove('orbit-view-closing');
+      orbitPanel.setAttribute('aria-hidden','true');
+      state='closed';
+    });
+  };
+  const openOrbit = () => {
+    if(state!=='closed') return;
+    homeRect=orbitCard.getBoundingClientRect();
+    state='opening';
+    const targetWidth=Math.min(860,Math.max(320,window.innerWidth-(window.innerWidth<=600?28:560)));
+    const target={left:18,top:18,width:targetWidth,height:window.innerHeight-36};
+    orbitCard.style.position='fixed'; orbitCard.style.left=homeRect.left+'px'; orbitCard.style.top=homeRect.top+'px';
+    orbitCard.style.width=homeRect.width+'px'; orbitCard.style.height=homeRect.height+'px'; orbitCard.style.margin='0';
+    orbitCard.classList.add('is-orbit-open');
+    document.body.classList.add('orbit-viewing');
+    orbitPanel.setAttribute('aria-hidden','false');
+    orbitCard.getBoundingClientRect();
+    animation=orbitCard.animate([
+      {transform:'translate(0,0) scale(1,1)'},
+      {transform:'translate('+(target.left-homeRect.left)+'px,'+(target.top-homeRect.top)+'px) scale('+(target.width/homeRect.width)+','+(target.height/homeRect.height)+')'}
+    ],{duration:460,easing:'cubic-bezier(.22,.8,.2,1)',fill:'both'});
+    animation.finished.catch(()=>{}).then(()=>{
+      if(state!=='opening')return;
+      animation.cancel();animation=null;
+      orbitCard.style.left=target.left+'px';orbitCard.style.top=target.top+'px';
+      orbitCard.style.width=target.width+'px';orbitCard.style.height=target.height+'px';
+      orbitCard.style.transform='none';state='open';
+    });
+  };
+  orbitCard.addEventListener('click',event=>{
+    if(event.target.closest('a,button,input,select,textarea'))return;
+    if(state==='closed')openOrbit();
+  });
+  orbitCard.addEventListener('keydown',event=>{
+    if(event.target===orbitCard&&['Enter',' '].includes(event.key)){event.preventDefault();openOrbit();}
+  });
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&state==='open')closeOrbit();
+  });
+  window.addEventListener('resize',()=>{
+    if(state==='open')closeOrbit();
+  });
+  orbitPanel.addEventListener('click',event=>{
+    if(event.target===orbitPanel)closeOrbit();
+  });
+  const closeButton=document.createElement('button');
+  closeButton.type='button';closeButton.className='orbit-detail-close';closeButton.setAttribute('aria-label','关闭 Pixel Orbit 详情');
+  closeButton.innerHTML='×';
+  Object.assign(closeButton.style,{position:'fixed',zIndex:'40',top:'24px',right:'24px',width:'42px',height:'42px',border:'3px solid #000',borderRadius:'4px',background:'#e94c43',color:'#fff',fontSize:'28px',lineHeight:'1',boxShadow:'3px 4px 0 #000',cursor:'pointer',opacity:'0',pointerEvents:'none'});
+  document.body.appendChild(closeButton);
+  const syncClose=()=>{closeButton.style.opacity=state==='open'?'1':'0';closeButton.style.pointerEvents=state==='open'?'auto':'none';};
+  const observer=new MutationObserver(syncClose);observer.observe(document.body,{attributes:true,attributeFilter:['class']});
+  closeButton.addEventListener('click',closeOrbit);
+})();
