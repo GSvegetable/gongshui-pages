@@ -476,7 +476,11 @@ syncSearchUI();
     ],{duration:reduced?1:280,easing,fill:'both'});
 
     activeAnimation=ca;
-    syncEmbedVisualLoop(ca);
+    // The mount itself is independently FLIP-transformed during the return.
+    // Do not also resize the embedded renderer from its transformed bounding
+    // box on every frame: that compounds the parent and child scales, making
+    // the black frame and the lighthouse artwork drift out of sync.
+    syncEmbedScale(getEmbedWrapper());
     const pending=[ca.finished];if(ma)pending.push(ma.finished);if(ia)pending.push(ia.finished);if(da)pending.push(da.finished);
     Promise.all(pending).then(()=>{
       if(activeAnimation!==ca)return;
