@@ -1,15 +1,30 @@
 /* =========================================================
-   数据与状态管理
+   0. 核心配置区（以后加新作品只需改这里和 HTML）
    ========================================================= */
+const WORKS_CONFIG = [
+  { 
+    id: 'pixel-daylight-switch', 
+    cardId: 'lighthouse-card', 
+    detailId: 'detail-panel',
+    // 指定内容容器选择器：比如灯塔是 WebGL 注入的 class，圆环是 iframe
+    contentSelector: '.pds-embed',
+    // 灯塔专属的体感宽高比（如果加载慢，用作保底）
+    fallbackRatio: 1.6439
+  },
+  { 
+    id: 'pixel-orbit', 
+    cardId: 'pixel-orbit-card', 
+    detailId: 'orbit-detail-panel',
+    contentSelector: 'iframe',
+    fallbackRatio: 1.6439
+  }
+];
+
 const AppState = {
   currentTab: 'home', // 'home' | 'bookmarks'
   searchQuery: '',
   bookmarks: [],
-  activeWorkId: 'pixel-daylight-switch',
-  works: [
-    { id: 'pixel-daylight-switch', title: '海边灯塔', cardId: 'lighthouse-card' },
-    { id: 'pixel-orbit', title: '像素圆环', cardId: 'pixel-orbit-card' }
-  ]
+  activeWorkId: WORKS_CONFIG[0].id
 };
 
 try {
@@ -22,16 +37,17 @@ const saveBookmarks = () => {
 };
 
 /* =========================================================
-   第一部分：导航、搜索与列表渲染
+   1. 导航、搜索与列表渲染
    ========================================================= */
 const navHome = document.getElementById('nav-home');
 const navBookmark = document.getElementById('nav-bookmark');
-const card = document.getElementById('lighthouse-card');
-const galleryCards = AppState.works.map(work => document.getElementById(work.cardId)).filter(Boolean);
+const galleryCards = WORKS_CONFIG.map(work => document.getElementById(work.cardId)).filter(Boolean);
 const emptyState = document.getElementById('empty-state');
 const emptyDesc = document.getElementById('empty-desc');
 const searchInput = document.getElementById('search-input');
 const searchWrapper = document.getElementById('search-wrapper');
+const searchClear = document.getElementById('search-clear');
+const searchStatus = document.getElementById('search-status');
 
 const renderGallery = () => {
   let visibleCount = 0;
@@ -56,27 +72,6 @@ const renderGallery = () => {
   }
 };
 
-navHome.addEventListener('click', () => {
-  AppState.currentTab = 'home';
-  navHome.classList.add('active');
-  navBookmark.classList.remove('active');
-  navHome.setAttribute('aria-pressed', 'true');
-  navBookmark.setAttribute('aria-pressed', 'false');
-  renderGallery();
-});
-
-navBookmark.addEventListener('click', () => {
-  AppState.currentTab = 'bookmarks';
-  navBookmark.classList.add('active');
-  navHome.classList.remove('active');
-  navBookmark.setAttribute('aria-pressed', 'true');
-  navHome.setAttribute('aria-pressed', 'false');
-  renderGallery();
-});
-
-const searchClear = document.getElementById('search-clear');
-const searchStatus = document.getElementById('search-status');
-
 const syncSearchUI = () => {
   const query = AppState.searchQuery;
   searchWrapper.classList.toggle('is-active', query.length > 0);
@@ -98,31 +93,32 @@ const updateSearch = value => {
   syncSearchUI();
 };
 
+navHome.addEventListener('click', () => {
+  AppState.currentTab = 'home';
+  navHome.classList.add('active'); navBookmark.classList.remove('active');
+  navHome.setAttribute('aria-pressed', 'true'); navBookmark.setAttribute('aria-pressed', 'false');
+  renderGallery();
+});
+
+navBookmark.addEventListener('click', () => {
+  AppState.currentTab = 'bookmarks';
+  navBookmark.classList.add('active'); navHome.classList.remove('active');
+  navBookmark.setAttribute('aria-pressed', 'true'); navHome.setAttribute('aria-pressed', 'false');
+  renderGallery();
+});
+
 searchInput.addEventListener('input', event => updateSearch(event.target.value));
-searchClear.addEventListener('click', () => {
-  updateSearch('');
-  searchInput.focus();
-});
-searchWrapper.addEventListener('click', event => {
-  if (event.target !== searchClear) searchInput.focus();
-});
+searchClear.addEventListener('click', () => { updateSearch(''); searchInput.focus(); });
+searchWrapper.addEventListener('click', event => { if (event.target !== searchClear) searchInput.focus(); });
 
 document.addEventListener('keydown', event => {
   const target = event.target;
-  const isTyping = target instanceof HTMLElement &&
-    (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
-
-  if ((event.key === '/' && !isTyping) ||
-      ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k')) {
-    event.preventDefault();
-    searchInput.focus();
-    searchInput.select();
-    return;
+  const isTyping = target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+  if ((event.key === '/' && !isTyping) || ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k')) {
+    event.preventDefault(); searchInput.focus(); searchInput.select(); return;
   }
-
   if (event.key === 'Escape' && document.activeElement === searchInput) {
-    if (AppState.searchQuery) updateSearch('');
-    else searchInput.blur();
+    if (AppState.searchQuery) updateSearch(''); else searchInput.blur();
   }
 });
 
@@ -130,188 +126,142 @@ renderGallery();
 syncSearchUI();
 
 /* =========================================================
-   第二部分：作品详情展开与交互
+   2. 万能作品展示框架 (Work Controller)
    ========================================================= */
 (() => {
-  const close = document.getElementById('close-card');
-  const expandArtwork = document.getElementById('expand-artwork');
-  const bookmarkCard = document.getElementById('bookmark-card');
-  const detailPanel = document.getElementById('detail-panel');
-  if (!card || !close || !expandArtwork || !detailPanel) return;
-
-  let origin = null;
-  let originMountRect = null;
-  let originInfoRect = null;
-  let target = null;
-  let mode = 'closed';
+  const closeBtn = document.getElementById('close-card');
+  const expandBtn = document.getElementById('expand-artwork');
+  const bookmarkBtn = document.getElementById('bookmark-card');
+  
+  let activeWork = null; // 当前激活的作品配置
+  let activeCard = null; // 当前激活的 DOM
+  let mode = 'closed';   // 'closed' | 'opening' | 'open' | 'closing'
+  let placeholder = null; // 占位符，防止网格塌陷
+  let originRect = null;  // 记录初始位置
+  let targetBox = null;   // 正常展开时的目标尺寸
+  let artworkReturnHeight = 0; // 放大模式下记录返回高度
+  let expanded = false;   // 是否处于放大模式
+  
+  // 动画与渲染帧状态
   let activeAnimation = null;
-  let artworkExpanded = false;
-  let artworkReturnHeight = 0;
-  let embedFrame = 0;
-  let embedVisualState = null;
-  let placeholder = null;
+  let syncFrame = 0;
+  let contentState = null; // 冻结内部元素的宽高状态
 
-  const previewMount = card.querySelector('.preview-mount');
-  const getEmbedWrapper = () => previewMount ? previewMount.querySelector('.pds-embed') : null;
-
-  const updateBookmarkBtn = () => {
-    const isBookmarked = AppState.bookmarks.includes(AppState.activeWorkId || card.dataset.id);
-    bookmarkCard.setAttribute('aria-pressed', String(isBookmarked));
-  };
-  updateBookmarkBtn();
-
-  bookmarkCard.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const id = AppState.activeWorkId || card.dataset.id;
-    const index = AppState.bookmarks.indexOf(id);
-    if (index > -1) AppState.bookmarks.splice(index, 1);
-    else AppState.bookmarks.push(id);
-    saveBookmarks();
-    updateBookmarkBtn();
-    if (AppState.currentTab === 'bookmarks' && !document.body.classList.contains('viewing')) {
-      renderGallery();
-    }
+  // 监听动态注入的内容（如 Lighthouse 的 canvas）
+  const waitForEl = (selector, root, timeout = 8000) => new Promise((resolve, reject) => {
+    if (!root) return reject();
+    const existing = root.querySelector(selector);
+    if (existing) return resolve(existing);
+    const observer = new MutationObserver(() => {
+      const found = root.querySelector(selector);
+      if (found) { observer.disconnect(); clearTimeout(timer); resolve(found); }
+    });
+    observer.observe(root, { childList: true, subtree: true });
+    const timer = setTimeout(() => { observer.disconnect(); reject(); }, timeout);
   });
 
-  const waitForEl = (selector, root, timeout = 8000) =>
-    new Promise((resolve, reject) => {
-      if (!root) return reject(new Error('no root for ' + selector));
-      const existing = root.querySelector(selector);
-      if (existing) return resolve(existing);
-      const observer = new MutationObserver(() => {
-        const found = root.querySelector(selector);
-        if (found) {
-          observer.disconnect();
-          clearTimeout(timer);
-          resolve(found);
-        }
-      });
-      observer.observe(root, { childList: true, subtree: true });
-      const timer = setTimeout(() => {
-        observer.disconnect();
-        reject(new Error('waitForEl timeout: ' + selector));
-      }, timeout);
-    });
+  const getContentNode = (card, work) => card.querySelector(work.contentSelector);
+  const previewMount = (card) => card.querySelector('.preview-mount');
 
-  const sceneChoices = [...detailPanel.querySelectorAll('[data-scene-choice]')];
-  const validScenes = new Set(sceneChoices.map(button => button.dataset.sceneChoice));
-  let selectedScene = 'seaside';
-
-  try {
-    const savedScene = localStorage.getItem('pds-gallery-scene');
-    if (savedScene && validScenes.has(savedScene)) selectedScene = savedScene;
-  } catch (_) {}
-
-  let sceneRoot = null;
-
-  const updateSceneChoices = () => {
-    sceneChoices.forEach(button => {
-      const active = button.dataset.sceneChoice === selectedScene;
-      button.classList.toggle('is-active', active);
-      button.setAttribute('aria-pressed', String(active));
-    });
-  };
-
-  const chooseScene = scene => {
-    if (!validScenes.has(scene)) return;
-    selectedScene = scene;
-    try { localStorage.setItem('pds-gallery-scene', scene); } catch (_) {}
-    updateSceneChoices();
-    if (sceneRoot) sceneRoot.dataset.scene = scene;
-    const api = window.PixelDaylightSwitch;
-    if (sceneRoot && api && typeof api.unmount === 'function' && typeof api.mount === 'function') {
-      api.unmount(sceneRoot);
-      api.mount(sceneRoot);
-    }
-  };
-
-  sceneChoices.forEach(button => {
-    button.disabled = true;
-    button.addEventListener('click', event => {
-      event.stopPropagation();
-      chooseScene(button.dataset.sceneChoice);
-    });
-  });
-  updateSceneChoices();
-
-  waitForEl('[data-ld-part="toggle-daylight"]', previewMount)
-    .then(el => {
-      sceneRoot = el;
-      sceneRoot.dataset.scene = selectedScene;
-      sceneChoices.forEach(button => { button.disabled = false; });
-      updateSceneChoices();
-    })
-    .catch(() => {});
-
+  // --- 几何计算与尺寸设定 ---
   const measureTarget = () => {
-    const compact = window.matchMedia('(max-width: 600px)').matches;
-    if (compact) {
-      return { left: 14, top: 18, width: Math.max(220, window.innerWidth - 28), padding: 12 };
-    }
-    const gap = 24;
+    const isMobile = window.matchMedia('(max-width: 600px)').matches;
+    if (isMobile) return { left: 14, top: 18, width: Math.max(220, window.innerWidth - 28), padding: 12 };
     const detailWidth = Math.min(520, Math.max(300, window.innerWidth * 0.38 - 36));
-    const width = Math.min(860, window.innerWidth - 36 - detailWidth - gap);
+    const width = Math.min(860, window.innerWidth - 36 - detailWidth - 24);
     return { left: 18, top: 18, width: Math.max(320, width), padding: 12 };
   };
 
-  const setGeometry = geometry => {
-    card.style.left = geometry.left + 'px';
-    card.style.top = geometry.top + 'px';
-    card.style.width = geometry.width + 'px';
-    card.style.padding = geometry.padding + 'px';
-    if (geometry.height == null) card.style.removeProperty('height');
-    else card.style.height = geometry.height + 'px';
+  const setGeometry = (card, box) => {
+    card.style.left = box.left + 'px';
+    card.style.top = box.top + 'px';
+    card.style.width = box.width + 'px';
+    card.style.padding = box.padding + 'px';
+    if (box.height == null) card.style.removeProperty('height');
+    else card.style.height = box.height + 'px';
   };
 
-  const ensureEmbedVisualState = embedWrapper => {
-    if (embedVisualState) return embedVisualState;
-    const width = embedWrapper.offsetWidth;
-    const height = embedWrapper.offsetHeight;
-    if (width <= 0 || height <= 0) return null;
-    embedVisualState = {
+  const calculateArtworkGeometry = (work, mountWidth = 0, mountHeight = 0) => {
+    const ratio = mountWidth > 0 && mountHeight > 0 ? mountWidth / mountHeight : work.fallbackRatio;
+    const availW = Math.max(220, window.innerWidth - 36);
+    const availH = Math.max(180, window.innerHeight - 36);
+    const controlRail = 56; // 底部操作条
+    const bottomInset = 15;
+    const innerWidth = Math.max(180, Math.min(availW - 30, (availH - controlRail - bottomInset) * ratio));
+    const innerHeight = innerWidth / ratio;
+    const width = innerWidth + 30;
+    const height = innerHeight + controlRail + bottomInset;
+    return {
+      left: Math.round((window.innerWidth - width) / 2),
+      top: Math.round((window.innerHeight - height) / 2),
+      width, height, padding: 12
+    };
+  };
+
+  // --- 内容缩放与视觉同步 (核心防抖机制) ---
+  const freezeContent = (card, work) => {
+    if (contentState) return;
+    const node = getContentNode(card, work);
+    if (!node) return;
+    const width = node.offsetWidth;
+    const height = node.offsetHeight;
+    if (width <= 0 || height <= 0) return;
+
+    // 冻结原始宽高，剥离 CSS 的控制权
+    contentState = {
+      node,
       width,
       height,
-      styles: ['width', 'height', 'aspect-ratio', 'transform', 'transform-origin']
-        .map(name => [name, embedWrapper.style.getPropertyValue(name), embedWrapper.style.getPropertyPriority(name)])
+      styles: ['width', 'height', 'aspect-ratio', 'transform', 'transform-origin'].map(name => [
+        name, node.style.getPropertyValue(name), node.style.getPropertyPriority(name)
+      ])
     };
-    embedWrapper.style.setProperty('width', width + 'px', 'important');
-    embedWrapper.style.setProperty('height', height + 'px', 'important');
-    embedWrapper.style.setProperty('aspect-ratio', 'auto', 'important');
-    embedWrapper.style.setProperty('transform-origin', 'top left', 'important');
-    return embedVisualState;
+    node.style.setProperty('width', width + 'px', 'important');
+    node.style.setProperty('height', height + 'px', 'important');
+    node.style.setProperty('aspect-ratio', 'auto', 'important');
+    node.style.setProperty('transform-origin', 'top left', 'important');
   };
 
-  const syncEmbedScale = embedWrapper => {
-    if (!embedVisualState || !previewMount || !embedWrapper) return;
-    const mountBox = previewMount.getBoundingClientRect();
-    embedWrapper.style.setProperty(
-      'transform',
-      'scale(' + Math.min(mountBox.width / embedVisualState.width, mountBox.height / embedVisualState.height) + ')',
-      'important'
-    );
+  const restoreContent = () => {
+    if (!contentState) return;
+    contentState.styles.forEach(([name, value, priority]) => {
+      if (value) contentState.node.style.setProperty(name, value, priority);
+      else contentState.node.style.removeProperty(name);
+    });
+    contentState = null;
   };
 
-  const syncEmbedVisualLoop = animation => {
+  const syncContentScale = (card) => {
+    if (!contentState) return;
+    const mount = previewMount(card);
+    if (!mount) return;
+    const rect = mount.getBoundingClientRect();
+    const scale = Math.min(rect.width / contentState.width, rect.height / contentState.height);
+    contentState.node.style.setProperty('transform', `scale(${scale})`, 'important');
+  };
+
+  const startContentSync = (animation, card) => {
+    if (syncFrame) cancelAnimationFrame(syncFrame);
     const tick = () => {
-      if (activeAnimation !== animation || !embedVisualState) return;
-      syncEmbedScale(getEmbedWrapper());
-      embedFrame = requestAnimationFrame(tick);
+      if (activeAnimation !== animation || !contentState) return;
+      syncContentScale(card);
+      syncFrame = requestAnimationFrame(tick);
     };
-    if (embedFrame) cancelAnimationFrame(embedFrame);
-    embedFrame = requestAnimationFrame(tick);
+    syncFrame = requestAnimationFrame(tick);
   };
 
-  const runGeometryAnimation = (from, to, onFinish) => {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const stopContentSync = () => {
+    if (syncFrame) cancelAnimationFrame(syncFrame);
+    syncFrame = 0;
+  };
 
-    const fromFrame = {
-      left: from.left + 'px', top: from.top + 'px',
-      width: from.width + 'px', padding: from.padding + 'px'
-    };
-    const toFrame = {
-      left: to.left + 'px', top: to.top + 'px',
-      width: to.width + 'px', padding: to.padding + 'px'
-    };
+  // --- 通用动画执行器 ---
+  const animateGeometry = (card, from, to, onFinish) => {
+    if (activeAnimation) activeAnimation.cancel();
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    const fromFrame = { left: from.left + 'px', top: from.top + 'px', width: from.width + 'px', padding: from.padding + 'px' };
+    const toFrame = { left: to.left + 'px', top: to.top + 'px', width: to.width + 'px', padding: to.padding + 'px' };
     if (from.height != null && to.height != null) {
       fromFrame.height = from.height + 'px';
       toFrame.height = to.height + 'px';
@@ -324,503 +274,264 @@ syncSearchUI();
     });
     activeAnimation = animation;
 
-    const embedWrapper = getEmbedWrapper();
-    if (embedWrapper) ensureEmbedVisualState(embedWrapper);
-    if (embedVisualState && previewMount && embedWrapper) syncEmbedVisualLoop(animation);
+    freezeContent(card, activeWork);
+    startContentSync(animation, card);
 
     animation.finished.then(() => {
       if (activeAnimation !== animation) return;
       
-      // 强制同步布局并修正尺寸微调抖动
+      // 动画结束：瞬间落地，强制重排并撤除缩放，消除亚像素抖动
       animation.cancel();
-      setGeometry(to);
+      setGeometry(card, to);
       card.getBoundingClientRect();
       
-      if (embedFrame) cancelAnimationFrame(embedFrame);
-      embedFrame = 0;
-      syncEmbedScale(getEmbedWrapper());
-      
+      stopContentSync();
       activeAnimation = null;
-      onFinish();
+      onFinish?.();
     }).catch(() => {});
   };
 
-  const cleanUp = () => {
-    artworkExpanded = false;
-    document.body.classList.remove('artwork-only');
-    card.classList.remove('is-artwork-expanded');
-    expandArtwork.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5" /></svg>';
-    expandArtwork.setAttribute('aria-label', '放大作品展示区域');
-    expandArtwork.setAttribute('aria-pressed', 'false');
-    if (activeAnimation) {
-      activeAnimation.cancel();
-      activeAnimation = null;
-    }
-
-    if (placeholder) {
-      placeholder.remove();
-      placeholder = null;
-    }
-
-    ['position', 'left', 'top', 'width', 'height', 'padding', 'margin', 'transition', 'opacity', 'box-shadow']
-      .forEach(prop => card.style.removeProperty(prop));
-    card.classList.remove('is-open', 'details-ready', 'is-title-expanded', 'is-closing');
-    document.body.classList.remove('viewing', 'view-closing', 'closing-from-artwork', 'lighthouse-closing');
-    mode = 'closed';
-    if (AppState.currentTab === 'bookmarks') renderGallery();
-    card.focus({ preventScroll: true });
-  };
-
-  const open = () => {
+  // --- 动作 1：打开卡片 ---
+  const openWork = (card, work) => {
     if (mode !== 'closed') return;
-    AppState.activeWorkId = card.dataset.id;
+    activeCard = card;
+    activeWork = work;
+    AppState.activeWorkId = work.id;
     updateBookmarkBtn();
-    origin = card.getBoundingClientRect();
-    originMountRect = previewMount.getBoundingClientRect();
-    const cardInfo = card.querySelector('.card-info');
-    originInfoRect = cardInfo ? cardInfo.getBoundingClientRect() : null;
-    target = measureTarget();
-    artworkExpanded = false;
+    
+    originRect = card.getBoundingClientRect();
+    targetBox = measureTarget();
+    expanded = false;
+    mode = 'opening';
+    
+    // UI 状态
     document.body.classList.remove('artwork-only');
     card.classList.remove('is-artwork-expanded');
     setExpandControl(false);
-    mode = 'opening';
-
-    placeholder = document.createElement('div');
-    placeholder.className = 'preview-card-placeholder';
-    placeholder.style.width = '100%';
-    placeholder.style.height = origin.height + 'px';
-    card.parentNode.insertBefore(placeholder, card);
-
-    card.style.position = 'fixed';
-    card.style.left = origin.left + 'px';
-    card.style.top = origin.top + 'px';
-    card.style.width = origin.width + 'px';
-    card.style.padding = '8px';
-    card.style.margin = '0';
-    card.style.transition = 'none';
-
     document.body.classList.add('viewing');
     card.classList.add('is-open', 'is-title-expanded');
-    card.getBoundingClientRect();
 
-    runGeometryAnimation(
-      { left: origin.left, top: origin.top, width: origin.width, padding: 8 },
-      target,
-      () => {
-        card.classList.add('details-ready');
-        mode = 'open';
-        card.style.transition = '';
-      }
-    );
-    close.focus({ preventScroll: true });
-  };
-
-  const shut = () => {
-    if (mode !== 'open' && mode !== 'opening') return;
-    const currentRect = card.getBoundingClientRect();
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const duration = reduced ? 1 : 460;
-    const title = card.querySelector('.card-title');
-    const titleAnimation = title ? title.animate(
-      [{ fontSize: getComputedStyle(title).fontSize }, { fontSize: '13px' }],
-      { duration, easing: 'cubic-bezier(.22,.8,.2,1)', fill: 'both' }
-    ) : null;
-    if (activeAnimation) { activeAnimation.cancel(); activeAnimation = null; }
-    if (embedFrame) cancelAnimationFrame(embedFrame);
-    embedFrame = 0;
-    mode = 'closing';
-    artworkExpanded = false;
-    document.body.classList.add('view-closing', 'lighthouse-closing');
-    document.body.classList.remove('artwork-only', 'closing-from-artwork');
-    card.classList.add('is-closing');
-    card.classList.remove('is-artwork-expanded');
-    setExpandControl(false);
-    const from = { left: currentRect.left, top: currentRect.top, width: currentRect.width, height: currentRect.height, padding: Number.parseFloat(getComputedStyle(card).paddingLeft) || 12 };
-    const to = { left: origin.left, top: origin.top, width: origin.width, height: origin.height, padding: 8 };
-    runGeometryAnimation(from, to, () => {
-      card.classList.remove('is-title-expanded');
-      if (titleAnimation) titleAnimation.cancel();
-      cleanUp();
-      const embedWrapper = getEmbedWrapper();
-      if (embedWrapper && embedVisualState) {
-        embedVisualState.styles.forEach(([name, value, priority]) => {
-          if (value) embedWrapper.style.setProperty(name, value, priority);
-          else embedWrapper.style.removeProperty(name);
-        });
-        embedVisualState = null;
-      }
-    });
-  };
-
-  card.addEventListener('click', event => {
-    if (event.target.closest('.preview-mount, button, a, input, select, textarea, [role="button"]')) return;
-    if (mode === 'closed') open();
-  });
-
-  card.addEventListener('keydown', event => {
-    if (event.target !== card || !['Enter', ' '].includes(event.key)) return;
-    event.preventDefault();
-    if (mode === 'closed') open();
-  });
-
-  const artworkGeometry = () => {
-    const ratio = embedVisualState && embedVisualState.width > 0 && embedVisualState.height > 0
-      ? embedVisualState.width / embedVisualState.height
-      : 1.6439;
-    const availableWidth = Math.max(220, window.innerWidth - 36);
-    const availableHeight = Math.max(180, window.innerHeight - 36);
-    const controlRail = 56;
-    const bottomInset = 15;
-    const innerWidth = Math.max(180, Math.min(availableWidth - 30, (availableHeight - controlRail - bottomInset) * ratio));
-    const innerHeight = innerWidth / ratio;
-    const width = innerWidth + 30;
-    const height = innerHeight + controlRail + bottomInset;
-    return {
-      left: Math.round((window.innerWidth - width) / 2),
-      top: Math.round((window.innerHeight - height) / 2),
-      width,
-      height,
-      padding: 12
-    };
-  };
-
-  const setExpandControl = expanded => {
-    expandArtwork.innerHTML = expanded
-      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v5H3M16 3v5h5M3 16h5v5M21 16h-5v5" /></svg>'
-      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5" /></svg>';
-    expandArtwork.setAttribute('aria-label', expanded ? '返回作品介绍' : '放大作品展示区域');
-    expandArtwork.setAttribute('aria-pressed', String(expanded));
-  };
-
-  const toggleArtworkView = () => {
-    if (mode !== 'open' || activeAnimation) return;
-    const fromRect = card.getBoundingClientRect();
-    const from = { left: fromRect.left, top: fromRect.top, width: fromRect.width, height: fromRect.height, padding: 12 };
-    
-    if (!artworkExpanded) {
-      artworkReturnHeight = fromRect.height;
-      artworkExpanded = true;
-      document.body.classList.add('artwork-only');
-      card.classList.add('is-artwork-expanded');
-      setExpandControl(true);
-      const to = artworkGeometry();
-      runGeometryAnimation(from, to, () => {
-        mode = 'open';
-        card.style.transition = '';
-      });
-    } else {
-      artworkExpanded = false;
-      document.body.classList.remove('artwork-only');
-      card.classList.remove('is-artwork-expanded');
-      
-      const to = { ...target, height: artworkReturnHeight };
-      runGeometryAnimation(from, to, () => {
-        card.style.removeProperty('height');
-        setExpandControl(false);
-        mode = 'open';
-        card.style.transition = '';
-      });
-    }
-  };
-
-  expandArtwork.addEventListener('click', event => {
-    event.stopPropagation();
-    toggleArtworkView();
-  });
-
-  close.addEventListener('click', event => {
-    event.stopPropagation();
-    shut();
-  });
-
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && mode === 'open') {
-      if (artworkExpanded) toggleArtworkView();
-      else shut();
-    }
-  });
-
-  window.addEventListener('resize', () => {
-    if (mode === 'open' && artworkExpanded) {
-      target = measureTarget();
-      if (activeAnimation) {
-        activeAnimation.cancel();
-        activeAnimation = null;
-      }
-      if (embedFrame) cancelAnimationFrame(embedFrame);
-      embedFrame = 0;
-      const rect = artworkGeometry();
-      setGeometry(rect);
-      syncEmbedScale(getEmbedWrapper());
-    } else if (mode === 'open') {
-      target = measureTarget();
-      setGeometry(target);
-      syncEmbedScale(getEmbedWrapper());
-    } else if (mode === 'closed' && embedVisualState) {
-      syncEmbedScale(getEmbedWrapper());
-    }
-  });
-})();
-
-
-/* Pixel Orbit follows the Lighthouse work-view geometry and shared controls. */
-(() => {
-  const orbitCard = document.getElementById('pixel-orbit-card');
-  const orbitPanel = document.getElementById('orbit-detail-panel');
-  const closeButton = document.getElementById('close-card');
-  const expandButton = document.getElementById('expand-artwork');
-  const bookmarkButton = document.getElementById('bookmark-card');
-  if (!orbitCard || !orbitPanel || !closeButton || !expandButton || !bookmarkButton) return;
-
-  const easing = 'cubic-bezier(.22,.8,.2,1)';
-  const duration = () => matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 460;
-  let state = 'closed';
-  let animation = null;
-  let homeRect = null;
-  let normalTarget = null;
-  let expanded = false;
-  let iframeState = null;
-  let iframeFrame = 0;
-  let placeholder = null;
-
-  const measureTarget = () => {
-    if (matchMedia('(max-width: 600px)').matches) {
-      return { left: 14, top: 18, width: Math.max(220, innerWidth - 28), padding: 12 };
-    }
-    const detailWidth = Math.min(520, Math.max(300, innerWidth * .38 - 36));
-    return {
-      left: 18,
-      top: 18,
-      width: Math.max(320, Math.min(860, innerWidth - 36 - detailWidth - 24)),
-      padding: 12
-    };
-  };
-
-  const getIframe = () => orbitCard.querySelector('iframe');
-  const freezeIframe = () => {
-    const frame = getIframe();
-    if (!frame || iframeState) return;
-    const width = frame.offsetWidth, height = frame.offsetHeight;
-    if (!width || !height) return;
-    iframeState = { width, height, styles: ['width','height','transform','transform-origin'].map(name => [name, frame.style.getPropertyValue(name), frame.style.getPropertyPriority(name)]) };
-    frame.style.setProperty('width', width + 'px', 'important');
-    frame.style.setProperty('height', height + 'px', 'important');
-    frame.style.setProperty('transform-origin', 'top left', 'important');
-  };
-  const syncIframeScale = () => {
-    const frame = getIframe(), mount = orbitCard.querySelector('.orbit-preview-mount');
-    if (!frame || !mount || !iframeState) return;
-    const rect = mount.getBoundingClientRect();
-    frame.style.setProperty('transform', 'scale(' + Math.min(rect.width / iframeState.width, rect.height / iframeState.height) + ')', 'important');
-  };
-  const startIframeSync = () => {
-    if (iframeFrame) cancelAnimationFrame(iframeFrame);
-    const tick = () => { if (!iframeState || state === 'closed') return; syncIframeScale(); iframeFrame = requestAnimationFrame(tick); };
-    iframeFrame = requestAnimationFrame(tick);
-  };
-  const stopIframeSync = () => { if (iframeFrame) cancelAnimationFrame(iframeFrame); iframeFrame = 0; syncIframeScale(); };
-  const restoreIframe = () => {
-    const frame = getIframe();
-    if (!frame || !iframeState) return;
-    iframeState.styles.forEach(([name,value,priority]) => { if (value) frame.style.setProperty(name,value,priority); else frame.style.removeProperty(name); });
-    iframeState = null;
-  };
-  const setGeometry = box => {
-    orbitCard.style.left = box.left + 'px';
-    orbitCard.style.top = box.top + 'px';
-    orbitCard.style.width = box.width + 'px';
-    orbitCard.style.padding = box.padding + 'px';
-    if (box.height == null) orbitCard.style.removeProperty('height');
-    else orbitCard.style.height = box.height + 'px';
-  };
-
-  const animateGeometry = (from, to, finish) => {
-    if (animation) animation.cancel();
-    const fromFrame = { left: from.left + 'px', top: from.top + 'px', width: from.width + 'px', padding: from.padding + 'px' };
-    const toFrame = { left: to.left + 'px', top: to.top + 'px', width: to.width + 'px', padding: to.padding + 'px' };
-    if (from.height != null && to.height != null) {
-      fromFrame.height = from.height + 'px';
-      toFrame.height = to.height + 'px';
-    }
-    const frames = [fromFrame, toFrame];
-    const current = orbitCard.animate(frames, { duration: duration(), easing, fill: 'both' });
-    animation = current;
-    current.finished.then(() => {
-      if (animation !== current) return;
-      
-      // 强制同步布局并修正尺寸微调抖动
-      current.cancel();
-      animation = null;
-      setGeometry(to);
-      orbitCard.getBoundingClientRect();
-      
-      stopIframeSync();
-      finish?.();
-    }).catch(() => {});
-  };
-
-  const setBookmarkState = () => {
-    bookmarkButton.setAttribute('aria-pressed', String(AppState.bookmarks.includes(orbitCard.dataset.id)));
-  };
-
-  const open = () => {
-    if (state !== 'closed') return;
-    homeRect = orbitCard.getBoundingClientRect();
-    normalTarget = measureTarget();
-    freezeIframe();
-
+    // 插入占位符，完美锁定网格位置
     placeholder = document.createElement('div');
     placeholder.className = 'preview-card-placeholder';
     placeholder.style.width = '100%';
-    placeholder.style.height = homeRect.height + 'px';
-    orbitCard.parentNode.insertBefore(placeholder, orbitCard);
+    placeholder.style.height = originRect.height + 'px';
+    card.parentNode.insertBefore(placeholder, card);
 
-    AppState.activeWorkId = orbitCard.dataset.id;
-    state = 'opening';
-    expanded = false;
-    setBookmarkState();
-    orbitCard.style.position = 'fixed';
-    orbitCard.style.left = homeRect.left + 'px';
-    orbitCard.style.top = homeRect.top + 'px';
-    orbitCard.style.width = homeRect.width + 'px';
-    orbitCard.style.padding = '8px';
-    orbitCard.style.margin = '0';
-    orbitCard.style.transition = 'none';
-    orbitCard.classList.add('is-open', 'is-title-expanded', 'is-orbit-open');
-    orbitPanel.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('viewing', 'orbit-viewing');
-    document.body.classList.remove('artwork-only');
-    orbitCard.getBoundingClientRect();
-    startIframeSync();
+    // 初始固定定位
+    card.style.position = 'fixed';
+    card.style.margin = '0';
+    card.style.transition = 'none';
+    setGeometry(card, { left: originRect.left, top: originRect.top, width: originRect.width, padding: 8 });
+
+    card.getBoundingClientRect();
+    
     animateGeometry(
-      { left: homeRect.left, top: homeRect.top, width: homeRect.width, padding: 8 },
-      normalTarget,
+      card,
+      { left: originRect.left, top: originRect.top, width: originRect.width, padding: 8 },
+      targetBox,
       () => {
-        state = 'open';
-        orbitCard.style.transition = '';
-        closeButton.focus({ preventScroll: true });
+        mode = 'open';
+        card.style.transition = '';
+        closeBtn.focus({ preventScroll: true });
+        restoreContent();
       }
     );
   };
 
-  const close = () => {
-    if (state === 'closed' || state === 'closing') return;
-    const currentRect = orbitCard.getBoundingClientRect();
-    const title = orbitCard.querySelector('.card-title');
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const ms = reduced ? 1 : 460;
-    const titleAnimation = title ? title.animate([{ fontSize: getComputedStyle(title).fontSize }, { fontSize: '13px' }], { duration: ms, easing, fill: 'both' }) : null;
-    if (animation) { animation.cancel(); animation = null; }
-    state = 'closing';
+  // --- 动作 2：关闭卡片 ---
+  const closeWork = () => {
+    if (mode === 'closed' || mode === 'closing') return;
+    const currentRect = activeCard.getBoundingClientRect();
+    
+    if (activeAnimation) activeAnimation.cancel();
+    if (syncFrame) cancelAnimationFrame(syncFrame);
+    
+    mode = 'closing';
     expanded = false;
     document.body.classList.remove('artwork-only');
-    document.body.classList.add('view-closing', 'orbit-view-closing');
-    document.body.classList.remove('orbit-viewing');
-    orbitCard.classList.add('is-closing');
-    orbitCard.classList.remove('is-artwork-expanded');
-    const from = { left: currentRect.left, top: currentRect.top, width: currentRect.width, height: currentRect.height, padding: 12 };
-    const to = { left: homeRect.left, top: homeRect.top, width: homeRect.width, height: homeRect.height, padding: 8 };
-    orbitCard.style.left = currentRect.left + 'px';
-    orbitCard.style.top = currentRect.top + 'px';
-    orbitCard.style.width = currentRect.width + 'px';
-    orbitCard.style.height = currentRect.height + 'px';
-    orbitCard.style.padding = '12px';
-    startIframeSync();
-    animateGeometry(from, to, () => {
-      orbitCard.classList.remove('is-title-expanded');
-      if (titleAnimation) titleAnimation.cancel();
-      stopIframeSync();
+    document.body.classList.add('view-closing');
+    activeCard.classList.add('is-closing');
+    activeCard.classList.remove('is-artwork-expanded');
+    setExpandControl(false);
+    
+    const title = activeCard.querySelector('.card-title');
+    const titleAnim = title ? title.animate(
+      [{ fontSize: getComputedStyle(title).fontSize }, { fontSize: '13px' }],
+      { duration: 460, easing: 'cubic-bezier(.22,.8,.2,1)', fill: 'both' }
+    ) : null;
 
-      if (placeholder) {
-        placeholder.remove();
-        placeholder = null;
+    animateGeometry(
+      activeCard,
+      { left: currentRect.left, top: currentRect.top, width: currentRect.width, height: currentRect.height, padding: 12 },
+      { left: originRect.left, top: originRect.top, width: originRect.width, height: originRect.height, padding: 8 },
+      () => {
+        activeCard.classList.remove('is-title-expanded', 'is-open', 'is-closing');
+        if (titleAnim) titleAnim.cancel();
+        
+        // 恢复原样
+        ['position', 'left', 'top', 'width', 'height', 'padding', 'margin', 'transition'].forEach(prop => activeCard.style.removeProperty(prop));
+        document.body.classList.remove('viewing', 'view-closing');
+        if (placeholder) { placeholder.remove(); placeholder = null; }
+        
+        mode = 'closed';
+        AppState.activeWorkId = WORKS_CONFIG[0].id;
+        if (AppState.currentTab === 'bookmarks') renderGallery();
+        updateBookmarkBtn();
+        activeCard.focus({ preventScroll: true });
+        
+        restoreContent();
+        activeCard = null;
+        activeWork = null;
       }
-
-      ['position','left','top','width','height','padding','margin','transition'].forEach(name => orbitCard.style.removeProperty(name));
-      orbitCard.classList.remove('is-open','is-title-expanded','is-closing','is-orbit-open','is-artwork-expanded');
-      restoreIframe();
-      document.body.classList.remove('viewing','view-closing','orbit-viewing','orbit-view-closing','artwork-only');
-      orbitPanel.setAttribute('aria-hidden', 'true');
-      state = 'closed';
-      AppState.activeWorkId = 'pixel-daylight-switch';
-      if (AppState.currentTab === 'bookmarks') renderGallery();
-      bookmarkButton.setAttribute('aria-pressed', String(AppState.bookmarks.includes('pixel-daylight-switch')));
-      expandButton.setAttribute('aria-label', '放大作品展示区域');
-      expandButton.setAttribute('aria-pressed', 'false');
-      orbitCard.focus({ preventScroll: true });
-    });
+    );
   };
 
-  const toggleExpanded = () => {
-    if (state !== 'open' || animation) return;
-    const rect = orbitCard.getBoundingClientRect();
-    const from = { left: rect.left, top: rect.top, width: rect.width, padding: 12 };
+  // --- 动作 3：切换放大/正常模式 ---
+  const toggleExpand = () => {
+    if (mode !== 'open' || activeAnimation) return;
+    const rect = activeCard.getBoundingClientRect();
+    const from = { left: rect.left, top: rect.top, width: rect.width, height: rect.height, padding: 12 };
+
     if (!expanded) {
+      // 进入放大模式
+      artworkReturnHeight = rect.height;
       expanded = true;
       document.body.classList.add('artwork-only');
-      orbitCard.classList.add('is-artwork-expanded');
-      const width = Math.max(220, innerWidth - 36);
-      const height = Math.max(180, innerHeight - 36);
-      const target = { left: Math.round((innerWidth - width) / 2), top: 18, width, padding: 12 };
-      animateGeometry(from, target, () => {
-        orbitCard.style.height = height + 'px';
-        expandButton.setAttribute('aria-label', '返回作品介绍');
-        expandButton.setAttribute('aria-pressed', 'true');
+      activeCard.classList.add('is-artwork-expanded');
+      setExpandControl(true);
+      
+      const mount = previewMount(activeCard);
+      const mRect = mount.getBoundingClientRect();
+      const target = calculateArtworkGeometry(activeWork, mRect.width, mRect.height);
+      
+      animateGeometry(activeCard, from, target, () => {
+        setGeometry(activeCard, target);
+        mode = 'open';
+        restoreContent();
       });
     } else {
+      // 退出放大模式
       expanded = false;
       document.body.classList.remove('artwork-only');
-      orbitCard.classList.remove('is-artwork-expanded');
-      animateGeometry(from, normalTarget, () => {
-        orbitCard.style.removeProperty('height');
-        expandButton.setAttribute('aria-label', '放大作品展示区域');
-        expandButton.setAttribute('aria-pressed', 'false');
+      activeCard.classList.remove('is-artwork-expanded');
+      
+      const target = { ...targetBox, height: artworkReturnHeight };
+      animateGeometry(activeCard, from, target, () => {
+        setGeometry(activeCard, targetBox);
+        setExpandControl(false);
+        mode = 'open';
+        restoreContent();
       });
     }
   };
 
-  orbitCard.addEventListener('click', event => {
-    if (event.target.closest('a,button,input,select,textarea')) return;
-    if (state === 'closed') open();
+  // --- 辅助 UI 操作 ---
+  const setExpandControl = (isExpanded) => {
+    expandBtn.innerHTML = isExpanded
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v5H3M16 3v5h5M3 16h5v5M21 16h-5v5" /></svg>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5" /></svg>';
+    expandBtn.setAttribute('aria-label', isExpanded ? '返回作品介绍' : '放大作品展示区域');
+    expandBtn.setAttribute('aria-pressed', String(isExpanded));
+  };
+
+  const updateBookmarkBtn = () => {
+    bookmarkBtn.setAttribute('aria-pressed', String(AppState.bookmarks.includes(AppState.activeWorkId)));
+  };
+
+  // --- 事件绑定 ---
+  WORKS_CONFIG.forEach(work => {
+    const card = document.getElementById(work.cardId);
+    if (!card) return;
+
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.preview-mount, button, a, input, select, textarea, [role="button"]')) return;
+      if (mode === 'closed') openWork(card, work);
+    });
+
+    card.addEventListener('keydown', (e) => {
+      if (e.target !== card || !['Enter', ' '].includes(e.key)) return;
+      e.preventDefault();
+      if (mode === 'closed') openWork(card, work);
+    });
   });
-  orbitCard.addEventListener('keydown', event => {
-    if (event.target === orbitCard && ['Enter',' '].includes(event.key)) {
-      event.preventDefault();
-      open();
+
+  closeBtn.addEventListener('click', closeWork);
+  expandBtn.addEventListener('click', toggleExpand);
+  
+  bookmarkBtn.addEventListener('click', () => {
+    const id = AppState.activeWorkId;
+    const index = AppState.bookmarks.indexOf(id);
+    if (index > -1) AppState.bookmarks.splice(index, 1);
+    else AppState.bookmarks.push(id);
+    saveBookmarks();
+    updateBookmarkBtn();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mode === 'open') {
+      if (expanded) toggleExpand(); else closeWork();
     }
   });
-  closeButton.addEventListener('click', event => {
-    if (state !== 'closed') { event.stopPropagation(); close(); }
-  });
-  expandButton.addEventListener('click', event => {
-    if (state !== 'closed') { event.stopPropagation(); toggleExpanded(); }
-  });
-  bookmarkButton.addEventListener('click', () => {
-    if (state !== 'closed') setTimeout(setBookmarkState, 0);
-  });
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && state !== 'closed') {
-      if (animation) close();
-      else if (expanded) toggleExpanded();
-      else close();
-    }
-  });
+
   window.addEventListener('resize', () => {
-    if (state !== 'open') return;
-    if (animation) { animation.cancel(); animation = null; }
-    if (expanded) {
-      const width = Math.max(220, innerWidth - 36);
-      const height = Math.max(180, innerHeight - 36);
-      setGeometry({ left: Math.round((innerWidth - width) / 2), top: 18, width, height, padding: 12 });
-      syncIframeScale();
-    } else {
-      normalTarget = measureTarget();
-      setGeometry(normalTarget);
-      syncIframeScale();
+    if (mode === 'open') {
+      if (activeAnimation) { activeAnimation.cancel(); activeAnimation = null; }
+      stopContentSync();
+      
+      if (expanded) {
+        const mount = previewMount(activeCard);
+        const mRect = mount.getBoundingClientRect();
+        const box = calculateArtworkGeometry(activeWork, mRect.width, mRect.height);
+        setGeometry(activeCard, box);
+        activeCard.style.height = box.height + 'px';
+      } else {
+        targetBox = measureTarget();
+        setGeometry(activeCard, targetBox);
+      }
+      syncContentScale(activeCard);
     }
   });
-  orbitPanel.addEventListener('click', event => {
-    if (event.target === orbitPanel) close();
-  });
+
+  /* =========================================================
+     专属业务逻辑：海边灯塔的场景切换（不影响通用框架）
+     ========================================================= */
+  const detailPanel = document.getElementById('detail-panel');
+  if (detailPanel) {
+    const sceneChoices = [...detailPanel.querySelectorAll('[data-scene-choice]')];
+    const validScenes = new Set(sceneChoices.map(b => b.dataset.sceneChoice));
+    let selectedScene = 'seaside';
+    try {
+      const saved = localStorage.getItem('pds-gallery-scene');
+      if (saved && validScenes.has(saved)) selectedScene = saved;
+    } catch (_) {}
+
+    const updateScenes = () => {
+      sceneChoices.forEach(btn => {
+        const active = btn.dataset.sceneChoice === selectedScene;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
+    };
+
+    sceneChoices.forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        selectedScene = btn.dataset.sceneChoice;
+        try { localStorage.setItem('pds-gallery-scene', selectedScene); } catch (_) {}
+        updateScenes();
+        
+        const mount = document.querySelector('#lighthouse-card .preview-mount');
+        const root = mount?.querySelector('[data-ld-part="toggle-daylight"]');
+        if (root) {
+          root.dataset.scene = selectedScene;
+          const api = window.PixelDaylightSwitch;
+          if (api && typeof api.unmount === 'function' && typeof api.mount === 'function') {
+            api.unmount(root); api.mount(root);
+          }
+        }
+      });
+    });
+    updateScenes();
+  }
 })();
