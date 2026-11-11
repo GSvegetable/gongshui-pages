@@ -291,9 +291,6 @@ syncSearchUI();
     );
   };
 
-  // Keep the renderer at its original backing dimensions. Only scale its
-  // wrapper during view transitions: changing root layout size triggers its
-  // ResizeObserver and recreates WebGL/Canvas buffers.
   const syncEmbedVisualLoop = animation => {
     const tick = () => {
       if (activeAnimation !== animation || !embedVisualState) return;
@@ -359,7 +356,6 @@ syncSearchUI();
       activeAnimation = null;
     }
 
-    // 移除占位符
     if (placeholder) {
       placeholder.remove();
       placeholder = null;
@@ -371,7 +367,6 @@ syncSearchUI();
     document.body.classList.remove('viewing', 'view-closing', 'closing-from-artwork', 'lighthouse-closing');
     mode = 'closed';
     if (AppState.currentTab === 'bookmarks') renderGallery();
-    // Keep the canvas backing dimensions unchanged after returning home.
     card.focus({ preventScroll: true });
   };
 
@@ -390,7 +385,6 @@ syncSearchUI();
     setExpandControl(false);
     mode = 'opening';
 
-    // 插入占位符，防止卡片 fixed 后网格塌陷重排。使用 100% 宽度自适应 Grid。
     placeholder = document.createElement('div');
     placeholder.className = 'preview-card-placeholder';
     placeholder.style.width = '100%';
@@ -670,7 +664,6 @@ syncSearchUI();
     normalTarget = measureTarget();
     freezeIframe();
 
-    // 插入占位符，使用 100% 宽度自适应 Grid
     placeholder = document.createElement('div');
     placeholder.className = 'preview-card-placeholder';
     placeholder.style.width = '100%';
@@ -733,7 +726,6 @@ syncSearchUI();
       if (titleAnimation) titleAnimation.cancel();
       stopIframeSync();
 
-      // 移除占位符
       if (placeholder) {
         placeholder.remove();
         placeholder = null;
