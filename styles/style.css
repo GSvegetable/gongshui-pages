@@ -538,7 +538,7 @@ body.lighthouse-closing::before {
   opacity: 0;
   transition: opacity 460ms linear;
 }
-body.lighthouse-closing .detail-content {
+body.view-closing.lighthouse-closing:not(.artwork-only) .detail-content {
   opacity: 0;
   visibility: visible;
   pointer-events: none;
