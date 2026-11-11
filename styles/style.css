@@ -264,7 +264,7 @@ body.view-closing .preview-actions {
 .bookmark-card[aria-pressed="true"] svg path { fill: currentColor; }
 
 /* ---------- 详情面板 ---------- */
-/* 核心修改：将 duration 统一为 460ms，与卡片收缩完全同步联动 */
+/* 核心修改：统一使用 460ms 和与卡片相同的缓动，并且去掉拖沓的 opacity 过渡 */
 .detail-content {
   display: block; position: fixed; z-index: 22; top: 18px; right: 18px; bottom: 18px;
   width: calc(38vw - 36px); min-width: 300px; max-width: 520px;
@@ -357,13 +357,9 @@ body.closing-from-artwork .detail-content {
 body.viewing { overflow:hidden; }
 body.viewing #mario-nav { visibility:hidden; opacity:0; pointer-events:none; }
 
-body.view-closing #mario-nav {
-  z-index: 31;
-  visibility: visible;
-  opacity: 1;
-  pointer-events: auto;
-  transition: none;
-}
+/* 修正：删掉这里强行提权 z-index 的代码，让它老老实实待在遮罩下面 */
+/* body.view-closing #mario-nav { ... } */
+
 .preview-card.is-open {
   z-index:21; isolation:isolate; cursor:default; padding:12px;
   overflow-x:hidden; overflow-y:auto;
@@ -381,9 +377,7 @@ body.view-closing #mario-nav {
 .preview-card.is-closing .preview-mount,
 .preview-card.is-closing .card-info { will-change: transform, opacity; }
 
-/* =========================================================
-   ★ 核心修复：关闭动画期间，静止卡片必须浮在遮罩层(20)之上
-   ========================================================= */
+/* 关闭动画期间，静止卡片浮在遮罩层(20)之上 */
 body.view-closing .preview-card:not(.is-closing) {
   position: relative;
   z-index: 21;
@@ -446,7 +440,7 @@ body.view-closing .preview-card.is-closing {
 }
 
 
-/* ---------- Pixel Orbit: shared Lighthouse presentation ---------- */
+/* ---------- Pixel Orbit ---------- */
 .orbit-preview-card { cursor: zoom-in; }
 .orbit-preview-card .orbit-preview-mount {
   aspect-ratio: var(--mount-ratio, 1.6439);
@@ -465,7 +459,7 @@ body.view-closing .preview-card.is-closing {
 .orbit-preview-card.is-orbit-open .orbit-preview-mount iframe { pointer-events: auto; }
 .orbit-preview-card.is-orbit-open .card-info { cursor: default; }
 
-/* 核心修改：圆环的详情面板也统一 460ms */
+/* 核心修改：圆环的面板也统一 460ms 同款缓动，去掉透明度拖沓 */
 .orbit-detail-content {
   display: block;
   position: fixed;
@@ -504,7 +498,7 @@ body.artwork-only .orbit-detail-content {
 }
 body.orbit-view-closing .orbit-detail-content {
   opacity: 0;
-  visibility: hidden;
+  visibility: visible;
   pointer-events: none;
   transform: translateY(100%);
   transition: transform 460ms cubic-bezier(.22,.8,.2,1), opacity 460ms ease;
