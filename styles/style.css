@@ -21,8 +21,6 @@ body.viewing::before {
   opacity: 1; pointer-events: auto;
 }
 
-/* Fade the dimming layer out together with the card's return.
-   This avoids a second visual transition after the card has landed. */
 body.view-closing::before {
   opacity: 0;
   pointer-events: none;
@@ -151,8 +149,6 @@ body.artwork-only .top-bar {
   pointer-events: none;
   transform: translateY(-8px);
 }
-
-/* During the return, keep the search UI above the moving artwork. */
 body.view-closing .top-bar {
   z-index: 30;
   opacity: 1;
@@ -175,7 +171,6 @@ main { padding: 94px 24px 48px; }
 }
 .preview-card.hidden { display: none !important; }
 
-/* 新增：占位符，防止卡片 fixed 时网格塌陷 */
 .preview-card-placeholder {
   visibility: hidden;
   pointer-events: none;
@@ -361,7 +356,6 @@ body.closing-from-artwork .detail-content {
 body.viewing { overflow:hidden; }
 body.viewing #mario-nav { visibility:hidden; opacity:0; pointer-events:none; }
 
-/* Keep the navigation blocks above the moving artwork during the return. */
 body.view-closing #mario-nav {
   z-index: 31;
   visibility: visible;
@@ -386,13 +380,14 @@ body.view-closing #mario-nav {
 .preview-card.is-closing .preview-mount,
 .preview-card.is-closing .card-info { will-change: transform, opacity; }
 
-/* 核心修复：正在关闭的卡片在最上层，静止的卡片在遮罩层之上，防止变黑或被遮挡 */
-body.view-closing .preview-card.is-closing {
-  z-index: 23;
-}
-body.view-closing #lighthouse-card:not(.is-closing),
-body.view-closing #pixel-orbit-card:not(.is-closing) {
+/* =========================================================
+   ★ 核心修复：关闭动画期间，静止卡片必须浮在遮罩层(20)之上
+   ========================================================= */
+body.view-closing .preview-card:not(.is-closing) {
   position: relative;
+  z-index: 21;
+}
+body.view-closing .preview-card.is-closing {
   z-index: 22;
 }
 
@@ -536,30 +531,7 @@ body.orbit-view-closing .orbit-detail-content {
   .orbit-detail-copy > p:not(.orbit-detail-kicker):not(.orbit-detail-subtitle) { font-size: 13px; }
 }
 
-/* The shared body.viewing state must not reveal the Lighthouse copy for Orbit. */
 body.orbit-viewing .detail-content { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
 body.orbit-view-closing .detail-content { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
 
-/* 2.3.0: reveal other works through the closing mask and keep titles
-   under explicit animation control to avoid a post-close font-size snap. */
 .preview-card.is-open .card-title { transition: none; }
-
-
-body.view-closing.lighthouse-closing:not(.artwork-only) .detail-content {
-  opacity: 0;
-  visibility: visible;
-  pointer-events: none;
-  transform: translateY(100%);
-  transition:
-    transform 460ms cubic-bezier(.22,.8,.2,1),
-    opacity 460ms linear;
-}
-body.lighthouse-closing .preview-actions {
-  opacity: 0;
-  visibility: visible;
-  pointer-events: none;
-  transform: translateY(-8px);
-  transition:
-    opacity 460ms linear,
-    transform 460ms cubic-bezier(.22,.8,.2,1);
-}
