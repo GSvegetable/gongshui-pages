@@ -155,7 +155,6 @@ syncSearchUI();
   };
 
   const calculateArtworkGeometry = () => {
-    // 提取内容容器的宽高比
     const mount = activeCard.querySelector('.preview-mount');
     const mRect = mount.getBoundingClientRect();
     const ratio = mRect.width > 0 && mRect.height > 0 ? mRect.width / mRect.height : 1.6439;
@@ -175,7 +174,6 @@ syncSearchUI();
     };
   };
 
-  // --- 核心动画执行器（移除一切影响内部尺寸的 JS 代码，交给浏览器原生渲染） ---
   const animateGeometry = (card, from, to, onFinish) => {
     if (activeAnimation) activeAnimation.cancel();
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -199,14 +197,13 @@ syncSearchUI();
       
       animation.cancel();
       setGeometry(card, to);
-      card.getBoundingClientRect(); // 强制同步布局，确保最终像素精确锁定
+      card.getBoundingClientRect();
       
       activeAnimation = null;
       onFinish?.();
     }).catch(() => {});
   };
 
-  // --- 动作 1：打开卡片 ---
   const openWork = (card, work) => {
     if (mode !== 'closed') return;
     activeCard = card;
@@ -250,7 +247,6 @@ syncSearchUI();
     );
   };
 
-  // --- 动作 2：关闭卡片 ---
   const closeWork = () => {
     if (mode === 'closed' || mode === 'closing') return;
     const currentRect = activeCard.getBoundingClientRect();
@@ -259,8 +255,18 @@ syncSearchUI();
     
     mode = 'closing';
     expanded = false;
-    document.body.classList.remove('artwork-only');
+    
+    // ★ 核心修改：一开始就移出 viewing 解除导航隐藏，依靠遮罩层的淡出自然显露导航栏
+    document.body.classList.remove('artwork-only', 'viewing');
     document.body.classList.add('view-closing');
+    
+    // 确保详情面板能感知到是哪个作品在关闭
+    if (activeWork.id === 'pixel-daylight-switch') {
+      document.body.classList.add('lighthouse-closing');
+    } else if (activeWork.id === 'pixel-orbit') {
+      document.body.classList.add('orbit-view-closing');
+    }
+
     activeCard.classList.add('is-closing');
     activeCard.classList.remove('is-artwork-expanded');
     setExpandControl(false);
@@ -280,7 +286,7 @@ syncSearchUI();
         if (titleAnim) titleAnim.cancel();
         
         ['position', 'left', 'top', 'width', 'height', 'padding', 'margin', 'transition'].forEach(prop => activeCard.style.removeProperty(prop));
-        document.body.classList.remove('viewing', 'view-closing');
+        document.body.classList.remove('viewing', 'view-closing', 'lighthouse-closing', 'orbit-view-closing');
         if (placeholder) { placeholder.remove(); placeholder = null; }
         
         mode = 'closed';
@@ -295,7 +301,6 @@ syncSearchUI();
     );
   };
 
-  // --- 动作 3：切换放大/正常模式 ---
   const toggleExpand = () => {
     if (mode !== 'open' || activeAnimation) return;
     const rect = activeCard.getBoundingClientRect();
