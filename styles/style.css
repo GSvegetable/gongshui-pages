@@ -251,9 +251,6 @@ body.view-closing .preview-actions {
   transform: translateY(-8px);
   transition-duration: .2s;
 }
-/* Keep the returning work above its sibling. The page mask fades away
-   underneath it, revealing the gallery in place without moving other cards. */
-.preview-card.is-closing { z-index: 21; }
 
 .action-btn {
   display: grid; place-items: center; width: 44px; height: 44px;
@@ -388,6 +385,16 @@ body.view-closing #mario-nav {
 .preview-card.is-closing { will-change: transform; }
 .preview-card.is-closing .preview-mount,
 .preview-card.is-closing .card-info { will-change: transform, opacity; }
+
+/* 核心修复：正在关闭的卡片在最上层，静止的卡片在遮罩层之上，防止变黑或被遮挡 */
+body.view-closing .preview-card.is-closing {
+  z-index: 23;
+}
+body.view-closing #lighthouse-card:not(.is-closing),
+body.view-closing #pixel-orbit-card:not(.is-closing) {
+  position: relative;
+  z-index: 22;
+}
 
 /* ---------- 响应式 ---------- */
 @media (max-width:1024px) {
@@ -538,13 +545,6 @@ body.orbit-view-closing .detail-content { opacity: 0 !important; visibility: hid
 .preview-card.is-open .card-title { transition: none; }
 
 
-/* Close reveal: keep the sibling under the page mask so the mask's fade-out
-   is what reveals it. Only the returning Lighthouse card is lifted above the
-   mask while it shrinks back; no opacity animation on Orbit (that caused the
-   flash: it jumped above the mask and restarted from opacity 0). */
-body.lighthouse-closing #lighthouse-card.is-closing {
-  z-index: 23;
-}
 body.view-closing.lighthouse-closing:not(.artwork-only) .detail-content {
   opacity: 0;
   visibility: visible;
