@@ -425,9 +425,9 @@ syncSearchUI();
   const shut = () => {
     if (mode !== 'open' && mode !== 'opening') return;
 
-    // Snapshot the visible rectangle before cancelling an in-flight animation.
-    // Reapply it as inline geometry so closing starts exactly where the user
-    // sees the card, including when they press X during an expand/open motion.
+    // Use a compositor-only FLIP transform for the return. Resizing the card
+    // also resizes/repaints the embedded canvas and can produce a black flash;
+    // scaling the already-rendered card keeps the artwork's pixels stable.
     const currentRect = card.getBoundingClientRect();
     if (activeAnimation) {
       activeAnimation.cancel();
@@ -436,32 +436,36 @@ syncSearchUI();
     if (embedFrame) cancelAnimationFrame(embedFrame);
     embedFrame = 0;
 
-    const from = {
-      left: currentRect.left,
-      top: currentRect.top,
-      width: currentRect.width,
-      height: currentRect.height,
-      padding: 12
-    };
-    setGeometry(from);
-    const to = {
-      left: origin.left,
-      top: origin.top,
-      width: origin.width,
-      height: origin.height,
-      padding: 8
-    };
+    const dx = origin.left - currentRect.left;
+    const dy = origin.top - currentRect.top;
+    const sx = origin.width / Math.max(1, currentRect.width);
+    const sy = origin.height / Math.max(1, currentRect.height);
 
     mode = 'closing';
     artworkExpanded = false;
     document.body.classList.remove('artwork-only');
     document.body.classList.add('view-closing');
-    card.classList.remove('details-ready', 'is-title-expanded');
     setExpandControl(false);
 
-    runGeometryAnimation(from, to, () => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const closeAnimation = card.animate(
+      [
+        { transform: 'translate3d(0, 0, 0) scale(1, 1)', transformOrigin: 'top left' },
+        { transform: 'translate3d(' + dx + 'px, ' + dy + 'px, 0) scale(' + sx + ', ' + sy + ')', transformOrigin: 'top left' }
+      ],
+      {
+        duration: reduced ? 1 : 460,
+        easing: 'cubic-bezier(.22,.8,.2,1)',
+        fill: 'forwards'
+      }
+    );
+    activeAnimation = closeAnimation;
+    closeAnimation.finished.then(() => {
+      if (activeAnimation !== closeAnimation) return;
+      activeAnimation = null;
+      closeAnimation.cancel();
       cleanUp();
-    });
+    }).catch(() => {});
   };
 
   card.addEventListener('click', event => {
