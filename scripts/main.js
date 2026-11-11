@@ -380,7 +380,7 @@ syncSearchUI();
     ['position', 'left', 'top', 'width', 'height', 'padding', 'margin', 'transition', 'opacity']
       .forEach(prop => card.style.removeProperty(prop));
     card.classList.remove('is-open', 'details-ready', 'is-title-expanded');
-    document.body.classList.remove('view-closing');
+    document.body.classList.remove('viewing', 'view-closing');
     mode = 'closed';
     restoreEmbedVisualState();
     refreshEmbeddedSwitch();
