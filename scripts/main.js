@@ -637,6 +637,7 @@ syncSearchUI();
   const closeOrbit = () => {
     if (state !== 'open') return;
     state = 'closing';
+    syncClose();
     if (animation) animation.cancel();
     const current = orbitCard.getBoundingClientRect();
     orbitCard.style.position = 'fixed';
@@ -659,7 +660,9 @@ syncSearchUI();
       ['position','left','top','width','height','margin','transform'].forEach(p=>orbitCard.style.removeProperty(p));
       document.body.classList.remove('orbit-view-closing');
       orbitPanel.setAttribute('aria-hidden','true');
+      orbitPanel.hidden = true;
       state='closed';
+      syncClose();
     });
   };
   const openOrbit = () => {
@@ -672,6 +675,7 @@ syncSearchUI();
     orbitCard.style.width=homeRect.width+'px'; orbitCard.style.height=homeRect.height+'px'; orbitCard.style.margin='0';
     orbitCard.classList.add('is-orbit-open');
     document.body.classList.add('orbit-viewing');
+    orbitPanel.hidden = false;
     orbitPanel.setAttribute('aria-hidden','false');
     orbitCard.getBoundingClientRect();
     animation=orbitCard.animate([
@@ -683,7 +687,7 @@ syncSearchUI();
       animation.cancel();animation=null;
       orbitCard.style.left=target.left+'px';orbitCard.style.top=target.top+'px';
       orbitCard.style.width=target.width+'px';orbitCard.style.height=target.height+'px';
-      orbitCard.style.transform='none';state='open';
+      orbitCard.style.transform='none';state='open';syncClose();
     });
   };
   orbitCard.addEventListener('click',event=>{
@@ -709,5 +713,6 @@ syncSearchUI();
   document.body.appendChild(closeButton);
   const syncClose=()=>{closeButton.style.opacity=state==='open'?'1':'0';closeButton.style.pointerEvents=state==='open'?'auto':'none';};
   const observer=new MutationObserver(syncClose);observer.observe(document.body,{attributes:true,attributeFilter:['class']});
+  syncClose();
   closeButton.addEventListener('click',closeOrbit);
 })();
