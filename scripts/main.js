@@ -365,7 +365,7 @@ syncSearchUI();
     ['position', 'left', 'top', 'width', 'height', 'padding', 'margin', 'transition', 'opacity', 'box-shadow']
       .forEach(prop => card.style.removeProperty(prop));
     card.classList.remove('is-open', 'details-ready', 'is-title-expanded', 'is-closing');
-    document.body.classList.remove('viewing', 'view-closing', 'closing-from-artwork');
+    document.body.classList.remove('viewing', 'view-closing', 'closing-from-artwork', 'lighthouse-closing');
     mode = 'closed';
     if (AppState.currentTab === 'bookmarks') renderGallery();
     // Keep the canvas backing dimensions unchanged after returning home.
@@ -426,7 +426,7 @@ syncSearchUI();
     embedFrame = 0;
     mode = 'closing';
     artworkExpanded = false;
-    document.body.classList.add('view-closing');
+    document.body.classList.add('view-closing', 'lighthouse-closing');
     document.body.classList.remove('artwork-only', 'closing-from-artwork');
     card.classList.add('is-closing');
     card.classList.remove('is-artwork-expanded');
