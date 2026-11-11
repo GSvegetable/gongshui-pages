@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#171717" />
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="./styles/style.css?v=2.8.0" />
-  <link rel="stylesheet" href="./styles/motion.css?v=2.8.0" />
+  <link rel="stylesheet" href="./styles/style.css?v=3.0.0" />
+  <link rel="stylesheet" href="./styles/motion.css?v=3.0.0" />
 </head>
 <body>
   <aside id="mario-nav" aria-label="快捷导航">
@@ -36,18 +36,24 @@
 
   <main>
     <div class="grid">
+      <!-- 作品 1 -->
       <article class="preview-card" id="lighthouse-card" data-id="pixel-daylight-switch" tabindex="0" aria-label="打开海边灯塔作品详情">
         <div class="preview-mount">
           <script src="https://gsvegetable.github.io/pixel-daylight-switch/embed.js" data-scene="seaside"></script>
         </div>
         <div class="card-info"><span class="card-title">海边灯塔</span></div>
       </article>
-      <article class="preview-card orbit-preview-card" id="pixel-orbit-card" data-id="pixel-orbit" tabindex="0" aria-label="打开像素圆环作品详情">
-        <div class="preview-mount orbit-preview-mount">
+      
+      <!-- 作品 2 -->
+      <article class="preview-card" id="pixel-orbit-card" data-id="pixel-orbit" tabindex="0" aria-label="打开像素圆环作品详情">
+        <div class="preview-mount">
           <iframe src="https://gsvegetable.github.io/-pixel-orbit/pixel-orbit.html" title="Pixel Orbit 像素昼夜互动作品" loading="lazy" allow="fullscreen"></iframe>
         </div>
         <div class="card-info"><span class="card-title">像素圆环</span></div>
       </article>
+      
+      <!-- 以后加新作品，直接在这里往下复制 <article class="preview-card"> 即可，JS 会自动接管 -->
+
       <div class="empty-state" id="empty-state">
         <div class="empty-icon">🍃</div>
         <p class="empty-title">空空如也</p>
@@ -112,6 +118,7 @@
       <a class="orbit-live-link" href="https://gsvegetable.github.io/-pixel-orbit/lab.html" target="_blank" rel="noopener noreferrer">进入参数实验室 ↗</a>
     </div>
   </section>
+  
   <div class="preview-actions" aria-label="作品视图控制">
     <button class="action-btn bookmark-card" id="bookmark-card" type="button" aria-label="收藏作品" aria-pressed="false">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
@@ -123,7 +130,7 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <div class="site-version" aria-label="网站版本">v2.8.0</div>
-  <script src="./scripts/main.js?v=2.8.0"></script>
+  <div class="site-version" aria-label="网站版本">v3.0.0</div>
+  <script src="./scripts/main.js?v=3.0.0"></script>
 </body>
 </html>
