@@ -425,9 +425,10 @@ syncSearchUI();
   const shut = () => {
     if (mode !== 'open') return;
 
-    // Do not animate card width/height while closing. The embedded scene is
-    // independently scaled with requestAnimationFrame, and combining both
-    // animations can stretch its yellow canvas on the way back to the grid.
+    // Cancel an in-flight expand/restore animation, then FLIP the card from
+    // its actual on-screen rectangle back to the exact grid position captured
+    // when it was opened. Keep the backdrop in place until the card lands so
+    // the page never flashes through a fully-transparent card.
     if (activeAnimation) {
       activeAnimation.cancel();
       activeAnimation = null;
@@ -435,28 +436,32 @@ syncSearchUI();
     if (embedFrame) cancelAnimationFrame(embedFrame);
     embedFrame = 0;
 
+    const currentRect = card.getBoundingClientRect();
+    const from = {
+      left: currentRect.left,
+      top: currentRect.top,
+      width: currentRect.width,
+      height: currentRect.height,
+      padding: 12
+    };
+    const to = {
+      left: origin.left,
+      top: origin.top,
+      width: origin.width,
+      height: origin.height,
+      padding: 8
+    };
+
     mode = 'closing';
     artworkExpanded = false;
-    document.body.classList.remove('viewing', 'artwork-only');
+    document.body.classList.remove('artwork-only');
     document.body.classList.add('view-closing');
     card.classList.remove('details-ready', 'is-title-expanded', 'is-artwork-expanded');
     setExpandControl(false);
 
-    const closeFade = card.animate(
-      [{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(.985)' }],
-      {
-        duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 150,
-        easing: 'ease-out',
-        fill: 'forwards'
-      }
-    );
-    activeAnimation = closeFade;
-    closeFade.finished.then(() => {
-      if (activeAnimation !== closeFade) return;
-      activeAnimation = null;
-      closeFade.cancel();
+    runGeometryAnimation(from, to, () => {
       cleanUp();
-    }).catch(() => {});
+    });
   };
 
   card.addEventListener('click', event => {
