@@ -164,7 +164,7 @@ body.view-closing .top-bar {
 
 /* ---------- 页面基础布局 ---------- */
 main { padding: 94px 24px 48px; } 
-.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; padding-left:112px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; padding-left:88px; }
 .preview-card {
   position: relative; align-self: start; background: #f5ecd9; color: #1a1712;
   border: 3px solid #080808; border-radius: 3px; padding: 8px;
@@ -207,7 +207,7 @@ main { padding: 94px 24px 48px; }
   pointer-events: none;
 }
 
-.card-title { font-size:13px; font-weight:900; letter-spacing:1px; transition:font-size .42s cubic-bezier(.22,.8,.2,1); }
+.card-title { font-size:13px; font-weight:900; letter-spacing:1px; }
 .preview-card.is-title-expanded .card-title { font-size:18px; }
 
 /* ---------- 空状态 ---------- */
@@ -230,6 +230,24 @@ main { padding: 94px 24px 48px; }
 body.viewing .preview-actions,
 body.view-closing .preview-actions,
 body.artwork-only .preview-actions { display: flex; }
+.preview-actions {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity .2s ease, transform .2s ease, visibility .2s;
+}
+body.view-closing .preview-actions {
+  z-index: 18;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition-duration: .2s;
+}
+body.view-closing .grid .preview-card:not(.is-closing):not(.hidden) {
+  position: relative;
+  z-index: 22;
+}
 
 .action-btn {
   display: grid; place-items: center; width: 44px; height: 44px;
@@ -382,7 +400,7 @@ body.view-closing #mario-nav {
   .search-status { font-size: 10px; }
   
   main { padding:80px 14px 36px; }
-  .grid { grid-template-columns:minmax(0,1fr); padding-left:78px; }
+  .grid { grid-template-columns:minmax(0,1fr); padding-left:64px; }
   .preview-card { width:100%; }
   
   .preview-actions { top: 14px; right: 14px; gap: 8px; }
@@ -507,3 +525,7 @@ body.orbit-view-closing .orbit-detail-content {
 /* The shared body.viewing state must not reveal the Lighthouse copy for Orbit. */
 body.orbit-viewing .detail-content { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
 body.orbit-view-closing .detail-content { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+
+/* 2.3.0: reveal other works through the closing mask and keep titles
+   under explicit animation control to avoid a post-close font-size snap. */
+.preview-card.is-open .card-title { transition: none; }
