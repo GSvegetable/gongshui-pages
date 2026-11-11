@@ -508,3 +508,31 @@ body.orbit-viewing #mario-nav,
 body.orbit-viewing .top-bar { opacity:0; visibility:hidden; pointer-events:none; }
 body.orbit-view-closing::before { opacity:0; pointer-events:none; }
 .orbit-detail-close:focus-visible { outline:2px solid #f5bd32; outline-offset:3px; }
+
+
+/* Pixel Orbit hotfix: keep its detail copy out of the homepage flow. */
+#orbit-detail-panel[hidden] { display: none !important; }
+body.orbit-viewing #orbit-detail-panel:not([hidden]) { display: block; }
+
+/* On phones, give the artwork the upper area and the description a compact
+   bottom sheet instead of letting the two fixed panels overlap. */
+@media (max-width: 760px) {
+  body.orbit-viewing .orbit-detail-content:not([hidden]) {
+    top: auto;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    width: auto;
+    max-width: none;
+    max-height: 36vh;
+    min-width: 0;
+    padding: 54px 18px 18px;
+    z-index: 30;
+  }
+  .orbit-preview-card.is-orbit-open {
+    max-height: none;
+  }
+  .orbit-preview-card.is-orbit-open .orbit-preview-mount {
+    inset: 54px 12px 12px;
+  }
+}
