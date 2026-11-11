@@ -244,10 +244,9 @@ body.view-closing .preview-actions {
   transform: translateY(-8px);
   transition-duration: .2s;
 }
-body.view-closing .grid .preview-card:not(.is-closing):not(.hidden) {
-  position: relative;
-  z-index: 22;
-}
+/* Keep the returning work above its sibling. The page mask fades away
+   underneath it, revealing the gallery in place without moving other cards. */
+.preview-card.is-closing { z-index: 21; }
 
 .action-btn {
   display: grid; place-items: center; width: 44px; height: 44px;
