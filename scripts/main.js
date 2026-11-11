@@ -575,6 +575,8 @@ syncSearchUI();
   let homeRect = null;
   let normalTarget = null;
   let expanded = false;
+  let iframeState = null;
+  let iframeFrame = 0;
 
   const measureTarget = () => {
     if (matchMedia('(max-width: 600px)').matches) {
@@ -589,6 +591,35 @@ syncSearchUI();
     };
   };
 
+  const getIframe = () => orbitCard.querySelector('iframe');
+  const freezeIframe = () => {
+    const frame = getIframe();
+    if (!frame || iframeState) return;
+    const width = frame.offsetWidth, height = frame.offsetHeight;
+    if (!width || !height) return;
+    iframeState = { width, height, styles: ['width','height','transform','transform-origin'].map(name => [name, frame.style.getPropertyValue(name), frame.style.getPropertyPriority(name)]) };
+    frame.style.setProperty('width', width + 'px', 'important');
+    frame.style.setProperty('height', height + 'px', 'important');
+    frame.style.setProperty('transform-origin', 'top left', 'important');
+  };
+  const syncIframeScale = () => {
+    const frame = getIframe(), mount = orbitCard.querySelector('.orbit-preview-mount');
+    if (!frame || !mount || !iframeState) return;
+    const rect = mount.getBoundingClientRect();
+    frame.style.setProperty('transform', 'scale(' + Math.min(rect.width / iframeState.width, rect.height / iframeState.height) + ')', 'important');
+  };
+  const startIframeSync = () => {
+    if (iframeFrame) cancelAnimationFrame(iframeFrame);
+    const tick = () => { if (!iframeState || state === 'closed') return; syncIframeScale(); iframeFrame = requestAnimationFrame(tick); };
+    iframeFrame = requestAnimationFrame(tick);
+  };
+  const stopIframeSync = () => { if (iframeFrame) cancelAnimationFrame(iframeFrame); iframeFrame = 0; syncIframeScale(); };
+  const restoreIframe = () => {
+    const frame = getIframe();
+    if (!frame || !iframeState) return;
+    iframeState.styles.forEach(([name,value,priority]) => { if (value) frame.style.setProperty(name,value,priority); else frame.style.removeProperty(name); });
+    iframeState = null;
+  };
   const setGeometry = box => {
     orbitCard.style.left = box.left + 'px';
     orbitCard.style.top = box.top + 'px';
@@ -626,6 +657,7 @@ syncSearchUI();
     if (state !== 'closed') return;
     homeRect = orbitCard.getBoundingClientRect();
     normalTarget = measureTarget();
+    freezeIframe();
     AppState.activeWorkId = orbitCard.dataset.id;
     state = 'opening';
     expanded = false;
@@ -642,6 +674,7 @@ syncSearchUI();
     document.body.classList.add('viewing', 'orbit-viewing');
     document.body.classList.remove('artwork-only');
     orbitCard.getBoundingClientRect();
+    startIframeSync();
     animateGeometry(
       { left: homeRect.left, top: homeRect.top, width: homeRect.width, padding: 8 },
       normalTarget,
@@ -656,6 +689,10 @@ syncSearchUI();
   const close = () => {
     if (state === 'closed' || state === 'closing') return;
     const currentRect = orbitCard.getBoundingClientRect();
+    const title = orbitCard.querySelector('.card-title');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ms = reduced ? 1 : 460;
+    const titleAnimation = title ? title.animate([{ fontSize: getComputedStyle(title).fontSize }, { fontSize: '13px' }], { duration: ms, easing, fill: 'both' }) : null;
     if (animation) { animation.cancel(); animation = null; }
     state = 'closing';
     expanded = false;
@@ -663,15 +700,22 @@ syncSearchUI();
     document.body.classList.add('view-closing', 'orbit-view-closing');
     document.body.classList.remove('orbit-viewing');
     orbitCard.classList.add('is-closing');
+    orbitCard.classList.remove('is-artwork-expanded');
     const from = { left: currentRect.left, top: currentRect.top, width: currentRect.width, height: currentRect.height, padding: 12 };
     const to = { left: homeRect.left, top: homeRect.top, width: homeRect.width, height: homeRect.height, padding: 8 };
     orbitCard.style.left = currentRect.left + 'px';
     orbitCard.style.top = currentRect.top + 'px';
     orbitCard.style.width = currentRect.width + 'px';
+    orbitCard.style.height = currentRect.height + 'px';
     orbitCard.style.padding = '12px';
+    startIframeSync();
     animateGeometry(from, to, () => {
+      orbitCard.classList.remove('is-title-expanded');
+      if (titleAnimation) titleAnimation.cancel();
+      stopIframeSync();
       ['position','left','top','width','height','padding','margin','transition'].forEach(name => orbitCard.style.removeProperty(name));
       orbitCard.classList.remove('is-open','is-title-expanded','is-closing','is-orbit-open','is-artwork-expanded');
+      restoreIframe();
       document.body.classList.remove('viewing','view-closing','orbit-viewing','orbit-view-closing','artwork-only');
       orbitPanel.setAttribute('aria-hidden', 'true');
       state = 'closed';
@@ -744,11 +788,12 @@ syncSearchUI();
     if (expanded) {
       const width = Math.max(220, innerWidth - 36);
       const height = Math.max(180, innerHeight - 36);
-      setGeometry({ left: Math.round((innerWidth - width) / 2), top: 18, width, padding: 12 });
-      orbitCard.style.height = height + 'px';
+      setGeometry({ left: Math.round((innerWidth - width) / 2), top: 18, width, height, padding: 12 });
+      syncIframeScale();
     } else {
       normalTarget = measureTarget();
       setGeometry(normalTarget);
+      syncIframeScale();
     }
   });
   orbitPanel.addEventListener('click', event => {
