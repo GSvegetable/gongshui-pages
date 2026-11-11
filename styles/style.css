@@ -530,20 +530,21 @@ body.orbit-view-closing .detail-content { opacity: 0 !important; visibility: hid
 .preview-card.is-open .card-title { transition: none; }
 
 
-/* 2.7.0 — Explicit three-layer choreography for Lighthouse close.
-   Layer 20: page dimmer. Layer 22: sibling Orbit card. Layer 23: returning
-   Lighthouse card. Avoid equal z-index ties with the fixed body pseudo-element. */
+/* 2.8.0 — Reveal the sibling Orbit card ABOVE the shrinking Lighthouse.
+   The returning Lighthouse card is opaque; placing Orbit beneath it means
+   Orbit stays physically covered until Lighthouse has nearly returned home.
+   Layer 20: page dimmer. Layer 22: returning Lighthouse. Layer 23: Orbit. */
 @keyframes lighthouse-orbit-reveal {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+body.lighthouse-closing #lighthouse-card.is-closing {
+  z-index: 22;
+}
 body.lighthouse-closing #pixel-orbit-card {
   position: relative;
-  z-index: 22;
-  animation: lighthouse-orbit-reveal 460ms linear both;
-}
-body.lighthouse-closing #lighthouse-card.is-closing {
   z-index: 23;
+  animation: lighthouse-orbit-reveal 460ms linear both;
 }
 body.lighthouse-closing::before {
   opacity: 0;
