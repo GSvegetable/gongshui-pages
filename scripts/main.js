@@ -423,12 +423,12 @@ syncSearchUI();
   };
 
   const shut = () => {
-    if (mode !== 'open') return;
+    if (mode !== 'open' && mode !== 'opening') return;
 
-    // Cancel an in-flight expand/restore animation, then FLIP the card from
-    // its actual on-screen rectangle back to the exact grid position captured
-    // when it was opened. Keep the backdrop in place until the card lands so
-    // the page never flashes through a fully-transparent card.
+    // Snapshot the visible rectangle before cancelling an in-flight animation.
+    // Reapply it as inline geometry so closing starts exactly where the user
+    // sees the card, including when they press X during an expand/open motion.
+    const currentRect = card.getBoundingClientRect();
     if (activeAnimation) {
       activeAnimation.cancel();
       activeAnimation = null;
@@ -436,7 +436,6 @@ syncSearchUI();
     if (embedFrame) cancelAnimationFrame(embedFrame);
     embedFrame = 0;
 
-    const currentRect = card.getBoundingClientRect();
     const from = {
       left: currentRect.left,
       top: currentRect.top,
@@ -444,6 +443,7 @@ syncSearchUI();
       height: currentRect.height,
       padding: 12
     };
+    setGeometry(from);
     const to = {
       left: origin.left,
       top: origin.top,
