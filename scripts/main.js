@@ -8,7 +8,7 @@ const AppState = {
   activeWorkId: 'pixel-daylight-switch',
   works: [
     { id: 'pixel-daylight-switch', title: '海边灯塔', cardId: 'lighthouse-card' },
-    { id: 'pixel-orbit', title: 'Pixel Orbit · 像素圆环', cardId: 'pixel-orbit-card' }
+    { id: 'pixel-orbit', title: '像素圆环', cardId: 'pixel-orbit-card' }
   ]
 };
 
@@ -413,109 +413,39 @@ syncSearchUI();
 
   const shut = () => {
     if (mode !== 'open' && mode !== 'opening') return;
-    const wasArtworkExpanded = artworkExpanded;
     const currentRect = card.getBoundingClientRect();
-    const mount = previewMount, cardInfo = card.querySelector('.card-info');
-    const visibleMountRect = mount.getBoundingClientRect();
-    const visibleInfoRect = cardInfo ? cardInfo.getBoundingClientRect() : null;
-    const visibleInfoOpacity = cardInfo ? Number.parseFloat(getComputedStyle(cardInfo).opacity) : 1;
-    const detailStart = !wasArtworkExpanded ? {
-      transform: getComputedStyle(detailPanel).transform,
-      opacity: Number(getComputedStyle(detailPanel).opacity)
-    } : null;
-    const originalInfoTransition = cardInfo ? cardInfo.style.transition : '';
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = reduced ? 1 : 460;
+    const title = card.querySelector('.card-title');
+    const titleAnimation = title ? title.animate(
+      [{ fontSize: getComputedStyle(title).fontSize }, { fontSize: '13px' }],
+      { duration, easing: 'cubic-bezier(.22,.8,.2,1)', fill: 'both' }
+    ) : null;
     if (activeAnimation) { activeAnimation.cancel(); activeAnimation = null; }
     if (embedFrame) cancelAnimationFrame(embedFrame);
     embedFrame = 0;
-
-    Object.assign(card.style, {
-      position:'fixed',left:currentRect.left+'px',top:currentRect.top+'px',
-      width:currentRect.width+'px',height:currentRect.height+'px',
-      padding:'12px',margin:'0',transition:'none'
-    });
-    const dx=origin.left-currentRect.left,dy=origin.top-currentRect.top;
-    const psx=origin.width/Math.max(1,currentRect.width),psy=origin.height/Math.max(1,currentRect.height);
-    const easing='cubic-bezier(.22,.8,.2,1)',reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,duration=reduced?1:460;
-    mode='closing';
+    mode = 'closing';
+    artworkExpanded = false;
     document.body.classList.add('view-closing');
-    document.body.classList.remove('artwork-only');
-    if(wasArtworkExpanded)document.body.classList.add('closing-from-artwork');
+    document.body.classList.remove('artwork-only', 'closing-from-artwork');
     card.classList.add('is-closing');
-    if (cardInfo) cardInfo.style.transition = 'none';
-    card.classList.remove('is-artwork-expanded','is-title-expanded');
+    card.classList.remove('is-artwork-expanded');
     setExpandControl(false);
-
-    const baseMountRect=mount.getBoundingClientRect();
-    const baseInfoRect=cardInfo?cardInfo.getBoundingClientRect():null;
-    const childFrames=(visible,base,home)=>{
-      if(!visible||!base||!home||!base.width||!base.height)return null;
-      const start={x:visible.left-base.left,y:visible.top-base.top,sx:visible.width/base.width,sy:visible.height/base.height};
-      const end={
-        x:(home.left-origin.left)/psx-(base.left-currentRect.left),
-        y:(home.top-origin.top)/psy-(base.top-currentRect.top),
-        sx:home.width/(base.width*psx),sy:home.height/(base.height*psy)
-      };
-      const frame=v=>({transform:'translate3d('+v.x+'px,'+v.y+'px,0) scale('+v.sx+','+v.sy+')',transformOrigin:'top left'});
-      return [frame(start),frame(end)];
-    };
-    const mf=childFrames(visibleMountRect,baseMountRect,originMountRect);
-    const inf=childFrames(visibleInfoRect,baseInfoRect,originInfoRect);
-    const mt=mount.style.transform,mo=mount.style.transformOrigin;
-    const it=cardInfo?cardInfo.style.transform:'',io=cardInfo?cardInfo.style.transformOrigin:'';
-
-    const ca=card.animate([
-      {transform:'translate3d(0,0,0) scale(1,1)',transformOrigin:'top left',boxShadow:getComputedStyle(card).boxShadow},
-      {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+psx+','+psy+')',transformOrigin:'top left',boxShadow:'8px 8px 0 rgba(0,0,0,.68), 0 18px 42px rgba(0,0,0,.18)'}
-    ],{duration,easing,fill:'both'});
-    const ma=mf?mount.animate(mf,{duration,easing,fill:'both'}):null;
-    const ia=cardInfo&&inf?cardInfo.animate([{...inf[0],opacity:visibleInfoOpacity},{...inf[1],opacity:1}],{duration,easing,fill:'both'}):null;
-    let da=null;
-    if(detailStart)da=detailPanel.animate([
-      detailStart,
-      {transform:'translateY(100%)',opacity:0}
-    ],{duration:reduced?1:280,easing,fill:'both'});
-
-    activeAnimation=ca;
-    // The mount itself is independently FLIP-transformed during the return.
-    // Do not also resize the embedded renderer from its transformed bounding
-    // box on every frame: that compounds the parent and child scales, making
-    // the black frame and the lighthouse artwork drift out of sync.
-    syncEmbedScale(getEmbedWrapper());
-    const pending=[ca.finished];if(ma)pending.push(ma.finished);if(ia)pending.push(ia.finished);if(da)pending.push(da.finished);
-    Promise.all(pending).then(()=>{
-      if(activeAnimation!==ca)return;
-      if(embedFrame)cancelAnimationFrame(embedFrame);
-      embedFrame=0;
-      activeAnimation=null;
-
-      // 1. 先彻底取消所有动画
-      ca.cancel();if(ma)ma.cancel();if(ia)ia.cancel();if(da)da.cancel();
-
-      // 2. 清理外层临时样式
-      card.style.boxShadow='8px 8px 0 rgba(0,0,0,.68), 0 18px 42px rgba(0,0,0,.18)';
-      mount.style.transform=mt;mount.style.transformOrigin=mo;
-      if(cardInfo){
-        cardInfo.style.transform=it;
-        cardInfo.style.transformOrigin=io;
-        cardInfo.style.transition=originalInfoTransition;
-      }
-
-      // 3. 清理类名，恢复文档流
+    const from = { left: currentRect.left, top: currentRect.top, width: currentRect.width, height: currentRect.height, padding: Number.parseFloat(getComputedStyle(card).paddingLeft) || 12 };
+    const to = { left: origin.left, top: origin.top, width: origin.width, height: origin.height, padding: 8 };
+    runGeometryAnimation(from, to, () => {
+      card.classList.remove('is-title-expanded');
+      if (titleAnimation) titleAnimation.cancel();
       cleanUp();
-
-      // 4. 直接还原内部 iframe 的初始样式，让 CSS 接管大小，消除一切计算误差和闪烁
       const embedWrapper = getEmbedWrapper();
       if (embedWrapper && embedVisualState) {
         embedVisualState.styles.forEach(([name, value, priority]) => {
           if (value) embedWrapper.style.setProperty(name, value, priority);
           else embedWrapper.style.removeProperty(name);
         });
-        // 5. 重置状态，下次点开时重新计算
         embedVisualState = null;
       }
-
-      document.body.classList.remove('closing-from-artwork');
-    }).catch(()=>{});
+    });
   };
 
   card.addEventListener('click', event => {
@@ -645,6 +575,8 @@ syncSearchUI();
   let homeRect = null;
   let normalTarget = null;
   let expanded = false;
+  let iframeState = null;
+  let iframeFrame = 0;
 
   const measureTarget = () => {
     if (matchMedia('(max-width: 600px)').matches) {
@@ -659,6 +591,35 @@ syncSearchUI();
     };
   };
 
+  const getIframe = () => orbitCard.querySelector('iframe');
+  const freezeIframe = () => {
+    const frame = getIframe();
+    if (!frame || iframeState) return;
+    const width = frame.offsetWidth, height = frame.offsetHeight;
+    if (!width || !height) return;
+    iframeState = { width, height, styles: ['width','height','transform','transform-origin'].map(name => [name, frame.style.getPropertyValue(name), frame.style.getPropertyPriority(name)]) };
+    frame.style.setProperty('width', width + 'px', 'important');
+    frame.style.setProperty('height', height + 'px', 'important');
+    frame.style.setProperty('transform-origin', 'top left', 'important');
+  };
+  const syncIframeScale = () => {
+    const frame = getIframe(), mount = orbitCard.querySelector('.orbit-preview-mount');
+    if (!frame || !mount || !iframeState) return;
+    const rect = mount.getBoundingClientRect();
+    frame.style.setProperty('transform', 'scale(' + Math.min(rect.width / iframeState.width, rect.height / iframeState.height) + ')', 'important');
+  };
+  const startIframeSync = () => {
+    if (iframeFrame) cancelAnimationFrame(iframeFrame);
+    const tick = () => { if (!iframeState || state === 'closed') return; syncIframeScale(); iframeFrame = requestAnimationFrame(tick); };
+    iframeFrame = requestAnimationFrame(tick);
+  };
+  const stopIframeSync = () => { if (iframeFrame) cancelAnimationFrame(iframeFrame); iframeFrame = 0; syncIframeScale(); };
+  const restoreIframe = () => {
+    const frame = getIframe();
+    if (!frame || !iframeState) return;
+    iframeState.styles.forEach(([name,value,priority]) => { if (value) frame.style.setProperty(name,value,priority); else frame.style.removeProperty(name); });
+    iframeState = null;
+  };
   const setGeometry = box => {
     orbitCard.style.left = box.left + 'px';
     orbitCard.style.top = box.top + 'px';
@@ -696,6 +657,7 @@ syncSearchUI();
     if (state !== 'closed') return;
     homeRect = orbitCard.getBoundingClientRect();
     normalTarget = measureTarget();
+    freezeIframe();
     AppState.activeWorkId = orbitCard.dataset.id;
     state = 'opening';
     expanded = false;
@@ -712,6 +674,7 @@ syncSearchUI();
     document.body.classList.add('viewing', 'orbit-viewing');
     document.body.classList.remove('artwork-only');
     orbitCard.getBoundingClientRect();
+    startIframeSync();
     animateGeometry(
       { left: homeRect.left, top: homeRect.top, width: homeRect.width, padding: 8 },
       normalTarget,
@@ -726,6 +689,10 @@ syncSearchUI();
   const close = () => {
     if (state === 'closed' || state === 'closing') return;
     const currentRect = orbitCard.getBoundingClientRect();
+    const title = orbitCard.querySelector('.card-title');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ms = reduced ? 1 : 460;
+    const titleAnimation = title ? title.animate([{ fontSize: getComputedStyle(title).fontSize }, { fontSize: '13px' }], { duration: ms, easing, fill: 'both' }) : null;
     if (animation) { animation.cancel(); animation = null; }
     state = 'closing';
     expanded = false;
@@ -733,15 +700,22 @@ syncSearchUI();
     document.body.classList.add('view-closing', 'orbit-view-closing');
     document.body.classList.remove('orbit-viewing');
     orbitCard.classList.add('is-closing');
+    orbitCard.classList.remove('is-artwork-expanded');
     const from = { left: currentRect.left, top: currentRect.top, width: currentRect.width, height: currentRect.height, padding: 12 };
     const to = { left: homeRect.left, top: homeRect.top, width: homeRect.width, height: homeRect.height, padding: 8 };
     orbitCard.style.left = currentRect.left + 'px';
     orbitCard.style.top = currentRect.top + 'px';
     orbitCard.style.width = currentRect.width + 'px';
+    orbitCard.style.height = currentRect.height + 'px';
     orbitCard.style.padding = '12px';
+    startIframeSync();
     animateGeometry(from, to, () => {
+      orbitCard.classList.remove('is-title-expanded');
+      if (titleAnimation) titleAnimation.cancel();
+      stopIframeSync();
       ['position','left','top','width','height','padding','margin','transition'].forEach(name => orbitCard.style.removeProperty(name));
       orbitCard.classList.remove('is-open','is-title-expanded','is-closing','is-orbit-open','is-artwork-expanded');
+      restoreIframe();
       document.body.classList.remove('viewing','view-closing','orbit-viewing','orbit-view-closing','artwork-only');
       orbitPanel.setAttribute('aria-hidden', 'true');
       state = 'closed';
@@ -814,11 +788,12 @@ syncSearchUI();
     if (expanded) {
       const width = Math.max(220, innerWidth - 36);
       const height = Math.max(180, innerHeight - 36);
-      setGeometry({ left: Math.round((innerWidth - width) / 2), top: 18, width, padding: 12 });
-      orbitCard.style.height = height + 'px';
+      setGeometry({ left: Math.round((innerWidth - width) / 2), top: 18, width, height, padding: 12 });
+      syncIframeScale();
     } else {
       normalTarget = measureTarget();
       setGeometry(normalTarget);
+      syncIframeScale();
     }
   });
   orbitPanel.addEventListener('click', event => {
