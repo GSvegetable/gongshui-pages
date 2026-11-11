@@ -174,6 +174,13 @@ main { padding: 94px 24px 48px; }
   width: 100%;
 }
 .preview-card.hidden { display: none !important; }
+
+/* 新增：占位符，防止卡片 fixed 时网格塌陷 */
+.preview-card-placeholder {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .preview-mount {
   position: relative;
   width: 100%;
