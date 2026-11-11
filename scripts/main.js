@@ -328,18 +328,19 @@ syncSearchUI();
     if (embedWrapper) ensureEmbedVisualState(embedWrapper);
     if (embedVisualState && previewMount && embedWrapper) syncEmbedVisualLoop(animation);
 
-    const stopEmbedVisualSync = () => {
-      if (embedFrame) cancelAnimationFrame(embedFrame);
-      embedFrame = 0;
-      syncEmbedScale(embedWrapper);
-    };
-
     animation.finished.then(() => {
       if (activeAnimation !== animation) return;
-      setGeometry(to);
+      
+      // 强制同步布局并修正尺寸微调抖动
       animation.cancel();
+      setGeometry(to);
+      card.getBoundingClientRect();
+      
+      if (embedFrame) cancelAnimationFrame(embedFrame);
+      embedFrame = 0;
+      syncEmbedScale(getEmbedWrapper());
+      
       activeAnimation = null;
-      stopEmbedVisualSync();
       onFinish();
     }).catch(() => {});
   };
@@ -647,9 +648,14 @@ syncSearchUI();
     animation = current;
     current.finished.then(() => {
       if (animation !== current) return;
+      
+      // 强制同步布局并修正尺寸微调抖动
       current.cancel();
       animation = null;
       setGeometry(to);
+      orbitCard.getBoundingClientRect();
+      
+      stopIframeSync();
       finish?.();
     }).catch(() => {});
   };
