@@ -375,6 +375,7 @@ syncSearchUI();
   const open = () => {
     if (mode !== 'closed') return;
     AppState.activeWorkId = card.dataset.id;
+    updateBookmarkBtn();
     origin = card.getBoundingClientRect();
     originMountRect = previewMount.getBoundingClientRect();
     const cardInfo = card.querySelector('.card-info');
@@ -663,15 +664,19 @@ syncSearchUI();
     orbitCard.style.top = box.top + 'px';
     orbitCard.style.width = box.width + 'px';
     orbitCard.style.padding = box.padding + 'px';
-    orbitCard.style.removeProperty('height');
+    if (box.height == null) orbitCard.style.removeProperty('height');
+    else orbitCard.style.height = box.height + 'px';
   };
 
   const animateGeometry = (from, to, finish) => {
     if (animation) animation.cancel();
-    const frames = [
-      { left: from.left + 'px', top: from.top + 'px', width: from.width + 'px', padding: from.padding + 'px' },
-      { left: to.left + 'px', top: to.top + 'px', width: to.width + 'px', padding: to.padding + 'px' }
-    ];
+    const fromFrame = { left: from.left + 'px', top: from.top + 'px', width: from.width + 'px', padding: from.padding + 'px' };
+    const toFrame = { left: to.left + 'px', top: to.top + 'px', width: to.width + 'px', padding: to.padding + 'px' };
+    if (from.height != null && to.height != null) {
+      fromFrame.height = from.height + 'px';
+      toFrame.height = to.height + 'px';
+    }
+    const frames = [fromFrame, toFrame];
     const current = orbitCard.animate(frames, { duration: duration(), easing, fill: 'both' });
     animation = current;
     current.finished.then(() => {
@@ -728,8 +733,8 @@ syncSearchUI();
     document.body.classList.add('view-closing', 'orbit-view-closing');
     document.body.classList.remove('orbit-viewing');
     orbitCard.classList.remove('is-artwork-expanded');
-    const from = { left: currentRect.left, top: currentRect.top, width: currentRect.width, padding: 12 };
-    const to = { left: homeRect.left, top: homeRect.top, width: homeRect.width, padding: 8 };
+    const from = { left: currentRect.left, top: currentRect.top, width: currentRect.width, height: currentRect.height, padding: 12 };
+    const to = { left: homeRect.left, top: homeRect.top, width: homeRect.width, height: homeRect.height, padding: 8 };
     orbitCard.style.left = currentRect.left + 'px';
     orbitCard.style.top = currentRect.top + 'px';
     orbitCard.style.width = currentRect.width + 'px';
