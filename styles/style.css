@@ -530,19 +530,20 @@ body.orbit-view-closing .detail-content { opacity: 0 !important; visibility: hid
 .preview-card.is-open .card-title { transition: none; }
 
 
-/* 2.6.0 — Reveal Pixel Orbit during the Lighthouse return.
-   The page mask is z-index:20 and the returning Lighthouse is z-index:21.
-   Put only the Orbit sibling at the mask's stacking level: because it occurs
-   later in the document, it paints above the mask but remains below Lighthouse.
-   Fade Orbit itself in over the same 460ms so it is visible throughout the return. */
+/* 2.7.0 — Explicit three-layer choreography for Lighthouse close.
+   Layer 20: page dimmer. Layer 22: sibling Orbit card. Layer 23: returning
+   Lighthouse card. Avoid equal z-index ties with the fixed body pseudo-element. */
 @keyframes lighthouse-orbit-reveal {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 body.lighthouse-closing #pixel-orbit-card {
   position: relative;
-  z-index: 20;
+  z-index: 22;
   animation: lighthouse-orbit-reveal 460ms linear both;
+}
+body.lighthouse-closing #lighthouse-card.is-closing {
+  z-index: 23;
 }
 body.lighthouse-closing::before {
   opacity: 0;
