@@ -4,12 +4,17 @@
 
 ## 在线体验
 
-- GitHub Pages：部署完成后可通过仓库的 Pages 地址访问。
-- 正式域名：宫水.com（待 Pages 部署验证后绑定）。
+- GitHub Pages：由 GitHub Pages 自动部署。
+- 正式域名：宫水.com。
 
 ## 当前收录
 
-- **Pixel Daylight Switch**：可交互的像素昼夜开关，包含场景切换、作品详情与外部演示入口。
+- **海边灯塔 / Pixel Daylight Switch**：像素昼夜开关作品，支持场景切换、触控交互和独立详情介绍。
+- **Pixel Orbit**：像素圆环昼夜互动作品，支持圆环拖动、时间滑块与场景预设。
+
+## 展示交互规范
+
+所有作品共用同一套作品卡片、黑色预览边框、详情面板、打开/关闭动画和浮动操作按钮。桌面端采用左侧作品展示、右侧详情面板；移动端沿用海边灯塔的侧边详情布局。每个作品仍保留自己的渲染器和内部交互。
 
 ## 本地预览
 
@@ -21,15 +26,16 @@
 .
 ├── index.html
 ├── styles/
-│   └── style.css
+│   ├── style.css
+│   └── motion.css
 ├── scripts/
 │   └── main.js
 └── README.md
 ```
 
-## 依赖说明
+## 外部作品依赖
 
-像素昼夜开关的嵌入预览与场景缩略图由独立项目提供：
-- https://github.com/GSvegetable/pixel-daylight-switch
+- Pixel Daylight Switch：<https://github.com/GSvegetable/pixel-daylight-switch>
+- Pixel Orbit：<https://github.com/GSvegetable/-pixel-orbit>
 
-本仓库只存放网站展示层文件；独立作品的源码与演示资源仍由其原仓库维护。
+展示站只负责作品索引、预览与详情交互；各作品源码和渲染逻辑由对应独立仓库维护。
