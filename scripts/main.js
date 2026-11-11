@@ -31,7 +31,7 @@ const galleryCards = AppState.works.map(work => document.getElementById(work.car
 const emptyState = document.getElementById('empty-state');
 const emptyDesc = document.getElementById('empty-desc');
 const searchInput = document.getElementById('search-input');
-const searchWrapper = document.getElementById('search-wrapper'); // 获取搜索框外层
+const searchWrapper = document.getElementById('search-wrapper');
 
 const renderGallery = () => {
   let visibleCount = 0;
@@ -149,6 +149,7 @@ syncSearchUI();
   let artworkReturnHeight = 0;
   let embedFrame = 0;
   let embedVisualState = null;
+  let placeholder = null;
 
   const previewMount = card.querySelector('.preview-mount');
   const getEmbedWrapper = () => previewMount ? previewMount.querySelector('.pds-embed') : null;
@@ -357,6 +358,13 @@ syncSearchUI();
       activeAnimation.cancel();
       activeAnimation = null;
     }
+
+    // 移除占位符
+    if (placeholder) {
+      placeholder.remove();
+      placeholder = null;
+    }
+
     ['position', 'left', 'top', 'width', 'height', 'padding', 'margin', 'transition', 'opacity', 'box-shadow']
       .forEach(prop => card.style.removeProperty(prop));
     card.classList.remove('is-open', 'details-ready', 'is-title-expanded', 'is-closing');
@@ -381,6 +389,13 @@ syncSearchUI();
     card.classList.remove('is-artwork-expanded');
     setExpandControl(false);
     mode = 'opening';
+
+    // 插入占位符，防止卡片 fixed 后网格塌陷重排
+    placeholder = document.createElement('div');
+    placeholder.className = 'preview-card-placeholder';
+    placeholder.style.width = origin.width + 'px';
+    placeholder.style.height = origin.height + 'px';
+    card.parentNode.insertBefore(placeholder, card);
 
     card.style.position = 'fixed';
     card.style.left = origin.left + 'px';
@@ -572,6 +587,7 @@ syncSearchUI();
   let expanded = false;
   let iframeState = null;
   let iframeFrame = 0;
+  let placeholder = null;
 
   const measureTarget = () => {
     if (matchMedia('(max-width: 600px)').matches) {
@@ -653,6 +669,14 @@ syncSearchUI();
     homeRect = orbitCard.getBoundingClientRect();
     normalTarget = measureTarget();
     freezeIframe();
+
+    // 插入占位符
+    placeholder = document.createElement('div');
+    placeholder.className = 'preview-card-placeholder';
+    placeholder.style.width = homeRect.width + 'px';
+    placeholder.style.height = homeRect.height + 'px';
+    orbitCard.parentNode.insertBefore(placeholder, orbitCard);
+
     AppState.activeWorkId = orbitCard.dataset.id;
     state = 'opening';
     expanded = false;
@@ -708,6 +732,13 @@ syncSearchUI();
       orbitCard.classList.remove('is-title-expanded');
       if (titleAnimation) titleAnimation.cancel();
       stopIframeSync();
+
+      // 移除占位符
+      if (placeholder) {
+        placeholder.remove();
+        placeholder = null;
+      }
+
       ['position','left','top','width','height','padding','margin','transition'].forEach(name => orbitCard.style.removeProperty(name));
       orbitCard.classList.remove('is-open','is-title-expanded','is-closing','is-orbit-open','is-artwork-expanded');
       restoreIframe();
