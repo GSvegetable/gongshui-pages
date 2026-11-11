@@ -8,7 +8,9 @@ body::before {
 
 body.viewing .detail-content,
 body.artwork-only .detail-content,
-body.view-closing .detail-content {
+body.view-closing .detail-content,
+body.orbit-viewing .orbit-detail-content,
+body.artwork-only .orbit-detail-content {
   will-change: transform, opacity;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
@@ -36,6 +38,7 @@ body.view-closing .detail-content {
 @media (prefers-reduced-motion: reduce) {
   body::before,
   .detail-content,
+  .orbit-detail-content,
   .card-info,
   .card-title,
   .preview-actions,
