@@ -459,11 +459,26 @@ syncSearchUI();
         fill: 'forwards'
       }
     );
+    // Animate the information panel explicitly as well. This avoids relying on
+    // overlapping body-state CSS transitions during the close sequence.
+    const detailStyle = window.getComputedStyle(detailPanel);
+    const detailAnimation = detailPanel.animate(
+      [
+        { transform: detailStyle.transform === 'none' ? 'translateY(0)' : detailStyle.transform, opacity: detailStyle.opacity },
+        { transform: 'translateY(100%)', opacity: 0 }
+      ],
+      {
+        duration: reduced ? 1 : 280,
+        easing: 'cubic-bezier(.22,.8,.2,1)',
+        fill: 'forwards'
+      }
+    );
     activeAnimation = closeAnimation;
-    closeAnimation.finished.then(() => {
+    Promise.all([closeAnimation.finished, detailAnimation.finished]).then(() => {
       if (activeAnimation !== closeAnimation) return;
       activeAnimation = null;
       closeAnimation.cancel();
+      detailAnimation.cancel();
       cleanUp();
     }).catch(() => {});
   };
