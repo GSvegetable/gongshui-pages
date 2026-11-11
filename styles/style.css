@@ -530,10 +530,20 @@ body.orbit-view-closing .detail-content { opacity: 0 !important; visibility: hid
 .preview-card.is-open .card-title { transition: none; }
 
 
-/* 2.5.0 — Lighthouse close choreography.
-   Start the detail panel, action rail, and gallery reveal on the same frame
-   as the 460ms card return. Keep the sibling behind the dimming mask so it
-   brightens in place instead of jumping above the returning card. */
+/* 2.6.0 — Reveal Pixel Orbit during the Lighthouse return.
+   The page mask is z-index:20 and the returning Lighthouse is z-index:21.
+   Put only the Orbit sibling at the mask's stacking level: because it occurs
+   later in the document, it paints above the mask but remains below Lighthouse.
+   Fade Orbit itself in over the same 460ms so it is visible throughout the return. */
+@keyframes lighthouse-orbit-reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+body.lighthouse-closing #pixel-orbit-card {
+  position: relative;
+  z-index: 20;
+  animation: lighthouse-orbit-reveal 460ms linear both;
+}
 body.lighthouse-closing::before {
   opacity: 0;
   transition: opacity 460ms linear;
