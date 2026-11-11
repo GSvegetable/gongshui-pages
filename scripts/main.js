@@ -365,7 +365,7 @@ syncSearchUI();
       activeAnimation.cancel();
       activeAnimation = null;
     }
-    ['position', 'left', 'top', 'width', 'height', 'padding', 'margin', 'transition', 'opacity']
+    ['position', 'left', 'top', 'width', 'height', 'padding', 'margin', 'transition', 'opacity', 'box-shadow']
       .forEach(prop => card.style.removeProperty(prop));
     card.classList.remove('is-open', 'details-ready', 'is-title-expanded', 'is-closing');
     document.body.classList.remove('viewing', 'view-closing', 'closing-from-artwork');
@@ -419,6 +419,11 @@ syncSearchUI();
     const visibleMountRect = mount.getBoundingClientRect();
     const visibleInfoRect = cardInfo ? cardInfo.getBoundingClientRect() : null;
     const visibleInfoOpacity = cardInfo ? Number.parseFloat(getComputedStyle(cardInfo).opacity) : 1;
+    const detailStart = !wasArtworkExpanded ? {
+      transform: getComputedStyle(detailPanel).transform,
+      opacity: Number(getComputedStyle(detailPanel).opacity)
+    } : null;
+    const originalInfoTransition = cardInfo ? cardInfo.style.transition : '';
     if (activeAnimation) { activeAnimation.cancel(); activeAnimation = null; }
     if (embedFrame) cancelAnimationFrame(embedFrame);
     embedFrame = 0;
@@ -436,6 +441,7 @@ syncSearchUI();
     document.body.classList.remove('artwork-only');
     if(wasArtworkExpanded)document.body.classList.add('closing-from-artwork');
     card.classList.add('is-closing');
+    if (cardInfo) cardInfo.style.transition = 'none';
     card.classList.remove('is-artwork-expanded','is-title-expanded');
     setExpandControl(false);
 
@@ -464,8 +470,8 @@ syncSearchUI();
     const ma=mf?mount.animate(mf,{duration,easing,fill:'both'}):null;
     const ia=cardInfo&&inf?cardInfo.animate([{...inf[0],opacity:visibleInfoOpacity},{...inf[1],opacity:1}],{duration,easing,fill:'both'}):null;
     let da=null;
-    if(!wasArtworkExpanded)da=detailPanel.animate([
-      {transform:getComputedStyle(detailPanel).transform,opacity:Number(getComputedStyle(detailPanel).opacity)},
+    if(detailStart)da=detailPanel.animate([
+      detailStart,
       {transform:'translateY(100%)',opacity:0}
     ],{duration:reduced?1:280,easing,fill:'both'});
 
@@ -476,9 +482,14 @@ syncSearchUI();
       if(activeAnimation!==ca)return;
       if(embedFrame)cancelAnimationFrame(embedFrame);
       embedFrame=0;syncEmbedScale(getEmbedWrapper());activeAnimation=null;
+      card.style.boxShadow='8px 8px 0 rgba(0,0,0,.68), 0 18px 42px rgba(0,0,0,.18)';
       ca.cancel();if(ma)ma.cancel();if(ia)ia.cancel();if(da)da.cancel();
       mount.style.transform=mt;mount.style.transformOrigin=mo;
-      if(cardInfo){cardInfo.style.transform=it;cardInfo.style.transformOrigin=io;}
+      if(cardInfo){
+        cardInfo.style.transform=it;
+        cardInfo.style.transformOrigin=io;
+        cardInfo.style.transition=originalInfoTransition;
+      }
       cleanUp();document.body.classList.remove('closing-from-artwork');
     }).catch(()=>{});
   };
