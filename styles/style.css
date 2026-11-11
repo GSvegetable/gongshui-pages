@@ -367,7 +367,8 @@ body.view-closing #mario-nav {
 }
 .preview-card.is-open {
   z-index:21; isolation:isolate; cursor:default; padding:12px;
-  overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,.9);
+  overflow-x:hidden; overflow-y:auto;
+  box-shadow:0 24px 80px rgba(0,0,0,.9);
 }
 .preview-card.is-open .card-info { cursor:default; }
 
@@ -530,17 +531,10 @@ body.orbit-view-closing .detail-content { opacity: 0 !important; visibility: hid
 .preview-card.is-open .card-title { transition: none; }
 
 
-/* Revert the 2.8.0 stacking experiment: keep the returning Lighthouse
-   above its sibling. The 2.8.0 order caused Orbit to cover the Lighthouse. */
-@keyframes lighthouse-orbit-reveal {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-body.lighthouse-closing #pixel-orbit-card {
-  position: relative;
-  z-index: 22;
-  animation: lighthouse-orbit-reveal 460ms linear both;
-}
+/* Close reveal: keep the sibling under the page mask so the mask's fade-out
+   is what reveals it. Only the returning Lighthouse card is lifted above the
+   mask while it shrinks back; no opacity animation on Orbit (that caused the
+   flash: it jumped above the mask and restarted from opacity 0). */
 body.lighthouse-closing #lighthouse-card.is-closing {
   z-index: 23;
 }
