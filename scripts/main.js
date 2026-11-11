@@ -165,9 +165,7 @@ syncSearchUI();
     
     if (index > -1) {
       AppState.bookmarks.splice(index, 1);
-      if (AppState.currentTab === 'bookmarks') {
-        setTimeout(() => renderGallery(), 300); 
-      }
+      if (AppState.currentTab === 'bookmarks' && !document.body.classList.contains('viewing')) renderGallery();
     } else {
       AppState.bookmarks.push(id);
       navBookmark.classList.add('active');
@@ -368,6 +366,7 @@ syncSearchUI();
     card.classList.remove('is-open', 'details-ready', 'is-title-expanded', 'is-closing');
     document.body.classList.remove('viewing', 'view-closing', 'closing-from-artwork');
     mode = 'closed';
+    if (AppState.currentTab === 'bookmarks') renderGallery();
     // Keep the canvas backing dimensions unchanged after returning home.
     card.focus({ preventScroll: true });
   };
@@ -746,6 +745,7 @@ syncSearchUI();
       orbitPanel.setAttribute('aria-hidden', 'true');
       state = 'closed';
       AppState.activeWorkId = 'pixel-daylight-switch';
+      if (AppState.currentTab === 'bookmarks') renderGallery();
       bookmarkButton.setAttribute('aria-pressed', String(AppState.bookmarks.includes('pixel-daylight-switch')));
       expandButton.setAttribute('aria-label', '放大作品展示区域');
       expandButton.setAttribute('aria-pressed', 'false');
