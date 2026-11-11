@@ -488,9 +488,10 @@ syncSearchUI();
       embedFrame=0;
       activeAnimation=null;
 
-      // 1. 先彻底取消所有动画和临时样式
+      // 1. 先彻底取消所有动画
       ca.cancel();if(ma)ma.cancel();if(ia)ia.cancel();if(da)da.cancel();
 
+      // 2. 清理外层临时样式
       card.style.boxShadow='8px 8px 0 rgba(0,0,0,.68), 0 18px 42px rgba(0,0,0,.18)';
       mount.style.transform=mt;mount.style.transformOrigin=mo;
       if(cardInfo){
@@ -499,14 +500,19 @@ syncSearchUI();
         cardInfo.style.transition=originalInfoTransition;
       }
 
-      // 2. 清理类名和临时布局（恢复成默认文档流状态）
+      // 3. 清理类名，恢复文档流
       cleanUp();
 
-      // 3. 强制浏览器进行一次同步重排，确保接下来能拿到真实的最终尺寸
-      card.getBoundingClientRect();
-
-      // 4. 此时再根据真实尺寸重新计算内部画面的比例
-      syncEmbedScale(getEmbedWrapper());
+      // 4. 直接还原内部 iframe 的初始样式，让 CSS 接管大小，消除一切计算误差和闪烁
+      const embedWrapper = getEmbedWrapper();
+      if (embedWrapper && embedVisualState) {
+        embedVisualState.styles.forEach(([name, value, priority]) => {
+          if (value) embedWrapper.style.setProperty(name, value, priority);
+          else embedWrapper.style.removeProperty(name);
+        });
+        // 5. 重置状态，下次点开时重新计算
+        embedVisualState = null;
+      }
 
       document.body.classList.remove('closing-from-artwork');
     }).catch(()=>{});
