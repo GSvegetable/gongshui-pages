@@ -530,25 +530,19 @@ body.orbit-view-closing .detail-content { opacity: 0 !important; visibility: hid
 .preview-card.is-open .card-title { transition: none; }
 
 
-/* 2.8.0 — Reveal the sibling Orbit card ABOVE the shrinking Lighthouse.
-   The returning Lighthouse card is opaque; placing Orbit beneath it means
-   Orbit stays physically covered until Lighthouse has nearly returned home.
-   Layer 20: page dimmer. Layer 22: returning Lighthouse. Layer 23: Orbit. */
+/* Revert the 2.8.0 stacking experiment: keep the returning Lighthouse
+   above its sibling. The 2.8.0 order caused Orbit to cover the Lighthouse. */
 @keyframes lighthouse-orbit-reveal {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-body.lighthouse-closing #lighthouse-card.is-closing {
-  z-index: 22;
-}
 body.lighthouse-closing #pixel-orbit-card {
   position: relative;
-  z-index: 23;
+  z-index: 22;
   animation: lighthouse-orbit-reveal 460ms linear both;
 }
-body.lighthouse-closing::before {
-  opacity: 0;
-  transition: opacity 460ms linear;
+body.lighthouse-closing #lighthouse-card.is-closing {
+  z-index: 23;
 }
 body.view-closing.lighthouse-closing:not(.artwork-only) .detail-content {
   opacity: 0;
