@@ -390,10 +390,10 @@ syncSearchUI();
     setExpandControl(false);
     mode = 'opening';
 
-    // 插入占位符，防止卡片 fixed 后网格塌陷重排
+    // 插入占位符，防止卡片 fixed 后网格塌陷重排。使用 100% 宽度自适应 Grid。
     placeholder = document.createElement('div');
     placeholder.className = 'preview-card-placeholder';
-    placeholder.style.width = origin.width + 'px';
+    placeholder.style.width = '100%';
     placeholder.style.height = origin.height + 'px';
     card.parentNode.insertBefore(placeholder, card);
 
@@ -670,10 +670,10 @@ syncSearchUI();
     normalTarget = measureTarget();
     freezeIframe();
 
-    // 插入占位符
+    // 插入占位符，使用 100% 宽度自适应 Grid
     placeholder = document.createElement('div');
     placeholder.className = 'preview-card-placeholder';
-    placeholder.style.width = homeRect.width + 'px';
+    placeholder.style.width = '100%';
     placeholder.style.height = homeRect.height + 'px';
     orbitCard.parentNode.insertBefore(placeholder, orbitCard);
 
