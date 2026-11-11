@@ -426,10 +426,17 @@ syncSearchUI();
   const shut = () => {
     if (mode !== 'open' && mode !== 'opening') return;
 
-    // Use a compositor-only FLIP transform for the return. Resizing the card
-    // also resizes/repaints the embedded canvas and can produce a black flash;
-    // scaling the already-rendered card keeps the artwork's pixels stable.
+    // Preserve which visual state is being closed. In artwork-only mode the
+    // detail panel is already hidden and must never be animated from visible.
+    const closingArtworkOnly = artworkExpanded;
     const currentRect = card.getBoundingClientRect();
+    const detailStart = closingArtworkOnly ? null : getComputedStyle(detailPanel);
+    const embedWrapper = getEmbedWrapper();
+    const embedStartTransform = embedWrapper ? getComputedStyle(embedWrapper).transform : null;
+    const embedOriginalTransform = embedVisualState
+      ? (embedVisualState.styles.find(([name]) => name === 'transform') || [null, ''])[1]
+      : '';
+
     if (activeAnimation) {
       activeAnimation.cancel();
       activeAnimation = null;
@@ -437,8 +444,7 @@ syncSearchUI();
     if (embedFrame) cancelAnimationFrame(embedFrame);
     embedFrame = 0;
 
-    // Freeze the exact visible rectangle before reversing. This also prevents
-    // a snap if close is pressed while the opening animation is still running.
+    // Lock the exact visible geometry before starting the reverse animation.
     card.style.position = 'fixed';
     card.style.left = currentRect.left + 'px';
     card.style.top = currentRect.top + 'px';
@@ -454,42 +460,64 @@ syncSearchUI();
     const sy = origin.height / Math.max(1, currentRect.height);
 
     mode = 'closing';
-    artworkExpanded = false;
-    document.body.classList.remove('artwork-only');
+    // Keep artwork-only applied until cleanup when closing the enlarged canvas.
+    // Otherwise the detail panel would become visible for a frame.
+    if (!closingArtworkOnly) document.body.classList.remove('artwork-only');
     document.body.classList.add('view-closing');
     setExpandControl(false);
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = reduced ? 1 : 460;
+    const easing = 'cubic-bezier(.22,.8,.2,1)';
     const closeAnimation = card.animate(
       [
         { transform: 'translate3d(0, 0, 0) scale(1, 1)', transformOrigin: 'top left' },
         { transform: 'translate3d(' + dx + 'px, ' + dy + 'px, 0) scale(' + sx + ', ' + sy + ')', transformOrigin: 'top left' }
       ],
-      {
-        duration: reduced ? 1 : 460,
-        easing: 'cubic-bezier(.22,.8,.2,1)',
-        fill: 'forwards'
-      }
+      { duration, easing, fill: 'forwards' }
     );
-    // Animate the information panel explicitly as well. This avoids relying on
-    // overlapping body-state CSS transitions during the close sequence.
-    const detailAnimation = detailPanel.animate(
-      [
-        { transform: 'translateY(0)', opacity: 1 },
-        { transform: 'translateY(100%)', opacity: 0 }
-      ],
-      {
-        duration: reduced ? 1 : 280,
-        easing: 'cubic-bezier(.22,.8,.2,1)',
-        fill: 'forwards'
-      }
-    );
+
+    // The embedded canvas has its own temporary scale while the card is open.
+    // Return that scale to its original value in parallel with the card so the
+    // final style restoration is visually identical to the home preview.
+    let embedReturnAnimation = null;
+    if (embedWrapper && embedVisualState && embedStartTransform) {
+      embedReturnAnimation = embedWrapper.animate(
+        [
+          { transform: embedStartTransform },
+          { transform: embedOriginalTransform || 'none' }
+        ],
+        { duration, easing, fill: 'forwards' }
+      );
+    }
+
+    // Only a normal detail view has a visible panel to animate out. Start from
+    // its actual computed state so closing during the opening transition does
+    // not jump from an assumed fully-open position.
+    let detailAnimation = null;
+    if (detailStart) {
+      detailAnimation = detailPanel.animate(
+        [
+          { transform: detailStart.transform, opacity: Number(detailStart.opacity) },
+          { transform: 'translateY(100%)', opacity: 0 }
+        ],
+        { duration: reduced ? 1 : 280, easing, fill: 'forwards' }
+      );
+    }
+
     activeAnimation = closeAnimation;
-    Promise.all([closeAnimation.finished, detailAnimation.finished]).then(() => {
+    const finished = [closeAnimation.finished];
+    if (embedReturnAnimation) finished.push(embedReturnAnimation.finished);
+    if (detailAnimation) finished.push(detailAnimation.finished);
+
+    Promise.all(finished).then(() => {
       if (activeAnimation !== closeAnimation) return;
+      if (embedFrame) cancelAnimationFrame(embedFrame);
+      embedFrame = 0;
       activeAnimation = null;
       closeAnimation.cancel();
-      detailAnimation.cancel();
+      if (embedReturnAnimation) embedReturnAnimation.cancel();
+      if (detailAnimation) detailAnimation.cancel();
       cleanUp();
     }).catch(() => {});
   };
