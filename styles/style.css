@@ -528,3 +528,31 @@ body.orbit-view-closing .detail-content { opacity: 0 !important; visibility: hid
 /* 2.3.0: reveal other works through the closing mask and keep titles
    under explicit animation control to avoid a post-close font-size snap. */
 .preview-card.is-open .card-title { transition: none; }
+
+
+/* 2.5.0 — Lighthouse close choreography.
+   Start the detail panel, action rail, and gallery reveal on the same frame
+   as the 460ms card return. Keep the sibling behind the dimming mask so it
+   brightens in place instead of jumping above the returning card. */
+body.lighthouse-closing::before {
+  opacity: 0;
+  transition: opacity 460ms linear;
+}
+body.lighthouse-closing .detail-content {
+  opacity: 0;
+  visibility: visible;
+  pointer-events: none;
+  transform: translateY(100%);
+  transition:
+    transform 460ms cubic-bezier(.22,.8,.2,1),
+    opacity 460ms linear;
+}
+body.lighthouse-closing .preview-actions {
+  opacity: 0;
+  visibility: visible;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition:
+    opacity 460ms linear,
+    transform 460ms cubic-bezier(.22,.8,.2,1);
+}
