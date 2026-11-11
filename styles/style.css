@@ -503,3 +503,6 @@ body.orbit-view-closing .orbit-detail-content {
   }
   .orbit-detail-copy > p:not(.orbit-detail-kicker):not(.orbit-detail-subtitle) { font-size: 13px; }
 }
+
+/* The shared body.viewing state must not reveal the Lighthouse copy for Orbit. */
+body.orbit-viewing .detail-content { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
