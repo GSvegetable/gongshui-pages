@@ -137,12 +137,21 @@ body.viewing::before {
 }
 .search-status.visible { opacity: 1; }
 body.viewing .top-bar,
-body.artwork-only .top-bar,
-body.view-closing .top-bar {
+body.artwork-only .top-bar {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   transform: translateY(-8px);
+}
+
+/* During the return, keep the search UI above the moving artwork. */
+body.view-closing .top-bar {
+  z-index: 30;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+  transition: none;
 }
 
 /* ---------- 页面基础布局 ---------- */
@@ -210,8 +219,8 @@ main { padding: 94px 24px 48px; }
   top: 24px; right: 28px;
   align-items: center; gap: 12px;
 }
-body.viewing .preview-actions { display: flex; }
-body.view-closing .preview-actions { display: none !important; }
+body.viewing .preview-actions,
+body.view-closing .preview-actions,
 body.artwork-only .preview-actions { display: flex; }
 
 .action-btn {
@@ -315,6 +324,15 @@ body.view-closing .detail-content {
 /* ---------- 状态切换类 ---------- */
 body.viewing { overflow:hidden; }
 body.viewing #mario-nav { visibility:hidden; opacity:0; pointer-events:none; }
+
+/* Keep the navigation blocks above the moving artwork during the return. */
+body.view-closing #mario-nav {
+  z-index: 31;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition: none;
+}
 .preview-card.is-open {
   z-index:21; isolation:isolate; cursor:default; padding:12px;
   overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,.9);
