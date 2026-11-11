@@ -452,3 +452,52 @@ body.view-closing #mario-nav {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+
+/* ---------- Pixel Orbit：统一作品卡片与详情展开 ---------- */
+.orbit-preview-card { cursor: zoom-in; }
+.orbit-preview-card .orbit-preview-mount {
+  aspect-ratio: 1.6439;
+  background: #f2e8d2;
+}
+.orbit-preview-mount iframe {
+  display:block; width:200%; height:200%; border:0;
+  transform:scale(.5); transform-origin:top left; pointer-events:none;
+}
+.orbit-preview-card .card-info { justify-content:flex-start; }
+.orbit-detail-content {
+  display:block; position:fixed; z-index:22; top:18px; right:18px; bottom:18px;
+  width: min(520px, 38vw); min-width:300px; overflow-y:auto;
+  padding:80px 26px 34px; border:1px solid #c9bda7;
+  background:#f5ecd9; color:#1a1712; box-shadow:0 24px 80px rgba(0,0,0,.45);
+  opacity:0; visibility:hidden; pointer-events:none; transform:translateY(40px);
+  transition:transform .28s cubic-bezier(.22,.8,.2,1),opacity .28s ease,visibility .28s;
+}
+body.orbit-viewing .orbit-detail-content {
+  opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0);
+}
+body.orbit-view-closing .orbit-detail-content {
+  opacity:0; visibility:hidden; pointer-events:none; transform:translateY(100%);
+  transition:transform .28s ease,opacity .28s ease,visibility .28s;
+}
+.orbit-detail-copy h1 { margin:0 0 5px; font-size:clamp(24px,3.3vw,38px); line-height:1.08; letter-spacing:-1.2px; }
+.orbit-detail-kicker { margin:0 0 12px; color:#9b7542; font-size:10px; font-weight:900; letter-spacing:1.5px; }
+.orbit-detail-subtitle { margin:0 0 18px; color:#9b7542; font-size:12px; font-weight:800; letter-spacing:1px; }
+.orbit-detail-copy > p:not(.orbit-detail-kicker):not(.orbit-detail-subtitle) { color:#514a3d; font-size:14px; line-height:1.85; }
+.orbit-detail-facts { display:grid; margin-top:24px; border-top:1px solid #d1c3a8; }
+.orbit-detail-facts div { display:flex; flex-direction:column; gap:5px; padding:13px 0; border-bottom:1px solid #d1c3a8; }
+.orbit-detail-facts span { color:#6b5d47; font-size:11px; }
+.orbit-detail-facts strong { color:#292319; font-size:12px; }
+.orbit-detail-content .project-link { display:inline-flex; margin:24px 0 14px; }
+.orbit-live-link { display:block; padding:12px 2px; border-bottom:1px solid #d1c3a8; color:#4d3a1d; text-decoration:none; font-size:13px; font-weight:800; }
+.orbit-live-link:hover { color:#a46b0e; }
+.orbit-preview-card.is-orbit-open { position:fixed; z-index:25; max-height:none; overflow:hidden; cursor:default; }
+.orbit-preview-card.is-orbit-open .orbit-preview-mount { position:absolute; inset:56px 15px 15px; width:auto; height:auto; aspect-ratio:auto; }
+.orbit-preview-card.is-orbit-open .orbit-preview-mount iframe { width:100%; height:100%; transform:none; pointer-events:auto; }
+.orbit-preview-card.is-orbit-open .card-info { position:absolute; left:16px; bottom:12px; opacity:0; pointer-events:none; }
+@media(max-width:760px) {
+  .orbit-detail-content { top:14px; right:14px; bottom:14px; width:min(82vw,360px); min-width:0; padding:66px 18px 28px; }
+}
+@media(max-width:600px) {
+  .orbit-preview-card.is-orbit-open .orbit-preview-mount { inset:56px 12px 12px; }
+}
