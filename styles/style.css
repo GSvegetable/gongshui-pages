@@ -183,8 +183,19 @@ main { padding: 94px 24px 48px; }
   overflow: hidden;
   border: 2px solid #000;
   cursor: default;
+  /* 强制开启 GPU 图层，防止动画时内部内容消失 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
-.preview-mount .pds-embed { width: 100% !important; height: 100% !important; margin: 0 !important; border-radius: 0 !important; }
+.preview-mount .pds-embed,
+.preview-mount iframe {
+  width: 100% !important; height: 100% !important; margin: 0 !important; border-radius: 0 !important;
+  /* 强制内部元素保持渲染层 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
 
 /* ---------- 卡片底部文字 & 过渡动画 ---------- */
 .card-info { 
@@ -264,7 +275,6 @@ body.view-closing .preview-actions {
 .bookmark-card[aria-pressed="true"] svg path { fill: currentColor; }
 
 /* ---------- 详情面板 ---------- */
-/* 核心修改：统一使用 460ms 和与卡片相同的缓动，并且去掉拖沓的 opacity 过渡 */
 .detail-content {
   display: block; position: fixed; z-index: 22; top: 18px; right: 18px; bottom: 18px;
   width: calc(38vw - 36px); min-width: 300px; max-width: 520px;
@@ -357,9 +367,6 @@ body.closing-from-artwork .detail-content {
 body.viewing { overflow:hidden; }
 body.viewing #mario-nav { visibility:hidden; opacity:0; pointer-events:none; }
 
-/* 修正：删掉这里强行提权 z-index 的代码，让它老老实实待在遮罩下面 */
-/* body.view-closing #mario-nav { ... } */
-
 .preview-card.is-open {
   z-index:21; isolation:isolate; cursor:default; padding:12px;
   overflow-x:hidden; overflow-y:auto;
@@ -372,7 +379,16 @@ body.viewing #mario-nav { visibility:hidden; opacity:0; pointer-events:none; }
   position:absolute; inset:56px 15px auto 15px;
   width:auto; height:auto; margin:0;
 }
-.preview-card.is-artwork-expanded .preview-mount .pds-embed { transform-origin:top left !important; }
+
+/* 强制动画期间的卡片启用 GPU 硬件加速渲染，防止 iframe 白屏 */
+.preview-card.is-open,
+.preview-card.is-closing,
+.preview-card.is-artwork-expanded {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, width, height;
+}
+
 .preview-card.is-closing { will-change: transform; }
 .preview-card.is-closing .preview-mount,
 .preview-card.is-closing .card-info { will-change: transform, opacity; }
@@ -451,15 +467,16 @@ body.view-closing .preview-card.is-closing {
   width: 200%;
   height: 200%;
   border: 0;
-  transform: scale(.5);
+  transform: scale(.5) translateZ(0);
   transform-origin: top left;
   pointer-events: none;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 .orbit-preview-card.is-orbit-open { z-index: 21; isolation: isolate; cursor: default; }
 .orbit-preview-card.is-orbit-open .orbit-preview-mount iframe { pointer-events: auto; }
 .orbit-preview-card.is-orbit-open .card-info { cursor: default; }
 
-/* 核心修改：圆环的面板也统一 460ms 同款缓动，去掉透明度拖沓 */
 .orbit-detail-content {
   display: block;
   position: fixed;
