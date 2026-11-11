@@ -501,3 +501,10 @@ body.orbit-view-closing .orbit-detail-content {
 @media(max-width:600px) {
   .orbit-preview-card.is-orbit-open .orbit-preview-mount { inset:56px 12px 12px; }
 }
+
+body.orbit-viewing { overflow:hidden; }
+body.orbit-viewing::before { opacity:1; pointer-events:auto; }
+body.orbit-viewing #mario-nav,
+body.orbit-viewing .top-bar { opacity:0; visibility:hidden; pointer-events:none; }
+body.orbit-view-closing::before { opacity:0; pointer-events:none; }
+.orbit-detail-close:focus-visible { outline:2px solid #f5bd32; outline-offset:3px; }
