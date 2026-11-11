@@ -597,6 +597,7 @@ syncSearchUI();
     } else if (mode === 'open') {
       target = measureTarget();
       setGeometry(target);
+      syncEmbedScale(getEmbedWrapper());
     } else if (mode === 'closed' && embedVisualState) {
       syncEmbedScale(getEmbedWrapper());
     }
