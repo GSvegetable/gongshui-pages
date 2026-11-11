@@ -264,6 +264,7 @@ body.view-closing .preview-actions {
 .bookmark-card[aria-pressed="true"] svg path { fill: currentColor; }
 
 /* ---------- 详情面板 ---------- */
+/* 核心修改：将 duration 统一为 460ms，与卡片收缩完全同步联动 */
 .detail-content {
   display: block; position: fixed; z-index: 22; top: 18px; right: 18px; bottom: 18px;
   width: calc(38vw - 36px); min-width: 300px; max-width: 520px;
@@ -274,7 +275,7 @@ body.view-closing .preview-actions {
   
   opacity: 0; visibility: hidden; pointer-events: none;
   transform: translateY(40px);
-  transition: transform 0.28s cubic-bezier(0.22, 0.8, 0.2, 1), opacity 0.28s ease, visibility 0.28s;
+  transition: transform 460ms cubic-bezier(0.22, 0.8, 0.2, 1), opacity 460ms ease, visibility 460ms;
 }
 body.viewing .detail-content {
   opacity: 1; visibility: visible; pointer-events: auto;
@@ -283,12 +284,12 @@ body.viewing .detail-content {
 body.artwork-only .detail-content {
   opacity: 0; visibility: hidden; pointer-events: none;
   transform: translateY(100%);
-  transition: transform 0.2s ease-in, opacity 0.2s ease-in, visibility 0.2s;
+  transition: transform 460ms cubic-bezier(0.22, 0.8, 0.2, 1), opacity 460ms ease, visibility 460ms;
 }
 body.view-closing:not(.artwork-only) .detail-content {
-  opacity: 1; visibility: visible; pointer-events: none;
-  transform: translateY(0);
-  transition: none;
+  opacity: 0; visibility: visible; pointer-events: none;
+  transform: translateY(100%);
+  transition: transform 460ms cubic-bezier(0.22, 0.8, 0.2, 1), opacity 460ms ease;
 }
 body.closing-from-artwork .detail-content {
   opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
@@ -463,6 +464,8 @@ body.view-closing .preview-card.is-closing {
 .orbit-preview-card.is-orbit-open { z-index: 21; isolation: isolate; cursor: default; }
 .orbit-preview-card.is-orbit-open .orbit-preview-mount iframe { pointer-events: auto; }
 .orbit-preview-card.is-orbit-open .card-info { cursor: default; }
+
+/* 核心修改：圆环的详情面板也统一 460ms */
 .orbit-detail-content {
   display: block;
   position: fixed;
@@ -484,7 +487,7 @@ body.view-closing .preview-card.is-closing {
   visibility: hidden;
   pointer-events: none;
   transform: translateY(40px);
-  transition: transform .28s cubic-bezier(.22,.8,.2,1), opacity .28s ease, visibility .28s;
+  transition: transform 460ms cubic-bezier(.22,.8,.2,1), opacity 460ms ease, visibility 460ms;
 }
 body.orbit-viewing .orbit-detail-content {
   opacity: 1;
@@ -497,13 +500,14 @@ body.artwork-only .orbit-detail-content {
   visibility: hidden;
   pointer-events: none;
   transform: translateY(100%);
-  transition: transform .2s ease-in, opacity .2s ease-in, visibility .2s;
+  transition: transform 460ms cubic-bezier(.22,.8,.2,1), opacity 460ms ease, visibility 460ms;
 }
 body.orbit-view-closing .orbit-detail-content {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   transform: translateY(100%);
+  transition: transform 460ms cubic-bezier(.22,.8,.2,1), opacity 460ms ease;
 }
 .orbit-detail-copy h1 { margin: 0 0 5px; color: #191711; font-size: clamp(24px,3.3vw,38px); line-height: 1.08; letter-spacing: -1.2px; }
 .orbit-detail-kicker { margin: 0 0 12px; color: #9b7542; font-size: 10px; font-weight: 900; letter-spacing: 1.5px; }
