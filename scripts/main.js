@@ -25,35 +25,32 @@ const saveBookmarks = () => {
 const navHome = document.getElementById('nav-home');
 const navBookmark = document.getElementById('nav-bookmark');
 const card = document.getElementById('lighthouse-card');
+const galleryCards = [...document.querySelectorAll('.preview-card')];
 const emptyState = document.getElementById('empty-state');
 const emptyDesc = document.getElementById('empty-desc');
 const searchInput = document.getElementById('search-input');
 const searchWrapper = document.getElementById('search-wrapper'); // 获取搜索框外层
 
 const renderGallery = () => {
-  const isBookmarked = AppState.bookmarks.includes(card.dataset.id);
-  const searchMatch = card.querySelector('.card-title').textContent.toLowerCase().includes(AppState.searchQuery.toLowerCase());
-  
-  let shouldShow = false;
-  
-  if (AppState.currentTab === 'home') {
-    shouldShow = searchMatch;
-    if (!shouldShow) {
-      emptyDesc.textContent = AppState.searchQuery ? '没有找到匹配的作品' : '还没有添加作品';
-    }
-  } else if (AppState.currentTab === 'bookmarks') {
-    shouldShow = isBookmarked && searchMatch;
-    if (!shouldShow) {
-      emptyDesc.textContent = AppState.searchQuery ? '收藏中没有找到匹配的作品' : '你还没有收藏任何作品哦';
-    }
-  }
+  let visibleCount = 0;
+  galleryCards.forEach(item => {
+    const isBookmarked = AppState.bookmarks.includes(item.dataset.id);
+    const title = item.querySelector('.card-title')?.textContent || '';
+    const searchMatch = title.toLowerCase().includes(AppState.searchQuery.toLowerCase());
+    const shouldShow = AppState.currentTab === 'home'
+      ? searchMatch
+      : isBookmarked && searchMatch;
+    item.classList.toggle('hidden', !shouldShow);
+    if (shouldShow) visibleCount++;
+  });
 
-  if (shouldShow) {
-    card.classList.remove('hidden');
-    emptyState.classList.remove('visible');
-  } else {
-    card.classList.add('hidden');
+  if (!visibleCount) {
+    emptyDesc.textContent = AppState.currentTab === 'bookmarks'
+      ? (AppState.searchQuery ? '收藏中没有找到匹配的作品' : '你还没有收藏任何作品哦')
+      : (AppState.searchQuery ? '没有找到匹配的作品' : '还没有添加作品');
     emptyState.classList.add('visible');
+  } else {
+    emptyState.classList.remove('visible');
   }
 };
 
@@ -84,8 +81,8 @@ const syncSearchUI = () => {
   searchClear.hidden = query.length === 0;
   searchInput.value = query;
   if (query) {
-    const visible = !card.classList.contains('hidden');
-    searchStatus.textContent = visible ? '找到 1 个作品' : '没有找到匹配的作品';
+    const visible = galleryCards.filter(item => !item.classList.contains('hidden')).length;
+    searchStatus.textContent = visible ? '找到 ' + visible + ' 个作品' : '没有找到匹配的作品';
     searchStatus.classList.add('visible');
   } else {
     searchStatus.textContent = '';
