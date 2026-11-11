@@ -461,10 +461,9 @@ syncSearchUI();
     );
     // Animate the information panel explicitly as well. This avoids relying on
     // overlapping body-state CSS transitions during the close sequence.
-    const detailStyle = window.getComputedStyle(detailPanel);
     const detailAnimation = detailPanel.animate(
       [
-        { transform: detailStyle.transform === 'none' ? 'translateY(0)' : detailStyle.transform, opacity: detailStyle.opacity },
+        { transform: 'translateY(0)', opacity: 1 },
         { transform: 'translateY(100%)', opacity: 0 }
       ],
       {
