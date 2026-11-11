@@ -42,13 +42,11 @@
         </div>
         <div class="card-info"><span class="card-title">海边灯塔</span></div>
       </article>
-      <article class="preview-card orbit-preview-card" id="pixel-orbit-card" data-id="pixel-orbit">
-        <a class="orbit-preview-link" href="https://gsvegetable.github.io/-pixel-orbit/pixel-orbit.html" target="_blank" rel="noopener noreferrer" aria-label="打开 Pixel Orbit 在线体验">
-          <div class="preview-mount orbit-preview-mount">
-            <iframe src="https://gsvegetable.github.io/-pixel-orbit/pixel-orbit.html" title="Pixel Orbit 像素昼夜互动作品" loading="lazy" allow="fullscreen"></iframe>
-          </div>
-        </a>
-        <div class="card-info"><span class="card-title">Pixel Orbit · 像素圆环</span><a class="orbit-open-link" href="https://gsvegetable.github.io/-pixel-orbit/pixel-orbit.html" target="_blank" rel="noopener noreferrer">在线体验 ↗</a></div>
+      <article class="preview-card orbit-preview-card" id="pixel-orbit-card" data-id="pixel-orbit" tabindex="0" aria-label="打开 Pixel Orbit 作品详情">
+        <div class="preview-mount orbit-preview-mount">
+          <iframe src="https://gsvegetable.github.io/-pixel-orbit/pixel-orbit.html" title="Pixel Orbit 像素昼夜互动作品" loading="lazy" allow="fullscreen"></iframe>
+        </div>
+        <div class="card-info"><span class="card-title">Pixel Orbit · 像素圆环</span></div>
       </article>
       <div class="empty-state" id="empty-state">
         <div class="empty-icon">🍃</div>
@@ -98,6 +96,22 @@
     </section>
   </section>
 
+  <section class="orbit-detail-content" id="orbit-detail-panel" role="dialog" aria-modal="true" aria-labelledby="orbit-detail-title" aria-hidden="true">
+    <div class="orbit-detail-copy">
+      <p class="orbit-detail-kicker">INTERACTIVE PIXEL WORLD</p>
+      <h1 id="orbit-detail-title">Pixel Orbit</h1>
+      <p class="orbit-detail-subtitle">像素圆环 · 昼夜流转</p>
+      <p>一座会随时间变化的像素小世界。拖动圆环或调整时间，观察天空、太阳、月亮、云层与房屋灯光，从清晨、正午一路变化到黄昏与深夜。</p>
+      <div class="orbit-detail-facts">
+        <div><span>核心体验</span><strong>24 小时昼夜循环</strong></div>
+        <div><span>交互方式</span><strong>圆环拖动 · 时间滑块 · 场景预设</strong></div>
+        <div><span>视觉风格</span><strong>像素艺术 · 圆形轨道 · 动态光照</strong></div>
+      </div>
+      <a class="project-link" href="https://github.com/GSvegetable/-pixel-orbit" target="_blank" rel="noopener noreferrer">查看 GitHub 项目 ↗</a>
+      <a class="orbit-live-link" href="https://gsvegetable.github.io/-pixel-orbit/pixel-orbit.html" target="_blank" rel="noopener noreferrer">在新页面打开完整体验 ↗</a>
+      <a class="orbit-live-link" href="https://gsvegetable.github.io/-pixel-orbit/lab.html" target="_blank" rel="noopener noreferrer">进入参数实验室 ↗</a>
+    </div>
+  </section>
   <div class="preview-actions" aria-label="作品视图控制">
     <button class="action-btn bookmark-card" id="bookmark-card" type="button" aria-label="收藏作品" aria-pressed="false">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
