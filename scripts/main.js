@@ -163,18 +163,13 @@ syncSearchUI();
     e.stopPropagation();
     const id = AppState.activeWorkId || card.dataset.id;
     const index = AppState.bookmarks.indexOf(id);
-    
-    if (index > -1) {
-      AppState.bookmarks.splice(index, 1);
-      if (AppState.currentTab === 'bookmarks' && !document.body.classList.contains('viewing')) renderGallery();
-    } else {
-      AppState.bookmarks.push(id);
-      navBookmark.classList.add('active');
-      navHome.classList.remove('active');
-    }
-    
+    if (index > -1) AppState.bookmarks.splice(index, 1);
+    else AppState.bookmarks.push(id);
     saveBookmarks();
     updateBookmarkBtn();
+    if (AppState.currentTab === 'bookmarks' && !document.body.classList.contains('viewing')) {
+      renderGallery();
+    }
   });
 
   const waitForEl = (selector, root, timeout = 8000) =>
