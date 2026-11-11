@@ -5,6 +5,7 @@ const AppState = {
   currentTab: 'home', // 'home' | 'bookmarks'
   searchQuery: '',
   bookmarks: [],
+  activeWorkId: 'pixel-daylight-switch',
   works: [
     { id: 'pixel-daylight-switch', title: '海边灯塔' }
   ]
@@ -152,14 +153,14 @@ syncSearchUI();
   const getEmbedWrapper = () => previewMount ? previewMount.querySelector('.pds-embed') : null;
 
   const updateBookmarkBtn = () => {
-    const isBookmarked = AppState.bookmarks.includes(card.dataset.id);
+    const isBookmarked = AppState.bookmarks.includes(AppState.activeWorkId || card.dataset.id);
     bookmarkCard.setAttribute('aria-pressed', String(isBookmarked));
   };
   updateBookmarkBtn();
 
   bookmarkCard.addEventListener('click', (e) => {
     e.stopPropagation();
-    const id = card.dataset.id;
+    const id = AppState.activeWorkId || card.dataset.id;
     const index = AppState.bookmarks.indexOf(id);
     
     if (index > -1) {
@@ -373,6 +374,7 @@ syncSearchUI();
 
   const open = () => {
     if (mode !== 'closed') return;
+    AppState.activeWorkId = card.dataset.id;
     origin = card.getBoundingClientRect();
     originMountRect = previewMount.getBoundingClientRect();
     const cardInfo = card.querySelector('.card-info');
@@ -626,93 +628,190 @@ syncSearchUI();
 })();
 
 
-/* Pixel Orbit uses the same card-to-detail spatial transition language. */
+/* Pixel Orbit follows the Lighthouse work-view geometry and shared controls. */
 (() => {
   const orbitCard = document.getElementById('pixel-orbit-card');
   const orbitPanel = document.getElementById('orbit-detail-panel');
-  if (!orbitCard || !orbitPanel) return;
+  const closeButton = document.getElementById('close-card');
+  const expandButton = document.getElementById('expand-artwork');
+  const bookmarkButton = document.getElementById('bookmark-card');
+  if (!orbitCard || !orbitPanel || !closeButton || !expandButton || !bookmarkButton) return;
+
+  const easing = 'cubic-bezier(.22,.8,.2,1)';
+  const duration = () => matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 460;
   let state = 'closed';
   let animation = null;
   let homeRect = null;
-  const closeOrbit = () => {
-    if (state !== 'open') return;
-    state = 'closing';
-    syncClose();
+  let normalTarget = null;
+  let expanded = false;
+
+  const measureTarget = () => {
+    if (matchMedia('(max-width: 600px)').matches) {
+      return { left: 14, top: 18, width: Math.max(220, innerWidth - 28), padding: 12 };
+    }
+    const detailWidth = Math.min(520, Math.max(300, innerWidth * .38 - 36));
+    return {
+      left: 18,
+      top: 18,
+      width: Math.max(320, Math.min(860, innerWidth - 36 - detailWidth - 24)),
+      padding: 12
+    };
+  };
+
+  const setGeometry = box => {
+    orbitCard.style.left = box.left + 'px';
+    orbitCard.style.top = box.top + 'px';
+    orbitCard.style.width = box.width + 'px';
+    orbitCard.style.padding = box.padding + 'px';
+    orbitCard.style.removeProperty('height');
+  };
+
+  const animateGeometry = (from, to, finish) => {
     if (animation) animation.cancel();
-    const current = orbitCard.getBoundingClientRect();
+    const frames = [
+      { left: from.left + 'px', top: from.top + 'px', width: from.width + 'px', padding: from.padding + 'px' },
+      { left: to.left + 'px', top: to.top + 'px', width: to.width + 'px', padding: to.padding + 'px' }
+    ];
+    const current = orbitCard.animate(frames, { duration: duration(), easing, fill: 'both' });
+    animation = current;
+    current.finished.then(() => {
+      if (animation !== current) return;
+      current.cancel();
+      animation = null;
+      setGeometry(to);
+      finish?.();
+    }).catch(() => {});
+  };
+
+  const setBookmarkState = () => {
+    bookmarkButton.setAttribute('aria-pressed', String(AppState.bookmarks.includes(orbitCard.dataset.id)));
+  };
+
+  const open = () => {
+    if (state !== 'closed') return;
+    homeRect = orbitCard.getBoundingClientRect();
+    normalTarget = measureTarget();
+    AppState.activeWorkId = orbitCard.dataset.id;
+    state = 'opening';
+    expanded = false;
+    setBookmarkState();
     orbitCard.style.position = 'fixed';
-    orbitCard.style.left = current.left + 'px';
-    orbitCard.style.top = current.top + 'px';
-    orbitCard.style.width = current.width + 'px';
-    orbitCard.style.height = current.height + 'px';
+    orbitCard.style.left = homeRect.left + 'px';
+    orbitCard.style.top = homeRect.top + 'px';
+    orbitCard.style.width = homeRect.width + 'px';
+    orbitCard.style.padding = '8px';
     orbitCard.style.margin = '0';
-    orbitCard.classList.remove('is-orbit-open');
-    document.body.classList.add('orbit-view-closing');
-    document.body.classList.remove('orbit-viewing');
-    const end = homeRect;
-    animation = orbitCard.animate([
-      { transform: 'translate(0,0) scale(1)', borderRadius: '3px' },
-      { transform: 'translate(' + (end.left-current.left) + 'px,' + (end.top-current.top) + 'px) scale(' + (end.width/current.width) + ',' + (end.height/current.height) + ')', borderRadius:'3px' }
-    ], {duration:460,easing:'cubic-bezier(.22,.8,.2,1)',fill:'both'});
-    animation.finished.catch(()=>{}).then(()=>{
-      if(state!=='closing') return;
-      animation.cancel(); animation=null;
-      ['position','left','top','width','height','margin','transform'].forEach(p=>orbitCard.style.removeProperty(p));
-      document.body.classList.remove('orbit-view-closing');
-      orbitPanel.setAttribute('aria-hidden','true');
-      orbitPanel.hidden = true;
-      state='closed';
-      syncClose();
-    });
-  };
-  const openOrbit = () => {
-    if(state!=='closed') return;
-    homeRect=orbitCard.getBoundingClientRect();
-    state='opening';
-    const targetWidth=Math.min(860,Math.max(320,window.innerWidth-(window.innerWidth<=600?28:560)));
-    const target={left:18,top:18,width:targetWidth,height:window.innerHeight-36};
-    orbitCard.style.position='fixed'; orbitCard.style.left=homeRect.left+'px'; orbitCard.style.top=homeRect.top+'px';
-    orbitCard.style.width=homeRect.width+'px'; orbitCard.style.height=homeRect.height+'px'; orbitCard.style.margin='0';
+    orbitCard.style.transition = 'none';
     orbitCard.classList.add('is-orbit-open');
-    document.body.classList.add('orbit-viewing');
-    orbitPanel.hidden = false;
-    orbitPanel.setAttribute('aria-hidden','false');
+    orbitPanel.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('viewing', 'orbit-viewing');
+    document.body.classList.remove('artwork-only');
     orbitCard.getBoundingClientRect();
-    animation=orbitCard.animate([
-      {transform:'translate(0,0) scale(1,1)'},
-      {transform:'translate('+(target.left-homeRect.left)+'px,'+(target.top-homeRect.top)+'px) scale('+(target.width/homeRect.width)+','+(target.height/homeRect.height)+')'}
-    ],{duration:460,easing:'cubic-bezier(.22,.8,.2,1)',fill:'both'});
-    animation.finished.catch(()=>{}).then(()=>{
-      if(state!=='opening')return;
-      animation.cancel();animation=null;
-      orbitCard.style.left=target.left+'px';orbitCard.style.top=target.top+'px';
-      orbitCard.style.width=target.width+'px';orbitCard.style.height=target.height+'px';
-      orbitCard.style.transform='none';state='open';syncClose();
+    animateGeometry(
+      { left: homeRect.left, top: homeRect.top, width: homeRect.width, padding: 8 },
+      normalTarget,
+      () => {
+        state = 'open';
+        orbitCard.style.transition = '';
+        closeButton.focus({ preventScroll: true });
+      }
+    );
+  };
+
+  const close = () => {
+    if (state === 'closed' || state === 'closing') return;
+    const currentRect = orbitCard.getBoundingClientRect();
+    if (animation) { animation.cancel(); animation = null; }
+    state = 'closing';
+    expanded = false;
+    document.body.classList.remove('artwork-only');
+    document.body.classList.add('view-closing', 'orbit-view-closing');
+    document.body.classList.remove('orbit-viewing');
+    orbitCard.classList.remove('is-artwork-expanded');
+    const from = { left: currentRect.left, top: currentRect.top, width: currentRect.width, padding: 12 };
+    const to = { left: homeRect.left, top: homeRect.top, width: homeRect.width, padding: 8 };
+    orbitCard.style.left = currentRect.left + 'px';
+    orbitCard.style.top = currentRect.top + 'px';
+    orbitCard.style.width = currentRect.width + 'px';
+    orbitCard.style.padding = '12px';
+    animateGeometry(from, to, () => {
+      ['position','left','top','width','height','padding','margin','transition'].forEach(name => orbitCard.style.removeProperty(name));
+      orbitCard.classList.remove('is-orbit-open','is-artwork-expanded');
+      document.body.classList.remove('viewing','view-closing','orbit-viewing','orbit-view-closing','artwork-only');
+      orbitPanel.setAttribute('aria-hidden', 'true');
+      state = 'closed';
+      AppState.activeWorkId = 'pixel-daylight-switch';
+      orbitCard.focus({ preventScroll: true });
     });
   };
-  orbitCard.addEventListener('click',event=>{
-    if(event.target.closest('a,button,input,select,textarea'))return;
-    if(state==='closed')openOrbit();
+
+  const toggleExpanded = () => {
+    if (state !== 'open' || animation) return;
+    const rect = orbitCard.getBoundingClientRect();
+    const from = { left: rect.left, top: rect.top, width: rect.width, padding: 12 };
+    if (!expanded) {
+      expanded = true;
+      document.body.classList.add('artwork-only');
+      orbitCard.classList.add('is-artwork-expanded');
+      const width = Math.max(220, innerWidth - 36);
+      const height = Math.max(180, innerHeight - 36);
+      const target = { left: Math.round((innerWidth - width) / 2), top: 18, width, padding: 12 };
+      animateGeometry(from, target, () => {
+        orbitCard.style.height = height + 'px';
+        expandButton.setAttribute('aria-label', '返回作品介绍');
+        expandButton.setAttribute('aria-pressed', 'true');
+      });
+    } else {
+      expanded = false;
+      document.body.classList.remove('artwork-only');
+      orbitCard.classList.remove('is-artwork-expanded');
+      animateGeometry(from, normalTarget, () => {
+        orbitCard.style.removeProperty('height');
+        expandButton.setAttribute('aria-label', '放大作品展示区域');
+        expandButton.setAttribute('aria-pressed', 'false');
+      });
+    }
+  };
+
+  orbitCard.addEventListener('click', event => {
+    if (event.target.closest('a,button,input,select,textarea')) return;
+    if (state === 'closed') open();
   });
-  orbitCard.addEventListener('keydown',event=>{
-    if(event.target===orbitCard&&['Enter',' '].includes(event.key)){event.preventDefault();openOrbit();}
+  orbitCard.addEventListener('keydown', event => {
+    if (event.target === orbitCard && ['Enter',' '].includes(event.key)) {
+      event.preventDefault();
+      open();
+    }
   });
-  document.addEventListener('keydown',event=>{
-    if(event.key==='Escape'&&state==='open')closeOrbit();
+  closeButton.addEventListener('click', event => {
+    if (state !== 'closed') { event.stopPropagation(); close(); }
   });
-  window.addEventListener('resize',()=>{
-    if(state==='open')closeOrbit();
+  expandButton.addEventListener('click', event => {
+    if (state !== 'closed') { event.stopPropagation(); toggleExpanded(); }
   });
-  orbitPanel.addEventListener('click',event=>{
-    if(event.target===orbitPanel)closeOrbit();
+  bookmarkButton.addEventListener('click', () => {
+    if (state !== 'closed') setTimeout(setBookmarkState, 0);
   });
-  const closeButton=document.createElement('button');
-  closeButton.type='button';closeButton.className='orbit-detail-close';closeButton.setAttribute('aria-label','关闭 Pixel Orbit 详情');
-  closeButton.innerHTML='×';
-  Object.assign(closeButton.style,{position:'fixed',zIndex:'40',top:'24px',right:'24px',width:'42px',height:'42px',border:'3px solid #000',borderRadius:'4px',background:'#e94c43',color:'#fff',fontSize:'28px',lineHeight:'1',boxShadow:'3px 4px 0 #000',cursor:'pointer',opacity:'0',pointerEvents:'none'});
-  document.body.appendChild(closeButton);
-  const syncClose=()=>{closeButton.style.opacity=state==='open'?'1':'0';closeButton.style.pointerEvents=state==='open'?'auto':'none';};
-  const observer=new MutationObserver(syncClose);observer.observe(document.body,{attributes:true,attributeFilter:['class']});
-  syncClose();
-  closeButton.addEventListener('click',closeOrbit);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && state !== 'closed') {
+      if (expanded) toggleExpanded();
+      else close();
+    }
+  });
+  window.addEventListener('resize', () => {
+    if (state !== 'open') return;
+    if (animation) { animation.cancel(); animation = null; }
+    if (expanded) {
+      const width = Math.max(220, innerWidth - 36);
+      const height = Math.max(180, innerHeight - 36);
+      setGeometry({ left: Math.round((innerWidth - width) / 2), top: 18, width, padding: 12 });
+      orbitCard.style.height = height + 'px';
+    } else {
+      normalTarget = measureTarget();
+      setGeometry(normalTarget);
+    }
+  });
+  orbitPanel.addEventListener('click', event => {
+    if (event.target === orbitPanel) close();
+  });
 })();
