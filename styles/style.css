@@ -506,3 +506,4 @@ body.orbit-view-closing .orbit-detail-content {
 
 /* The shared body.viewing state must not reveal the Lighthouse copy for Orbit. */
 body.orbit-viewing .detail-content { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+body.orbit-view-closing .detail-content { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
