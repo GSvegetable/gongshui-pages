@@ -1,3 +1,4 @@
+```markdown
 # 🗂️ 宫水 · UI Archive (Specimen)
 
 一个持续更新的个人 UI 收藏与交互作品展示站。本项目采用**原生 HTML/CSS/JS**，无需构建，专为高质量 2D/WebGL 交互作品打造的现代化展示框架。
@@ -44,3 +45,68 @@
   </div>
   <div class="card-info"><span class="card-title">新作品名称</span></div>
 </article>
+```
+
+第二步：在 scripts/main.js 顶部注册
+
+在 WORKS_CONFIG 数组中追加一行配置：
+
+```javascript
+const WORKS_CONFIG = [
+  // ... 现有的作品 ...
+  { 
+    id: 'your-work-id',             // 与 HTML 的 data-id 一致
+    cardId: 'your-work-card',       // 与 HTML 的 id 一致
+    contentSelector: 'iframe',      // 内部核心内容的 CSS 选择器（如 '.my-canvas' 或 'iframe'）
+    fallbackRatio: 1.6439           // 容器宽高比，防止加载慢时布局跳动
+  }
+];
+```
+
+补充：如果新作品有独立的详情面板 (Detail Panel)，需要在 index.html 中增加对应面板，并在 JS 中监听 AppState.activeWorkId 来显示/隐藏。
+
+---
+
+📁 目录结构
+
+```text
+.
+├── index.html          # 主页与详情页的 DOM 结构
+├── styles/
+│   ├── style.css       # 核心布局、卡片样式、动画过渡、响应式
+│   └── motion.css      # 针对 will-change 和低端设备/降级动画的优化
+├── scripts/
+│   └── main.js         # 核心引擎（搜索、导航、万能 Work Controller）
+└── README.md
+```
+
+---
+
+📝 版本记录 (Changelog)
+
+v3.0.0 (Current)
+
+· 底层架构重构：提取 WorkController 万能展示引擎，彻底移除重复的动画代码。
+· Bug 修复：解决动画结束瞬间的内容微小抖动（强制同步布局）。
+· Bug 修复：解决打开/关闭动画时，周围静止卡片因遮罩层被遮挡或网格塌陷而消失的问题。
+· 新增：README 开发规范，提供极简的二次开发指南。
+
+v2.8.0
+
+· 修正海边灯塔关闭时的遮挡关系，让圆环在灯塔缩回过程中显现。
+
+v2.5.0 - v2.7.0
+
+· 尝试统一海边灯塔关闭时的详情面板、操作按钮与作品卡片回归时序，调整 Z-index 层级。
+
+v2.3.0
+
+· 优化关闭遮罩时的显现逻辑，避免字体大小突变。
+
+v1.0.0
+
+· 基础展示站上线，收录海边灯塔。
+
+```
+
+直接覆盖 `README.md`。没有废话了，收工。
