@@ -141,6 +141,8 @@ syncSearchUI();
   if (!card || !close || !expandArtwork || !detailPanel) return;
 
   let origin = null;
+  let originMountRect = null;
+  let originInfoRect = null;
   let target = null;
   let mode = 'closed';
   let activeAnimation = null;
@@ -259,10 +261,6 @@ syncSearchUI();
     return { left: 18, top: 18, width: Math.max(320, width), padding: 12 };
   };
 
-  const refreshEmbeddedSwitch = () => {
-    if (previewMount) void previewMount.offsetWidth;
-  };
-
   const setGeometry = geometry => {
     card.style.left = geometry.left + 'px';
     card.style.top = geometry.top + 'px';
@@ -300,19 +298,17 @@ syncSearchUI();
     );
   };
 
-  // Restore the embed's exact pre-animation inline styles when returning home.
-  // Leaving the forced pixel dimensions/scale behind can distort the yellow
-  // scene on the next layout pass.
-  const restoreEmbedVisualState = () => {
-    if (!embedVisualState) return;
-    const embedWrapper = getEmbedWrapper();
-    if (embedWrapper) {
-      for (const [name, value, priority] of embedVisualState.styles) {
-        if (value) embedWrapper.style.setProperty(name, value, priority);
-        else embedWrapper.style.removeProperty(name);
-      }
-    }
-    embedVisualState = null;
+  // Keep the renderer at its original backing dimensions. Only scale its
+  // wrapper during view transitions: changing root layout size triggers its
+  // ResizeObserver and recreates WebGL/Canvas buffers.
+  const syncEmbedVisualLoop = animation => {
+    const tick = () => {
+      if (activeAnimation !== animation || !embedVisualState) return;
+      syncEmbedScale(getEmbedWrapper());
+      embedFrame = requestAnimationFrame(tick);
+    };
+    if (embedFrame) cancelAnimationFrame(embedFrame);
+    embedFrame = requestAnimationFrame(tick);
   };
 
   const runGeometryAnimation = (from, to, onFinish) => {
@@ -340,15 +336,7 @@ syncSearchUI();
 
     const embedWrapper = getEmbedWrapper();
     if (embedWrapper) ensureEmbedVisualState(embedWrapper);
-
-    if (embedVisualState && previewMount && embedWrapper) {
-      const syncEmbedVisual = () => {
-        if (activeAnimation !== animation || !embedVisualState) return;
-        syncEmbedScale(embedWrapper);
-        embedFrame = requestAnimationFrame(syncEmbedVisual);
-      };
-      embedFrame = requestAnimationFrame(syncEmbedVisual);
-    }
+    if (embedVisualState && previewMount && embedWrapper) syncEmbedVisualLoop(animation);
 
     const stopEmbedVisualSync = () => {
       if (embedFrame) cancelAnimationFrame(embedFrame);
@@ -379,18 +367,19 @@ syncSearchUI();
     }
     ['position', 'left', 'top', 'width', 'height', 'padding', 'margin', 'transition', 'opacity']
       .forEach(prop => card.style.removeProperty(prop));
-    card.classList.remove('is-open', 'details-ready', 'is-title-expanded');
-    document.body.classList.remove('viewing', 'view-closing');
+    card.classList.remove('is-open', 'details-ready', 'is-title-expanded', 'is-closing');
+    document.body.classList.remove('viewing', 'view-closing', 'closing-from-artwork');
     mode = 'closed';
-    // Restore the embed's original styles without forcing an extra layout read.
-    // That read can make canvas-based embeds repaint like a page refresh.
-    restoreEmbedVisualState();
+    // Keep the canvas backing dimensions unchanged after returning home.
     card.focus({ preventScroll: true });
   };
 
   const open = () => {
     if (mode !== 'closed') return;
     origin = card.getBoundingClientRect();
+    originMountRect = previewMount.getBoundingClientRect();
+    const cardInfo = card.querySelector('.card-info');
+    originInfoRect = cardInfo ? cardInfo.getBoundingClientRect() : null;
     target = measureTarget();
     artworkExpanded = false;
     document.body.classList.remove('artwork-only');
@@ -417,7 +406,6 @@ syncSearchUI();
         card.classList.add('details-ready');
         mode = 'open';
         card.style.transition = '';
-        refreshEmbeddedSwitch();
       }
     );
     close.focus({ preventScroll: true });
@@ -425,101 +413,74 @@ syncSearchUI();
 
   const shut = () => {
     if (mode !== 'open' && mode !== 'opening') return;
-
-    // Preserve which visual state is being closed. In artwork-only mode the
-    // detail panel is already hidden and must never be animated from visible.
-    const closingArtworkOnly = artworkExpanded;
+    const wasArtworkExpanded = artworkExpanded;
     const currentRect = card.getBoundingClientRect();
-    const detailStart = closingArtworkOnly ? null : getComputedStyle(detailPanel);
-    const embedWrapper = getEmbedWrapper();
-    const embedStartTransform = embedWrapper ? getComputedStyle(embedWrapper).transform : null;
-    const embedOriginalTransform = embedVisualState
-      ? (embedVisualState.styles.find(([name]) => name === 'transform') || [null, ''])[1]
-      : '';
-
-    if (activeAnimation) {
-      activeAnimation.cancel();
-      activeAnimation = null;
-    }
+    const mount = previewMount, cardInfo = card.querySelector('.card-info');
+    const visibleMountRect = mount.getBoundingClientRect();
+    const visibleInfoRect = cardInfo ? cardInfo.getBoundingClientRect() : null;
+    const visibleInfoOpacity = cardInfo ? Number.parseFloat(getComputedStyle(cardInfo).opacity) : 1;
+    if (activeAnimation) { activeAnimation.cancel(); activeAnimation = null; }
     if (embedFrame) cancelAnimationFrame(embedFrame);
     embedFrame = 0;
 
-    // Lock the exact visible geometry before starting the reverse animation.
-    card.style.position = 'fixed';
-    card.style.left = currentRect.left + 'px';
-    card.style.top = currentRect.top + 'px';
-    card.style.width = currentRect.width + 'px';
-    card.style.height = currentRect.height + 'px';
-    card.style.padding = '12px';
-    card.style.margin = '0';
-    card.style.transition = 'none';
-
-    const dx = origin.left - currentRect.left;
-    const dy = origin.top - currentRect.top;
-    const sx = origin.width / Math.max(1, currentRect.width);
-    const sy = origin.height / Math.max(1, currentRect.height);
-
-    mode = 'closing';
-    // Keep artwork-only applied until cleanup when closing the enlarged canvas.
-    // Otherwise the detail panel would become visible for a frame.
-    if (!closingArtworkOnly) document.body.classList.remove('artwork-only');
+    Object.assign(card.style, {
+      position:'fixed',left:currentRect.left+'px',top:currentRect.top+'px',
+      width:currentRect.width+'px',height:currentRect.height+'px',
+      padding:'12px',margin:'0',transition:'none'
+    });
+    const dx=origin.left-currentRect.left,dy=origin.top-currentRect.top;
+    const psx=origin.width/Math.max(1,currentRect.width),psy=origin.height/Math.max(1,currentRect.height);
+    const easing='cubic-bezier(.22,.8,.2,1)',reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,duration=reduced?1:460;
+    mode='closing';
     document.body.classList.add('view-closing');
+    document.body.classList.remove('artwork-only');
+    if(wasArtworkExpanded)document.body.classList.add('closing-from-artwork');
+    card.classList.add('is-closing');
+    card.classList.remove('is-artwork-expanded','is-title-expanded');
     setExpandControl(false);
 
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const duration = reduced ? 1 : 460;
-    const easing = 'cubic-bezier(.22,.8,.2,1)';
-    const closeAnimation = card.animate(
-      [
-        { transform: 'translate3d(0, 0, 0) scale(1, 1)', transformOrigin: 'top left' },
-        { transform: 'translate3d(' + dx + 'px, ' + dy + 'px, 0) scale(' + sx + ', ' + sy + ')', transformOrigin: 'top left' }
-      ],
-      { duration, easing, fill: 'forwards' }
-    );
+    const baseMountRect=mount.getBoundingClientRect();
+    const baseInfoRect=cardInfo?cardInfo.getBoundingClientRect():null;
+    const childFrames=(visible,base,home)=>{
+      if(!visible||!base||!home||!base.width||!base.height)return null;
+      const start={x:visible.left-base.left,y:visible.top-base.top,sx:visible.width/base.width,sy:visible.height/base.height};
+      const end={
+        x:(home.left-origin.left)/psx-(base.left-currentRect.left),
+        y:(home.top-origin.top)/psy-(base.top-currentRect.top),
+        sx:home.width/(base.width*psx),sy:home.height/(base.height*psy)
+      };
+      const frame=v=>({transform:'translate3d('+v.x+'px,'+v.y+'px,0) scale('+v.sx+','+v.sy+')',transformOrigin:'top left'});
+      return [frame(start),frame(end)];
+    };
+    const mf=childFrames(visibleMountRect,baseMountRect,originMountRect);
+    const inf=childFrames(visibleInfoRect,baseInfoRect,originInfoRect);
+    const mt=mount.style.transform,mo=mount.style.transformOrigin;
+    const it=cardInfo?cardInfo.style.transform:'',io=cardInfo?cardInfo.style.transformOrigin:'';
 
-    // The embedded canvas has its own temporary scale while the card is open.
-    // Return that scale to its original value in parallel with the card so the
-    // final style restoration is visually identical to the home preview.
-    let embedReturnAnimation = null;
-    if (embedWrapper && embedVisualState && embedStartTransform) {
-      embedReturnAnimation = embedWrapper.animate(
-        [
-          { transform: embedStartTransform },
-          { transform: embedOriginalTransform || 'none' }
-        ],
-        { duration, easing, fill: 'forwards' }
-      );
-    }
+    const ca=card.animate([
+      {transform:'translate3d(0,0,0) scale(1,1)',transformOrigin:'top left',boxShadow:getComputedStyle(card).boxShadow},
+      {transform:'translate3d('+dx+'px,'+dy+'px,0) scale('+psx+','+psy+')',transformOrigin:'top left',boxShadow:'8px 8px 0 rgba(0,0,0,.68), 0 18px 42px rgba(0,0,0,.18)'}
+    ],{duration,easing,fill:'both'});
+    const ma=mf?mount.animate(mf,{duration,easing,fill:'both'}):null;
+    const ia=cardInfo&&inf?cardInfo.animate([{...inf[0],opacity:visibleInfoOpacity},{...inf[1],opacity:1}],{duration,easing,fill:'both'}):null;
+    let da=null;
+    if(!wasArtworkExpanded)da=detailPanel.animate([
+      {transform:getComputedStyle(detailPanel).transform,opacity:Number(getComputedStyle(detailPanel).opacity)},
+      {transform:'translateY(100%)',opacity:0}
+    ],{duration:reduced?1:280,easing,fill:'both'});
 
-    // Only a normal detail view has a visible panel to animate out. Start from
-    // its actual computed state so closing during the opening transition does
-    // not jump from an assumed fully-open position.
-    let detailAnimation = null;
-    if (detailStart) {
-      detailAnimation = detailPanel.animate(
-        [
-          { transform: detailStart.transform, opacity: Number(detailStart.opacity) },
-          { transform: 'translateY(100%)', opacity: 0 }
-        ],
-        { duration: reduced ? 1 : 280, easing, fill: 'forwards' }
-      );
-    }
-
-    activeAnimation = closeAnimation;
-    const finished = [closeAnimation.finished];
-    if (embedReturnAnimation) finished.push(embedReturnAnimation.finished);
-    if (detailAnimation) finished.push(detailAnimation.finished);
-
-    Promise.all(finished).then(() => {
-      if (activeAnimation !== closeAnimation) return;
-      if (embedFrame) cancelAnimationFrame(embedFrame);
-      embedFrame = 0;
-      activeAnimation = null;
-      closeAnimation.cancel();
-      if (embedReturnAnimation) embedReturnAnimation.cancel();
-      if (detailAnimation) detailAnimation.cancel();
-      cleanUp();
-    }).catch(() => {});
+    activeAnimation=ca;
+    syncEmbedVisualLoop(ca);
+    const pending=[ca.finished];if(ma)pending.push(ma.finished);if(ia)pending.push(ia.finished);if(da)pending.push(da.finished);
+    Promise.all(pending).then(()=>{
+      if(activeAnimation!==ca)return;
+      if(embedFrame)cancelAnimationFrame(embedFrame);
+      embedFrame=0;syncEmbedScale(getEmbedWrapper());activeAnimation=null;
+      ca.cancel();if(ma)ma.cancel();if(ia)ia.cancel();if(da)da.cancel();
+      mount.style.transform=mt;mount.style.transformOrigin=mo;
+      if(cardInfo){cardInfo.style.transform=it;cardInfo.style.transformOrigin=io;}
+      cleanUp();document.body.classList.remove('closing-from-artwork');
+    }).catch(()=>{});
   };
 
   card.addEventListener('click', event => {
@@ -589,7 +550,6 @@ syncSearchUI();
         setExpandControl(false);
         mode = 'open';
         card.style.transition = '';
-        refreshEmbeddedSwitch();
       });
     }
   };
@@ -626,18 +586,8 @@ syncSearchUI();
     } else if (mode === 'open') {
       target = measureTarget();
       setGeometry(target);
-      refreshEmbeddedSwitch();
     } else if (mode === 'closed' && embedVisualState) {
-      if (embedFrame) cancelAnimationFrame(embedFrame);
-      embedFrame = 0;
-      const embedWrapper = getEmbedWrapper();
-      if (embedWrapper) {
-        for (const [name, value, priority] of embedVisualState.styles) {
-          if (value) embedWrapper.style.setProperty(name, value, priority);
-          else embedWrapper.style.removeProperty(name);
-        }
-      }
-      embedVisualState = null;
+      syncEmbedScale(getEmbedWrapper());
     }
   });
 })();
