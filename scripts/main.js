@@ -456,7 +456,7 @@ syncSearchUI();
     artworkExpanded = false;
     document.body.classList.remove('artwork-only');
     document.body.classList.add('view-closing');
-    card.classList.remove('details-ready', 'is-title-expanded', 'is-artwork-expanded');
+    card.classList.remove('details-ready', 'is-title-expanded');
     setExpandControl(false);
 
     runGeometryAnimation(from, to, () => {
