@@ -1,0 +1,46 @@
+/* Motion polish: keep transient surfaces ready for compositing without
+   permanently promoting every card on the page. */
+body::before {
+  will-change: opacity;
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+body.viewing .detail-content,
+body.artwork-only .detail-content,
+body.view-closing .detail-content {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.preview-card.is-open,
+.preview-card.is-closing,
+.preview-card.is-artwork-expanded {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.preview-card.is-open .preview-mount,
+.preview-card.is-closing .preview-mount {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.preview-actions {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  .detail-content,
+  .card-info,
+  .card-title,
+  .preview-actions,
+  .action-btn {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+}
