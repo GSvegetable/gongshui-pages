@@ -382,8 +382,9 @@ syncSearchUI();
     card.classList.remove('is-open', 'details-ready', 'is-title-expanded');
     document.body.classList.remove('viewing', 'view-closing');
     mode = 'closed';
+    // Restore the embed's original styles without forcing an extra layout read.
+    // That read can make canvas-based embeds repaint like a page refresh.
     restoreEmbedVisualState();
-    refreshEmbeddedSwitch();
     card.focus({ preventScroll: true });
   };
 
@@ -435,6 +436,17 @@ syncSearchUI();
     }
     if (embedFrame) cancelAnimationFrame(embedFrame);
     embedFrame = 0;
+
+    // Freeze the exact visible rectangle before reversing. This also prevents
+    // a snap if close is pressed while the opening animation is still running.
+    card.style.position = 'fixed';
+    card.style.left = currentRect.left + 'px';
+    card.style.top = currentRect.top + 'px';
+    card.style.width = currentRect.width + 'px';
+    card.style.height = currentRect.height + 'px';
+    card.style.padding = '12px';
+    card.style.margin = '0';
+    card.style.transition = 'none';
 
     const dx = origin.left - currentRect.left;
     const dy = origin.top - currentRect.top;
