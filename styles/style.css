@@ -600,3 +600,8 @@ body.view-closing .top-utility-actions{
 main{--gallery-card-min:260px}
 .grid{transform-origin:top left}
 .preview-card{touch-action:pan-y}
+
+
+/* Detail facts were removed; let the remaining project description use the full row. */
+.detail-overview { grid-template-columns:minmax(0,1fr); }
+.detail-copy { max-width:none; }
