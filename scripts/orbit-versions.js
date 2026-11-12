@@ -61,6 +61,7 @@
 
     const next = document.createElement('iframe');
     next.title = scene === 'planet' ? 'Pixel Orbit 星球版' : 'Pixel Orbit 田园版';
+    next.dataset.compositionFrame = '';
     next.loading = 'eager';
     next.allow = 'fullscreen';
     next.src = sourceFor(scene);
