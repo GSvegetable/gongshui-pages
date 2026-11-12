@@ -372,11 +372,17 @@ syncSearchUI();
 
     card.classList.add('is-animating');
 
+    // The target layout is already in place. FLIP only the card's transform so the
+    // browser can composite the motion without reflowing the iframe at every frame.
+    const dx = first.left - last.left;
+    const dy = first.top - last.top;
+    const sx = first.width / Math.max(1, last.width);
+    const sy = first.height / Math.max(1, last.height);
     const frames = [
-      { left: first.left + 'px', top: first.top + 'px', width: first.width + 'px', height: first.height + 'px', padding: first.padding },
-      { left: last.left + 'px', top: last.top + 'px', width: last.width + 'px', height: last.height + 'px', padding: last.padding }
+      { transformOrigin: '0 0', transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})` },
+      { transformOrigin: '0 0', transform: 'translate(0px, 0px) scale(1, 1)' }
     ];
-    const animations = [card.animate(frames, { duration, easing, fill: 'backwards' })];
+    const animations = [card.animate(frames, { duration, easing, fill: 'both' })];
 
     // Reveal the lab row on the exact same timeline as the card rise.
     const labRow = revealLab ? card.querySelector('.card-inline-experience') : null;
@@ -404,22 +410,14 @@ syncSearchUI();
       ));
     }
 
-    const token = { animations, cancelled: false, scaleFrame: 0 };
+    const token = { animations, cancelled: false };
     anim = token;
-
-    // ResizeObserver callbacks can arrive between compositor frames and produce
-    // tiny scale oscillations. Read the animated mount in the same rAF timeline.
-    const syncAnimatedScale = () => {
-      if (token.cancelled || !card.classList.contains('is-animating')) return;
-      setScale(work, work.mount.getBoundingClientRect().width - 4);
-      token.scaleFrame = requestAnimationFrame(syncAnimatedScale);
-    };
-    token.scaleFrame = requestAnimationFrame(syncAnimatedScale);
 
     Promise.all(animations.map(a => a.finished)).then(() => {
       if (token.cancelled) return;
       anim = null;
-      cancelAnimationFrame(token.scaleFrame);
+      // Remove the finished FLIP effect before applying the exact final stage scale.
+      animations[0].cancel();
       setScale(work, work.mount.getBoundingClientRect().width - 4);
       card.classList.remove('is-animating');
       if (done) done();
@@ -430,7 +428,6 @@ syncSearchUI();
     if (!anim) return;
     anim.cancelled = true;
     anim.animations.forEach(a => a.cancel());
-    cancelAnimationFrame(anim.scaleFrame);
     anim = null;
     if (current) current.card.classList.remove('is-animating');
   };
