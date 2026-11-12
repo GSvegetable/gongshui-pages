@@ -1,32 +1,32 @@
 (() => {
-  const panel = document.getElementById('orbit-detail-panel');
   const card = document.getElementById('pixel-orbit-card');
+  const panel = document.getElementById('orbit-detail-panel');
   const frame = card?.querySelector('.preview-mount iframe');
-  if (!panel || !frame) return;
+  if (!card || !panel || !frame) return;
 
   const buttons = [...panel.querySelectorAll('[data-orbit-version]')];
-  const storageKey = 'pixel-orbit-home-composition';
-  const valid = new Set(['art', 'full']);
-  let selected = 'art';
+  const storageKey = 'pixel-orbit-home-scene';
+  const valid = new Set(['countryside', 'planet']);
+  let selected = 'countryside';
   try {
     const saved = localStorage.getItem(storageKey);
     if (valid.has(saved)) selected = saved;
   } catch (_) {}
 
-  const sourceFor = version =>
-    'https://gsvegetable.github.io/-pixel-orbit/showcase.html?composition=' + version;
+  const sourceFor = scene =>
+    'https://gsvegetable.github.io/-pixel-orbit/showcase.html?scene=' + scene + '&composition=art';
 
-  const apply = version => {
-    if (!valid.has(version)) return;
-    selected = version;
-    const next = sourceFor(version);
+  const apply = scene => {
+    if (!valid.has(scene)) return;
+    selected = scene;
+    const next = sourceFor(scene);
     if (frame.src !== next) frame.src = next;
     buttons.forEach(button => {
-      const active = button.dataset.orbitVersion === version;
+      const active = button.dataset.orbitVersion === scene;
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', String(active));
     });
-    try { localStorage.setItem(storageKey, version); } catch (_) {}
+    try { localStorage.setItem(storageKey, scene); } catch (_) {}
   };
 
   buttons.forEach(button => button.addEventListener('click', event => {
