@@ -1,61 +1,86 @@
 /* =========================================================
-   滚动驱动的顶栏行为 — v1.0.0
+   滚动驱动的顶栏行为 — v2.0.0
    ---------------------------------------------------------
-   ① 搜索栏：往下滚时向右缩回，只剩一个带放大镜的正方形方块；
+   ① 搜索栏：往下滚时缩成一个 58×58 的方块（只剩放大镜），
+      并滑到左侧导航那一列，和左边三个马里奥方块同尺寸、同左缘；
       点放大镜、或者滑回页面顶部，就重新展开。
-   ② 右上角「开发者与贡献者」「设置」：往下滚时躲到屏幕外，
-      斜着露出大约一半，像在偷偷看；点一下它们就回到原位。
+      注意：手动展开之后只要再往下滚，它还是会收起来——
+      之前用「钉住」标志导致它一直保持展开，是不对的。
 
-   两件事都由滚动位置驱动，没有额外的开关按钮。
+   ② 右上角的两个方块（设置、贡献者）：往下滚时整组向上滑出视口，
+      不再从屏幕边缘探出半个身子。半截方块挂在边上既挡视线又容易误触，
+      整组让开最干净；往上滚一点就还回来。
+
    节奏读站点的 --dur / --ease，和卡片、详情面板保持同速。
    ========================================================= */
 (() => {
   const root = document.documentElement;
   const searchWrapper = document.getElementById('search-wrapper');
   const searchInput = document.getElementById('search-input');
-  const searchStatus = document.getElementById('search-status');
   const utility = document.getElementById('top-utility');
   if (!searchWrapper) return;
 
-  // 滚过这个距离才开始收，避免页面轻微抖动就触发
+  // 滚过这个距离才算「往下看」，避免页面轻微抖动就触发
   const THRESHOLD = 40;
+  // 往上滚多少像素就把右上角那组按钮还回来
+  const UP_REVEAL = 8;
 
-  // 用户主动点过放大镜后，搜索栏先钉住展开状态，直到再次滚动
-  let searchPinned = false;
-  // 点过右上角按钮后，它们先留在原位，回到顶部才恢复"偷偷看"
-  let utilityRestored = false;
+  let lastY = window.scrollY;
+  // 用户手动点开过搜索栏：下一次滚动就重新收回去
+  let manualExpand = false;
+
+  const setSearch = collapsed => {
+    if (root.classList.contains('search-collapsed') === collapsed) return;
+    root.classList.toggle('search-collapsed', collapsed);
+    // 收起来的时候输入框还在里面，不让它继续接收看不见的输入
+    if (collapsed && searchInput && document.activeElement === searchInput) searchInput.blur();
+  };
+  const setUtility = hidden => root.classList.toggle('top-utility-hidden', hidden);
 
   const sync = () => {
-    const down = window.scrollY > THRESHOLD;
-    if (!down) {
-      searchPinned = false;
-      utilityRestored = false;
-    }
-    root.classList.toggle('search-collapsed', down && !searchPinned);
-    root.classList.toggle('utility-peeking', down && !utilityRestored);
-  };
+    const y = window.scrollY;
+    const delta = y - lastY;
+    lastY = y;
 
-  const expandSearch = () => {
-    if (!root.classList.contains('search-collapsed')) return;
-    searchPinned = true;
-    root.classList.remove('search-collapsed');
+    if (y <= THRESHOLD) {
+      // 回到顶部：顶栏全部回来
+      manualExpand = false;
+      setSearch(false);
+      setUtility(false);
+      return;
+    }
+    if (manualExpand) {
+      // 刚才是手动点开的，这次滚动就把它收回去（之前用「钉住」标志，
+      // 结果点开之后怎么滚都一直展开）
+      manualExpand = false;
+      setSearch(true);
+      setUtility(true);
+      return;
+    }
+    if (delta > 0) {
+      // 往下滚 → 收起来
+      setSearch(true);
+      setUtility(true);
+    } else if (delta < -UP_REVEAL) {
+      // 往上滚一点 → 右上角那组按钮先还回来
+      setUtility(false);
+    }
   };
 
   // 点放大镜（或点方块里的任何位置）→ 展开并聚焦
   searchWrapper.addEventListener('click', event => {
     if (event.target.closest('#search-clear')) return;
-    expandSearch();
+    if (!root.classList.contains('search-collapsed')) return;
+    manualExpand = true;
+    setSearch(false);
+    searchInput?.focus();
   });
 
   // 键盘快捷键（/ 或 Ctrl+K）把焦点送进输入框时，也要先把方块展开
-  searchInput?.addEventListener('focus', expandSearch);
-
-  // 点露出来的那一半 → 右上角这组按钮回到原位，
-  // 用捕获阶段监听，保证在按钮自己的行为（跳转 / 展开面板）之前先复位
-  utility?.addEventListener('click', () => {
-    utilityRestored = true;
-    root.classList.remove('utility-peeking');
-  }, true);
+  searchInput?.addEventListener('focus', () => {
+    if (root.classList.contains('search-collapsed')) manualExpand = true;
+    setSearch(false);
+  });
 
   window.addEventListener('scroll', sync, { passive: true });
   window.addEventListener('resize', sync, { passive: true });

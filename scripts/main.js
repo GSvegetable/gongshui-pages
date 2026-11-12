@@ -52,6 +52,8 @@ const tr = (key, fallback, vars) => {
    ========================================================= */
 const navHome = document.getElementById('nav-home');
 const navBookmark = document.getElementById('nav-bookmark');
+const navIndex = document.getElementById('nav-index');
+const compassView = document.getElementById('compass-view');
 const galleryCards = works.map(work => work.card);
 const emptyState = document.getElementById('empty-state');
 const emptyDesc = document.getElementById('empty-desc');
@@ -60,13 +62,45 @@ const searchWrapper = document.getElementById('search-wrapper');
 const searchClear = document.getElementById('search-clear');
 const searchStatus = document.getElementById('search-status');
 
+/* ---------- 模糊搜索 ----------
+   整段包含算命中；再往前一步，查询的字符按顺序散落在标题里也算命中
+   （搜「像素环」能命中「像素圆环」）。标题、英文名、标签、编号一起参与匹配；
+   详情描述只做整段包含，否则长句会让模糊匹配变得毫无意义。 */
+const norm = value => (value || '').toLowerCase().replace(/\s+/g, '');
+const fuzzyMatch = (text, query) => {
+  if (!query) return true;
+  const t = norm(text);
+  const q = norm(query);
+  if (!q) return true;
+  if (t.includes(q)) return true;
+  let at = 0;
+  for (const ch of q) {
+    at = t.indexOf(ch, at);
+    if (at === -1) return false;
+    at += 1;
+  }
+  return true;
+};
+
+const searchTextOf = card => {
+  const title = card.querySelector('.card-title')?.textContent || '';
+  const tags = [...card.querySelectorAll('.work-tag')].map(t => t.textContent).join(' ');
+  return [title, card.dataset.en || '', tags, card.dataset.id || ''].join(' ');
+};
+
+const searchDescOf = card => {
+  const panel = card.dataset.detail ? document.getElementById(card.dataset.detail) : null;
+  return panel?.querySelector('.detail-description')?.textContent || '';
+};
+
 const renderGallery = () => {
   let visibleCount = 0;
+  const query = norm(AppState.searchQuery);
   galleryCards.forEach(item => {
     const isBookmarked = AppState.bookmarks.includes(item.dataset.id);
-    const title = item.querySelector('.card-title')?.textContent || '';
-    const searchableText = `${title} ${item.dataset.tags || ''}`.toLowerCase();
-    const searchMatch = searchableText.includes(AppState.searchQuery.toLowerCase());
+    const searchMatch = query
+      ? (fuzzyMatch(searchTextOf(item), query) || norm(searchDescOf(item)).includes(query))
+      : true;
     const shouldShow = AppState.currentTab === 'home'
       ? searchMatch
       : isBookmarked && searchMatch;
@@ -111,7 +145,27 @@ const updateSearch = value => {
   syncSearchUI();
 };
 
+/* ---------- 指南针视图：首页里的另一个视图，不是新页面 ----------
+   点中间那个方块，作品列表收起、指南针内容出现；
+   左侧三个马里奥方块始终留在原位可见。 */
+const setCompassView = on => {
+  if (!navIndex || !compassView) return;
+  document.body.classList.toggle('compass-mode', on);
+  compassView.setAttribute('aria-hidden', String(!on));
+  navIndex.classList.toggle('active', on);
+  navIndex.setAttribute('aria-expanded', String(on));
+  navHome.classList.toggle('active', !on);
+  navHome.setAttribute('aria-pressed', String(!on));
+  if (on) {
+    AppState.currentTab = 'home';
+    navBookmark.classList.remove('active');
+    navBookmark.setAttribute('aria-pressed', 'false');
+    renderGallery();
+  }
+};
+
 navHome.addEventListener('click', () => {
+  setCompassView(false);
   AppState.currentTab = 'home';
   navHome.classList.add('active'); navBookmark.classList.remove('active');
   navHome.setAttribute('aria-pressed', 'true'); navBookmark.setAttribute('aria-pressed', 'false');
@@ -119,10 +173,15 @@ navHome.addEventListener('click', () => {
 });
 
 navBookmark.addEventListener('click', () => {
+  setCompassView(false);
   AppState.currentTab = 'bookmarks';
   navBookmark.classList.add('active'); navHome.classList.remove('active');
   navBookmark.setAttribute('aria-pressed', 'true'); navHome.setAttribute('aria-pressed', 'false');
   renderGallery();
+});
+
+navIndex?.addEventListener('click', () => {
+  setCompassView(!document.body.classList.contains('compass-mode'));
 });
 
 searchInput.addEventListener('input', event => updateSearch(event.target.value));
@@ -460,6 +519,8 @@ syncSearchUI();
     lockScroll();
     setActivePanel(work);
     setComposition(work, 'full');
+    // 详情面板不记滚动位置：每次打开都从最上面开始
+    if (work.panel) work.panel.scrollTop = 0;
 
     body.classList.remove('artwork-only');
     body.classList.add('viewing');
@@ -617,8 +678,7 @@ syncSearchUI();
 
   /* =========================================================
      专属业务逻辑：海边灯塔的场景切换（不影响通用框架）
-     ========================================================= */
-  const detailPanel = document.getElementById('detail-panel');
+     ========================================================= */  const detailPanel = document.getElementById('detail-panel');
   if (detailPanel) {
     const sceneChoices = [...detailPanel.querySelectorAll('[data-scene-choice]')];
     const validScenes = new Set(sceneChoices.map(b => b.dataset.sceneChoice));
@@ -658,4 +718,45 @@ syncSearchUI();
   }
 
 
+})();
+
+/* =========================================================
+   详情页里的代码块：一键复制
+   ---------------------------------------------------------
+   剪贴板权限拿不到时（http、非用户手势等）退回到「选中代码」，
+   让用户自己按 Ctrl/⌘+C，而不是什么都不发生。
+   ========================================================= */
+(() => {
+  document.querySelectorAll('[data-copy-code]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const block = button.closest('.code-block');
+      const code = block?.querySelector('code')?.textContent || '';
+      const i18nText = (key, fallback) => {
+        const i18n = window.siteI18n;
+        if (i18n && typeof i18n.t === 'function') {
+          const value = i18n.t(key);
+          if (value != null) return value;
+        }
+        return fallback;
+      };
+      const flash = text => {
+        const original = button.textContent;
+        button.textContent = text;
+        button.classList.add('is-done');
+        setTimeout(() => { button.textContent = original; button.classList.remove('is-done'); }, 1600);
+      };
+      try {
+        await navigator.clipboard.writeText(code);
+        flash(i18nText('embed.copied', '已复制'));
+      } catch (_) {
+        const target = block?.querySelector('code');
+        if (!target) return;
+        const range = document.createRange();
+        range.selectNodeContents(target);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    });
+  });
 })();

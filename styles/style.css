@@ -67,6 +67,25 @@ body.view-closing #mario-nav { transition: none; }
 .block-q,.block-coin { --face:#efa02c; --side:#a85f10; --ink:#1b2146; }
 .block-brick { --face:#ffd400; --side:#b58f00; --ink:#1b2146; }
 
+/* ---------- 指南针视图：首页里的另一个视图，不是新页面 ----------
+   点中间那个方块，作品列表收起、指南针内容出现；
+   左侧三个马里奥方块始终留在原位可见。 */
+#compass-view { display:none; }
+body.compass-mode #compass-view { display:block; }
+body.compass-mode .grid { display:none; }
+body.compass-mode .top-bar { opacity:0; visibility:hidden; pointer-events:none; }
+.compass-view-inner { width:min(620px,100%); padding-left:88px; }
+.compass-view-block {
+  display:grid;place-items:center;width:74px;height:74px;margin:0 0 28px;
+  border:3px solid #34220e;border-radius:5px;background:#ffd400;color:#1b2146;
+  box-shadow:0 5px 0 #b58f00,0 7px 0 #34220e;
+}
+.compass-view-block svg { width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round; }
+.compass-view-kicker { margin:0 0 12px;color:#f4bd3c;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:2.4px; }
+.compass-view h1 { margin:0;color:#f4f0e8;font-size:clamp(32px,6vw,54px);font-weight:900;letter-spacing:-1.8px;line-height:1.08; }
+.compass-view-note { margin:18px 0 0;color:#b8aa92;font-size:13px;line-height:1.95; }
+@media(max-width:600px){ .compass-view-inner { padding-left:64px; } }
+
 /* ---------- 搜索：仅在作品列表视图出现 ---------- */
 .top-bar {
   position: fixed;
@@ -104,13 +123,15 @@ body.view-closing .top-bar { transition: none; }
   border-radius: 7px;
   box-shadow: 4px 4px 0 #080808;
   cursor: text;
-  /* 收窄时靠右停：缩回的方向才是"向右"，而不是从右边往左塌 */
-  margin-left: auto;
+  /* 收起时向左缩回，滑到左侧导航那一列：112px(搜索栏左缘) - 28px(导航左缘) */
+  --collapse-shift: -84px;
   transition:
     max-width var(--dur) var(--ease),
+    height var(--dur) var(--ease),
     padding var(--dur) var(--ease),
     gap var(--dur) var(--ease),
-    border-color .18s ease, box-shadow .18s ease, transform .18s ease, background .18s ease;
+    transform var(--dur) var(--ease),
+    border-color .18s ease, box-shadow .18s ease, background .18s ease;
 }
 .search-wrapper:focus-within {
   border-color: #f4bd3c;
@@ -154,13 +175,24 @@ body.view-closing .top-bar { transition: none; }
 /* 收起时清空按钮也一起缩掉 */
 html.search-collapsed .search-clear { width: 0; min-width: 0; padding: 0; opacity: 0; overflow: hidden; pointer-events: none; }
 
-/* ---------- 下滑时：搜索栏缩回成只剩放大镜的正方形方块 ---------- */
+/* ---------- 下滑时：搜索栏缩回成放大镜方块，滑到左侧导航那一列 ----------
+   收起后是一个 58×58 的方块，和左边三个马里奥方块同尺寸、同左缘，
+   只是上下位置不一样（导航是垂直居中的，搜索栏贴着顶部）。 */
 html.search-collapsed .search-wrapper {
-  max-width: 52px;
-  padding-left: 16px;
-  padding-right: 16px;
+  width: 58px;
+  max-width: 58px;
+  height: 58px;
+  padding: 0;
+  margin: 0;
   gap: 0;
+  justify-content: center;
+  transform: translateX(var(--collapse-shift));
+  border: 3px solid #34220e;
+  border-radius: 5px;
+  background: #efa02c;
+  box-shadow: 0 5px 0 #a85f10, 0 7px 0 #34220e;
 }
+html.search-collapsed .search-icon { width: 25px; height: 25px; color: #1b2146; stroke-width: 2.4; }
 html.search-collapsed #search-input {
   width: 0;
   min-width: 0;
@@ -426,6 +458,18 @@ body.view-closing .work-detail.is-active {
 .creator-link:active{transform:translateY(3px);box-shadow:none}
 .creator-link svg{width:18px;height:18px}
 .creator-link:focus-visible{outline:2px solid #f4bd3c;outline-offset:3px}
+
+/* ---------- 详情页里的嵌入式代码 ---------- */
+.embed-snippet{margin-top:30px}
+.embed-snippet h2{margin:0;padding:18px 0 8px;color:#191711;font-size:18px}
+.embed-note{margin:0 0 12px;color:#6b5d47;font-size:12px;line-height:1.8}
+.embed-note:last-child{margin:12px 0 0}
+.code-block{display:flex;flex-direction:column;border:2px solid #211d15;border-radius:6px;background:#efe6d2;overflow:hidden}
+.code-block pre{margin:0;padding:13px 14px;overflow-x:auto;color:#2a2418;font:12px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace}
+.code-copy{align-self:flex-end;margin:0 10px 10px;padding:6px 11px;border:2px solid #211d15;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.3px;cursor:pointer;box-shadow:2px 2px 0 #211d15;transition:transform .1s,box-shadow .1s,background .15s}
+.code-copy:hover{background:#ffd36a}
+.code-copy:active{transform:translate(2px,2px);box-shadow:none}
+.code-copy.is-done{background:#5c7a54;color:#f7f1e5}
 .link-arrow { margin-left:12px; font-size:17px; }
 .detail-facts { display:grid; gap:0; }
 .detail-facts div { display:flex; justify-content:space-between; gap:12px; padding:12px 0; }
@@ -488,7 +532,9 @@ body.view-closing .work-detail.is-active {
   .mario-block svg { width:22px; height:22px; }
 
   .top-bar { top: 16px; left: 78px; right: 14px; width: auto; }
-  .search-wrapper { height: 46px; padding: 0 11px 0 13px; gap: 9px; border-radius: 6px; }
+  .search-wrapper { height: 46px; padding: 0 11px 0 13px; gap: 9px; border-radius: 6px; --collapse-shift: -64px; }
+  html.search-collapsed .search-wrapper { width: 50px; max-width: 50px; height: 50px; }
+  html.search-collapsed .search-icon { width: 22px; height: 22px; }
   .search-status { font-size: 10px; }
 
   main { padding:80px 14px 36px; }
@@ -549,26 +595,31 @@ body.view-closing .work-detail.is-active {
 .language-toggle:focus-visible{outline:2px solid #f5ecd9;outline-offset:4px}
 @media(max-width:600px){.language-toggle{top:73px;right:14px;min-width:44px;height:34px}}
 
-/* ---------- Top-right utility buttons: match the site's Mario block style ---------- */
-.top-utility-actions{position:fixed;top:24px;right:28px;z-index:120;display:flex;align-items:center;gap:10px}
-/* 下滑时这组按钮躲到屏幕外：文字链接整个滑出去，齿轮方块斜着在右缘露出约一半，
-   像在偷偷看；点一下它们就回到原位。
-   用独立的 translate / rotate 属性，和按钮自己的 hover transform 不打架。 */
-.top-utility-actions .contributors-home-link,
-.top-utility-actions .settings-toggle{transition:translate var(--dur) var(--ease),rotate var(--dur) var(--ease),transform .1s,box-shadow .1s,background .15s}
-html.utility-peeking .contributors-home-link{translate:200% 0;rotate:-8deg}
-html.utility-peeking .settings-toggle{translate:104% 0;rotate:-8deg}
-.top-utility-actions .contributors-home-link,
+/* ---------- Top-right utility buttons: match the site's Mario block style ----------
+   两个都是正方形图标方块：左边是设置齿轮，右边是贡献者小人。
+   下滑时整组向上滑出视口（不是从屏幕边缘探出半个身子）——
+   半截方块挂在屏幕边上既挡视线又容易被误触，干脆整个让开。 */
+.top-utility-actions{position:fixed;top:24px;right:28px;z-index:120;display:flex;align-items:center;gap:10px;transition:transform var(--dur) var(--ease),opacity var(--dur) var(--ease)}
+html.top-utility-hidden .top-utility-actions{transform:translateY(calc(-100% - 34px));opacity:0;pointer-events:none}
+.top-utility-actions .contributors-toggle{
+  position:static;display:grid;place-items:center;gap:0;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;
+  border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;
+  box-shadow:3px 4px 0 #000;cursor:pointer;text-decoration:none;
+  transition:transform .1s,box-shadow .1s,background .15s;
+}
+.top-utility-actions .contributors-toggle:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #000;background:#ffd36a}
+.top-utility-actions .contributors-toggle:active{transform:translate(3px,4px);box-shadow:none}
+.top-utility-actions .contributors-toggle svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .top-utility-actions .language-toggle{position:static;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 12px;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.25px;text-decoration:none;white-space:nowrap;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
-.top-utility-actions .contributors-home-link:hover,
 .top-utility-actions .language-toggle:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #000;background:#ffd36a}
-.top-utility-actions .contributors-home-link:active,
 .top-utility-actions .language-toggle:active{transform:translate(3px,4px);box-shadow:none}
 .top-utility-actions :focus-visible{outline:2px solid #f5ecd9;outline-offset:4px}
 .top-utility-actions .language-toggle{min-width:48px}
 @media(max-width:600px){
  .top-utility-actions{top:72px;right:14px;gap:7px}
- .top-utility-actions .contributors-home-link,.top-utility-actions .language-toggle{min-height:34px;padding:0 8px;border-width:2px;font-size:10px;box-shadow:2px 3px 0 #000}
+ .top-utility-actions .contributors-toggle{width:38px;height:38px;min-width:38px;min-height:38px;box-shadow:2px 3px 0 #000}
+ .top-utility-actions .contributors-toggle svg{width:21px;height:21px}
+ .top-utility-actions .language-toggle{min-height:34px;padding:0 8px;border-width:2px;font-size:10px;box-shadow:2px 3px 0 #000}
  .top-utility-actions .language-toggle{min-width:42px}
 }
 
