@@ -20,9 +20,11 @@
     if (valid.has(saved)) selected = saved;
   } catch (_) {}
 
-  const initialScene = new URL(originalFrame.src, location.href).searchParams.get('scene') === 'planet'
-    ? 'planet' : 'countryside';
-  if (selected !== initialScene) originalFrame.src = sourceFor(selected);
+  const initialScene = selected;
+  const currentUrl = new URL(originalFrame.src, location.href);
+  if (currentUrl.searchParams.get('scene') !== selected || currentUrl.searchParams.get('v') !== '1.3.6') {
+    originalFrame.src = sourceFor(selected);
+  }
 
   const mount = originalFrame.parentElement;
   const stack = document.createElement('div');
@@ -66,6 +68,9 @@
     frame.dataset.orbitScene = scene;
     frame.classList.toggle('is-visible', scene === activeScene);
     frames.set(scene, frame);
+    frame.addEventListener('load', () => {
+      frame.contentWindow?.postMessage({ type: 'pixel-orbit-ping' }, '*');
+    });
     stack.appendChild(frame);
   };
 
@@ -78,7 +83,6 @@
   preload.dataset.compositionFrame = '';
   preload.loading = 'eager';
   preload.allow = 'fullscreen';
-  preload.src = sourceFor(otherScene);
   preload.className = 'orbit-frame-preload';
   registerFrame(preload, otherScene);
 
@@ -90,6 +94,8 @@
     ready.add(scene);
     if (pendingScene === scene) activate(scene);
   });
+
+  preload.src = sourceFor(otherScene);
 
   originalFrame.addEventListener('error', () => {
     ready.delete(initialScene);
