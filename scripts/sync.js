@@ -23,8 +23,21 @@
 
   const state = {
     active: false,      // 已登录且云端可用
+    synced: false,      // 这一轮同步已经跑完
     userId: null,
     error: null
+  };
+
+  // 上一次同步完成时的收藏快照。
+  // 三方对比（本地 / 云端 / 上次快照）才能分清
+  // 「本地新增」和「云端已删」——只比两方的话，
+  // 云端删掉的东西会被本地当成新增再传回去，删除就永远传不过来。
+  const baselineKey = () => 'site-sync-baseline:' + (state.userId || 'anonymous');
+  const readBaseline = () => {
+    try { return JSON.parse(localStorage.getItem(baselineKey()) || '[]'); } catch (_) { return []; }
+  };
+  const writeBaseline = list => {
+    try { localStorage.setItem(baselineKey(), JSON.stringify(list)); } catch (_) {}
   };
 
   const rest = async (path, options = {}) => {
@@ -124,6 +137,7 @@
 
   const api = {
     get active() { return state.active; },
+    get synced() { return state.synced; },
     get error() { return state.error; },
 
     // 收藏：本地先改，再同步到云端
@@ -132,6 +146,12 @@
       try {
         if (on) await pushBookmarks([workId]);
         else await removeBookmark(workId);
+        // 基线跟着一起改，否则下一次同步会把它当成"本地新增"再传一遍
+        const base = readBaseline();
+        const next = on
+          ? base.concat(base.indexOf(workId) === -1 ? [workId] : [])
+          : base.filter(id => id !== workId);
+        writeBaseline(next);
         state.error = null;
       } catch (error) {
         state.error = error.message;
@@ -161,12 +181,20 @@
       try {
         const remote = await pullBookmarks();
         const local = (typeof AppState !== 'undefined' && AppState.bookmarks) ? AppState.bookmarks.slice() : [];
-        const localOnly = local.filter(id => remote.indexOf(id) === -1);
-        if (localOnly.length) await pushBookmarks(localOnly);
+        const base = readBaseline();
 
-        const merged = remote.concat(localOnly);
+        // 本地有、云端没有的，分两类：
+        //   快照里有 → 别人那边把它删了，跟着删（删除得以跨设备传播）
+        //   快照里没有 → 本地新增，往云端补传
+        const localOnly = local.filter(id => remote.indexOf(id) === -1);
+        const fresh = localOnly.filter(id => base.indexOf(id) === -1);
+        const deletedRemotely = localOnly.filter(id => base.indexOf(id) !== -1);
+        if (fresh.length) await pushBookmarks(fresh);
+
+        const merged = remote.concat(fresh);
         if (typeof AppState !== 'undefined') AppState.bookmarks = merged;
         if (typeof saveBookmarks === 'function') saveBookmarks();
+        writeBaseline(merged);
 
         const remotePrefs = await pullPrefs();
         applyLocalPrefs(remotePrefs);
@@ -180,7 +208,8 @@
         if (Object.keys(missing).length) await savePrefs(Object.assign({}, remotePrefs, missing));
 
         state.error = null;
-        window.dispatchEvent(new CustomEvent('site:synced', { detail: { bookmarks: merged } }));
+        state.synced = true;
+        window.dispatchEvent(new CustomEvent('site:synced', { detail: { bookmarks: merged, deletedRemotely } }));
       } catch (error) {
         state.error = error.message;
         state.active = false;
@@ -189,6 +218,7 @@
 
     stop() {
       state.active = false;
+      state.synced = false;
       state.userId = null;
     }
   };
