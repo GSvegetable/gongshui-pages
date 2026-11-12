@@ -30,6 +30,24 @@ const saveBookmarks = () => {
 };
 
 /* =========================================================
+   0.5 站点文案取词：中文回退写在调用处，英文走 index.html 的 siteI18n
+   ---------------------------------------------------------
+   语言切换后，搜索状态、空状态、放大按钮这些动态文案要跟着换，
+   否则英文态里会残留中文。
+   ========================================================= */
+const siteLang = () => (document.documentElement.lang === 'en' ? 'en' : 'zh');
+const tr = (key, fallback, vars) => {
+  // 中文就是页面上的原文，只有切到英文才查字典
+  if (siteLang() !== 'en') return fallback;
+  const i18n = window.siteI18n;
+  if (i18n && typeof i18n.t === 'function') {
+    const value = i18n.t(key, vars);
+    if (value != null) return value;
+  }
+  return fallback;
+};
+
+/* =========================================================
    1. 导航、搜索与列表渲染
    ========================================================= */
 const navHome = document.getElementById('nav-home');
@@ -58,8 +76,12 @@ const renderGallery = () => {
 
   if (!visibleCount) {
     emptyDesc.textContent = AppState.currentTab === 'bookmarks'
-      ? (AppState.searchQuery ? '收藏中没有找到匹配的作品' : '你还没有收藏任何作品哦')
-      : (AppState.searchQuery ? '没有找到匹配的作品' : '还没有添加作品');
+      ? (AppState.searchQuery
+          ? tr('empty.bookmarkNoMatch', '收藏中没有找到匹配的作品')
+          : tr('empty.bookmarkEmpty', '你还没有收藏任何作品哦'))
+      : (AppState.searchQuery
+          ? tr('empty.noMatch', '没有找到匹配的作品')
+          : tr('empty.noWorks', '还没有添加作品'));
     emptyState.classList.add('visible');
   } else {
     emptyState.classList.remove('visible');
@@ -73,7 +95,9 @@ const syncSearchUI = () => {
   searchInput.value = query;
   if (query) {
     const visible = galleryCards.filter(item => !item.classList.contains('hidden')).length;
-    searchStatus.textContent = visible ? '找到 ' + visible + ' 个作品' : '没有找到匹配的作品';
+    searchStatus.textContent = visible
+      ? tr('search.found', '找到 ' + visible + ' 个作品', { n: visible })
+      : tr('search.none', '没有找到匹配的作品');
     searchStatus.classList.add('visible');
   } else {
     searchStatus.textContent = '';
@@ -562,7 +586,9 @@ syncSearchUI();
     expandBtn.innerHTML = isExpanded
       ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v5H3M16 3v5h5M3 16h5v5M21 16h-5v5" /></svg>'
       : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5" /></svg>';
-    expandBtn.setAttribute('aria-label', isExpanded ? '返回作品介绍' : '放大作品展示区域');
+    expandBtn.setAttribute('aria-label', isExpanded
+      ? tr('action.restore', '返回作品介绍')
+      : tr('action.expand', '放大作品展示区域'));
     expandBtn.setAttribute('aria-pressed', String(isExpanded));
   };
 
@@ -602,6 +628,13 @@ syncSearchUI();
     if (e.key === 'Escape' && mode === 'open') {
       if (expanded) toggleExpand(); else closeWork();
     }
+  });
+
+  // 语言切换后刷新动态文案：搜索状态、空状态、放大按钮标签
+  document.addEventListener('site:languagechange', () => {
+    renderGallery();
+    syncSearchUI();
+    setExpandControl(expanded);
   });
 
   window.addEventListener('resize', () => {

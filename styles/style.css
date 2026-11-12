@@ -555,6 +555,10 @@ body.view-closing .work-detail.is-active {
 .top-utility-actions .settings-toggle:active{transform:translate(3px,4px);box-shadow:none}
 .settings-panel{position:absolute;top:calc(100% + 12px);right:0;width:230px;padding:14px;background:#f4ecd9;color:#211d15;border:3px solid #080808;border-radius:3px;box-shadow:5px 6px 0 #000;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 .settings-panel[hidden]{display:none}
+/* 面板开合用站点一贯的干脆时序，和马里奥方块的 0.1s 反馈一致 */
+@keyframes settings-panel-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.settings-panel{animation:settings-panel-in .16s ease-out}
+@media (prefers-reduced-motion: reduce){ .settings-panel{animation:none} }
 .settings-panel-title{display:flex;justify-content:space-between;align-items:center;padding-bottom:11px;border-bottom:2px solid #211d15;font-size:13px;font-weight:900}
 .settings-panel-title span{font-size:9px;opacity:.55;letter-spacing:1px}
 .settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;font-size:11px;font-weight:800}

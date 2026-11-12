@@ -1,4 +1,4 @@
-/* Inline extended experiences — v1.1.3 */
+/* Inline extended experiences — v1.1.4 */
 (() => {
   document.querySelectorAll('.inline-experience-section').forEach(section => {
     const viewer = section.querySelector('.inline-experience-viewer');
@@ -9,6 +9,16 @@
     const choices = [...section.querySelectorAll('[data-experience-url]:not(.card-experience-toggle)')];
     const cardToggle = section.querySelector('.card-experience-toggle');
     if (!viewer || !frame || !heading || !fallback || !close) return;
+
+    // 标题取按钮当前显示的文案，语言切换后跟着变；
+    // data-experience-title 只作兜底（它是写死的中文）。
+    const titleOf = button => {
+      const label = button.querySelector('.experience-label');
+      if (label) return label.textContent.trim();
+      const span = button.querySelector('span:not(.card-experience-chevron)');
+      if (span) return span.textContent.trim();
+      return button.dataset.experienceTitle || button.textContent.trim();
+    };
 
     const activate = button => {
       const url = button.dataset.experienceUrl;
@@ -23,7 +33,7 @@
         item.classList.toggle('is-active', active);
         item.setAttribute('aria-pressed', String(active));
       });
-      heading.textContent = button.dataset.experienceTitle || button.textContent.trim();
+      heading.textContent = titleOf(button);
       fallback.href = url;
       if (frame.src !== url) frame.src = url;
       viewer.hidden = false;
@@ -44,10 +54,8 @@
 
     if (cardToggle) cardToggle.addEventListener('click', event => {
       event.stopPropagation();
-      if (viewer.hidden) {
-        const lab = section.querySelector('[data-experience-url]');
-        activate(cardToggle);
-      } else dismiss();
+      if (viewer.hidden) activate(cardToggle);
+      else dismiss();
     });
     choices.forEach(button => {
       button.setAttribute('aria-pressed', 'false');

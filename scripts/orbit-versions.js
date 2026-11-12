@@ -1,4 +1,4 @@
-/* Pixel Orbit scene switcher — v1.2.3
+/* Pixel Orbit scene switcher — v1.3.9
    Keep all three scenes mounted so switching never waits for a fresh iframe navigation. */
 (() => {
   const card = document.getElementById('pixel-orbit-card');
@@ -6,13 +6,18 @@
   const originalFrame = card?.querySelector('.preview-mount iframe[data-composition-frame]');
   if (!card || !panel || !originalFrame) return;
 
+  // showcase 缓存版本号只在这里定义一次，index.html 的 iframe src 必须与它一致。
+  // 之前 index.html 写 v1.3.6、这里校验 v1.3.8，
+  // 每次进站都会判定"版本不符"并改写 src，白白多加载一次 iframe。
+  const SCENE_VERSION = '1.3.8';
+
   const buttons = [...panel.querySelectorAll('[data-orbit-version]')];
   const storageKey = 'pixel-orbit-home-scene-v2';
   const valid = new Set(['countryside', 'planet', 'world']);
   const composition = card.dataset.composition === 'full' ? 'full' : 'art';
   const sourceFor = scene =>
-    'https://gsvegetable.github.io/-pixel-orbit/showcase.html?v=1.3.8&scene=' +
-    scene + '&composition=' + composition;
+    'https://gsvegetable.github.io/-pixel-orbit/showcase.html?v=' + SCENE_VERSION +
+    '&scene=' + scene + '&composition=' + composition;
 
   let selected = 'planet';
   try {
@@ -21,10 +26,13 @@
   } catch (_) {}
 
   const initialScene = selected;
-  const currentUrl = new URL(originalFrame.src, location.href);
-  if (currentUrl.searchParams.get('scene') !== selected || currentUrl.searchParams.get('v') !== '1.3.8') {
-    originalFrame.src = sourceFor(selected);
-  }
+  // 先摘掉 src 再入栈：iframe 在 DOM 里被搬动会整个重新加载，
+  // 先摘 src 作废 HTML 里那一次请求，入栈后只加载一次。
+  const initialSrc = originalFrame.getAttribute('src') || '';
+  originalFrame.removeAttribute('src');
+  const currentUrl = new URL(initialSrc, location.href);
+  const needsSwap = currentUrl.searchParams.get('scene') !== selected ||
+                    currentUrl.searchParams.get('v') !== SCENE_VERSION;
 
   const mount = originalFrame.parentElement;
   const stack = document.createElement('div');
@@ -89,6 +97,8 @@
 
   // Keep all three editions mounted so every choice is an immediate cross-fade.
   registerFrame(originalFrame, initialScene);
+  // 入栈之后才给 src，避免搬动 iframe 触发的第二次加载。
+  originalFrame.src = needsSwap ? sourceFor(selected) : initialSrc;
   originalFrame.addEventListener('error', () => ready.delete(initialScene));
 
   [...valid].filter(scene => scene !== initialScene).forEach(scene => {

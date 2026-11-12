@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#171717" />
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="./styles/style.css?v=3.3.22" />
+  <link rel="stylesheet" href="./styles/style.css?v=3.3.24" />
   <link rel="stylesheet" href="./styles/orbit-art.css?v=1.1.9" />
 </head>
 <body>
@@ -29,7 +29,7 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.25a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5Z"/><path d="M10.1 2.8h3.8l.55 2.15c.55.2 1.06.5 1.52.88l2.12-.63 1.9 3.3-1.57 1.56c.08.6.08 1.2 0 1.8L20 13.42l-1.9 3.3-2.12-.63c-.46.38-.97.68-1.52.88l-.55 2.15h-3.8l-.55-2.15a7.1 7.1 0 0 1-1.52-.88l-2.12.63-1.9-3.3 1.57-1.56a6.8 6.8 0 0 1 0-1.8L4.02 8.5l1.9-3.3 2.12.63c.46-.38.97-.68 1.52-.88L10.1 2.8Z"/></svg>
     </button>
     <div class="settings-panel" id="settings-panel" hidden>
-      <div class="settings-panel-title">设置 <span>SETTINGS</span></div>
+      <div class="settings-panel-title"><span class="settings-title-label">设置</span> <span>SETTINGS</span></div>
       <div class="settings-row"><span>语言 / Language</span><button class="language-toggle" id="language-toggle" type="button" aria-label="切换语言" title="切换语言">EN</button></div>
     </div>
   </div>
@@ -37,7 +37,7 @@
   <header class="top-bar" id="top-bar" role="search" aria-label="作品搜索">
     <div class="search-wrapper" id="search-wrapper">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"></circle><path d="m16.5 16.5 4 4"></path></svg>
-      <input type="search" id="search-input" placeholder="搜索作品…" aria-label="搜索作品" aria-controls="lighthouse-card" aria-describedby="search-hint" autocomplete="off" spellcheck="false">
+      <input type="search" id="search-input" placeholder="搜索作品…" aria-label="搜索作品" aria-controls="lighthouse-card" autocomplete="off" spellcheck="false">
       <span class="search-shortcut" id="search-hint" aria-hidden="true">/</span>
       <button class="search-clear" id="search-clear" type="button" aria-label="清除搜索" title="清除搜索" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"></path></svg>
@@ -59,7 +59,7 @@
       <!-- 作品 2 -->
       <article class="preview-card" id="pixel-orbit-card" data-id="pixel-orbit" data-tags="像素风" data-detail="orbit-detail-panel" tabindex="0" aria-label="打开像素圆环作品详情">
         <div class="preview-mount">
-          <iframe data-composition-frame src="https://gsvegetable.github.io/-pixel-orbit/showcase.html?v=1.3.6&scene=planet&composition=art" title="Pixel Orbit 像素圆环作品展示" loading="lazy" allow="fullscreen"></iframe>
+          <iframe data-composition-frame src="https://gsvegetable.github.io/-pixel-orbit/showcase.html?v=1.3.8&scene=planet&composition=art" title="Pixel Orbit 像素圆环作品展示" loading="lazy" allow="fullscreen"></iframe>
         </div>
         <div class="card-info orbit-card-info">
           <div class="orbit-card-heading"><span class="card-title">像素圆环</span><span class="work-tags"><span class="work-tag">像素风</span></span></div>
@@ -120,9 +120,9 @@
     <section class="lab-links inline-experience-section" aria-label="延伸体验">
       <h2>延伸体验</h2>
       <div class="inline-experience-list">
-        <button type="button" data-experience-url="https://gsvegetable.github.io/pixel-daylight-switch/demos/playground.html" data-experience-title="交互参数实验室">交互参数实验室 <span>展开体验</span></button>
-        <button type="button" data-experience-url="https://gsvegetable.github.io/pixel-daylight-switch/demos/glass-engine.html" data-experience-title="玻璃折射实验室">玻璃折射实验室 <span>展开体验</span></button>
-        <button type="button" data-experience-url="https://gsvegetable.github.io/pixel-daylight-switch/demos/preview.html" data-experience-title="组件预览">组件预览 <span>展开体验</span></button>
+        <button type="button" data-experience-url="https://gsvegetable.github.io/pixel-daylight-switch/demos/playground.html" data-experience-title="交互参数实验室"><span class="experience-label">交互参数实验室</span> <span class="experience-cta">展开体验</span></button>
+        <button type="button" data-experience-url="https://gsvegetable.github.io/pixel-daylight-switch/demos/glass-engine.html" data-experience-title="玻璃折射实验室"><span class="experience-label">玻璃折射实验室</span> <span class="experience-cta">展开体验</span></button>
+        <button type="button" data-experience-url="https://gsvegetable.github.io/pixel-daylight-switch/demos/preview.html" data-experience-title="组件预览"><span class="experience-label">组件预览</span> <span class="experience-cta">展开体验</span></button>
       </div>
       <div class="inline-experience-viewer" hidden>
         <div class="inline-experience-toolbar"><strong data-experience-heading>体验预览</strong><button type="button" data-experience-close aria-label="关闭延伸体验">关闭 ×</button></div>
@@ -183,75 +183,235 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <div class="site-version" aria-label="网站版本">v3.3.22</div>
-  <script src="./scripts/main.js?v=3.3.22"></script>
-  <script src="./scripts/orbit-versions.js?v=1.3.8"></script>
-  <script src="./scripts/inline-experiences.js?v=1.1.3"></script>
+  <div class="site-version" aria-label="网站版本">v3.3.24</div>
+  <script src="./scripts/main.js?v=3.3.24"></script>
+  <script src="./scripts/orbit-versions.js?v=1.3.9"></script>
+  <script src="./scripts/inline-experiences.js?v=1.1.4"></script>
   <script>
   (() => {
+    /* =========================================================
+       设置面板：齿轮开合 — v3.3.24
+       ---------------------------------------------------------
+       v3.3.9 把中英文切换收进设置面板时只改了界面，漏掉了开合逻辑：
+       面板的 hidden 属性永远不会被移除，齿轮按钮点不动，
+       整个语言切换在生产环境不可达。这里补回开合行为。
+       ========================================================= */
+    const settingsToggle = document.getElementById('settings-toggle');
+    const settingsPanel = document.getElementById('settings-panel');
+
+    const setPanelOpen = open => {
+      if (!settingsPanel || !settingsToggle) return;
+      settingsPanel.hidden = !open;
+      settingsToggle.setAttribute('aria-expanded', String(open));
+    };
+
+    if (settingsToggle && settingsPanel) {
+      settingsToggle.addEventListener('click', event => {
+        event.stopPropagation();
+        setPanelOpen(settingsPanel.hidden);
+      });
+      document.addEventListener('click', event => {
+        if (settingsPanel.hidden) return;
+        if (settingsPanel.contains(event.target) || settingsToggle.contains(event.target)) return;
+        setPanelOpen(false);
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key !== 'Escape' || settingsPanel.hidden) return;
+        setPanelOpen(false);
+        settingsToggle.focus();
+      });
+    }
+
+    /* =========================================================
+       中英文切换 — v3.3.24
+       ---------------------------------------------------------
+       旧实现用「选择器@属性」的扁平表：选择器一旦撞车就会互相覆盖
+       （.lab-links h2 与 .contributor-list h2 命中同一个标题，
+        英文态下「开发者与贡献者」被写成 "Explore more"，
+        而真正的「延伸体验」标题没人翻译）；
+       中英文案还各存一份硬编码数组，页面一改就漏译
+       （第三个视觉版本「环形世界版」的标签因此变成空白）。
+       现在统一为：中文一律从 DOM 读取，英文按稳定 key 查表。
+       ========================================================= */
     const button = document.getElementById('language-toggle');
     if (!button) return;
-    let language = 'zh';
-    const translations = {
-      en: [
-        ['#search-input@placeholder','Search works…'],['#search-input@aria-label','Search works'],
-        ['#empty-state .empty-title','Nothing here'],['#lighthouse-card .card-title','Pixel Daylight Switch'],['#pixel-orbit-card .card-title','Pixel Orbit'],['#lighthouse-card .work-tag','Pixel art'],['#pixel-orbit-card .work-tag','Pixel art'],['#detail-title','Pixel Daylight Switch'],
-        ['#detail-panel .detail-description','A miniature pixel world inside a refractive glass switch. Move the switch to transition naturally from day through dusk into night. The seaside lighthouse is one of its interactive scenes.'],
-        ['#detail-panel .project-link span:first-of-type','View GitHub project'],
-        ['#detail-panel .detail-facts div:nth-child(1) span','Core experience'],
-        ['#detail-panel .detail-facts div:nth-child(1) strong','Day-to-night transitions · Multiple miniature scenes'],
-        ['#detail-panel .detail-facts div:nth-child(2) span','Interaction'],
-        ['#detail-panel .detail-facts div:nth-child(2) strong','Drag switch · Touch · Scene selection'],
-        ['#detail-panel .detail-facts div:nth-child(3) span','Technology & compatibility'],
-        ['#detail-panel .detail-facts div:nth-child(3) strong','WebGL2 · Canvas 2D · Web'],
-        ['#detail-panel .gallery-heading h2','Scenes'],['#detail-panel .contributor-list h2','Creators & contributors'],
-        ['#detail-panel .lab-links h2','Explore more'],
-        ['#orbit-detail-title','Pixel Orbit'],
-        ['#orbit-detail-panel .detail-copy .english-title','INTERACTIVE PIXEL WORLD'],
-        ['#orbit-detail-panel .detail-description','A tiny pixel world that changes with time. Drag the ring or adjust the time to watch the sky, sun, moon, clouds and house lights shift from morning to midnight.'],
-        ['#orbit-detail-panel .project-link span:first-of-type','View GitHub project'],
-        ['#orbit-detail-panel .detail-facts div:nth-child(1) span','Core experience'],
-        ['#orbit-detail-panel .detail-facts div:nth-child(1) strong','24-hour day-night cycle · Dynamic world'],
-        ['#orbit-detail-panel .detail-facts div:nth-child(2) span','Interaction'],
-        ['#orbit-detail-panel .detail-facts div:nth-child(2) strong','Drag ring · Adjust time · Switch versions'],
-        ['#orbit-detail-panel .detail-facts div:nth-child(3) span','Technology & compatibility'],
-        ['#orbit-detail-panel .detail-facts div:nth-child(3) strong','Pixel rendering · Dynamic lighting · Web'],
-        ['#orbit-detail-panel .gallery-heading h2','Scenes'],
-        ['#orbit-detail-panel .contributor-list h2','Creators & contributors'],
-        ['#orbit-detail-panel .lab-links h2','Explore more'],
-        ['#empty-state .empty-desc','No matching works found']
-      ]
+
+    const strings = {
+      'nav.contributors': 'Contributors',
+      'nav.settings': 'Settings',
+      'nav.language': 'Switch language',
+      'settings.title': 'Settings',
+      'mario.home': 'Home',
+      'mario.compass': 'Compass',
+      'mario.bookmarks': 'Bookmarks',
+      'search.placeholder': 'Search works…',
+      'search.label': 'Search works',
+      'empty.title': 'Nothing here',
+      'search.found': 'Found {n} works',
+      'search.none': 'No matching works found',
+      'empty.noWorks': 'No works added yet',
+      'empty.noMatch': 'No matching works found',
+      'empty.bookmarkEmpty': 'You have not bookmarked any work yet',
+      'empty.bookmarkNoMatch': 'No matching works in bookmarks',
+      'card.daylight': 'Pixel Daylight Switch',
+      'card.orbit': 'Pixel Orbit',
+      'card.daylight.aria': 'Open Pixel Daylight Switch details',
+      'card.orbit.aria': 'Open Pixel Orbit details',
+      'tag.pixel': 'Pixel art',
+      'detail.daylight': 'Pixel Daylight Switch',
+      'detail.orbit': 'Pixel Orbit',
+      'detail.daylight.description': 'A miniature pixel world inside a refractive glass switch. Move the switch to transition naturally from day through dusk into night. The seaside lighthouse is one of its interactive scenes.',
+      'detail.orbit.description': 'A tiny pixel world that changes with time. Drag the ring or adjust the time to watch the sky, sun, moon, clouds and house lights shift from morning to midnight.',
+      'project.link': 'View GitHub project',
+      'gallery.scenes': 'Scenes',
+      'gallery.versions': 'Visual versions',
+      'contributors.title': 'Creators & contributors',
+      'contributors.daylight.role': 'Project lead · Design & development',
+      'contributors.lighthouse.role': 'Seaside lighthouse collaboration',
+      'contributors.orbit.role': 'Solo development · Design & implementation',
+      'explore.title': 'Explore more',
+      'explore.daylight.lab': 'Interactive parameter lab',
+      'explore.daylight.glass': 'Glass refraction lab',
+      'explore.daylight.preview': 'Component preview',
+      'explore.open': 'Open',
+      'explore.preview.heading': 'Preview',
+      'explore.close': 'Close ×',
+      'orbit.lab': 'Parameter lab',
+      'orbit.version.planet': 'Planet',
+      'orbit.version.countryside': 'Countryside',
+      'orbit.version.world': 'Ring world',
+      'orbit.note.planet': 'Spherical terrain · Day-night orbit',
+      'orbit.note.countryside': 'Country cottage · Day-night cycle',
+      'orbit.note.world': '168 px · Day-night dial',
+      'scene.countryside': 'Country cottage',
+      'scene.japanese-street': 'Japanese street',
+      'scene.apartment': 'Modern apartment',
+      'scene.seaside': 'Seaside lighthouse',
+      'scene.mountain-cabin': 'Mountain cabin',
+      'action.bookmark': 'Bookmark work',
+      'action.expand': 'Expand artwork area',
+      'action.restore': 'Return to work details',
+      'action.close': 'Close work details',
+      'site.version': 'Site version'
     };
+
+    // [字符串 key, 目标选择器, 属性名(留空表示改文本)]
+    const targets = [
+      ['nav.contributors', '.contributors-home-link'],
+      ['nav.settings', '#settings-toggle', 'aria-label'],
+      ['nav.language', '#language-toggle', 'aria-label'],
+      ['settings.title', '.settings-title-label'],
+      ['mario.home', '#nav-home', 'aria-label'],
+      ['mario.compass', '.mario-block.block-brick', 'aria-label'],
+      ['mario.bookmarks', '#nav-bookmark', 'aria-label'],
+      ['search.placeholder', '#search-input', 'placeholder'],
+      ['search.label', '#search-input', 'aria-label'],
+      ['empty.title', '#empty-state .empty-title'],
+      ['card.daylight', '#lighthouse-card .card-title'],
+      ['card.orbit', '#pixel-orbit-card .card-title'],
+      ['card.daylight.aria', '#lighthouse-card', 'aria-label'],
+      ['card.orbit.aria', '#pixel-orbit-card', 'aria-label'],
+      ['tag.pixel', '#lighthouse-card .work-tag'],
+      ['tag.pixel', '#pixel-orbit-card .work-tag'],
+      ['detail.daylight', '#detail-title'],
+      ['detail.orbit', '#orbit-detail-title'],
+      ['detail.daylight.description', '#detail-panel .detail-description'],
+      ['detail.orbit.description', '#orbit-detail-panel .detail-description'],
+      ['project.link', '#detail-panel .project-link span:first-of-type'],
+      ['project.link', '#orbit-detail-panel .project-link span:first-of-type'],
+      ['gallery.scenes', '#detail-panel .gallery-heading h2'],
+      ['gallery.versions', '#orbit-detail-panel .gallery-heading h2'],
+      ['contributors.title', '#detail-panel .contributor-list > h2'],
+      ['contributors.title', '#orbit-detail-panel .contributor-list > h2'],
+      ['contributors.daylight.role', '#detail-panel .contributor-list .contributor:nth-of-type(1) span'],
+      ['contributors.lighthouse.role', '#detail-panel .contributor-list .contributor:nth-of-type(2) span'],
+      ['contributors.orbit.role', '#orbit-detail-panel .contributor-list .contributor:nth-of-type(1) span'],
+      ['explore.title', '#detail-panel .inline-experience-section > h2'],
+      ['explore.daylight.lab', '#detail-panel .inline-experience-list button:nth-child(1) .experience-label'],
+      ['explore.daylight.glass', '#detail-panel .inline-experience-list button:nth-child(2) .experience-label'],
+      ['explore.daylight.preview', '#detail-panel .inline-experience-list button:nth-child(3) .experience-label'],
+      ['explore.open', '#detail-panel .inline-experience-list button:nth-child(1) .experience-cta'],
+      ['explore.open', '#detail-panel .inline-experience-list button:nth-child(2) .experience-cta'],
+      ['explore.open', '#detail-panel .inline-experience-list button:nth-child(3) .experience-cta'],
+      ['explore.preview.heading', '#detail-panel .inline-experience-toolbar strong'],
+      ['explore.close', '#detail-panel .inline-experience-toolbar [data-experience-close]'],
+      ['orbit.lab', '#pixel-orbit-card .card-experience-toggle > span:first-child'],
+      ['action.bookmark', '#bookmark-card', 'aria-label'],
+      ['action.expand', '#expand-artwork', 'aria-label'],
+      ['action.close', '#close-card', 'aria-label'],
+      ['site.version', '.site-version', 'aria-label']
+    ];
+
+    // 视觉版本：英文按 data 属性取值，中文从 DOM 读
+    const orbitVersions = {
+      planet: ['orbit.version.planet', 'orbit.note.planet'],
+      countryside: ['orbit.version.countryside', 'orbit.note.countryside'],
+      world: ['orbit.version.world', 'orbit.note.world']
+    };
+    // 场景选择：英文按 data 属性取值，中文从 DOM 读
+    const scenes = {
+      countryside: 'scene.countryside',
+      'japanese-street': 'scene.japanese-street',
+      apartment: 'scene.apartment',
+      seaside: 'scene.seaside',
+      'mountain-cabin': 'scene.mountain-cabin'
+    };
+
+    let language = 'zh';
     const original = new Map();
-    translations.en.forEach(([key]) => {
-      const [selector, attr] = key.split('@');
-      const el = document.querySelector(selector);
-      if (el) original.set(key, attr ? el.getAttribute(attr) : el.textContent);
-    });
+
+    const remember = (key, el, attr) => {
+      if (!original.has(key)) original.set(key, attr ? el.getAttribute(attr) : el.textContent);
+      return original.get(key);
+    };
+    const put = (key, el, attr, lang) => {
+      if (!el || !strings[key]) return;
+      const zh = remember(key, el, attr);
+      if (attr) el.setAttribute(attr, lang === 'en' ? strings[key] : zh);
+      else el.textContent = lang === 'en' ? strings[key] : zh;
+    };
+
+    const apply = lang => {
+      targets.forEach(([key, selector, attr]) => {
+        put(key, document.querySelector(selector), attr, lang);
+      });
+      document.querySelectorAll('[data-orbit-version]').forEach(el => {
+        const pair = orbitVersions[el.dataset.orbitVersion];
+        if (!pair) return;
+        put(pair[0], el.querySelector('strong'), null, lang);
+        put(pair[1], el.querySelector('.orbit-scene-note'), null, lang);
+      });
+      document.querySelectorAll('[data-scene-choice]').forEach(el => {
+        put(scenes[el.dataset.sceneChoice], el.querySelector('strong'), null, lang);
+      });
+    };
+
+    // 给 main.js 用的取词接口（动态文案：搜索状态、空状态、放大按钮）
+    window.siteI18n = {
+      get lang() { return language; },
+      t(key, vars) {
+        let value = strings[key];
+        if (value == null) return null;
+        if (vars) {
+          Object.keys(vars).forEach(name => {
+            value = value.split('{' + name + '}').join(vars[name]);
+          });
+        }
+        return value;
+      }
+    };
+
     button.addEventListener('click', () => {
       language = language === 'zh' ? 'en' : 'zh';
-      translations.en.forEach(([key, value]) => {
-        const [selector, attr] = key.split('@');
-        const el = document.querySelector(selector);
-        if (!el) return;
-        if (language === 'en') { if (attr) el.setAttribute(attr, value); else el.textContent = value; }
-        else { if (attr) el.setAttribute(attr, original.get(key)); else el.textContent = original.get(key); }
-      });
+      apply(language);
       document.documentElement.lang = language === 'en' ? 'en' : 'zh-CN';
       button.textContent = language === 'en' ? '中文' : 'EN';
       button.setAttribute('aria-label', language === 'en' ? '切换语言' : 'Switch language');
-      document.querySelectorAll('.work-tag').forEach(el => { el.textContent = language === 'en' ? 'Pixel art' : '像素风'; });
-      document.querySelectorAll('[data-scene-choice]').forEach((el, i) => {
-        const zh=['乡间小屋','日式街道','现代公寓','海边灯塔','山间木屋'][i];
-        const en=['Country cottage','Japanese street','Modern apartment','Seaside lighthouse','Mountain cabin'][i];
-        el.querySelector('strong').textContent = language === 'en' ? en : zh;
-      });
-      document.querySelectorAll('[data-orbit-version]').forEach((el,i) => {
-        const zh=['星球版','田园版'][i], en=['Planet','Countryside'][i];
-        el.querySelector('strong').textContent = language === 'en' ? en : zh;
-      });
+      // 动态文案（搜索状态 / 空状态 / 放大按钮）由 main.js 重新渲染
+      document.dispatchEvent(new CustomEvent('site:languagechange', { detail: { language } }));
     });
   })();
+  </script>
   </script>
 </body>
 </html>
