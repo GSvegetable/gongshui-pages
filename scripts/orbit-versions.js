@@ -18,7 +18,6 @@
 
   const apply = scene => {
     if (!valid.has(scene)) return;
-    selected = scene;
     const next = sourceFor(scene);
     if (frame.src !== next) frame.src = next;
     buttons.forEach(button => {
