@@ -1,6 +1,6 @@
 # 宫水 · UI Archive
 
-**当前版本：v3.3.6**  
+**当前版本：v3.3.7**  
 一个轻量的交互作品收藏与展示网站。作品以卡片形式陈列，点击卡片后在原页面展开详情，关闭后回到网格。
 
 - **线上网站：** https://宫水.com
@@ -15,7 +15,7 @@
 | 海边灯塔 / Pixel Daylight Switch | WebGL2、Canvas 2D | 拖动、触控、键盘、多场景切换 | [GitHub](https://github.com/GSvegetable/pixel-daylight-switch) |
 | 像素圆环 / Pixel Orbit | Canvas 2D | 圆环拖动、时间滑块、场景预设 | [GitHub](https://github.com/GSvegetable/-pixel-orbit) |
 
-## 版本与更新记录
+## 开发者与贡献者\n\n- **GSvegetable**：项目发起人与作品开发者。\n- **Ludion-ai**：海边灯塔项目协作贡献者。\n- **ChatGPT、DeepSeek、Claude**：网站主页致谢的 AI 协作工具。\n\n各作品详情页只列出该作品的实际开发者与贡献者。\n\n## 版本与更新记录
 
 完整记录见 [CHANGELOG.md](./CHANGELOG.md)。
 
