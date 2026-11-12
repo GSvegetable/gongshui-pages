@@ -231,6 +231,21 @@ main { padding: 94px 24px 48px; }
 }
 .card-title { font-size: 13px; font-weight: 900; letter-spacing: 1px; }
 .preview-card.is-open .card-title { font-size: 18px; }
+.work-tags { display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.work-tag {
+  display:inline-flex; align-items:center;
+  padding:3px 8px;
+  border:1px solid #9c8354;
+  border-radius:3px;
+  background:#f6e8bd;
+  color:#66502b;
+  font-size:10px;
+  font-weight:800;
+  line-height:1.2;
+  letter-spacing:.5px;
+  white-space:nowrap;
+}
+.preview-card.is-open .work-tag { font-size:11px; }
 
 /* ---------- 空状态 ---------- */
 .empty-state {
