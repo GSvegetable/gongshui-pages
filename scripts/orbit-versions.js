@@ -1,5 +1,5 @@
-/* Pixel Orbit scene switcher — v1.2.2
-   Keep both scenes mounted so switching never waits for a fresh iframe navigation. */
+/* Pixel Orbit scene switcher — v1.2.3
+   Keep all three scenes mounted so switching never waits for a fresh iframe navigation. */
 (() => {
   const card = document.getElementById('pixel-orbit-card');
   const panel = document.getElementById('orbit-detail-panel');
@@ -8,7 +8,7 @@
 
   const buttons = [...panel.querySelectorAll('[data-orbit-version]')];
   const storageKey = 'pixel-orbit-home-scene-v2';
-  const valid = new Set(['countryside', 'planet']);
+  const valid = new Set(['countryside', 'planet', 'world']);
   const composition = card.dataset.composition === 'full' ? 'full' : 'art';
   const sourceFor = scene =>
     'https://gsvegetable.github.io/-pixel-orbit/showcase.html?v=1.3.6&scene=' +
