@@ -1,4 +1,4 @@
-/* v1.1.9 — keep both Pixel Orbit scenes mounted for low-latency switching. */
+/* v1.2.0 — 指针事件跟着可见帧走（切版本不再"卡住"）。 */
 .orbit-frame-stack {
   position:relative;
   display:block;
@@ -21,7 +21,17 @@
   transition:opacity 280ms cubic-bezier(.22,.8,.2,1);
 }
 .orbit-frame-stack > iframe.is-visible { opacity:1; }
-.orbit-frame-stack > iframe.orbit-frame-preload { pointer-events:none; }
+
+/* 指针事件跟着"正在显示的那一帧"走。
+   原来只给预加载帧设了 pointer-events:none，原始帧（星球版）不在这个类里，
+   透明之后照样 pointer-events:auto —— 它在栈底却把整块区域的点击和滚轮都吃了，
+   于是切到世界版/田园版就变成"卡住"：看不见的帧在挡，可见的那帧反而点不动。 */
+.orbit-frame-stack > iframe { pointer-events:none; }
+.orbit-frame-stack > iframe.is-visible { pointer-events:auto; }
+
+/* 首页里它只是预览：画面不吃点击和滚轮，
+   滚轮要能正常滚页面，点击交给卡片标题去开作品。 */
+body:not(.viewing):not(.artwork-only) .orbit-frame-stack > iframe.is-visible { pointer-events:none; }
 @media(max-width:600px) {
 }
 @media(prefers-reduced-motion:reduce) {

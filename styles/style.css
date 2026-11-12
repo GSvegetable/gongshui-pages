@@ -224,7 +224,11 @@ main { padding: 94px 24px 48px; }
   cursor: zoom-in;
   box-shadow: 8px 8px 0 rgba(0,0,0,.68), 0 18px 42px rgba(0,0,0,.18);
   transition: box-shadow var(--dur) var(--ease);
-  max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain;
+  max-height: calc(100dvh - 32px); overflow-y: auto;
+  /* 卡片本身没有可滚动内容时，滚轮要能接着往页面传。
+     之前写了 overscroll-behavior:contain，把滚轮死死按在卡片里，
+     于是鼠标停在任何一张卡片上（标题、画面）都滚不动页面。 */
+  overscroll-behavior: auto;
 }
 .preview-card.hidden { display: none !important; }
 .preview-card:focus-visible { outline: 3px solid #f5bd32; outline-offset: 6px; }
