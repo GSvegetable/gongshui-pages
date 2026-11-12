@@ -9,15 +9,20 @@
 · 宫水.com
 · GitHub Pages 自动部署，推上去就更新
 
-关于 3.0 的框架
+关于展开 / 关闭动画（3.1）
 
-3.0 把之前每个作品各写一套的动画代码全删了，抽成一个 WorkController。现在加新作品只要塞张卡片、注册一行配置，剩下的它自己处理。
+3.1 把动画整个重做了，核心就三件事：
 
-这版主要收拾了几个一直很烦的问题：
+· 作品内容不再跟着卡片重新布局。内容是一个固定像素尺寸的"舞台"，动画全程只用 scale 去贴合作品框，iframe / WebGL 从头到尾不会被 resize，所以不会白屏、不会闪。
+· 动画用 FLIP：先拍下卡片现在的位置，再直接切到最终状态量出终点，然后从起点走到终点。终点本来就是真实样式，落地时没有"收尾替换"，所以不抖、不回弹。
+· 卡片、遮罩、详情面板、导航、搜索框全部读 style.css 顶部的 --dur / --ease 这一套节奏，永远同速度同节奏。想整体变快变慢，只改这两个变量。
 
-· 卡片展开时自动插占位符，Grid 不会塌，旁边的作品也不会跟着跳位置。
-· 打开和关闭动画期间的 z-index 和遮罩层由控制器接管，不用再一个个手调层级，也不会出现内容被盖住、或者整块突然变黑。
-· 动画结束那一瞬间会把 JS 算出来的缩放剥掉并强制回流。不这么做会有一两像素的抖动和错位，看着很难受，尤其在 Retina 屏上。
+另外：
+
+· 展开时原位放一张看不见的"影子卡片"（真卡片的克隆），布局一模一样，周围作品绝不会移位；关闭时它的实时位置就是动画终点。
+· 锁滚动时会补上滚动条宽度，页面宽度不变，网格不会重排。
+· 关闭时导航和搜索框一直站在遮罩下面，靠遮罩淡出自然显露，不会提前跳出来。
+· 遮罩去掉了 backdrop-filter 模糊（本来就 92% 不透明，几乎看不出来，但每帧都在重新模糊整个屏幕，是掉帧的主要来源）。
 
 现在收了什么
 
@@ -27,37 +32,33 @@
 
 加新作品
 
-两步。main.js 里 WorkController 的逻辑别动，动了就得自己收拾烂摊子。
+只改 index.html，不用碰 JS 和 CSS。
 
-1. 在 index.html 加卡片
-
-找 <main> 里的 <div class="grid">，复制一份改：
+1. 在 <div class="grid"> 里复制一张卡片
 
 ```html
-<article class="preview-card" id="your-work-card" data-id="your-work-id" tabindex="0" aria-label="打开新作品详情">
+<article class="preview-card" id="your-work-card" data-id="your-work-id" data-detail="your-work-detail" tabindex="0" aria-label="打开新作品详情">
   <div class="preview-mount">
-    <!-- iframe、img 或者自己的挂载点都行 -->
-    <iframe src="你的体验链接" loading="lazy"></iframe>
+    <!-- iframe 或者自己的挂载点都行 -->
+    <iframe src="你的体验链接" title="作品名" loading="lazy"></iframe>
   </div>
   <div class="card-info"><span class="card-title">新作品名称</span></div>
 </article>
 ```
 
-2. 在 scripts/main.js 的 WORKS_CONFIG 里加一行
+· id、data-id 随便起，但不能和别的作品重复。
+· data-detail 填这个作品详情面板的 id。
+· 作品框(.preview-mount)的宽高比默认 1.6439，要改就在 article 上写 style="--mount-ratio: 1.78"。
 
-```javascript
-const WORKS_CONFIG = [
-  // ... 现有的
-  {
-    id: 'your-work-id',          // 跟 HTML 的 data-id 对上
-    cardId: 'your-work-card',    // 跟 HTML 的 id 对上
-    contentSelector: 'iframe',   // 内部真正要缩放的东西，如 '.my-canvas'
-    fallbackRatio: 1.6439        // 宽高比，加载慢的时候撑住高度
-  }
-];
+2. 在 </main> 后面加详情面板
+
+```html
+<section class="work-detail" id="your-work-detail" role="dialog" aria-modal="true" aria-hidden="true">
+  <!-- 详情内容，随便写 -->
+</section>
 ```
 
-如果新作品还有独立的详情面板，那得自己在 index.html 里加面板，然后在 JS 里盯着 AppState.activeWorkId 决定显示还是隐藏。这块框架不管，因为每个作品的详情长得都不一样。
+面板必须带 work-detail 这个 class，它的出入场动画就自动和卡片同步了。
 
 目录
 
@@ -65,14 +66,22 @@ const WORKS_CONFIG = [
 .
 ├── index.html          # 主页 + 详情页的 DOM
 ├── styles/
-│   ├── style.css       # 布局、卡片、过渡、响应式
-│   └── motion.css      # will-change 与低端设备降级
+│   └── style.css       # 布局、卡片、过渡、响应式（动画节奏变量在最顶部）
 ├── scripts/
-│   └── main.js         # 搜索、导航、WorkController
+│   └── main.js         # 搜索、导航、作品展开/关闭控制器
 └── README.md
 ```
 
 更新记录
+
+v3.1.0
+
+· 展开 / 关闭 / 放大动画重写：内容只缩放不重排（不白屏），FLIP 落地（不抖动）
+· 详情面板、遮罩、导航、搜索框和卡片共用同一套时长与曲线
+· 新作品自动发现，不再需要在 main.js 里登记
+· 修锁滚动时滚动条消失导致网格重排
+· 去掉遮罩的 backdrop-filter
+· 删掉不存在的 motion.css 引用
 
 v3.0.0
 

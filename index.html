@@ -6,8 +6,7 @@
   <meta name="theme-color" content="#171717" />
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="./styles/style.css?v=3.0.0" />
-  <link rel="stylesheet" href="./styles/motion.css?v=3.0.0" />
+  <link rel="stylesheet" href="./styles/style.css?v=3.1.0" />
 </head>
 <body>
   <aside id="mario-nav" aria-label="快捷导航">
@@ -37,7 +36,7 @@
   <main>
     <div class="grid">
       <!-- 作品 1 -->
-      <article class="preview-card" id="lighthouse-card" data-id="pixel-daylight-switch" tabindex="0" aria-label="打开海边灯塔作品详情">
+      <article class="preview-card" id="lighthouse-card" data-id="pixel-daylight-switch" data-detail="detail-panel" tabindex="0" aria-label="打开海边灯塔作品详情">
         <div class="preview-mount">
           <script src="https://gsvegetable.github.io/pixel-daylight-switch/embed.js" data-scene="seaside"></script>
         </div>
@@ -45,14 +44,16 @@
       </article>
       
       <!-- 作品 2 -->
-      <article class="preview-card" id="pixel-orbit-card" data-id="pixel-orbit" tabindex="0" aria-label="打开像素圆环作品详情">
+      <article class="preview-card" id="pixel-orbit-card" data-id="pixel-orbit" data-detail="orbit-detail-panel" tabindex="0" aria-label="打开像素圆环作品详情">
         <div class="preview-mount">
           <iframe src="https://gsvegetable.github.io/-pixel-orbit/pixel-orbit.html" title="Pixel Orbit 像素昼夜互动作品" loading="lazy" allow="fullscreen"></iframe>
         </div>
         <div class="card-info"><span class="card-title">像素圆环</span></div>
       </article>
       
-      <!-- 以后加新作品，直接在这里往下复制 <article class="preview-card"> 即可，JS 会自动接管 -->
+      <!-- 以后加新作品：整块复制上面的 <article class="preview-card">，改 id / data-id / 标题 / 内容；
+           data-detail 填它详情面板的 id（面板加在下面，class 带上 work-detail）。
+           展开、放大、关闭的动画 JS 会自动接管，不需要写任何动画代码。 -->
 
       <div class="empty-state" id="empty-state">
         <div class="empty-icon">🍃</div>
@@ -62,7 +63,7 @@
     </div>
   </main>
 
-  <section class="detail-content" id="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+  <section class="detail-content work-detail" id="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detail-title" aria-hidden="true">
     <div class="detail-overview">
       <div class="detail-copy">
         <h1 id="detail-title">像素昼夜开关</h1>
@@ -102,7 +103,7 @@
     </section>
   </section>
 
-  <section class="orbit-detail-content" id="orbit-detail-panel" role="dialog" aria-modal="true" aria-labelledby="orbit-detail-title" aria-hidden="true">
+  <section class="orbit-detail-content work-detail" id="orbit-detail-panel" role="dialog" aria-modal="true" aria-labelledby="orbit-detail-title" aria-hidden="true">
     <div class="orbit-detail-copy">
       <p class="orbit-detail-kicker">INTERACTIVE PIXEL WORLD</p>
       <h1 id="orbit-detail-title">像素圆环</h1>
@@ -130,7 +131,7 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <div class="site-version" aria-label="网站版本">v3.0.0</div>
-  <script src="./scripts/main.js?v=3.0.0"></script>
+  <div class="site-version" aria-label="网站版本">v3.1.0</div>
+  <script src="./scripts/main.js?v=3.1.0"></script>
 </body>
 </html>

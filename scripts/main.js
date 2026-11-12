@@ -1,24 +1,23 @@
 /* =========================================================
-   0. 核心配置区（以后加新作品只需改这里和 HTML）
+   0. 作品自动发现 + 全局状态
+   ---------------------------------------------------------
+   页面里每个 <article class="preview-card" data-id="..." data-detail="详情面板的id">
+   就是一个作品。不需要在这里登记任何东西，新作品复制卡片进 index.html 就自动生效。
    ========================================================= */
-const WORKS_CONFIG = [
-  { 
-    id: 'pixel-daylight-switch', 
-    cardId: 'lighthouse-card', 
-    detailId: 'detail-panel'
-  },
-  { 
-    id: 'pixel-orbit', 
-    cardId: 'pixel-orbit-card', 
-    detailId: 'orbit-detail-panel'
-  }
-];
+const works = [...document.querySelectorAll('.preview-card[data-id]')].map(card => ({
+  id: card.dataset.id,
+  card,
+  mount: card.querySelector('.preview-mount'),
+  panel: card.dataset.detail ? document.getElementById(card.dataset.detail) : null,
+  ghost: null,   // 展开期间留在原位的占位卡片
+  stageW: 0      // 作品内容(舞台)的固定像素宽度
+}));
 
 const AppState = {
   currentTab: 'home', // 'home' | 'bookmarks'
   searchQuery: '',
   bookmarks: [],
-  activeWorkId: WORKS_CONFIG[0].id
+  activeWorkId: works.length ? works[0].id : null
 };
 
 try {
@@ -35,7 +34,7 @@ const saveBookmarks = () => {
    ========================================================= */
 const navHome = document.getElementById('nav-home');
 const navBookmark = document.getElementById('nav-bookmark');
-const galleryCards = WORKS_CONFIG.map(work => document.getElementById(work.cardId)).filter(Boolean);
+const galleryCards = works.map(work => work.card);
 const emptyState = document.getElementById('empty-state');
 const emptyDesc = document.getElementById('empty-desc');
 const searchInput = document.getElementById('search-input');
@@ -121,219 +120,305 @@ syncSearchUI();
 
 /* =========================================================
    2. 万能作品展示框架 (Work Controller)
+   ---------------------------------------------------------
+   做法（FLIP）：
+   ① 先拍下卡片现在的位置/大小（First）
+   ② 直接把卡片切到最终状态，量出最终的位置/大小（Last）
+   ③ 用 Web Animations 从 First 走到 Last
+   动画结束时，最终状态本来就已经是真实样式，所以落地时没有任何"收尾替换"，不会抖，不会回弹。
+
+   作品内容不跟着卡片重新布局：它是固定像素尺寸的"舞台"，只用 scale 贴合作品框。
    ========================================================= */
 (() => {
+  if (!works.length) return;
+
+  const root = document.documentElement;
+  const body = document.body;
   const closeBtn = document.getElementById('close-card');
   const expandBtn = document.getElementById('expand-artwork');
   const bookmarkBtn = document.getElementById('bookmark-card');
-  
-  let activeWork = null;
-  let activeCard = null;
-  let mode = 'closed';
-  let placeholder = null;
-  let originRect = null;
-  let targetBox = null;
-  let artworkReturnHeight = 0;
-  let expanded = false;
-  let activeAnimation = null;
 
-  const measureTarget = () => {
-    const isMobile = window.matchMedia('(max-width: 600px)').matches;
-    if (isMobile) return { left: 14, top: 18, width: Math.max(220, window.innerWidth - 28), padding: 12 };
+  /* ---------- 节奏：和 CSS 共用 :root 里的 --dur / --ease ---------- */
+  const readCss = name => getComputedStyle(root).getPropertyValue(name).trim();
+  const getDuration = () => {
+    const raw = readCss('--dur');
+    const n = parseFloat(raw);
+    if (!Number.isFinite(n)) return 460;
+    return /ms$/.test(raw) ? n : /s$/.test(raw) ? n * 1000 : n;
+  };
+  const getEasing = () => readCss('--ease') || 'cubic-bezier(.22,.8,.2,1)';
+
+  /* ---------- 尺寸常量（和 style.css 对应） ---------- */
+  const DEFAULT_RATIO = 1.6439;
+  const CLOSED_CHROME = 26; // 缩略卡：边框 3×2 + 内边距 8×2 + 作品框边框 2×2
+  const OPEN_CHROME = 34;   // 展开卡：边框 3×2 + 内边距 12×2 + 作品框边框 2×2
+
+  let mode = 'closed';      // closed | opening | open | expanding | closing
+  let current = null;       // 当前作品
+  let expanded = false;     // 是否处于"放大作品展示区域"
+  let anim = null;          // 正在跑的动画
+
+  /* ---------- 几何：展开后卡片 / 放大作品后卡片应该在哪 ---------- */
+  const isMobile = () => window.matchMedia('(max-width: 600px)').matches;
+
+  const openBox = () => {
+    if (isMobile()) return { left: 14, top: 18, width: Math.max(220, window.innerWidth - 28) };
     const detailWidth = Math.min(520, Math.max(300, window.innerWidth * 0.38 - 36));
     const width = Math.min(860, window.innerWidth - 36 - detailWidth - 24);
-    return { left: 18, top: 18, width: Math.max(320, width), padding: 12 };
+    return { left: 18, top: 18, width: Math.max(320, width) };
   };
 
-  const setGeometry = (card, box) => {
+  const ratioOf = work => parseFloat(getComputedStyle(work.mount).getPropertyValue('--mount-ratio')) || DEFAULT_RATIO;
+
+  const expandedBox = work => {
+    const ratio = ratioOf(work);
+    const availW = window.innerWidth - 36;
+    const availH = window.innerHeight - 36;
+    // 卡片 = 左右(边框3+内边距15+作品框边框2)×2 = 40；上下 = 3+56 + 作品框(+4) + 15+3 = 作品高 + 81
+    const contentW = Math.max(160, Math.floor(Math.min(availW - 40, (availH - 81) * ratio)));
+    const width = contentW + 40;
+    const height = Math.round(contentW / ratio + 81);
+    return {
+      left: Math.round((window.innerWidth - width) / 2),
+      top: Math.round((window.innerHeight - height) / 2),
+      width, height
+    };
+  };
+
+  const applyBox = (card, box) => {
     card.style.left = box.left + 'px';
     card.style.top = box.top + 'px';
     card.style.width = box.width + 'px';
-    card.style.padding = box.padding + 'px';
     if (box.height == null) card.style.removeProperty('height');
     else card.style.height = box.height + 'px';
   };
 
-  const calculateArtworkGeometry = () => {
-    const mount = activeCard.querySelector('.preview-mount');
-    const mRect = mount.getBoundingClientRect();
-    const ratio = mRect.width > 0 && mRect.height > 0 ? mRect.width / mRect.height : 1.6439;
-    
-    const availW = Math.max(220, window.innerWidth - 36);
-    const availH = Math.max(180, window.innerHeight - 36);
-    const controlRail = 56;
-    const bottomInset = 15;
-    const innerWidth = Math.max(180, Math.min(availW - 30, (availH - controlRail - bottomInset) * ratio));
-    const innerHeight = innerWidth / ratio;
-    const width = innerWidth + 30;
-    const height = innerHeight + controlRail + bottomInset;
+  /* ---------- 拍快照（First / Last） ---------- */
+  const snapshot = el => {
+    const rect = el.getBoundingClientRect();
+    const cs = getComputedStyle(el);
+    const title = el.querySelector('.card-title');
     return {
-      left: Math.round((window.innerWidth - width) / 2),
-      top: Math.round((window.innerHeight - height) / 2),
-      width, height, padding: 12
+      left: rect.left, top: rect.top, width: rect.width, height: rect.height,
+      padding: cs.paddingTop + ' ' + cs.paddingRight + ' ' + cs.paddingBottom + ' ' + cs.paddingLeft,
+      titleSize: title ? getComputedStyle(title).fontSize : null
     };
   };
 
-  const animateGeometry = (card, from, to, onFinish) => {
-    if (activeAnimation) activeAnimation.cancel();
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    
-    const fromFrame = { left: from.left + 'px', top: from.top + 'px', width: from.width + 'px', padding: from.padding + 'px' };
-    const toFrame = { left: to.left + 'px', top: to.top + 'px', width: to.width + 'px', padding: to.padding + 'px' };
-    if (from.height != null && to.height != null) {
-      fromFrame.height = from.height + 'px';
-      toFrame.height = to.height + 'px';
+  /* ---------- 作品内容"舞台"：固定像素尺寸 + scale ---------- */
+  const setScale = (work, contentWidth) => {
+    if (!work.stageW || !(contentWidth > 0)) return;
+    const k = contentWidth / work.stageW;
+    work.mount.style.setProperty('--k', Math.abs(k - 1) < 0.002 ? '1' : String(k));
+  };
+
+  // 舞台宽度 = 展开态作品内容的宽度（这样详情页里内容是原生 1:1 渲染），
+  // 如果缩略卡反而更宽（比如手机单列），就取更大的，保证缩略图永远只缩小、不放大变糊。
+  const refreshStages = () => {
+    const openInner = openBox().width - OPEN_CHROME;
+    works.forEach(work => {
+      if (!work.mount) return;
+      const base = work.ghost || work.card;
+      const closedInner = base.getBoundingClientRect().width - CLOSED_CHROME;
+      work.stageW = Math.max(openInner, closedInner);
+      work.mount.style.setProperty('--stage-w', work.stageW + 'px');
+      work.mount.style.setProperty('--stage-h', (work.stageW / ratioOf(work)) + 'px');
+      setScale(work, work.mount.getBoundingClientRect().width - 4);
+    });
+  };
+
+  const byMount = new Map(works.filter(w => w.mount).map(w => [w.mount, w]));
+  const resizeObserver = 'ResizeObserver' in window
+    ? new ResizeObserver(entries => {
+        // 卡片在动画里每一帧改变大小，这里同一帧内就把内容的 scale 跟上，不会错一帧
+        entries.forEach(entry => {
+          const work = byMount.get(entry.target);
+          if (work) setScale(work, entry.contentRect.width);
+        });
+      })
+    : null;
+
+  refreshStages();
+  if (resizeObserver) works.forEach(work => work.mount && resizeObserver.observe(work.mount));
+
+  /* ---------- 占位：展开期间原位置留一张看不见的"影子卡片" ---------- */
+  // 它是真卡片的克隆（去掉 iframe / 脚本），布局和真卡片一模一样，
+  // 所以周围作品绝不会移位；关闭时它的实时位置就是动画的终点。
+  const makeGhost = card => {
+    const ghost = card.cloneNode(true);
+    ['id', 'tabindex', 'aria-label', 'data-id', 'data-detail'].forEach(a => ghost.removeAttribute(a));
+    ghost.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+    const mount = ghost.querySelector('.preview-mount');
+    if (mount) mount.replaceChildren();
+    ghost.classList.add('preview-card-placeholder');
+    ghost.setAttribute('aria-hidden', 'true');
+    ghost.inert = true;
+    return ghost;
+  };
+
+  /* ---------- 滚动锁定（补上滚动条宽度，页面宽度不变） ---------- */
+  const lockScroll = () => {
+    root.style.setProperty('--sbw', Math.max(0, window.innerWidth - root.clientWidth) + 'px');
+    body.classList.add('scroll-locked');
+  };
+  const unlockScroll = () => {
+    body.classList.remove('scroll-locked');
+    root.style.removeProperty('--sbw');
+  };
+
+  /* ---------- 详情面板：谁是当前作品，谁的面板就 is-active ---------- */
+  const setActivePanel = work => {
+    works.forEach(w => {
+      if (!w.panel) return;
+      const on = w === work;
+      w.panel.classList.toggle('is-active', on);
+      w.panel.setAttribute('aria-hidden', String(!on));
+    });
+  };
+
+  /* ---------- 动画 ---------- */
+  const animateCard = (work, first, last, done) => {
+    const card = work.card;
+    const duration = getDuration();
+    const easing = getEasing();
+
+    card.classList.add('is-animating');
+
+    const frames = [
+      { left: first.left + 'px', top: first.top + 'px', width: first.width + 'px', height: first.height + 'px', padding: first.padding },
+      { left: last.left + 'px', top: last.top + 'px', width: last.width + 'px', height: last.height + 'px', padding: last.padding }
+    ];
+    const animations = [card.animate(frames, { duration, easing, fill: 'backwards' })];
+
+    const title = card.querySelector('.card-title');
+    if (title && first.titleSize && last.titleSize && first.titleSize !== last.titleSize) {
+      animations.push(title.animate(
+        [{ fontSize: first.titleSize }, { fontSize: last.titleSize }],
+        { duration, easing, fill: 'backwards' }
+      ));
     }
 
-    const animation = card.animate([fromFrame, toFrame], {
-      duration: reduced ? 1 : 460,
-      easing: 'cubic-bezier(.22,.8,.2,1)',
-      fill: 'both'
-    });
-    activeAnimation = animation;
+    const token = { animations, cancelled: false };
+    anim = token;
 
-    animation.finished.then(() => {
-      if (activeAnimation !== animation) return;
-      
-      animation.cancel();
-      setGeometry(card, to);
-      card.getBoundingClientRect();
-      
-      activeAnimation = null;
-      onFinish?.();
+    Promise.all(animations.map(a => a.finished)).then(() => {
+      if (token.cancelled) return;
+      anim = null;
+      card.classList.remove('is-animating');
+      if (done) done();
     }).catch(() => {});
   };
 
-  const openWork = (card, work) => {
+  const stopAnim = () => {
+    if (!anim) return;
+    anim.cancelled = true;
+    anim.animations.forEach(a => a.cancel());
+    anim = null;
+    if (current) current.card.classList.remove('is-animating');
+  };
+
+  /* ---------- 展开 ---------- */
+  const openWork = work => {
     if (mode !== 'closed') return;
-    activeCard = card;
-    activeWork = work;
+    const card = work.card;
+
+    current = work;
+    mode = 'opening';
+    expanded = false;
     AppState.activeWorkId = work.id;
     updateBookmarkBtn();
-    
-    originRect = card.getBoundingClientRect();
-    targetBox = measureTarget();
-    expanded = false;
-    mode = 'opening';
-    
-    document.body.classList.remove('artwork-only');
-    card.classList.remove('is-artwork-expanded');
     setExpandControl(false);
-    document.body.classList.add('viewing');
-    card.classList.add('is-open', 'is-title-expanded');
 
-    placeholder = document.createElement('div');
-    placeholder.className = 'preview-card-placeholder';
-    placeholder.style.width = '100%';
-    placeholder.style.height = originRect.height + 'px';
-    card.parentNode.insertBefore(placeholder, card);
+    const first = snapshot(card);                 // ① First：现在的样子
 
-    card.style.position = 'fixed';
-    card.style.margin = '0';
-    card.style.transition = 'none';
-    setGeometry(card, { left: originRect.left, top: originRect.top, width: originRect.width, padding: 8 });
+    work.ghost = makeGhost(card);                 // 原位放占位，周围不动
+    card.parentNode.insertBefore(work.ghost, card);
+    lockScroll();
+    setActivePanel(work);
 
-    card.getBoundingClientRect();
-    
-    animateGeometry(
-      card,
-      { left: originRect.left, top: originRect.top, width: originRect.width, padding: 8 },
-      targetBox,
-      () => {
-        mode = 'open';
-        card.style.transition = '';
-        closeBtn.focus({ preventScroll: true });
-      }
-    );
+    body.classList.remove('artwork-only');
+    body.classList.add('viewing');
+    card.classList.add('is-open');
+    applyBox(card, openBox());                    // ② 直接切到最终状态
+    const last = snapshot(card);                  //    量出 Last
+
+    animateCard(work, first, last, () => {        // ③ 从 First 走到 Last
+      mode = 'open';
+      closeBtn.focus({ preventScroll: true });
+    });
+  };
+
+  /* ---------- 关闭 ---------- */
+  const finishClose = work => {
+    const card = work.card;
+    ['left', 'top', 'width', 'height'].forEach(p => card.style.removeProperty(p));
+    card.classList.remove('is-closing', 'is-animating');
+    if (work.ghost) { work.ghost.remove(); work.ghost = null; }
+    body.classList.remove('view-closing');
+    unlockScroll();
+    setActivePanel(null);
+
+    mode = 'closed';
+    current = null;
+    expanded = false;
+    AppState.activeWorkId = works[0].id;
+    if (AppState.currentTab === 'bookmarks') renderGallery();
+    updateBookmarkBtn();
+    refreshStages();
+    card.focus({ preventScroll: true });
   };
 
   const closeWork = () => {
-    if (mode === 'closed' || mode === 'closing') return;
-    const currentRect = activeCard.getBoundingClientRect();
-    
-    if (activeAnimation) activeAnimation.cancel();
-    
+    if (mode === 'closed' || mode === 'closing' || !current) return;
+    const work = current;
+    const card = work.card;
+
+    const first = snapshot(card);                 // 中途点关闭，也从当前画面接着走
+    stopAnim();
+
+    const ghost = snapshot(work.ghost);           // 终点 = 占位卡片的实时位置
+    const last = { left: ghost.left, top: ghost.top, width: ghost.width, height: ghost.height, padding: ghost.padding, titleSize: ghost.titleSize };
+
     mode = 'closing';
     expanded = false;
-    
-    // ★ 核心修改：一开始就移出 viewing 解除导航隐藏，依靠遮罩层的淡出自然显露导航栏
-    document.body.classList.remove('artwork-only', 'viewing');
-    document.body.classList.add('view-closing');
-    
-    // 确保详情面板能感知到是哪个作品在关闭
-    if (activeWork.id === 'pixel-daylight-switch') {
-      document.body.classList.add('lighthouse-closing');
-    } else if (activeWork.id === 'pixel-orbit') {
-      document.body.classList.add('orbit-view-closing');
-    }
-
-    activeCard.classList.add('is-closing');
-    activeCard.classList.remove('is-artwork-expanded');
     setExpandControl(false);
-    
-    const title = activeCard.querySelector('.card-title');
-    const titleAnim = title ? title.animate(
-      [{ fontSize: getComputedStyle(title).fontSize }, { fontSize: '13px' }],
-      { duration: 460, easing: 'cubic-bezier(.22,.8,.2,1)', fill: 'both' }
-    ) : null;
 
-    animateGeometry(
-      activeCard,
-      { left: currentRect.left, top: currentRect.top, width: currentRect.width, height: currentRect.height, padding: 12 },
-      { left: originRect.left, top: originRect.top, width: originRect.width, height: originRect.height, padding: 8 },
-      () => {
-        activeCard.classList.remove('is-title-expanded', 'is-open', 'is-closing');
-        if (titleAnim) titleAnim.cancel();
-        
-        ['position', 'left', 'top', 'width', 'height', 'padding', 'margin', 'transition'].forEach(prop => activeCard.style.removeProperty(prop));
-        document.body.classList.remove('viewing', 'view-closing', 'lighthouse-closing', 'orbit-view-closing');
-        if (placeholder) { placeholder.remove(); placeholder = null; }
-        
-        mode = 'closed';
-        AppState.activeWorkId = WORKS_CONFIG[0].id;
-        if (AppState.currentTab === 'bookmarks') renderGallery();
-        updateBookmarkBtn();
-        activeCard.focus({ preventScroll: true });
-        
-        activeCard = null;
-        activeWork = null;
-      }
-    );
+    // 导航、搜索框不在这里动：它们本来就站在遮罩下面，遮罩淡出时自然显露
+    body.classList.remove('viewing', 'artwork-only');
+    body.classList.add('view-closing');
+    card.classList.remove('is-open', 'is-artwork-expanded');
+    card.classList.add('is-closing');
+    applyBox(card, last);
+
+    animateCard(work, first, last, () => finishClose(work));
   };
 
+  /* ---------- 放大 / 还原作品展示区域 ---------- */
   const toggleExpand = () => {
-    if (mode !== 'open' || activeAnimation) return;
-    const rect = activeCard.getBoundingClientRect();
-    const from = { left: rect.left, top: rect.top, width: rect.width, height: rect.height, padding: 12 };
+    if (mode !== 'open') return;
+    const work = current;
+    const card = work.card;
 
-    if (!expanded) {
-      artworkReturnHeight = rect.height;
-      expanded = true;
-      document.body.classList.add('artwork-only');
-      activeCard.classList.add('is-artwork-expanded');
-      setExpandControl(true);
-      
-      const target = calculateArtworkGeometry();
-      
-      animateGeometry(activeCard, from, target, () => {
-        setGeometry(activeCard, target);
-        mode = 'open';
-      });
+    mode = 'expanding';
+    const first = snapshot(card);
+    expanded = !expanded;
+
+    if (expanded) {
+      body.classList.add('artwork-only');
+      card.classList.add('is-artwork-expanded');
+      applyBox(card, expandedBox(work));
     } else {
-      expanded = false;
-      document.body.classList.remove('artwork-only');
-      activeCard.classList.remove('is-artwork-expanded');
-      
-      const target = { ...targetBox, height: artworkReturnHeight };
-      animateGeometry(activeCard, from, target, () => {
-        setGeometry(activeCard, targetBox);
-        setExpandControl(false);
-        mode = 'open';
-      });
+      body.classList.remove('artwork-only');
+      card.classList.remove('is-artwork-expanded');
+      applyBox(card, openBox());
     }
+    setExpandControl(expanded);
+
+    const last = snapshot(card);
+    animateCard(work, first, last, () => { mode = 'open'; });
   };
 
-  const setExpandControl = (isExpanded) => {
+  const setExpandControl = isExpanded => {
     expandBtn.innerHTML = isExpanded
       ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v5H3M16 3v5h5M3 16h5v5M21 16h-5v5" /></svg>'
       : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5" /></svg>';
@@ -345,25 +430,25 @@ syncSearchUI();
     bookmarkBtn.setAttribute('aria-pressed', String(AppState.bookmarks.includes(AppState.activeWorkId)));
   };
 
-  WORKS_CONFIG.forEach(work => {
-    const card = document.getElementById(work.cardId);
-    if (!card) return;
+  /* ---------- 事件 ---------- */
+  works.forEach(work => {
+    const card = work.card;
 
-    card.addEventListener('click', (e) => {
+    card.addEventListener('click', e => {
       if (e.target.closest('.preview-mount, button, a, input, select, textarea, [role="button"]')) return;
-      if (mode === 'closed') openWork(card, work);
+      if (mode === 'closed') openWork(work);
     });
 
-    card.addEventListener('keydown', (e) => {
+    card.addEventListener('keydown', e => {
       if (e.target !== card || !['Enter', ' '].includes(e.key)) return;
       e.preventDefault();
-      if (mode === 'closed') openWork(card, work);
+      if (mode === 'closed') openWork(work);
     });
   });
 
   closeBtn.addEventListener('click', closeWork);
   expandBtn.addEventListener('click', toggleExpand);
-  
+
   bookmarkBtn.addEventListener('click', () => {
     const id = AppState.activeWorkId;
     const index = AppState.bookmarks.indexOf(id);
@@ -373,24 +458,25 @@ syncSearchUI();
     updateBookmarkBtn();
   });
 
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && mode === 'open') {
       if (expanded) toggleExpand(); else closeWork();
     }
   });
 
   window.addEventListener('resize', () => {
-    if (mode === 'open') {
-      if (activeAnimation) { activeAnimation.cancel(); activeAnimation = null; }
-      
-      if (expanded) {
-        const box = calculateArtworkGeometry();
-        setGeometry(activeCard, box);
-        activeCard.style.height = box.height + 'px';
-      } else {
-        targetBox = measureTarget();
-        setGeometry(activeCard, targetBox);
-      }
+    if (current && anim) stopAnim();
+
+    if (mode === 'closing' && current) {
+      finishClose(current);
+      return;
+    }
+
+    refreshStages();
+
+    if (current && ['opening', 'expanding', 'open'].includes(mode)) {
+      applyBox(current.card, expanded ? expandedBox(current) : openBox());
+      mode = 'open';
     }
   });
 
@@ -421,14 +507,14 @@ syncSearchUI();
         selectedScene = btn.dataset.sceneChoice;
         try { localStorage.setItem('pds-gallery-scene', selectedScene); } catch (_) {}
         updateScenes();
-        
+
         const mount = document.querySelector('#lighthouse-card .preview-mount');
-        const root = mount?.querySelector('[data-ld-part="toggle-daylight"]');
-        if (root) {
-          root.dataset.scene = selectedScene;
+        const rootEl = mount?.querySelector('[data-ld-part="toggle-daylight"]');
+        if (rootEl) {
+          rootEl.dataset.scene = selectedScene;
           const api = window.PixelDaylightSwitch;
           if (api && typeof api.unmount === 'function' && typeof api.mount === 'function') {
-            api.unmount(root); api.mount(root);
+            api.unmount(rootEl); api.mount(rootEl);
           }
         }
       });
