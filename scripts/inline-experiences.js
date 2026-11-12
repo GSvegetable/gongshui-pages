@@ -1,4 +1,4 @@
-/* Inline extended experiences — v1.1.0 */
+/* Inline extended experiences — v1.1.1 */
 (() => {
   document.querySelectorAll('.inline-experience-section').forEach(section => {
     const viewer = section.querySelector('.inline-experience-viewer');
