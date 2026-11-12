@@ -1,3 +1,5 @@
+/* Pixel Orbit scene switcher — v1.2.0
+   Keep both scenes mounted so switching never waits for a fresh iframe navigation. */
 (() => {
   const card = document.getElementById('pixel-orbit-card');
   const panel = document.getElementById('orbit-detail-panel');
@@ -5,11 +7,12 @@
   if (!card || !panel || !originalFrame) return;
 
   const buttons = [...panel.querySelectorAll('[data-orbit-version]')];
-  // New key resets the previous countryside default; future manual choices persist.
-  const storageKey = 'pixel-orbit-home-scene-v2';
+  const storageKey = 'pixel-orbit-home-scene-v3';
   const valid = new Set(['countryside', 'planet']);
-  const sourceFor = (scene, composition = 'art') =>
-    'https://gsvegetable.github.io/-pixel-orbit/showcase.html?scene=' + scene + '&composition=' + composition;
+  const composition = card.dataset.composition === 'full' ? 'full' : 'art';
+  const sourceFor = scene =>
+    'https://gsvegetable.github.io/-pixel-orbit/showcase.html?v=1.3.6&scene=' +
+    scene + '&composition=' + composition;
 
   let selected = 'planet';
   try {
@@ -25,30 +28,13 @@
   const stack = document.createElement('div');
   stack.className = 'orbit-frame-stack';
   mount.replaceChild(stack, originalFrame);
-  stack.appendChild(originalFrame);
 
-  let activeFrame = originalFrame;
-  let incomingFrame = null;
-  let pendingReadyHandler = null;
-  let pendingReadyTimeout = null;
-  activeFrame.classList.add('is-visible');
+  const frames = new Map();
+  const ready = new Set();
+  let activeScene = selected;
+  let pendingScene = null;
 
-  // Cancel an unfinished preload cleanly, including its message listener and timeout.
-  const clearIncoming = () => {
-    if (pendingReadyHandler) {
-      window.removeEventListener('message', pendingReadyHandler);
-      pendingReadyHandler = null;
-    }
-    if (pendingReadyTimeout !== null) {
-      window.clearTimeout(pendingReadyTimeout);
-      pendingReadyTimeout = null;
-    }
-    if (incomingFrame) {
-      incomingFrame.remove();
-      incomingFrame = null;
-    }
-  };
-
+  const sceneOf = frame => frame.dataset.orbitScene;
   const updateButtons = scene => {
     buttons.forEach(button => {
       const active = button.dataset.orbitVersion === scene;
@@ -57,68 +43,76 @@
     });
   };
 
-  const apply = scene => {
+  const activate = scene => {
     if (!valid.has(scene)) return;
-    selected = scene;
-    updateButtons(scene);
-    try { localStorage.setItem(storageKey, scene); } catch (_) {}
-
-    const activeScene = new URL(activeFrame.src, location.href).searchParams.get('scene') === 'planet'
-      ? 'planet' : 'countryside';
-    if (scene === activeScene) {
-      clearIncoming();
+    const next = frames.get(scene);
+    if (!next) return;
+    if (!ready.has(scene)) {
+      pendingScene = scene;
       return;
     }
+    pendingScene = null;
+    if (scene === activeScene) return;
 
-    clearIncoming();
-
-    const next = document.createElement('iframe');
-    next.title = scene === 'planet' ? 'Pixel Orbit 星球版' : 'Pixel Orbit 田园版';
-    next.dataset.compositionFrame = '';
-    next.loading = 'eager';
-    next.allow = 'fullscreen';
-    const composition = card.dataset.composition === 'full' ? 'full' : 'art';
-    next.src = sourceFor(scene, composition);
-    next.className = 'orbit-frame-next';
-    incomingFrame = next;
-    stack.appendChild(next);
-
-    const onArtworkReady = event => {
-      if (event.source !== next.contentWindow || !event.data || event.data.type !== 'pixel-orbit-ready') return;
-      if (incomingFrame !== next) return;
-      window.removeEventListener('message', onArtworkReady);
-      pendingReadyHandler = null;
-      if (pendingReadyTimeout !== null) {
-        window.clearTimeout(pendingReadyTimeout);
-        pendingReadyTimeout = null;
-      }
-
-      const previous = activeFrame;
-      activeFrame = next;
-      incomingFrame = null;
-      next.classList.add('is-visible');
-      previous.classList.remove('is-visible');
-      window.setTimeout(() => previous.remove(), 520);
-    };
-
-    // Keep the old scene visible until the new scene has actually painted.
-    // iframe load alone only means its document loaded; canvas rendering may still be blank.
-    pendingReadyHandler = onArtworkReady;
-    window.addEventListener('message', onArtworkReady);
-
-    // If a scene fails or never becomes paint-ready, keep the working scene visible.
-    pendingReadyTimeout = window.setTimeout(() => {
-      if (incomingFrame === next) clearIncoming();
-    }, 15000);
-
-    next.addEventListener('error', () => {
-      if (incomingFrame === next) clearIncoming();
-    }, { once: true });
+    const previous = frames.get(activeScene);
+    activeScene = scene;
+    next.classList.add('is-visible');
+    if (previous) previous.classList.remove('is-visible');
+    updateButtons(scene);
+    try { localStorage.setItem(storageKey, scene); } catch (_) {}
   };
+
+  const registerFrame = (frame, scene) => {
+    frame.dataset.orbitScene = scene;
+    frame.classList.toggle('is-visible', scene === activeScene);
+    frames.set(scene, frame);
+    stack.appendChild(frame);
+  };
+
+  // Reuse the already-running document as one half of the two-scene pair.
+  registerFrame(originalFrame, initialScene);
+
+  const otherScene = initialScene === 'planet' ? 'countryside' : 'planet';
+  const preload = document.createElement('iframe');
+  preload.title = otherScene === 'planet' ? 'Pixel Orbit 星球版' : 'Pixel Orbit 田园版';
+  preload.dataset.compositionFrame = '';
+  preload.loading = 'eager';
+  preload.allow = 'fullscreen';
+  preload.src = sourceFor(otherScene);
+  preload.className = 'orbit-frame-preload';
+  registerFrame(preload, otherScene);
+
+  const frameScenes = new Map([...frames.entries()].map(([scene, frame]) => [frame.contentWindow, scene]));
+  window.addEventListener('message', event => {
+    if (!event.data || event.data.type !== 'pixel-orbit-ready') return;
+    const scene = frameScenes.get(event.source);
+    if (!scene) return;
+    ready.add(scene);
+    if (pendingScene === scene) activate(scene);
+  });
+
+  originalFrame.addEventListener('error', () => {
+    ready.delete(initialScene);
+  });
+  preload.addEventListener('error', () => {
+    ready.delete(otherScene);
+    if (pendingScene === otherScene) pendingScene = null;
+  });
 
   updateButtons(selected);
   buttons.forEach(button => button.addEventListener('click', event => {
     event.stopPropagation();
-    apply(button.dataset.orbitVersion);
+    const scene = button.dataset.orbitVersion;
+    updateButtons(scene);
+    selected = scene;
+    try { localStorage.setItem(storageKey, scene); } catch (_) {}
+    activate(scene);
   }));
+
+  // If the preferred scene differs from the original URL, wait for it to paint
+  // and then reveal it. The previous scene remains visible during that wait.
+  if (selected !== initialScene) {
+    pendingScene = selected;
+    if (ready.has(selected)) activate(selected);
+  }
 })();
