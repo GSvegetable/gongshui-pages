@@ -36,7 +36,10 @@
   background:transparent;
   color:#4d3a1d;
   text-align:left;
-  font:800 13px/1.4 inherit;
+  font:inherit;
+  font-size:13px;
+  font-weight:800;
+  line-height:1.4;
   cursor:pointer;
 }
 .inline-experience-list button span {
