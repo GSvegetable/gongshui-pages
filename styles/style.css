@@ -619,3 +619,12 @@ main{--gallery-card-min:260px}
 .card-inline-experience .inline-experience-viewer iframe{height:min(62vh,620px);min-height:320px}
 .preview-card.is-open .orbit-card-info{opacity:0;pointer-events:none}
 @media(max-width:600px){.card-inline-experience .inline-experience-viewer iframe{height:58vh;min-height:280px}}
+
+
+/* v3.3.14 — keep Pixel Orbit lab inside its opened detail panel. */
+.detail-inline-experience{width:100%;margin:10px 0 18px}
+.detail-inline-experience .card-experience-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:10px 2px;border:0;border-bottom:1px solid rgba(41,35,25,.2);background:transparent;color:#71501d;text-align:left;font-family:inherit;font-size:13px;font-weight:800;line-height:1.4;cursor:pointer}
+.detail-inline-experience .card-experience-chevron{font-size:17px;transition:transform .2s ease}
+.detail-inline-experience .card-experience-toggle[aria-expanded="true"] .card-experience-chevron{transform:rotate(180deg)}
+.detail-inline-experience .inline-experience-viewer{margin-top:12px}
+.detail-inline-experience .inline-experience-viewer iframe{height:min(66vh,680px);min-height:360px}
