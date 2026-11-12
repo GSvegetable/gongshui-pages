@@ -1,63 +1,104 @@
-/* Pixel Orbit — home preview framing, version cards and smooth iframe crossfade. */
-#pixel-orbit-card .preview-mount {
-  --mount-ratio: 1.6439;
-  background: transparent;
-}
-#pixel-orbit-card .preview-mount iframe { background: transparent !important; }
-
+/* v1.1.5 — keep both Pixel Orbit scenes mounted for low-latency switching. */
 .orbit-frame-stack {
-  position:absolute;
-  inset:0;
+  position:relative;
+  display:block;
+  width:100%;
+  height:100%;
   overflow:hidden;
+  isolation:isolate;
   background:transparent;
 }
-.orbit-frame-stack iframe {
+.orbit-frame-stack > iframe {
   position:absolute;
   inset:0;
   display:block;
   width:100%;
   height:100%;
+  margin:0;
   border:0;
   opacity:0;
-  background:#f2e8d2;
-  transition:opacity 460ms cubic-bezier(.22,.8,.2,1);
+  background:transparent;
+  transition:opacity 280ms cubic-bezier(.22,.8,.2,1);
 }
-.orbit-frame-stack iframe.is-visible { opacity:1; }
+.orbit-frame-stack > iframe.is-visible { opacity:1; }
+.orbit-frame-stack > iframe.orbit-frame-preload { pointer-events:none; }
 
-.orbit-version-picker { margin:14px 0 18px; gap:12px; }
-.orbit-scene-choice { flex-basis:min(46%,190px); }
-.orbit-scene-thumb {
-  aspect-ratio:16/10;
-  background-repeat:no-repeat;
-  background-size:cover;
-  image-rendering:pixelated;
+.inline-experience-list { display:grid; gap:0; }
+.inline-experience-list button {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  width:100%;
+  padding:13px 2px;
+  border:0;
+  border-bottom:1px solid rgba(41,35,25,.14);
+  background:transparent;
+  color:#4d3a1d;
+  text-align:left;
+  font:800 13px/1.4 inherit;
+  cursor:pointer;
 }
-.orbit-thumb-countryside {
-  background-color:#91a9ad;
-  background-image:
-    linear-gradient(180deg,transparent 0 55%,#496b70 55% 100%),
-    linear-gradient(90deg,transparent 0 35%,#d9c18a 35% 65%,transparent 65%),
-    repeating-linear-gradient(0deg,rgba(255,255,255,.16) 0 3px,transparent 3px 7px);
+.inline-experience-list button span {
+  flex:none;
+  color:#88734d;
+  font-size:11px;
+  font-weight:700;
 }
-.orbit-thumb-planet {
-  background-color:#111c36;
-  background-image:
-    radial-gradient(circle at 52% 53%,#d5a85e 0 19%,#72929b 20% 24%,transparent 25%),
-    radial-gradient(circle at 50% 50%,transparent 0 34%,#34536b 35% 39%,#17263e 40% 45%,transparent 46%),
-    radial-gradient(circle at 25% 25%,#f5ecd9 0 1px,transparent 2px),
-    radial-gradient(circle at 78% 32%,#f5ecd9 0 1px,transparent 2px);
+.inline-experience-list button:hover,
+.inline-experience-list button.is-active { color:#a46b0e; }
+.inline-experience-list button.is-active span { color:#a46b0e; }
+.inline-experience-viewer {
+  margin-top:14px;
+  overflow:hidden;
+  border:2px solid #211d15;
+  border-radius:4px;
+  background:#f7f1e5;
+  box-shadow:3px 4px 0 #211d15;
 }
-.orbit-scene-note {
-  padding:0 3px 3px;
-  color:#77684f;
-  font-size:10px;
-  line-height:1.5;
+.inline-experience-viewer[hidden] { display:none; }
+.inline-experience-toolbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  min-height:42px;
+  padding:7px 10px;
+  border-bottom:1px solid rgba(33,29,21,.2);
+  background:#eee1c7;
+  color:#292319;
+  font-size:12px;
+}
+.inline-experience-toolbar button {
+  padding:5px 9px;
+  border:1px solid #211d15;
+  border-radius:3px;
+  background:#f7f1e5;
+  color:#292319;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+}
+.inline-experience-viewer iframe {
+  display:block;
+  width:100%;
+  height:min(72vh,760px);
+  min-height:420px;
+  border:0;
+  background:#fff;
+}
+.inline-experience-viewer > a {
+  display:block;
+  padding:9px 10px;
+  border-top:1px solid rgba(33,29,21,.15);
+  color:#6b542d;
+  font-size:11px;
+  text-decoration:none;
 }
 @media(max-width:600px) {
-  .orbit-version-picker { gap:8px; }
-  .orbit-scene-choice { flex-basis:min(46%,190px); padding:7px; }
-  .orbit-scene-note { font-size:9px; }
+  .inline-experience-viewer iframe { height:68vh; min-height:360px; }
+  .inline-experience-list button { font-size:12px; }
 }
 @media(prefers-reduced-motion:reduce) {
-  .orbit-frame-stack iframe { transition-duration:.01ms; }
+  .orbit-frame-stack > iframe { transition-duration:.01ms; }
 }
