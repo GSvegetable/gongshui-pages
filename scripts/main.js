@@ -120,6 +120,65 @@ renderGallery();
 syncSearchUI();
 
 /* =========================================================
+   1.5 主页画廊双指缩放：只改变卡片网格密度，不缩放导航和搜索栏
+   ========================================================= */
+(() => {
+  const gallery = document.querySelector('main .grid');
+  const main = document.querySelector('main');
+  if (!gallery || !main) return;
+  const MIN = 150, MAX = 520, DEFAULT = 260;
+  let cardMin = DEFAULT;
+  let pinchStart = null;
+  const applyZoom = (next, focalX = window.innerWidth / 2, focalY = window.innerHeight / 2) => {
+    const before = gallery.getBoundingClientRect();
+    const ratio = Math.max(.1, (focalY - before.top) / Math.max(1, before.height));
+    const oldScroll = window.scrollY;
+    cardMin = Math.max(MIN, Math.min(MAX, next));
+    main.style.setProperty('--gallery-card-min', cardMin + 'px');
+    requestAnimationFrame(() => {
+      const after = gallery.getBoundingClientRect();
+      const delta = (after.height - before.height) * ratio;
+      window.scrollTo({top: Math.max(0, oldScroll + delta), behavior:'instant'});
+    });
+  };
+  try {
+    const stored = Number(localStorage.getItem('ui-archive-gallery-zoom'));
+    if (Number.isFinite(stored) && stored >= MIN && stored <= MAX) cardMin = stored;
+  } catch (_) {}
+  main.style.setProperty('--gallery-card-min', cardMin + 'px');
+  const distance = (a,b) => Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+  document.addEventListener('touchstart', event => {
+    if (!event.touches || event.touches.length !== 2) return;
+    if (!event.target.closest('main')) return;
+    pinchStart = {distance:distance(event.touches[0],event.touches[1]), zoom:cardMin,
+      x:(event.touches[0].clientX+event.touches[1].clientX)/2,
+      y:(event.touches[0].clientY+event.touches[1].clientY)/2};
+  }, {passive:true,capture:true});
+  document.addEventListener('touchmove', event => {
+    if (!pinchStart || !event.touches || event.touches.length !== 2) return;
+    event.preventDefault();
+    const currentDistance = distance(event.touches[0],event.touches[1]);
+    const midpointX=(event.touches[0].clientX+event.touches[1].clientX)/2;
+    const midpointY=(event.touches[0].clientY+event.touches[1].clientY)/2;
+    applyZoom(pinchStart.zoom * currentDistance / Math.max(1,pinchStart.distance),midpointX,midpointY);
+  }, {passive:false,capture:true});
+  const clearPinch = () => {
+    if (!pinchStart) return;
+    pinchStart = null;
+    try { localStorage.setItem('ui-archive-gallery-zoom',String(cardMin)); } catch (_) {}
+  };
+  document.addEventListener('touchend', clearPinch, {passive:true,capture:true});
+  document.addEventListener('touchcancel', clearPinch, {passive:true,capture:true});
+  main.addEventListener('wheel', event => {
+    if (!event.ctrlKey) return;
+    event.preventDefault();
+    applyZoom(cardMin * Math.exp(-event.deltaY * .003),event.clientX,event.clientY);
+    try { localStorage.setItem('ui-archive-gallery-zoom',String(cardMin)); } catch (_) {}
+  }, {passive:false});
+})();
+
+
+/* =========================================================
    2. 万能作品展示框架 (Work Controller)
    ---------------------------------------------------------
    做法（FLIP）：
