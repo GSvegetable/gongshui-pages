@@ -171,9 +171,8 @@
     let language = 'zh';
     const translations = {
       en: [
-        ['#nav-home','Home'],['#nav-bookmark','Bookmarks'],
-        ['#search-input','Search works…'],['#search-input@aria-label','Search works'],
-        ['#empty-title','Nothing here'],['#detail-title','Pixel Daylight Switch'],
+        ['#search-input@placeholder','Search works…'],['#search-input@aria-label','Search works'],
+        ['#empty-state .empty-title','Nothing here'],['#lighthouse-card .card-title','Pixel Daylight Switch'],['#pixel-orbit-card .card-title','Pixel Orbit'],['#lighthouse-card .work-tag','Pixel art'],['#pixel-orbit-card .work-tag','Pixel art'],['#detail-title','Pixel Daylight Switch'],
         ['#detail-panel .detail-description','A miniature pixel world inside a refractive glass switch. Move the switch to transition naturally from day through dusk into night. The seaside lighthouse is one of its interactive scenes.'],
         ['#detail-panel .project-link span:first-of-type','View GitHub project'],
         ['#detail-panel .detail-facts div:nth-child(1) span','Core experience'],
@@ -196,7 +195,8 @@
         ['#orbit-detail-panel .detail-facts div:nth-child(3) strong','Pixel rendering · Dynamic lighting · Web'],
         ['#orbit-detail-panel .gallery-heading h2','Scenes'],
         ['#orbit-detail-panel .contributor-list h2','Creators & contributors'],
-        ['#orbit-detail-panel .lab-links h2','Explore more']
+        ['#orbit-detail-panel .lab-links h2','Explore more'],
+        ['#empty-state .empty-desc','No matching works found']
       ]
     };
     const original = new Map();
@@ -217,6 +217,7 @@
       document.documentElement.lang = language === 'en' ? 'en' : 'zh-CN';
       button.textContent = language === 'en' ? '中文' : 'EN';
       button.setAttribute('aria-label', language === 'en' ? '切换语言' : 'Switch language');
+      document.querySelectorAll('.work-tag').forEach(el => { el.textContent = language === 'en' ? 'Pixel art' : '像素风'; });
       document.querySelectorAll('[data-scene-choice]').forEach((el, i) => {
         const zh=['乡间小屋','日式街道','现代公寓','海边灯塔','山间木屋'][i];
         const en=['Country cottage','Japanese street','Modern apartment','Seaside lighthouse','Mountain cabin'][i];
