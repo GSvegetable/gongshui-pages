@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#171717">
+<title>账号 | 宫水.com</title>
+<meta name="description" content="宫水.com 的账号入口。">
+<link rel="stylesheet" href="./styles/style.css?v=3.3.29">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>">
+<style>
+.auth-page{width:min(420px,calc(100% - 32px));margin:0 auto;padding:clamp(28px,7vh,72px) 0 60px}
+
+.auth-nav{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:14px;border-bottom:3px solid #080808;color:#a99b82;font:900 11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.3px}
+.auth-nav a{color:#f4bd3c;text-decoration:none}
+.auth-nav a:hover{color:#ffd36a}
+
+.auth-card{margin-top:34px;border:3px solid #080808;border-radius:3px;background:#f5ecd9;box-shadow:4px 5px 0 #080808;overflow:hidden}
+.auth-head{display:flex;align-items:center;gap:13px;padding:16px 16px 14px;border-bottom:3px solid #080808;background:#efe6d2}
+.auth-block{display:grid;place-items:center;width:44px;height:44px;flex:0 0 auto;border:3px solid #34220e;border-radius:3px;background:#f4bd3c;color:#211d15;box-shadow:0 4px 0 #a85f10}
+.auth-block svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.auth-head-text{display:flex;flex-direction:column;gap:5px;min-width:0}
+.auth-kicker{color:#a2701a;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:2.2px}
+.auth-title{margin:0;color:#211d15;font-size:19px;font-weight:900;letter-spacing:-.4px}
+
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:3px solid #080808}
+.auth-tab{appearance:none;margin:0;padding:13px 8px;border:0;border-right:3px solid #080808;background:#e7dcc4;color:#6b5d47;font:900 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.4px;cursor:pointer;transition:background .15s,color .15s}
+.auth-tab:last-child{border-right:0}
+.auth-tab:hover{background:#f0e7d3;color:#211d15}
+.auth-tab.is-active{background:#f4bd3c;color:#211d15}
+
+.auth-form{padding:18px 16px 16px;display:grid;gap:14px}
+.auth-field{display:grid;gap:7px}
+.auth-field label{color:#5c4b32;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:1.4px}
+.auth-field input{
+  width:100%;height:42px;padding:0 11px;border:2px solid #211d15;border-radius:3px;
+  background:#fffdf7;color:#211d15;font:700 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+  outline:0;appearance:none;transition:box-shadow .15s,border-color .15s;
+}
+.auth-field input:focus{border-color:#f4bd3c;box-shadow:0 0 0 3px rgba(244,189,60,.28)}
+.auth-field input::placeholder{color:#a89b82;font-weight:500}
+
+.auth-submit{appearance:none;width:100%;height:46px;margin-top:2px;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.6px;cursor:pointer;box-shadow:3px 4px 0 #080808;transition:transform .1s,box-shadow .1s,background .15s}
+.auth-submit:hover{background:#ffd36a}
+.auth-submit:active{transform:translate(3px,4px);box-shadow:none}
+.auth-submit[disabled]{opacity:.55;cursor:not-allowed;box-shadow:none}
+
+.auth-message{margin:0;padding:10px 11px;border:2px solid #b5402a;border-radius:3px;background:#fbe9e3;color:#8c2f1e;font:700 11px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace}
+.auth-message[hidden]{display:none}
+.auth-message.is-ok{border-color:#5c7a54;background:#eaf0e6;color:#3f5738}
+
+.auth-mode{margin:14px 0 0;padding:10px 11px;border:2px dashed rgba(41,35,25,.35);border-radius:3px;color:#6b5d47;font:700 10px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2px}
+.auth-foot{margin-top:22px;text-align:center;color:#827969;font:700 11px/1.8 ui-monospace,SFMono-Regular,Menlo,monospace}
+.auth-foot a{color:#f4bd3c;text-decoration:none}
+.auth-foot a:hover{color:#ffd36a}
+</style>
+</head>
+<body>
+<main class="auth-page">
+  <nav class="auth-nav"><span>宫水.com　/　账号</span><a href="./index.html">返回首页　↗</a></nav>
+
+  <section class="auth-card" aria-labelledby="auth-title">
+    <header class="auth-head">
+      <div class="auth-block" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8.4" r="3.6"></circle><path d="M4.6 20c0-3.6 3.3-6.2 7.4-6.2s7.4 2.6 7.4 6.2"></path></svg>
+      </div>
+      <div class="auth-head-text">
+        <p class="auth-kicker">ACCOUNT</p>
+        <h1 class="auth-title" id="auth-title">登录</h1>
+      </div>
+    </header>
+
+    <div class="auth-tabs" role="tablist" aria-label="登录或注册">
+      <button class="auth-tab is-active" type="button" role="tab" id="tab-signin" aria-selected="true" data-mode="signin">登录</button>
+      <button class="auth-tab" type="button" role="tab" id="tab-signup" aria-selected="false" data-mode="signup">注册</button>
+    </div>
+
+    <form class="auth-form" id="auth-form" novalidate>
+      <div class="auth-field">
+        <label for="auth-email">邮箱</label>
+        <input type="email" id="auth-email" name="email" placeholder="you@example.com" autocomplete="email" required>
+      </div>
+      <div class="auth-field">
+        <label for="auth-password">密码</label>
+        <input type="password" id="auth-password" name="password" placeholder="至少 6 位" autocomplete="current-password" minlength="6" required>
+      </div>
+      <p class="auth-message" id="auth-message" role="status" aria-live="polite" hidden></p>
+      <button class="auth-submit" type="submit" id="auth-submit">进入</button>
+    </form>
+
+    <p class="auth-mode" id="auth-mode"></p>
+  </section>
+
+  <p class="auth-foot">登录后，收藏和偏好会跟着账号走。<br><a href="./index.html">← 回到作品主页</a></p>
+</main>
+
+<script src="./scripts/auth-config.js?v=1.0.0"></script>
+<script src="./scripts/auth.js?v=1.0.0"></script>
+<script>
+(() => {
+  const form = document.getElementById('auth-form');
+  const emailInput = document.getElementById('auth-email');
+  const passwordInput = document.getElementById('auth-password');
+  const message = document.getElementById('auth-message');
+  const submit = document.getElementById('auth-submit');
+  const title = document.getElementById('auth-title');
+  const modeNote = document.getElementById('auth-mode');
+  const tabs = [...document.querySelectorAll('.auth-tab')];
+
+  let mode = 'signin';
+
+  const TEXTS = {
+    signin: { title: '登录', submit: '进入', hint: '还没有账号？切到「注册」', autocomplete: 'current-password' },
+    signup: { title: '注册', submit: '创建账号', hint: '已经有账号了？切到「登录」', autocomplete: 'new-password' }
+  };
+
+  const show = (text, ok) => {
+    message.textContent = text || '';
+    message.hidden = !text;
+    message.classList.toggle('is-ok', !!ok);
+  };
+
+  const setMode = next => {
+    mode = next;
+    const t = TEXTS[next];
+    tabs.forEach(tab => {
+      const on = tab.dataset.mode === next;
+      tab.classList.toggle('is-active', on);
+      tab.setAttribute('aria-selected', String(on));
+    });
+    title.textContent = t.title;
+    submit.textContent = t.submit;
+    passwordInput.setAttribute('autocomplete', t.autocomplete);
+    passwordInput.placeholder = next === 'signup' ? '至少 6 位' : '你的密码';
+    show('');
+  };
+
+  tabs.forEach(tab => tab.addEventListener('click', () => setMode(tab.dataset.mode)));
+
+  // 账号服务没配好的时候，本地模式还能把流程走通
+  const cloud = window.siteAuth && window.siteAuth.isConfigured;
+  modeNote.textContent = cloud
+    ? '云端账号：数据存在账号服务里，换设备也能登录。'
+    : '本地模式：账号只存在这台设备上（还没接云端账号服务）。';
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    show('');
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!email) return show('先填邮箱');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return show('邮箱格式不对');
+    if (password.length < 6) return show('密码至少要 6 位');
+
+    submit.disabled = true;
+    submit.textContent = mode === 'signup' ? '创建中…' : '登录中…';
+    try {
+      const payload = mode === 'signup'
+        ? await window.siteAuth.signUp({ email, password })
+        : await window.siteAuth.signIn({ email, password });
+      if (payload.needConfirm) {
+        show('注册成功，去邮箱点一下确认链接再来登录。', true);
+        submit.disabled = false;
+        submit.textContent = TEXTS[mode].submit;
+        return;
+      }
+      show('成功，正在回主页…', true);
+      setTimeout(() => { location.href = './index.html'; }, 700);
+    } catch (error) {
+      show(error && error.message ? error.message : '出了点问题，再试一次');
+      submit.disabled = false;
+      submit.textContent = TEXTS[mode].submit;
+    }
+  });
+
+  // 已经登录了就直接回主页
+  window.siteAuth.restore().then(account => {
+    if (account && account.email) location.replace('./index.html');
+  });
+})();
+</script>
+</body>
+</html>
