@@ -88,6 +88,8 @@
     if (text.includes('unable to validate email')) return '邮箱格式不对';
     if (text.includes('rate limit') || text.includes('too many')) return '试太频繁了，等一会儿再来';
     if (text.includes('failed to fetch')) return '连不上账号服务，检查一下网络';
+    if (text.includes('error sending')) return '邮件暂时发不出去，等一会儿再试';
+    if (text.includes('otp_expired') || text.includes('invalid or has expired')) return '这个链接已经过期了，重新发一封吧';
     return String(message);
   };
 
@@ -191,15 +193,90 @@
 
   /* ---------- 对外的接口 ---------- */
 
+  /* ---------- 邮件链接回来的令牌 ---------- */
+
+  // 确认邮件和重置密码邮件点开后，浏览器会带着令牌回到站点：
+  //   老式隐式流：#access_token=...&refresh_token=...&type=signup
+  //   新式令牌哈希：/auth/confirm?token=...&type=signup
+  // 两种都要接住，否则用户点了邮件链接还是登不进来。
+  const redirect = { type: null, user: null };
+
+  const cleanUrl = () => {
+    const url = new URL(location.href);
+    ['token', 'token_hash', 'access_token', 'refresh_token', 'type', 'error', 'error_description', 'code']
+      .forEach(key => url.searchParams.delete(key));
+    url.hash = '';
+    history.replaceState(null, '', url.pathname + (url.search || ''));
+  };
+
+  const handleUrl = async () => {
+    if (!cloud) return null;
+    const hashParams = new URLSearchParams(location.hash.replace(/^#/, ''));
+    const query = new URLSearchParams(location.search);
+
+    let type = hashParams.get('type') || query.get('type');
+    let accessToken = hashParams.get('access_token');
+    let refreshToken = hashParams.get('refresh_token');
+
+    // 新式：拿 token_hash 去换一个会话
+    const tokenHash = query.get('token_hash') || hashParams.get('token_hash') ||
+                      query.get('token') || hashParams.get('token');
+    try {
+      if (!accessToken && tokenHash) {
+        const data = await api('/verify', { body: { token_hash: tokenHash, type: type || 'signup' } });
+        accessToken = data.access_token;
+        refreshToken = data.refresh_token;
+      }
+
+      if (!accessToken) { cleanUrl(); return null; }
+
+      const me = await api('/user', { method: 'GET', token: accessToken });
+      storeSession({ accessToken, refreshToken, email: me.email, id: me.id });
+      user = { id: me.id, email: me.email };
+      redirect.type = type || 'signup';
+      redirect.user = user;
+      // 落地页和账号页可能不是同一个页面，把类型记下来传过去
+      try { sessionStorage.setItem('site-auth-redirect', redirect.type); } catch (_) {}
+      notify();
+      cleanUrl();
+      return redirect;
+    } catch (error) {
+      cleanUrl();          // 令牌作废了，别留在地址栏和历史记录里
+      throw error;
+    }
+  };
+
+  // 重新发一封确认邮件（SMTP 限流恢复了就能再试）
+  const resendConfirmation = async email => {
+    await api('/resend', { body: { type: 'signup', email } });
+  };
+
+  // 找回密码：发重置邮件
+  const requestReset = async email => {
+    await api('/recover', { body: { email } });
+  };
+
+  // 拿着邮件链接换来的会话，把新密码写回去
+  const updatePassword = async password => {
+    const token = session && session.accessToken;
+    if (!token) throw new Error('会话过期了，请重新点一次邮件链接');
+    await api('/user', { method: 'PUT', token, body: { password } });
+  };
+
   const signUp = payload => cloud ? cloudSignUp(payload) : localSignUp(payload);
   const signIn = payload => cloud ? cloudSignIn(payload) : localSignIn(payload);
   const signOut = () => cloud ? cloudSignOut() : (storeSession(null), user = null, notify(), Promise.resolve());
 
-  const restore = () => {
-    if (!cloud) return Promise.resolve(localRestore());
+  const restore = async () => {
+    if (!cloud) return localRestore();
+    // 邮件链接里带回来的令牌优先处理
+    try {
+      const result = await handleUrl();
+      if (result && result.user) return result.user;
+    } catch (_) {}
     const saved = readSession();
-    if (!saved) return Promise.resolve(null);
-    // 先用 refresh_token 换新 access_token，再取一次用户信息
+    if (!saved) return null;
+    // 用 refresh_token 换新 access_token，再取一次用户信息
     return refresh();
   };
 
@@ -211,6 +288,10 @@
     signOut,
     getUser: () => user,
     getToken: () => (session && session.accessToken) || '',
+    redirect,
+    resendConfirmation,
+    requestReset,
+    updatePassword,
     // access_token 过期时用它换新的（数据库请求 401 时会用到）
     refreshSession: () => (cloud ? refresh() : Promise.resolve(user)),
     restore,

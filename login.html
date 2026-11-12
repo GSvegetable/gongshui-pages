@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#171717">
 <title>账号 | 宫水.com</title>
 <meta name="description" content="宫水.com 的账号入口。">
-<link rel="stylesheet" href="./styles/style.css?v=3.3.30">
+<link rel="stylesheet" href="./styles/style.css?v=3.3.31">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>">
 <style>
 .auth-page{width:min(420px,calc(100% - 32px));margin:0 auto;padding:clamp(28px,7vh,72px) 0 60px}
@@ -14,6 +14,8 @@
 .auth-nav{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:14px;border-bottom:3px solid #080808;color:#a99b82;font:900 11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.3px}
 .auth-nav a{color:#f4bd3c;text-decoration:none}
 .auth-nav a:hover{color:#ffd36a}
+.auth-lang{appearance:none;min-width:40px;height:28px;padding:0 9px;border:2px solid #080808;border-radius:2px;background:#f4bd3c;color:#211d15;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;box-shadow:2px 3px 0 #000;cursor:pointer}
+.auth-lang:active{transform:translate(2px,3px);box-shadow:none}
 
 .auth-card{margin-top:34px;border:3px solid #080808;border-radius:3px;background:#f5ecd9;box-shadow:4px 5px 0 #080808;overflow:hidden}
 .auth-head{display:flex;align-items:center;gap:13px;padding:16px 16px 14px;border-bottom:3px solid #080808;background:#efe6d2}
@@ -24,6 +26,7 @@
 .auth-title{margin:0;color:#211d15;font-size:19px;font-weight:900;letter-spacing:-.4px}
 
 .auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:3px solid #080808}
+.auth-tabs[hidden]{display:none}
 .auth-tab{appearance:none;margin:0;padding:13px 8px;border:0;border-right:3px solid #080808;background:#e7dcc4;color:#6b5d47;font:900 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.4px;cursor:pointer;transition:background .15s,color .15s}
 .auth-tab:last-child{border-right:0}
 .auth-tab:hover{background:#f0e7d3;color:#211d15}
@@ -31,6 +34,7 @@
 
 .auth-form{padding:18px 16px 16px;display:grid;gap:14px}
 .auth-field{display:grid;gap:7px}
+.auth-field[hidden]{display:none}
 .auth-field label{color:#5c4b32;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:1.4px}
 .auth-field input{
   width:100%;height:42px;padding:0 11px;border:2px solid #211d15;border-radius:3px;
@@ -49,6 +53,11 @@
 .auth-message[hidden]{display:none}
 .auth-message.is-ok{border-color:#5c7a54;background:#eaf0e6;color:#3f5738}
 
+.auth-extra{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:center}
+.auth-extra[hidden]{display:none}
+.auth-link{appearance:none;padding:0;border:0;background:none;color:#8a6a1c;font:700 11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.auth-link:hover{color:#211d15}
+
 .auth-mode{margin:14px 0 0;padding:10px 11px;border:2px dashed rgba(41,35,25,.35);border-radius:3px;color:#6b5d47;font:700 10px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2px}
 .auth-foot{margin-top:22px;text-align:center;color:#827969;font:700 11px/1.8 ui-monospace,SFMono-Regular,Menlo,monospace}
 .auth-foot a{color:#f4bd3c;text-decoration:none}
@@ -57,7 +66,13 @@
 </head>
 <body>
 <main class="auth-page">
-  <nav class="auth-nav"><span>宫水.com　/　账号</span><a href="./index.html">返回首页　↗</a></nav>
+  <nav class="auth-nav">
+    <span>宫水.com　/　账号</span>
+    <span style="display:flex;align-items:center;gap:12px">
+      <a href="./index.html" data-i18n="backHome">返回首页　↗</a>
+      <button class="auth-lang" id="auth-lang" type="button">EN</button>
+    </span>
+  </nav>
 
   <section class="auth-card" aria-labelledby="auth-title">
     <header class="auth-head">
@@ -70,49 +85,101 @@
       </div>
     </header>
 
-    <div class="auth-tabs" role="tablist" aria-label="登录或注册">
-      <button class="auth-tab is-active" type="button" role="tab" id="tab-signin" aria-selected="true" data-mode="signin">登录</button>
-      <button class="auth-tab" type="button" role="tab" id="tab-signup" aria-selected="false" data-mode="signup">注册</button>
+    <div class="auth-tabs" id="auth-tabs" role="tablist" aria-label="登录或注册">
+      <button class="auth-tab is-active" type="button" role="tab" id="tab-signin" aria-selected="true" data-mode="signin" data-i18n="tabSignin">登录</button>
+      <button class="auth-tab" type="button" role="tab" id="tab-signup" aria-selected="false" data-mode="signup" data-i18n="tabSignup">注册</button>
     </div>
 
     <form class="auth-form" id="auth-form" novalidate>
-      <div class="auth-field">
-        <label for="auth-email">邮箱</label>
+      <div class="auth-field" id="auth-email-field">
+        <label for="auth-email" data-i18n="email">邮箱</label>
         <input type="email" id="auth-email" name="email" placeholder="you@example.com" autocomplete="email" required>
       </div>
       <div class="auth-field">
-        <label for="auth-password">密码</label>
+        <label for="auth-password" data-i18n="password">密码</label>
         <input type="password" id="auth-password" name="password" placeholder="至少 6 位" autocomplete="current-password" minlength="6" required>
       </div>
       <p class="auth-message" id="auth-message" role="status" aria-live="polite" hidden></p>
       <button class="auth-submit" type="submit" id="auth-submit">进入</button>
+      <div class="auth-extra" id="auth-extra">
+        <button class="auth-link" type="button" id="auth-forgot" data-i18n="forgot">忘记密码？</button>
+        <button class="auth-link" type="button" id="auth-resend" hidden data-i18n="resend">重新发送确认邮件</button>
+      </div>
     </form>
 
     <p class="auth-mode" id="auth-mode"></p>
   </section>
 
-  <p class="auth-foot">登录后，收藏和偏好会跟着账号走。<br><a href="./index.html">← 回到作品主页</a></p>
+  <p class="auth-foot"><span data-i18n="foot">登录后，收藏和偏好会跟着账号走。</span><br><a href="./index.html" data-i18n="footLink">← 回到作品主页</a></p>
 </main>
 
 <script src="./scripts/auth-config.js?v=1.0.1"></script>
-<script src="./scripts/auth.js?v=1.0.1"></script>
+<script src="./scripts/auth.js?v=1.0.2"></script>
 <script>
 (() => {
-  const form = document.getElementById('auth-form');
-  const emailInput = document.getElementById('auth-email');
-  const passwordInput = document.getElementById('auth-password');
-  const message = document.getElementById('auth-message');
-  const submit = document.getElementById('auth-submit');
-  const title = document.getElementById('auth-title');
-  const modeNote = document.getElementById('auth-mode');
-  const tabs = [...document.querySelectorAll('.auth-tab')];
+  const $ = id => document.getElementById(id);
+  const form = $('auth-form');
+  const emailInput = $('auth-email');
+  const passwordInput = $('auth-password');
+  const message = $('auth-message');
+  const submit = $('auth-submit');
+  const title = $('auth-title');
+  const modeNote = $('auth-mode');
+  const tabs = $('auth-tabs');
+  const emailField = $('auth-email-field');
+  const extra = $('auth-extra');
+  const forgotBtn = $('auth-forgot');
+  const resendBtn = $('auth-resend');
+  const langBtn = $('auth-lang');
 
-  let mode = 'signin';
+  let mode = 'signin';     // 'signin' | 'signup'
+  let recovery = false;    // 从重置密码邮件链接进来
+  let lang = 'zh';
 
-  const TEXTS = {
-    signin: { title: '登录', submit: '进入', hint: '还没有账号？切到「注册」', autocomplete: 'current-password' },
-    signup: { title: '注册', submit: '创建账号', hint: '已经有账号了？切到「登录」', autocomplete: 'new-password' }
+  const I18N = {
+    zh: {
+      backHome: '返回首页　↗', tabSignin: '登录', tabSignup: '注册',
+      email: '邮箱', password: '密码',
+      titleSignin: '登录', titleSignup: '注册', titleRecovery: '设置新密码',
+      enter: '进入', create: '创建账号', save: '保存新密码',
+      signingIn: '登录中…', creating: '创建中…', saving: '保存中…',
+      forgot: '忘记密码？', resend: '重新发送确认邮件',
+      placeholderPwd: '至少 6 位', placeholderPwdSignin: '你的密码',
+      modeCloud: '云端账号：数据存在账号服务里，换设备也能登录。',
+      modeLocal: '本地模式：账号只存在这台设备上（还没接云端账号服务）。',
+      needConfirm: '注册成功，去邮箱点一下确认链接再来登录。',
+      resendOk: '确认邮件已重发，去收件箱看看。',
+      resetSent: '重置密码的邮件已发送，去查收。',
+      pwdUpdated: '密码已改好，正在回主页…',
+      signedIn: '成功，正在回主页…',
+      errEmail: '先填邮箱', errEmailFormat: '邮箱格式不对', errPwd: '密码至少要 6 位',
+      recoveryOk: '链接已生效，设个新密码吧',
+      foot: '登录后，收藏和偏好会跟着账号走。', footLink: '← 回到作品主页'
+    },
+    en: {
+      backHome: 'Back to home ↗', tabSignin: 'Sign in', tabSignup: 'Sign up',
+      email: 'Email', password: 'Password',
+      titleSignin: 'Sign in', titleSignup: 'Sign up', titleRecovery: 'Set a new password',
+      enter: 'Enter', create: 'Create account', save: 'Save password',
+      signingIn: 'Signing in…', creating: 'Creating…', saving: 'Saving…',
+      forgot: 'Forgot password?', resend: 'Resend confirmation email',
+      placeholderPwd: 'At least 6 characters', placeholderPwdSignin: 'Your password',
+      modeCloud: 'Cloud account: data lives in the account service, so you can sign in from any device.',
+      modeLocal: 'Local mode: accounts only exist on this device (no cloud account service connected yet).',
+      needConfirm: 'Account created. Check your email for the confirmation link, then come back to sign in.',
+      resendOk: 'Confirmation email sent again — check your inbox.',
+      resetSent: 'Password reset email sent — check your inbox.',
+      pwdUpdated: 'Password updated. Heading back…',
+      signedIn: 'Signed in. Heading back…',
+      errEmail: 'Enter your email first', errEmailFormat: 'That email looks off',
+      errPwd: 'Password needs at least 6 characters',
+      recoveryOk: 'Link accepted — set a new password.',
+      foot: 'Once you sign in, bookmarks and preferences travel with your account.',
+      footLink: '← Back to the gallery'
+    }
   };
+
+  const t = key => (I18N[lang] && I18N[lang][key]) || I18N.zh[key] || key;
 
   const show = (text, ok) => {
     message.textContent = text || '';
@@ -120,64 +187,150 @@
     message.classList.toggle('is-ok', !!ok);
   };
 
-  const setMode = next => {
-    mode = next;
-    const t = TEXTS[next];
-    tabs.forEach(tab => {
-      const on = tab.dataset.mode === next;
-      tab.classList.toggle('is-active', on);
-      tab.setAttribute('aria-selected', String(on));
+  const applyLang = () => {
+    document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+    document.querySelectorAll('[data-i18n]').forEach(node => {
+      node.textContent = t(node.dataset.i18n);
     });
-    title.textContent = t.title;
-    submit.textContent = t.submit;
-    passwordInput.setAttribute('autocomplete', t.autocomplete);
-    passwordInput.placeholder = next === 'signup' ? '至少 6 位' : '你的密码';
-    show('');
+    langBtn.textContent = lang === 'en' ? '中' : 'EN';
+    render();
   };
 
-  tabs.forEach(tab => tab.addEventListener('click', () => setMode(tab.dataset.mode)));
+  langBtn.addEventListener('click', () => { lang = lang === 'en' ? 'zh' : 'en'; applyLang(); });
 
-  // 账号服务没配好的时候，本地模式还能把流程走通
-  const cloud = window.siteAuth && window.siteAuth.isConfigured;
-  modeNote.textContent = cloud
-    ? '云端账号：数据存在账号服务里，换设备也能登录。'
-    : '本地模式：账号只存在这台设备上（还没接云端账号服务）。';
+  const submitLabel = () => {
+    if (recovery) return t('save');
+    return mode === 'signup' ? t('create') : t('enter');
+  };
+
+  const render = () => {
+    if (recovery) {
+      title.textContent = t('titleRecovery');
+      emailField.hidden = true;
+      tabs.hidden = true;
+      passwordInput.setAttribute('autocomplete', 'new-password');
+      passwordInput.placeholder = t('placeholderPwd');
+      forgotBtn.hidden = true;
+    } else {
+      title.textContent = mode === 'signup' ? t('titleSignup') : t('titleSignin');
+      emailField.hidden = false;
+      tabs.hidden = false;
+      passwordInput.setAttribute('autocomplete', mode === 'signup' ? 'new-password' : 'current-password');
+      passwordInput.placeholder = mode === 'signup' ? t('placeholderPwd') : t('placeholderPwdSignin');
+      forgotBtn.hidden = mode === 'signup';
+    }
+    if (!submit.disabled) submit.textContent = submitLabel();
+  };
+
+  tabs.querySelectorAll('.auth-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      mode = tab.dataset.mode;
+      tabs.querySelectorAll('.auth-tab').forEach(other => {
+        const on = other === tab;
+        other.classList.toggle('is-active', on);
+        other.setAttribute('aria-selected', String(on));
+      });
+      resendBtn.hidden = true;
+      show('');
+      render();
+    });
+  });
+
+  // 账号服务没配好时，本地模式照样能把流程走通
+  modeNote.textContent = window.siteAuth && window.siteAuth.isConfigured ? t('modeCloud') : t('modeLocal');
+
+  forgotBtn.addEventListener('click', async () => {
+    const email = emailInput.value.trim();
+    if (!email) return show(t('errEmail'));
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return show(t('errEmailFormat'));
+    try {
+      await window.siteAuth.requestReset(email);
+      show(t('resetSent'), true);
+    } catch (error) {
+      show(error && error.message ? error.message : '出了点问题，再试一次');
+    }
+  });
+
+  resendBtn.addEventListener('click', async () => {
+    const email = emailInput.value.trim();
+    if (!email) return show(t('errEmail'));
+    resendBtn.disabled = true;
+    try {
+      await window.siteAuth.resendConfirmation(email);
+      show(t('resendOk'), true);
+    } catch (error) {
+      show(error && error.message ? error.message : '出了点问题，再试一次');
+    }
+    resendBtn.disabled = false;
+  });
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
     show('');
+
+    if (recovery) {
+      const password = passwordInput.value;
+      if (password.length < 6) return show(t('errPwd'));
+      submit.disabled = true;
+      submit.textContent = t('saving');
+      try {
+        await window.siteAuth.updatePassword(password);
+        show(t('pwdUpdated'), true);
+        setTimeout(() => { location.href = './index.html'; }, 900);
+      } catch (error) {
+        show(error && error.message ? error.message : '出了点问题，再试一次');
+        submit.disabled = false;
+        render();
+      }
+      return;
+    }
+
     const email = emailInput.value.trim();
     const password = passwordInput.value;
-
-    if (!email) return show('先填邮箱');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return show('邮箱格式不对');
-    if (password.length < 6) return show('密码至少要 6 位');
+    if (!email) return show(t('errEmail'));
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return show(t('errEmailFormat'));
+    if (password.length < 6) return show(t('errPwd'));
 
     submit.disabled = true;
-    submit.textContent = mode === 'signup' ? '创建中…' : '登录中…';
+    submit.textContent = mode === 'signup' ? t('creating') : t('signingIn');
     try {
       const payload = mode === 'signup'
         ? await window.siteAuth.signUp({ email, password })
         : await window.siteAuth.signIn({ email, password });
       if (payload.needConfirm) {
-        show('注册成功，去邮箱点一下确认链接再来登录。', true);
+        show(t('needConfirm'), true);
+        resendBtn.hidden = false;
         submit.disabled = false;
-        submit.textContent = TEXTS[mode].submit;
+        render();
         return;
       }
-      show('成功，正在回主页…', true);
+      show(t('signedIn'), true);
       setTimeout(() => { location.href = './index.html'; }, 700);
     } catch (error) {
       show(error && error.message ? error.message : '出了点问题，再试一次');
       submit.disabled = false;
-      submit.textContent = TEXTS[mode].submit;
+      render();
     }
   });
 
-  // 已经登录了就直接回主页
+  // 页面加载：先接住邮件链接里带回来的令牌
   window.siteAuth.restore().then(account => {
+    let kind = window.siteAuth.redirect && window.siteAuth.redirect.type;
+    if (!kind) {
+      try { kind = sessionStorage.getItem('site-auth-redirect'); } catch (_) {}
+    }
+    if (kind) { try { sessionStorage.removeItem('site-auth-redirect'); } catch (_) {} }
+    if (kind === 'recovery') {
+      recovery = true;
+      render();
+      show(t('recoveryOk'), true);
+      passwordInput.focus();
+      return;
+    }
     if (account && account.email) location.replace('./index.html');
   });
+
+  applyLang();
 })();
 </script>
 </body>
