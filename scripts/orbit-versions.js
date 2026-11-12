@@ -7,8 +7,8 @@
   const buttons = [...panel.querySelectorAll('[data-orbit-version]')];
   const storageKey = 'pixel-orbit-home-scene';
   const valid = new Set(['countryside', 'planet']);
-  const sourceFor = scene =>
-    'https://gsvegetable.github.io/-pixel-orbit/showcase.html?scene=' + scene + '&composition=art';
+  const sourceFor = (scene, composition = 'art') =>
+    'https://gsvegetable.github.io/-pixel-orbit/showcase.html?scene=' + scene + '&composition=' + composition;
 
   let selected = 'countryside';
   try {
@@ -64,7 +64,8 @@
     next.dataset.compositionFrame = '';
     next.loading = 'eager';
     next.allow = 'fullscreen';
-    next.src = sourceFor(scene);
+    const composition = card.dataset.composition === 'full' ? 'full' : 'art';
+    next.src = sourceFor(scene, composition);
     next.className = 'orbit-frame-next';
     incomingFrame = next;
     stack.appendChild(next);
