@@ -6,38 +6,41 @@
 #pixel-orbit-card .preview-mount iframe {
   background: #f2e8d2 !important;
 }
-.orbit-version-switch {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin:22px 0 18px;
+/* Reuse Lighthouse's horizontal scene-card picker for a consistent state switch. */
+.orbit-version-picker {
+  margin:14px 0 18px;
+  gap:12px;
 }
-.orbit-version-option {
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  gap:6px;
-  min-width:0;
-  padding:12px 11px;
-  border:1px solid #cbbd9f;
-  background:#fff8e9;
-  color:#403522;
-  text-align:left;
-  cursor:pointer;
-  transition:background .18s,border-color .18s,transform .18s;
+.orbit-scene-choice { flex-basis: min(46%, 190px); }
+.orbit-scene-thumb {
+  aspect-ratio:16/10;
+  background-repeat:no-repeat;
+  background-size:cover;
+  image-rendering:pixelated;
 }
-.orbit-version-option:hover { transform:translateY(-2px); border-color:#9b7542; }
-.orbit-version-option.is-active {
-  border:2px solid #8c5d13;
-  background:#f4d78e;
-  box-shadow:2px 2px 0 #211d15;
+.orbit-thumb-countryside {
+  background-color:#91a9ad;
+  background-image:
+    linear-gradient(180deg,transparent 0 55%,#496b70 55% 100%),
+    linear-gradient(90deg,transparent 0 35%,#d9c18a 35% 65%,transparent 65%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.16) 0 3px,transparent 3px 7px);
 }
-.orbit-version-name { font-size:12px; font-weight:900; }
-.orbit-version-note { color:#77684f; font-size:10px; line-height:1.5; }
-.orbit-version-option:focus-visible { outline:2px solid #8c5d13; outline-offset:3px; }
+.orbit-thumb-planet {
+  background-color:#111c36;
+  background-image:
+    radial-gradient(circle at 52% 53%,#d5a85e 0 19%,#72929b 20% 24%,transparent 25%),
+    radial-gradient(circle at 50% 50%,transparent 0 34%,#34536b 35% 39%,#17263e 40% 45%,transparent 46%),
+    radial-gradient(circle at 25% 25%,#f5ecd9 0 1px,transparent 2px),
+    radial-gradient(circle at 78% 32%,#f5ecd9 0 1px,transparent 2px);
+}
+.orbit-scene-note {
+  padding:0 3px 3px;
+  color:#77684f;
+  font-size:10px;
+  line-height:1.5;
+}
 @media(max-width:600px) {
-  .orbit-version-switch { gap:6px; }
-  .orbit-version-option { padding:10px 8px; }
-  .orbit-version-name { font-size:11px; }
-  .orbit-version-note { font-size:9px; }
+  .orbit-version-picker { gap:8px; }
+  .orbit-scene-choice { flex-basis: min(46%, 190px); padding:7px; }
+  .orbit-scene-note { font-size:9px; }
 }
