@@ -5,12 +5,13 @@
   if (!card || !panel || !originalFrame) return;
 
   const buttons = [...panel.querySelectorAll('[data-orbit-version]')];
-  const storageKey = 'pixel-orbit-home-scene';
+  // New key resets the previous countryside default; future manual choices persist.
+  const storageKey = 'pixel-orbit-home-scene-v2';
   const valid = new Set(['countryside', 'planet']);
   const sourceFor = (scene, composition = 'art') =>
     'https://gsvegetable.github.io/-pixel-orbit/showcase.html?scene=' + scene + '&composition=' + composition;
 
-  let selected = 'countryside';
+  let selected = 'planet';
   try {
     const saved = localStorage.getItem(storageKey);
     if (valid.has(saved)) selected = saved;
