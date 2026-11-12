@@ -283,6 +283,21 @@ syncSearchUI();
     work.card.dataset.composition = composition;
     const frames = work.mount?.querySelectorAll('iframe[data-composition-frame]');
     frames?.forEach(frame => {
+      // The outer showcase iframe may still be loading when the card changes state.
+      // A postMessage sent before its listener exists is silently lost, leaving the
+      // artwork in its cropped home-preview composition. Replay the latest state
+      // once the iframe document is ready; the showcase page then relays it to the
+      // nested artwork iframe as soon as that document loads.
+      if (!frame.dataset.compositionSyncBound) {
+        frame.dataset.compositionSyncBound = 'true';
+        frame.addEventListener('load', () => {
+          const latest = work.card.dataset.composition;
+          frame.contentWindow?.postMessage(
+            { type: 'pixel-orbit-composition', composition: latest },
+            '*'
+          );
+        });
+      }
       frame.contentWindow?.postMessage({ type: 'pixel-orbit-composition', composition }, '*');
     });
   };
