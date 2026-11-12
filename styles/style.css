@@ -593,9 +593,3 @@ body.view-closing .top-utility-actions{
 main{--gallery-card-min:260px}
 .grid{transform-origin:top left}
 .preview-card{touch-action:pan-y}
-/* Pixel Orbit is a direct-manipulation artwork: do not let the gallery card's
-   vertical-scroll gesture policy cancel pointer drags inside its nested frames. */
-#pixel-orbit-card,
-#pixel-orbit-card .preview-mount,
-#pixel-orbit-card .orbit-frame-stack,
-#pixel-orbit-card .orbit-frame-stack iframe{touch-action:none;}
