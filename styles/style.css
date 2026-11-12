@@ -286,7 +286,12 @@ body.view-closing .preview-actions {
 /* "放大作品展示区域"：托盘四边等距；操作按钮固定在视口右上角，不占用托盘空间 */
 .preview-card.is-artwork-expanded {
   z-index: 25; max-height: none; overflow: hidden;
-  padding: 15px;
+  /* Override any legacy top reservation from earlier immersive layouts. */
+  padding: 15px !important;
+  box-sizing: border-box;
+}
+.preview-card.is-artwork-expanded .preview-mount {
+  margin: 0 !important;
 }
 .preview-card.is-artwork-expanded .card-info { opacity: 0; pointer-events: none; }
 
