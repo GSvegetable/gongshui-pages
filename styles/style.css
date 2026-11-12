@@ -561,3 +561,29 @@ body.view-closing .work-detail.is-active {
  .top-utility-actions .settings-toggle{min-height:34px;padding:0 9px;border-width:2px;font-size:10px;box-shadow:2px 3px 0 #000}
  .settings-panel{top:calc(100% + 9px);width:215px;padding:12px}
 }
+
+
+/* Keep top utility controls out of the way while a work is open. */
+body.viewing .top-utility-actions,
+body.view-closing .top-utility-actions{
+  opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+  transition:opacity .16s ease,visibility 0s linear .16s;
+}
+
+/* Settings is a single square icon button, matching the pixel-block controls. */
+.top-utility-actions .settings-toggle{
+  width:44px;height:44px;min-width:44px;min-height:44px;padding:0;
+  display:grid;place-items:center;gap:0;
+  border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;
+  box-shadow:3px 4px 0 #000;cursor:pointer;
+}
+.top-utility-actions .settings-toggle svg{
+  width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.top-utility-actions .settings-toggle:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #000;background:#ffd36a}
+.top-utility-actions .settings-toggle:active{transform:translate(3px,4px);box-shadow:none}
+@media(max-width:600px){
+ .top-utility-actions .settings-toggle{width:38px;height:38px;min-width:38px;min-height:38px;padding:0}
+ .top-utility-actions .settings-toggle svg{width:21px;height:21px}
+}
