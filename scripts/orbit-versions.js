@@ -7,7 +7,7 @@
   if (!card || !panel || !originalFrame) return;
 
   const buttons = [...panel.querySelectorAll('[data-orbit-version]')];
-  const storageKey = 'pixel-orbit-home-scene-v3';
+  const storageKey = 'pixel-orbit-home-scene-v2';
   const valid = new Set(['countryside', 'planet']);
   const composition = card.dataset.composition === 'full' ? 'full' : 'art';
   const sourceFor = scene =>
