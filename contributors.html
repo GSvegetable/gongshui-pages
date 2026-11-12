@@ -3,9 +3,88 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#000000">
-<title></title>
-<style>html,body{width:100%;min-height:100%;margin:0;background:#000}</style>
+<meta name="theme-color" content="#171717">
+<title>创作名单 | 宫水.com</title>
+<meta name="description" content="宫水.com 的开发者与贡献者名单：项目发起者、协作开发者与 AI 伙伴。">
+<link rel="stylesheet" href="./styles/style.css?v=3.3.25">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>">
+<style>
+.credits-page{width:min(840px,calc(100% - 40px));margin:0 auto;padding:clamp(30px,6vh,64px) 0 60px}
+
+.credits-nav{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:14px;border-bottom:3px solid #080808;color:#a99b82;font:900 11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.3px}
+.credits-nav a{color:#f4bd3c;text-decoration:none}
+.credits-nav a:hover{color:#ffd36a}
+
+.credits-heading{margin:52px 0 34px}
+.credits-kicker{margin:0 0 12px;color:#f4bd3c;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:2.4px}
+.credits-heading h1{margin:0;color:#f4f0e8;font-size:clamp(32px,6vw,54px);font-weight:900;letter-spacing:-1.8px;line-height:1.08}
+.credits-heading p:last-child{max-width:480px;margin:18px 0 0;color:#b8aa92;font-size:13px;line-height:1.95}
+
+.credits-list{border-top:3px solid #080808}
+.credits-row{display:grid;grid-template-columns:136px minmax(140px,1fr) minmax(180px,1.25fr);align-items:center;gap:18px;min-height:92px;padding:16px 8px;border-bottom:1px solid rgba(244,240,232,.13)}
+.credits-role-tag{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:7px 9px;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.3px;box-shadow:3px 3px 0 #080808}
+.credits-role-tag.is-alt{background:#efa02c}
+.credits-name{color:#f4f0e8;font-size:17px;font-weight:900;letter-spacing:.2px}
+.credits-note{color:#b8aa92;font-size:12px;line-height:1.75}
+.credits-row:first-child .credits-name{color:#ffd36a}
+.credits-row:hover{background:rgba(244,240,232,.035)}
+
+.credits-bottom{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-top:28px}
+.credits-note-foot{color:#827969;font:700 11px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.3px}
+.credits-back{display:inline-flex;align-items:center;gap:9px;padding:11px 15px;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;text-decoration:none;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.25px;box-shadow:3px 4px 0 #080808;transition:transform .1s,box-shadow .1s,background .15s}
+.credits-back:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #080808;background:#ffd36a}
+.credits-back:active{transform:translate(3px,4px);box-shadow:none}
+
+@media(max-width:640px){
+  .credits-page{width:calc(100% - 32px);padding-top:24px}
+  .credits-heading{margin:40px 0 26px}
+  .credits-row{grid-template-columns:minmax(0,1fr);gap:9px;min-height:0;padding:18px 6px}
+  .credits-bottom{align-items:flex-start;flex-direction:column}
+}
+</style>
 </head>
-<body></body>
+<body>
+<main class="credits-page">
+  <nav class="credits-nav"><span>宫水.com　/　创作名单</span><a href="./index.html">返回首页　↗</a></nav>
+
+  <header class="credits-heading">
+    <p class="credits-kicker">CREDITS</p>
+    <h1>创作名单</h1>
+    <p>这里记录参与网站建设与作品创作的伙伴。感谢每一次认真投入，让这些想法最终成为看得见、能上手体验的作品。</p>
+  </header>
+
+  <section class="credits-list" aria-label="创作名单">
+    <div class="credits-row">
+      <span class="credits-role-tag">01 / CREATOR</span>
+      <span class="credits-name">GSvegetable</span>
+      <span class="credits-note">宫水 · 项目发起、产品构思、设计与开发</span>
+    </div>
+    <div class="credits-row">
+      <span class="credits-role-tag is-alt">02 / AI PARTNER</span>
+      <span class="credits-name">ChatGPT</span>
+      <span class="credits-note">方案讨论、工程实现与细节优化</span>
+    </div>
+    <div class="credits-row">
+      <span class="credits-role-tag is-alt">03 / AI PARTNER</span>
+      <span class="credits-name">DeepSeek</span>
+      <span class="credits-note">AI 协作伙伴</span>
+    </div>
+    <div class="credits-row">
+      <span class="credits-role-tag is-alt">04 / AI PARTNER</span>
+      <span class="credits-name">Claude</span>
+      <span class="credits-note">AI 协作伙伴</span>
+    </div>
+    <div class="credits-row">
+      <span class="credits-role-tag">05 / CONTRIBUTOR</span>
+      <span class="credits-name">Ludion-ai</span>
+      <span class="credits-note">像素昼夜开关 · 海边灯塔场景协作</span>
+    </div>
+  </section>
+
+  <footer class="credits-bottom">
+    <span class="credits-note-foot">宫水.com<br>独立创作与持续更新</span>
+    <a class="credits-back" href="./index.html">← 回到作品主页</a>
+  </footer>
+</main>
+</body>
 </html>

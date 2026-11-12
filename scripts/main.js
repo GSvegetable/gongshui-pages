@@ -637,6 +637,13 @@ syncSearchUI();
     setExpandControl(expanded);
   });
 
+  // 作品索引（左侧指南针方块）里点开某个作品
+  document.addEventListener('site:openwork', e => {
+    const id = e.detail && e.detail.id;
+    const work = works.find(w => w.id === id);
+    if (work && mode === 'closed') openWork(work);
+  });
+
   window.addEventListener('resize', () => {
     if (current && anim) stopAnim();
 
