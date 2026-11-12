@@ -520,3 +520,28 @@ body.view-closing .work-detail.is-active {
 .language-toggle:active{transform:translateY(3px);box-shadow:none}
 .language-toggle:focus-visible{outline:2px solid #f5ecd9;outline-offset:4px}
 @media(max-width:600px){.language-toggle{top:73px;right:14px;min-width:44px;height:34px}}
+
+/* ---------- Top-right utility buttons: match the site's Mario block style ---------- */
+.top-utility-actions{position:fixed;top:24px;right:28px;z-index:120;display:flex;align-items:center;gap:10px}
+.top-utility-actions .contributors-home-link,
+.top-utility-actions .language-toggle{position:static;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 12px;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.25px;text-decoration:none;white-space:nowrap;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
+.top-utility-actions .contributors-home-link:hover,
+.top-utility-actions .language-toggle:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #000;background:#ffd36a}
+.top-utility-actions .contributors-home-link:active,
+.top-utility-actions .language-toggle:active{transform:translate(3px,4px);box-shadow:none}
+.top-utility-actions :focus-visible{outline:2px solid #f5ecd9;outline-offset:4px}
+.top-utility-actions .language-toggle{min-width:48px}
+@media(max-width:600px){
+ .top-utility-actions{top:72px;right:14px;gap:7px}
+ .top-utility-actions .contributors-home-link,.top-utility-actions .language-toggle{min-height:34px;padding:0 8px;border-width:2px;font-size:10px;box-shadow:2px 3px 0 #000}
+ .top-utility-actions .language-toggle{min-width:42px}
+}
+
+/* Detail facts are intentionally clean: no row separators. */
+.detail-facts,.detail-facts div{border:0!important;outline:0!important;box-shadow:none!important;background-image:none!important}
+.detail-facts div::before,.detail-facts div::after{content:none!important;display:none!important}
+
+/* One single divider between contributor credits and extended links. */
+.contributor-list{border:0!important}
+.contributor-list + .lab-links{border:0!important;border-top:1px solid rgba(41,35,25,.28)!important;margin-top:18px;padding-top:8px}
+.contributor-list + .lab-links::before,.contributor-list + .lab-links::after{content:none!important;display:none!important}
