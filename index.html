@@ -47,7 +47,7 @@
       <!-- 作品 2 -->
       <article class="preview-card" id="pixel-orbit-card" data-id="pixel-orbit" data-detail="orbit-detail-panel" tabindex="0" aria-label="打开像素圆环作品详情">
         <div class="preview-mount">
-          <iframe src="https://gsvegetable.github.io/-pixel-orbit/showcase.html?scene=countryside&composition=art" title="Pixel Orbit 像素圆环作品展示" loading="lazy" allow="fullscreen"></iframe>
+          <iframe data-composition-frame src="https://gsvegetable.github.io/-pixel-orbit/showcase.html?scene=countryside&composition=art" title="Pixel Orbit 像素圆环作品展示" loading="lazy" allow="fullscreen"></iframe>
         </div>
         <div class="card-info"><span class="card-title">像素圆环</span></div>
       </article>
@@ -104,33 +104,40 @@
     </section>
   </section>
 
-  <section class="orbit-detail-content work-detail" id="orbit-detail-panel" role="dialog" aria-modal="true" aria-labelledby="orbit-detail-title" aria-hidden="true">
-    <div class="orbit-detail-copy">
-      <p class="orbit-detail-kicker">INTERACTIVE PIXEL WORLD</p>
-      <h1 id="orbit-detail-title">像素圆环</h1>
-      <p class="orbit-detail-subtitle">昼夜流转 · 互动作品</p>
-      <div class="scene-picker orbit-version-picker" role="group" aria-label="选择像素圆环展示版本">
-        <button type="button" class="scene-choice orbit-scene-choice is-active" data-orbit-version="countryside" aria-label="切换到田园版" aria-pressed="true">
-          <span class="scene-thumb orbit-scene-thumb orbit-thumb-countryside" aria-hidden="true"></span>
-          <strong>田园版</strong>
-          <span class="orbit-scene-note">乡间小屋 · 昼夜变化</span>
-        </button>
-        <button type="button" class="scene-choice orbit-scene-choice" data-orbit-version="planet" aria-label="切换到星球版" aria-pressed="false">
-          <span class="scene-thumb orbit-scene-thumb orbit-thumb-planet" aria-hidden="true"></span>
-          <strong>星球版</strong>
-          <span class="orbit-scene-note">球面地形 · 昼夜轨道</span>
-        </button>
+  <section class="work-detail" id="orbit-detail-panel" role="dialog" aria-modal="true" aria-labelledby="orbit-detail-title" aria-hidden="true">
+    <div class="detail-overview">
+      <div class="detail-copy">
+        <h1 id="orbit-detail-title">像素圆环</h1>
+        <p class="english-title">INTERACTIVE PIXEL WORLD</p>
+        <p class="detail-description">一座会随时间变化的像素小世界。拖动圆环或调整时间，观察天空、太阳、月亮、云层与房屋灯光，从清晨、正午一路变化到黄昏与深夜。</p>
       </div>
-      <p>一座会随时间变化的像素小世界。拖动圆环或调整时间，观察天空、太阳、月亮、云层与房屋灯光，从清晨、正午一路变化到黄昏与深夜。</p>
-      <div class="orbit-detail-facts">
+      <div class="detail-facts">
         <div><span>核心体验</span><strong>24 小时昼夜循环</strong></div>
         <div><span>交互方式</span><strong>圆环拖动 · 时间滑块 · 场景预设</strong></div>
         <div><span>视觉风格</span><strong>像素艺术 · 圆形轨道 · 动态光照</strong></div>
       </div>
-      <a class="project-link" href="https://github.com/GSvegetable/-pixel-orbit" target="_blank" rel="noopener noreferrer">查看 GitHub 项目 ↗</a>
-      <a class="orbit-live-link" href="https://gsvegetable.github.io/-pixel-orbit/play.html" target="_blank" rel="noopener noreferrer">打开在线试玩 ↗</a>
-      <a class="orbit-live-link" href="https://gsvegetable.github.io/-pixel-orbit/lab.html" target="_blank" rel="noopener noreferrer">进入参数实验室 ↗</a>
     </div>
+    <div class="gallery-heading">
+      <h2>作品版本</h2><span>选择你想体验的像素世界</span>
+    </div>
+    <div class="scene-picker orbit-version-picker" role="group" aria-label="选择像素圆环展示版本">
+      <button type="button" class="scene-choice orbit-scene-choice is-active" data-orbit-version="countryside" aria-label="切换到田园版" aria-pressed="true">
+        <span class="scene-thumb orbit-scene-thumb orbit-thumb-countryside" aria-hidden="true"></span>
+        <strong>田园版</strong>
+        <span class="orbit-scene-note">乡间小屋 · 昼夜变化</span>
+      </button>
+      <button type="button" class="scene-choice orbit-scene-choice" data-orbit-version="planet" aria-label="切换到星球版" aria-pressed="false">
+        <span class="scene-thumb orbit-scene-thumb orbit-thumb-planet" aria-hidden="true"></span>
+        <strong>星球版</strong>
+        <span class="orbit-scene-note">球面地形 · 昼夜轨道</span>
+      </button>
+    </div>
+    <section class="lab-links" aria-label="项目资源">
+      <h2>项目资源</h2>
+      <a href="https://github.com/GSvegetable/-pixel-orbit" target="_blank" rel="noopener noreferrer">查看 GitHub 项目 <span>↗</span></a>
+      <a href="https://gsvegetable.github.io/-pixel-orbit/play.html" target="_blank" rel="noopener noreferrer">在线试玩 <span>↗</span></a>
+      <a href="https://gsvegetable.github.io/-pixel-orbit/lab.html" target="_blank" rel="noopener noreferrer">参数实验室 <span>↗</span></a>
+    </section>
   </section>
   
   <div class="preview-actions" aria-label="作品视图控制">
