@@ -442,3 +442,14 @@ body.view-closing .work-detail.is-active {
   pointer-events: none;
   user-select: none;
 }
+
+
+/* Pixel Orbit uses a live responsive iframe, not the fixed-size stage scaling used by static previews. */
+#pixel-orbit-card .preview-mount > iframe[data-composition-frame] {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  transform: none !important;
+  transform-origin: center center !important;
+}
