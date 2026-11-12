@@ -46,7 +46,13 @@
 
     const activeScene = new URL(activeFrame.src, location.href).searchParams.get('scene') === 'planet'
       ? 'planet' : 'countryside';
-    if (scene === activeScene && !incomingFrame) return;
+    if (scene === activeScene) {
+      if (incomingFrame) {
+        incomingFrame.remove();
+        incomingFrame = null;
+      }
+      return;
+    }
 
     if (incomingFrame) {
       incomingFrame.remove();
