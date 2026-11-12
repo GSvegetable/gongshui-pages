@@ -283,10 +283,10 @@ body.view-closing .preview-actions {
 }
 .preview-card.is-open .card-info { cursor: default; }
 
-/* "放大作品展示区域"：只留作品，顶部给右上角按钮让出 56px */
+/* "放大作品展示区域"：托盘四边等距；操作按钮固定在视口右上角，不占用托盘空间 */
 .preview-card.is-artwork-expanded {
   z-index: 25; max-height: none; overflow: hidden;
-  padding: 56px 15px 15px;
+  padding: 15px;
 }
 .preview-card.is-artwork-expanded .card-info { opacity: 0; pointer-events: none; }
 
