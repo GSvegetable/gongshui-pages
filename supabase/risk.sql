@@ -1,0 +1,188 @@
+-- =========================================================
+--  宫水.com 注册风控
+--  在 Supabase 控制台 → SQL Editor → 新建查询 → 粘贴 → Run
+--  （需要先跑过 supabase/schema.sql；本脚本可重复执行）
+--
+--  规则：同一台设备（浏览器指纹）或同一个 IP 在 24 小时内注册过多
+--        → 账号照样注册成功、照样能登录能看作品，
+--          但收藏和偏好同步被停用（数据库层面拦，前端只是提示一句）。
+--
+--  两个阈值故意不一样：
+--    指纹 > 2：指纹就是"这一台设备"，同一台机器注册第三个号，多半不是本人。
+--    IP   > 5：IP 只能粗略到"一个出口"。国内移动网络是 CGNAT，
+--              咖啡厅、写字楼、基站背后都是一大堆真人共用一个 IP，
+--              阈值压到 2 会把正常用户误伤，所以放宽到 5。
+--              （想更严就把下面 FINGERPRINT_LIMIT / IP_LIMIT 改小）
+-- =========================================================
+
+-- -------------------------------------------------------------
+-- 1. 风控表：每次注册留一条
+--    指纹是客户端算的（设备识别），IP 是服务端从请求头取的（客户端填不了）
+-- -------------------------------------------------------------
+create table if not exists public.signup_risk (
+  id          bigint generated always as identity primary key,
+  user_id     uuid not null references auth.users(id) on delete cascade,
+  username    text,
+  fingerprint text not null,
+  ip          text,
+  high_risk   boolean not null default false,
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists signup_risk_fingerprint_idx on public.signup_risk (fingerprint, created_at desc);
+create index if not exists signup_risk_ip_idx         on public.signup_risk (ip, created_at desc);
+create index if not exists signup_risk_user_idx       on public.signup_risk (user_id);
+
+alter table public.signup_risk enable row level security;
+
+-- -------------------------------------------------------------
+-- 2. 策略：本人只能看自己那一条；可以给自己登记一条；
+--    不能改、不能删 —— 否则就能把"高风险"这个标记自己洗掉。
+-- -------------------------------------------------------------
+drop policy if exists "risk_read_own"   on public.signup_risk;
+drop policy if exists "risk_insert_own" on public.signup_risk;
+
+create policy "risk_read_own"   on public.signup_risk
+  for select to authenticated using (auth.uid() = user_id);
+create policy "risk_insert_own" on public.signup_risk
+  for insert to authenticated with check (auth.uid() = user_id);
+
+-- -------------------------------------------------------------
+-- 3. IP 由服务端填，高风险标记由服务端管
+-- -------------------------------------------------------------
+create or replace function public.signup_risk_fill_ip() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare
+  h json;
+begin
+  h := coalesce(current_setting('request.headers', true)::json, '{}'::json);
+  new.ip := nullif(split_part(coalesce(
+      h->>'x-forwarded-for', h->>'X-Forwarded-For', h->>'cf-connecting-ip', ''), ',', 1), ' ');
+  new.high_risk := false;      -- 注册时不能自己标高风险
+  return new;
+end $$;
+
+drop trigger if exists trg_signup_risk_fill_ip on public.signup_risk;
+create trigger trg_signup_risk_fill_ip before insert on public.signup_risk
+  for each row execute function public.signup_risk_fill_ip();
+
+-- 只有能绕过 RLS 的角色（表所有者 postgres）才能改 high_risk
+create or replace function public.signup_risk_guard() returns trigger
+language plpgsql as $$
+begin
+  if new.high_risk is distinct from old.high_risk
+     and coalesce((select rolbypassrls from pg_roles where rolname = current_user), false) is not true then
+    raise exception 'high_risk 只能由服务端修改';
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists trg_signup_risk_guard on public.signup_risk;
+create trigger trg_signup_risk_guard before update on public.signup_risk
+  for each row execute function public.signup_risk_guard();
+
+-- -------------------------------------------------------------
+-- 4. 判定函数
+-- -------------------------------------------------------------
+-- 这个账号是不是高风险（给 RLS 策略用）
+create or replace function public.is_high_risk(uid uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.signup_risk r where r.user_id = uid and r.high_risk);
+$$;
+
+-- 注册之后调一次：数一数 24 小时内同指纹、同 IP 各注册了多少个
+create or replace function public.apply_signup_risk()
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  -- 两个阈值（改这里就行）
+  FINGERPRINT_LIMIT constant integer := 2;   -- 同一台设备
+  IP_LIMIT        constant integer := 5;   -- 同一个出口（网络出口会共享，所以放宽）
+  v_uid uuid := auth.uid();
+  h json;
+  v_ip text;
+  v_fp text;
+  v_fp_count integer := 0;
+  v_ip_count integer := 0;
+  v_risk boolean := false;
+begin
+  if v_uid is null then
+    raise exception '未登录';
+  end if;
+
+  h := coalesce(current_setting('request.headers', true)::json, '{}'::json);
+  v_ip := nullif(split_part(coalesce(
+      h->>'x-forwarded-for', h->>'X-Forwarded-For', h->>'cf-connecting-ip', ''), ',', 1), ' ');
+
+  select fingerprint into v_fp
+    from public.signup_risk where user_id = v_uid order by created_at desc limit 1;
+  if v_fp is null then
+    return jsonb_build_object('fingerprint_count', 0, 'ip_count', 0, 'high_risk', false);
+  end if;
+
+  select count(*) into v_fp_count from public.signup_risk
+    where fingerprint = v_fp and created_at > now() - interval '24 hours';
+  select count(*) into v_ip_count from public.signup_risk
+    where ip = v_ip and created_at > now() - interval '24 hours';
+
+  v_risk := (v_fp_count > FINGERPRINT_LIMIT) or (v_ip_count > IP_LIMIT);
+  if v_risk then
+    update public.signup_risk set high_risk = true where user_id = v_uid;
+  end if;
+
+  return jsonb_build_object(
+    'fingerprint_count', v_fp_count,
+    'ip_count', v_ip_count,
+    'high_risk', v_risk
+  );
+end;
+$$;
+
+grant execute on function public.apply_signup_risk() to authenticated;
+grant execute on function public.is_high_risk(uuid) to authenticated;
+
+-- -------------------------------------------------------------
+-- 5. 高风险账号：收藏和偏好写入被拒（真正的拦截在这里）
+--    读、删自己的数据不受影响。
+-- -------------------------------------------------------------
+drop policy if exists "bm_ins" on public.user_bookmarks;
+create policy "bm_ins" on public.user_bookmarks
+  for insert to authenticated
+  with check (auth.uid() = user_id and not public.is_high_risk(auth.uid()));
+
+drop policy if exists "pf_ins" on public.user_preferences;
+create policy "pf_ins" on public.user_preferences
+  for insert to authenticated
+  with check (auth.uid() = user_id and not public.is_high_risk(auth.uid()));
+
+drop policy if exists "pf_upd" on public.user_preferences;
+create policy "pf_upd" on public.user_preferences
+  for update to authenticated
+  using (auth.uid() = user_id and not public.is_high_risk(auth.uid()))
+  with check (auth.uid() = user_id and not public.is_high_risk(auth.uid()));
+
+-- 清理测试数据（想从零开始测的时候跑一次）：
+-- delete from public.signup_risk;
+
+-- =========================================================
+--  自检：跑完看这两条
+--
+--  表：public 下应该有 signup_risk / user_bookmarks / user_preferences 三张，
+--      rowsecurity 全是 true。
+--
+--  策略：signup_risk 只有 risk_read_own(SELECT) 和 risk_insert_own(INSERT) 两条，
+--        没有 UPDATE / DELETE；
+--        user_bookmarks 的 bm_insert 策略里带 not is_high_risk(auth.uid())。
+-- =========================================================
+select tablename, rowsecurity
+  from pg_tables
+ where schemaname = 'public'
+ order by tablename;
+
+select tablename, policyname, cmd, roles::text, qual, with_check
+  from pg_policies
+ where schemaname = 'public'
+ order by tablename, policyname;

@@ -27,6 +27,20 @@
   const SESSION_KEY = 'site-auth-session';
   const LOCAL_USERS_KEY = 'site-auth-local-users';
 
+  // ---------- 用户名 ----------
+  // 界面上的身份是「用户名」；Supabase 底层要的是邮箱，
+  // 这里做一次转换。用户直接填完整邮箱的也照样认（兼容老账号）。
+  const USERNAME_RE = /^[a-zA-Z0-9][a-zA-Z0-9_-]{2,23}$/;
+
+  const toEmail = input => {
+    const value = String(input || '').trim();
+    if (!value) return '';
+    if (value.includes('@')) return value;
+    return value.toLowerCase() + '@' + (config.emailDomain || 'gongshui.com');
+  };
+
+  const toUsername = email => String(email || '').split('@')[0] || '';
+
   let session = null;          // { accessToken, refreshToken, email }
   let user = null;             // { id, email }  id 就是 auth.uid()，RLS 策略靠它匹配
   const listeners = new Set();
@@ -81,11 +95,11 @@
   const translate = message => {
     if (!message) return '';
     const text = String(message).toLowerCase();
-    if (text.includes('user already registered')) return '这个邮箱已经注册过了';
-    if (text.includes('invalid login credentials')) return '邮箱或密码不对';
-    if (text.includes('email not confirmed')) return '邮箱还没确认，去收一下验证邮件';
+    if (text.includes('user already registered')) return '这个用户名已经被注册过了';
+    if (text.includes('invalid login credentials')) return '用户名或密码不对';
+    if (text.includes('email not confirmed')) return '这个账号还没完成验证';
     if (text.includes('password should be at least')) return '密码至少要 6 位';
-    if (text.includes('unable to validate email')) return '邮箱格式不对';
+    if (text.includes('unable to validate email')) return '用户名格式不对';
     if (text.includes('rate limit') || text.includes('too many')) return '试太频繁了，等一会儿再来';
     if (text.includes('failed to fetch')) return '连不上账号服务，检查一下网络';
     if (text.includes('error sending')) return '邮件暂时发不出去，等一会儿再试';
@@ -94,23 +108,27 @@
   };
 
   const cloudSignUp = async ({ email, password }) => {
-    const data = await api('/signup', { body: { email, password } });
+    const mail = toEmail(email);
+    const data = await api('/signup', { body: { email: mail, password } });
     // 没开"确认邮箱"的话，signup 会直接返回会话
     if (data.access_token) {
-      storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email, id: data.user && data.user.id });
-      user = { id: data.user && data.user.id, email };
+      const account = { id: data.user && data.user.id, email: mail, username: toUsername(mail) };
+      storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email: mail, id: account.id, username: account.username });
+      user = account;
       notify();
-      return { email, needConfirm: false };
+      return { email: mail, username: account.username, userId: account.id, needConfirm: false };
     }
-    return { email, needConfirm: true };
+    return { email: mail, username: toUsername(mail), needConfirm: true };
   };
 
   const cloudSignIn = async ({ email, password }) => {
-    const data = await api('/token?grant_type=password', { body: { email, password } });
-    storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email, id: data.user && data.user.id });
-    user = { id: data.user && data.user.id, email };
+    const mail = toEmail(email);
+    const data = await api('/token?grant_type=password', { body: { email: mail, password } });
+    const account = { id: data.user && data.user.id, email: mail, username: toUsername(mail) };
+    storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email: mail, id: account.id, username: account.username });
+    user = account;
     notify();
-    return { email, needConfirm: false };
+    return { email: mail, username: account.username, userId: account.id, needConfirm: false };
   };
 
   const refresh = async () => {
@@ -121,7 +139,8 @@
       session = { accessToken: data.access_token, refreshToken: data.refresh_token, email: saved.email };
       storeSession(session);
       const me = await api('/user', { method: 'GET', token: session.accessToken });
-      user = { id: (me && me.id) || saved.id, email: (me && me.email) || saved.email };
+      const mail = (me && me.email) || saved.email;
+      user = { id: (me && me.id) || saved.id, email: mail, username: toUsername(mail) };
       notify();
       return user;
     } catch (_) {
@@ -159,24 +178,24 @@
   const localSignUp = async ({ email, password }) => {
     const map = localUsers();
     const key = email.trim().toLowerCase();
-    if (map[key]) throw new Error('这个邮箱已经注册过了');
+    if (map[key]) throw new Error('这个用户名已经被注册过了');
     map[key] = await hash(password);
     saveLocalUsers(map);
-    storeSession({ accessToken: 'local', refreshToken: 'local', email: key, id: 'local:' + key });
-    user = { id: 'local:' + key, email: key };
+    storeSession({ accessToken: 'local', refreshToken: 'local', email: key, id: 'local:' + key, username: key });
+    user = { id: 'local:' + key, email: key, username: key };
     notify();
-    return { email: key, needConfirm: false };
+    return { email: key, username: key, needConfirm: false };
   };
 
   const localSignIn = async ({ email, password }) => {
     const map = localUsers();
     const key = email.trim().toLowerCase();
-    if (!map[key]) throw new Error('邮箱或密码不对');
-    if (map[key] !== await hash(password)) throw new Error('邮箱或密码不对');
-    storeSession({ accessToken: 'local', refreshToken: 'local', email: key, id: 'local:' + key });
-    user = { id: 'local:' + key, email: key };
+    if (!map[key]) throw new Error('用户名或密码不对');
+    if (map[key] !== await hash(password)) throw new Error('用户名或密码不对');
+    storeSession({ accessToken: 'local', refreshToken: 'local', email: key, id: 'local:' + key, username: key });
+    user = { id: 'local:' + key, email: key, username: key };
     notify();
-    return { email: key, needConfirm: false };
+    return { email: key, username: key, needConfirm: false };
   };
 
   const localRestore = () => {
@@ -185,8 +204,8 @@
     const map = localUsers();
     const key = String(saved.email || '').toLowerCase();
     if (!map[key]) return null;
-    user = { id: 'local:' + key, email: key };
-    storeSession({ accessToken: 'local', refreshToken: 'local', email: key, id: 'local:' + key });
+    user = { id: 'local:' + key, email: key, username: key };
+    storeSession({ accessToken: 'local', refreshToken: 'local', email: key, id: 'local:' + key, username: key });
     notify();
     return user;
   };
@@ -231,8 +250,8 @@
       if (!accessToken) { cleanUrl(); return null; }
 
       const me = await api('/user', { method: 'GET', token: accessToken });
-      storeSession({ accessToken, refreshToken, email: me.email, id: me.id });
-      user = { id: me.id, email: me.email };
+      storeSession({ accessToken, refreshToken, email: me.email, id: me.id, username: toUsername(me.email) });
+      user = { id: me.id, email: me.email, username: toUsername(me.email) };
       redirect.type = type || 'signup';
       redirect.user = user;
       // 落地页和账号页可能不是同一个页面，把类型记下来传过去
@@ -287,6 +306,8 @@
     signIn,
     signOut,
     getUser: () => user,
+    usernamePattern: USERNAME_RE,
+    toEmail,
     getToken: () => (session && session.accessToken) || '',
     redirect,
     resendConfirmation,

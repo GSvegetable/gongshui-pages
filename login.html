@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#171717">
 <title>账号 | 宫水.com</title>
 <meta name="description" content="宫水.com 的账号入口。">
-<link rel="stylesheet" href="./styles/style.css?v=3.3.33">
+<link rel="stylesheet" href="./styles/style.css?v=3.3.34">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>">
 <style>
 .auth-page{width:min(420px,calc(100% - 32px));margin:0 auto;padding:clamp(28px,7vh,72px) 0 60px}
@@ -92,8 +92,8 @@
 
     <form class="auth-form" id="auth-form" novalidate>
       <div class="auth-field" id="auth-email-field">
-        <label for="auth-email" data-i18n="email">邮箱</label>
-        <input type="email" id="auth-email" name="email" placeholder="you@example.com" autocomplete="email" required>
+        <label for="auth-email" data-i18n="username">用户名</label>
+        <input type="text" id="auth-email" name="username" placeholder="3-24 位，字母数字下划线" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
       </div>
       <div class="auth-field">
         <label for="auth-password" data-i18n="password">密码</label>
@@ -113,8 +113,11 @@
   <p class="auth-foot"><span data-i18n="foot">登录后，收藏和偏好会跟着账号走。</span><br><a href="./index.html" data-i18n="footLink">← 回到作品主页</a></p>
 </main>
 
+<script src="./scripts/vendor/fingerprintjs.min.js?v=3.4.2"></script>
+<script src="./scripts/fingerprint.js?v=1.0.1"></script>
 <script src="./scripts/auth-config.js?v=1.0.1"></script>
-<script src="./scripts/auth.js?v=1.0.2"></script>
+<script src="./scripts/auth.js?v=1.0.3"></script>
+<script src="./scripts/risk.js?v=1.0.1"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);
@@ -139,39 +142,42 @@
   const I18N = {
     zh: {
       backHome: '返回首页　↗', tabSignin: '登录', tabSignup: '注册',
-      email: '邮箱', password: '密码',
+      username: '用户名', password: '密码',
       titleSignin: '登录', titleSignup: '注册', titleRecovery: '设置新密码',
       enter: '进入', create: '创建账号', save: '保存新密码',
       signingIn: '登录中…', creating: '创建中…', saving: '保存中…',
       forgot: '忘记密码？', resend: '重新发送确认邮件',
       placeholderPwd: '至少 6 位', placeholderPwdSignin: '你的密码',
       modeCloud: '云端账号：数据存在账号服务里，换设备也能登录。',
+      highRisk: '这台设备 24 小时内注册了太多账号，这个账号的收藏和偏好同步会被停用。',
       modeLocal: '本地模式：账号只存在这台设备上（还没接云端账号服务）。',
-      needConfirm: '注册成功，去邮箱点一下确认链接再来登录。',
+      needConfirm: '注册成功，去收件箱点一下确认链接再来登录。',
       resendOk: '确认邮件已重发，去收件箱看看。',
       resetSent: '重置密码的邮件已发送，去查收。',
       pwdUpdated: '密码已改好，正在回主页…',
       signedIn: '成功，正在回主页…',
-      errEmail: '先填邮箱', errEmailFormat: '邮箱格式不对', errPwd: '密码至少要 6 位',
+      errEmail: '先填用户名', errEmailFormat: '用户名要 3-24 位，只能用字母、数字、下划线和短横线', errPwd: '密码至少要 6 位',
       recoveryOk: '链接已生效，设个新密码吧',
       foot: '登录后，收藏和偏好会跟着账号走。', footLink: '← 回到作品主页'
     },
     en: {
       backHome: 'Back to home ↗', tabSignin: 'Sign in', tabSignup: 'Sign up',
-      email: 'Email', password: 'Password',
+      username: 'Username', password: 'Password',
       titleSignin: 'Sign in', titleSignup: 'Sign up', titleRecovery: 'Set a new password',
       enter: 'Enter', create: 'Create account', save: 'Save password',
       signingIn: 'Signing in…', creating: 'Creating…', saving: 'Saving…',
       forgot: 'Forgot password?', resend: 'Resend confirmation email',
       placeholderPwd: 'At least 6 characters', placeholderPwdSignin: 'Your password',
       modeCloud: 'Cloud account: data lives in the account service, so you can sign in from any device.',
+      highRisk: 'Too many accounts were created from this device in 24 hours, so bookmark and preference sync is disabled for this account.',
       modeLocal: 'Local mode: accounts only exist on this device (no cloud account service connected yet).',
       needConfirm: 'Account created. Check your email for the confirmation link, then come back to sign in.',
       resendOk: 'Confirmation email sent again — check your inbox.',
       resetSent: 'Password reset email sent — check your inbox.',
       pwdUpdated: 'Password updated. Heading back…',
       signedIn: 'Signed in. Heading back…',
-      errEmail: 'Enter your email first', errEmailFormat: 'That email looks off',
+      errEmail: 'Enter a username first',
+      errEmailFormat: 'Username needs 3-24 characters: letters, numbers, _ or -',
       errPwd: 'Password needs at least 6 characters',
       recoveryOk: 'Link accepted — set a new password.',
       foot: 'Once you sign in, bookmarks and preferences travel with your account.',
@@ -242,7 +248,7 @@
   forgotBtn.addEventListener('click', async () => {
     const email = emailInput.value.trim();
     if (!email) return show(t('errEmail'));
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return show(t('errEmailFormat'));
+    if (!window.siteAuth.usernamePattern.test(email)) return show(t('errEmailFormat'));
     try {
       await window.siteAuth.requestReset(email);
       show(t('resetSent'), true);
@@ -288,7 +294,7 @@
     const email = emailInput.value.trim();
     const password = passwordInput.value;
     if (!email) return show(t('errEmail'));
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return show(t('errEmailFormat'));
+    if (!window.siteAuth.usernamePattern.test(email)) return show(t('errEmailFormat'));
     if (password.length < 6) return show(t('errPwd'));
 
     submit.disabled = true;
@@ -303,6 +309,19 @@
         submit.disabled = false;
         render();
         return;
+      }
+      // 登记一条风控记录（指纹 + 服务端记的 IP），并让服务端判一次
+      if (window.siteRisk) {
+        try {
+          await window.siteRisk.record(payload.userId, payload.username);
+          await window.siteRisk.evaluate();
+        } catch (_) {}
+        if (window.siteRisk.highRisk) {
+          show(t('highRisk'), false);
+          submit.disabled = false;
+          render();
+          return;
+        }
       }
       show(t('signedIn'), true);
       setTimeout(() => { location.href = './index.html'; }, 700);
@@ -327,7 +346,12 @@
       passwordInput.focus();
       return;
     }
-    if (account && account.email) location.replace('./index.html');
+    if (window.siteRisk) {
+      window.siteRisk.status().then(risk => {
+        if (risk) show(t('highRisk'), false);
+      });
+    }
+    if (account && (account.username || account.email)) location.replace('./index.html');
   });
 
   applyLang();

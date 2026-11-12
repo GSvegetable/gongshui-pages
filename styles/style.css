@@ -654,6 +654,8 @@ html.top-utility-hidden .top-utility-actions{transform:translateY(calc(-100% - 3
 .account-entry:hover{background:#ffd36a}
 .account-entry:active{transform:translate(2px,3px);box-shadow:none}
 .account-entry.is-signed-in{background:#efe6d2;max-width:130px;overflow:hidden;text-overflow:ellipsis}
+.account-note{color:#a2701a;font:700 10px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1px}
+.account-note[hidden]{display:none}
 .top-utility-actions .settings-panel .language-toggle{position:static;min-width:48px;min-height:32px;padding:0 9px;border:2px solid #080808;border-radius:2px;background:#f4bd3c;color:#211d15;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;box-shadow:2px 3px 0 #000;cursor:pointer}
 @media(max-width:600px){
  .top-utility-actions .settings-toggle{min-height:34px;padding:0 9px;border-width:2px;font-size:10px;box-shadow:2px 3px 0 #000}

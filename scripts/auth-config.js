@@ -19,6 +19,12 @@ window.SITE_AUTH = {
   url: 'https://izvdwjqixnhsxskjsolq.supabase.co',
   anonKey: 'sb_publishable_gK_lQFliNXz0gPgMM4e35A_gjENvwgk',
 
+  // 账号用的是用户名，不是邮箱。
+  // Supabase 的账号体系底层仍然以邮箱为主键，所以内部把用户名拼成
+  // 「用户名@emailDomain」交给它；界面上从头到尾只出现用户名。
+  // 想要"忘记密码"真的能收到信，得给这个域名配好收信（catch-all）。
+  emailDomain: 'gongshui.com',
+
   // 两个值都没填 → 自动退回「本地模式」：
   // 账号只存在这台设备的 localStorage 里，纯粹是个能跑通的流程演示。
   // 填上 url + anonKey 后自动切到真正的云端账号。

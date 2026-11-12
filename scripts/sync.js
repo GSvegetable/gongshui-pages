@@ -24,6 +24,7 @@
   const state = {
     active: false,      // 已登录且云端可用
     synced: false,      // 这一轮同步已经跑完
+    limited: false,     // 被风控标记：这个账号不参与云端同步
     userId: null,
     error: null
   };
@@ -138,11 +139,12 @@
   const api = {
     get active() { return state.active; },
     get synced() { return state.synced; },
+    get limited() { return state.limited; },
     get error() { return state.error; },
 
     // 收藏：本地先改，再同步到云端
     async setBookmark(workId, on) {
-      if (!state.active) return;
+      if (!state.active || state.limited) return;
       try {
         if (on) await pushBookmarks([workId]);
         else await removeBookmark(workId);
@@ -160,7 +162,7 @@
 
     // 偏好：把本地当前值整份写上去（jsonb 覆盖写）
     async patchPrefs(patch) {
-      if (!state.active) return;
+      if (!state.active || state.limited) return;
       try {
         const merged = Object.assign(readLocalPrefs(), patch || {});
         await savePrefs(merged);
@@ -178,6 +180,17 @@
 
       state.userId = user.id;
       state.active = true;
+
+      // 被风控标记的账号：不碰云端（数据库那边也会拦，这里只是别白费力气）
+      if (window.siteRisk && typeof window.siteRisk.status === 'function') {
+        const risky = await window.siteRisk.status();
+        if (risky) {
+          state.limited = true;
+          state.active = false;
+          return;
+        }
+      }
+
       try {
         const remote = await pullBookmarks();
         const local = (typeof AppState !== 'undefined' && AppState.bookmarks) ? AppState.bookmarks.slice() : [];
@@ -219,6 +232,7 @@
     stop() {
       state.active = false;
       state.synced = false;
+      state.limited = false;
       state.userId = null;
     }
   };
