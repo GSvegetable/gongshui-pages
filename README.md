@@ -1,107 +1,88 @@
-宫水 · UI Archive
+# 宫水 · UI Archive
 
-一个自己用的 UI 收藏站，顺手也当作品展示页。收的都是 2D / WebGL 的交互小东西，点开卡片就地展开，关掉再收回去。
+**当前版本：v3.2.0**  
+一个轻量的交互作品收藏与展示网站。作品以卡片形式陈列，点击卡片后在原页面展开详情，关闭后回到网格。
 
-纯原生 HTML/CSS/JS，没有构建步骤，改完 push 就完事。
+- **线上网站：** https://宫水.com
+- **部署方式：** GitHub Pages
+- **技术栈：** 原生 HTML / CSS / JavaScript
+- **构建要求：** 无构建步骤、无运行时依赖
 
-线上
+## 当前作品
 
-· 宫水.com
-· GitHub Pages 自动部署，推上去就更新
+| 作品 | 技术 | 主要交互 | 独立项目 |
+|---|---|---|---|
+| 海边灯塔 / Pixel Daylight Switch | WebGL2、Canvas 2D | 拖动、触控、键盘、多场景切换 | [GitHub](https://github.com/GSvegetable/pixel-daylight-switch) |
+| 像素圆环 / Pixel Orbit | Canvas 2D | 圆环拖动、时间滑块、场景预设 | [GitHub](https://github.com/GSvegetable/-pixel-orbit) |
 
-关于展开 / 关闭动画（3.1）
+## 版本与更新记录
 
-3.1 把动画整个重做了，核心就三件事：
+完整记录见 [CHANGELOG.md](./CHANGELOG.md)。
 
-· 作品内容不再跟着卡片重新布局。内容是一个固定像素尺寸的"舞台"，动画全程只用 scale 去贴合作品框，iframe / WebGL 从头到尾不会被 resize，所以不会白屏、不会闪。
-· 动画用 FLIP：先拍下卡片现在的位置，再直接切到最终状态量出终点，然后从起点走到终点。终点本来就是真实样式，落地时没有"收尾替换"，所以不抖、不回弹。
-· 卡片、遮罩、详情面板、导航、搜索框全部读 style.css 顶部的 --dur / --ease 这一套节奏，永远同速度同节奏。想整体变快变慢，只改这两个变量。
+| 版本 | 日期 | 摘要 |
+|---|---|---|
+| **v3.2.0** | 2026-11-12 | 统一作品详情结构；像素圆环打开时平滑切换为完整构图；田园版 / 星球版预加载交叉淡入淡出 |
+| v3.1.0 | 既有版本 | 重做卡片展开与关闭动画，采用固定舞台与 FLIP 过渡 |
+| v3.0.0 | 既有版本 | 抽出通用 WorkController，自动发现作品卡片 |
+| v2.x | 既有版本 | 持续修复详情层级、遮罩与动画时序 |
+| v1.0.0 | 初始版本 | 网站上线，包含海边灯塔作品 |
 
-另外：
+### v3.2.0 本次迭代
 
-· 展开时原位放一张看不见的"影子卡片"（真卡片的克隆），布局一模一样，周围作品绝不会移位；关闭时它的实时位置就是动画终点。
-· 锁滚动时会补上滚动条宽度，页面宽度不变，网格不会重排。
-· 关闭时导航和搜索框一直站在遮罩下面，靠遮罩淡出自然显露，不会提前跳出来。
-· 遮罩去掉了 backdrop-filter 模糊（本来就 92% 不透明，几乎看不出来，但每帧都在重新模糊整个屏幕，是掉帧的主要来源）。
+- **详情结构统一：** 海边灯塔与像素圆环共用 `.work-detail`、`.detail-overview`、`.detail-copy`、`.detail-facts`、`.gallery-heading`、`.scene-picker` 和 `.lab-links` 等结构。作品独有的标题、说明、版本和资源仍由各自内容提供。
+- **首页与详情构图分离：** 像素圆环在首页卡片中使用艺术裁切构图；打开详情时切换为完整构图，关闭时恢复裁切构图。
+- **开合过程平滑：** 父页面通过消息通知作品 iframe 切换构图，作品内部使用 transform 过渡，避免动画过程中反复改变画布尺寸。
+- **版本切换优化：** 田园版与星球版采用双 iframe 预加载和透明度交叉淡入淡出，避免直接替换 iframe 引起的白屏闪烁。
+- **可访问性与状态：** 版本按钮同步 `aria-pressed` 和选中状态；尊重减少动态效果偏好。
 
-现在收了什么
-
-作品 技术栈 交互 源码
-海边灯塔 / Pixel Daylight Switch WebGL2 / Canvas 2D 拖动、触控、键盘、多场景切换 GitHub
-像素圆环 / Pixel Orbit Canvas 2D 圆环拖动、时间滑块、场景预设 GitHub
-
-加新作品
-
-只改 index.html，不用碰 JS 和 CSS。
-
-1. 在 <div class="grid"> 里复制一张卡片
-
-```html
-<article class="preview-card" id="your-work-card" data-id="your-work-id" data-detail="your-work-detail" tabindex="0" aria-label="打开新作品详情">
-  <div class="preview-mount">
-    <!-- iframe 或者自己的挂载点都行 -->
-    <iframe src="你的体验链接" title="作品名" loading="lazy"></iframe>
-  </div>
-  <div class="card-info"><span class="card-title">新作品名称</span></div>
-</article>
-```
-
-· id、data-id 随便起，但不能和别的作品重复。
-· data-detail 填这个作品详情面板的 id。
-· 作品框(.preview-mount)的宽高比默认 1.6439，要改就在 article 上写 style="--mount-ratio: 1.78"。
-
-2. 在 </main> 后面加详情面板
-
-```html
-<section class="work-detail" id="your-work-detail" role="dialog" aria-modal="true" aria-hidden="true">
-  <!-- 详情内容，随便写 -->
-</section>
-```
-
-面板必须带 work-detail 这个 class，它的出入场动画就自动和卡片同步了。
-
-目录
+## 项目结构
 
 ```text
 .
-├── index.html          # 主页 + 详情页的 DOM
+├── index.html                  # 首页卡片、作品详情内容与入口
 ├── styles/
-│   └── style.css       # 布局、卡片、过渡、响应式（动画节奏变量在最顶部）
+│   ├── style.css               # 全站布局、通用详情样式、卡片与主动画
+│   └── orbit-art.css            # 像素圆环预览、版本卡片与过渡样式
 ├── scripts/
-│   └── main.js         # 搜索、导航、作品展开/关闭控制器
-└── README.md
+│   ├── main.js                 # 搜索、导航、作品展开 / 关闭控制器
+│   └── orbit-versions.js       # 像素圆环版本选择与交叉淡入淡出
+├── CHANGELOG.md                # 按版本维护的更新记录
+└── README.md                   # 项目说明与开发指引
 ```
 
-更新记录
+## 详情页面统一规范
 
-v3.1.0
+所有作品详情都应使用通用的 `.work-detail` 面板和共享内容结构。每个作品可以拥有不同的作品介绍、媒体、版本选项、技术参数和资源链接，但不要为单个作品重新设计一套标题、信息行、分区间距或面板骨架。
 
-· 展开 / 关闭 / 放大动画重写：内容只缩放不重排（不白屏），FLIP 落地（不抖动）
-· 详情面板、遮罩、导航、搜索框和卡片共用同一套时长与曲线
-· 新作品自动发现，不再需要在 main.js 里登记
-· 修锁滚动时滚动条消失导致网格重排
-· 去掉遮罩的 backdrop-filter
-· 删掉不存在的 motion.css 引用
+建议的内容层级：
 
-v3.0.0
+1. **作品概览：** `.detail-overview`，内部使用 `.detail-copy` 与 `.detail-facts`。
+2. **作品版本或媒体：** 使用统一的 `.gallery-heading` 与 `.scene-picker`；没有版本的作品可省略。
+3. **项目资源：** 使用 `.lab-links`；没有外部资源时可省略。
 
-· 抽出 WorkController，删掉各作品重复的动画代码
-· 修动画结束时内容微小抖动（强制同步布局）
-· 修开关动画期间周围卡片因遮罩遮挡、网格塌陷而消失
-· 补开发规范
+通用的展开、关闭、遮罩和焦点管理由 `scripts/main.js` 负责。作品专属脚本只处理该作品自己的功能，不要重复实现全局面板动画。
 
-v2.8.0
+## 添加新作品
 
-· 修海边灯塔关闭时的遮挡，圆环能在灯塔缩回过程中露出来了
+1. 在 `index.html` 的作品网格中添加一个 `.preview-card`，设置唯一的 `id`、`data-id` 和 `data-detail`。
+2. 在页面中添加对应的 `.work-detail` 面板，沿用上面的详情结构与共享 class。
+3. 如需独立交互，再添加作品专属脚本和样式；不要复制全局开合控制器。
+4. 若作品需要首页预览与详情完整构图之间切换，定义清晰的构图状态，并通过受控消息与父页面通信；动画优先使用 transform / opacity，避免动画期间改变 canvas 内部分辨率。
+5. 更新 README 与 CHANGELOG，写明新增作品、交互、文件入口和版本号。
 
-v2.5.0 – v2.7.0
+## 发布与版本管理
 
-· 反复调海边灯塔关闭时详情面板、操作按钮、卡片回归的时序和 z-index。这部分试了好几版才对
+- 网站版本采用语义化版本号 `MAJOR.MINOR.PATCH`，当前为 **v3.2.0**。
+- 视觉或交互功能新增、详情架构调整等向前兼容的迭代提升 MINOR；向后兼容的修复提升 PATCH；破坏性架构调整提升 MAJOR。
+- 每次发布同步更新首页版本标记、README 版本摘要和 CHANGELOG。
+- 合并到 `main` 后由 GitHub Pages 工作流发布；以实际部署成功和浏览器验收作为线上完成标准，不以代码合并代替视觉验收。
 
-v2.3.0
+## 本地预览
 
-· 优化关闭遮罩时的显现逻辑，避免字号突变
+无需安装依赖。可直接打开 `index.html`，也可在仓库根目录运行：
 
-v1.0.0
+```bash
+python3 -m http.server 8080
+```
 
-· 上线，只有海边灯塔一个
+然后访问 http://localhost:8080。
