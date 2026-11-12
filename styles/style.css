@@ -355,7 +355,7 @@ body.view-closing .preview-actions {
   max-height: none; cursor: default;
 }
 /* 动画期间永远裁切，避免出现一闪而过的滚动条 */
-.preview-card.is-animating { overflow: hidden; }
+.preview-card.is-animating { overflow: hidden; will-change: transform; }
 
 /* ---------- 详情面板（所有作品共用） ----------
    谁是当前作品，JS 就给它的面板加 .is-active。面板的出入场用的是和卡片同一套 --dur / --ease，
@@ -669,11 +669,7 @@ main{--gallery-card-min:260px}
 /* v3.3.17 — stabilize the artwork's live scale and reveal the lab during the opening motion. */
 /* Ease the per-frame ResizeObserver scale updates on the embedded artwork to avoid
    sub-pixel shimmer while the card is moving and resizing. */
-.preview-card.is-animating .preview-mount > :not(script):not(style){
-  transition:transform 90ms linear !important;
-  backface-visibility:hidden;
-  -webkit-backface-visibility:hidden;
-}
+/* Artwork stays at a stable scale while the outer card moves on the compositor. */
 
 /* The lab row has a real, measured reveal distance (rather than jumping after a
    long visibility delay). Its compact row opens with the card; the iframe area
