@@ -678,7 +678,8 @@ main{--gallery-card-min:260px}
 /* The lab row has a real, measured reveal distance (rather than jumping after a
    long visibility delay). Its compact row opens with the card; the iframe area
    gets the larger height only when the user expands the lab itself. */
-.card-inline-experience{
+ .card-inline-experience{
+  display:none;
   max-height:0;
   visibility:hidden;
   transition:max-height .46s cubic-bezier(.22,.8,.2,1),
@@ -716,7 +717,8 @@ main{--gallery-card-min:260px}
   transform:translateY(-12px);
   transition:none !important;
 }
-.preview-card.is-open .card-inline-experience{
+ .preview-card.is-open .card-inline-experience{
+  display:block;
   visibility:visible;
   pointer-events:auto;
 }
