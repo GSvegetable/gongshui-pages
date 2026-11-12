@@ -276,6 +276,14 @@ syncSearchUI();
     });
   };
 
+  /* ---------- 可切换展示构图的作品：打开时完整显示，关闭时回到首页裁切 ---------- */
+  const setComposition = (work, composition) => {
+    const frames = work?.mount?.querySelectorAll('iframe[data-composition-frame]');
+    frames?.forEach(frame => {
+      frame.contentWindow?.postMessage({ type: 'pixel-orbit-composition', composition }, '*');
+    });
+  };
+
   /* ---------- 动画 ---------- */
   const animateCard = (work, first, last, done) => {
     const card = work.card;
@@ -335,6 +343,7 @@ syncSearchUI();
     card.parentNode.insertBefore(work.ghost, card);
     lockScroll();
     setActivePanel(work);
+    setComposition(work, 'full');
 
     body.classList.remove('artwork-only');
     body.classList.add('viewing');
@@ -382,6 +391,7 @@ syncSearchUI();
     mode = 'closing';
     expanded = false;
     setExpandControl(false);
+    setComposition(work, 'art');
 
     // 导航、搜索框不在这里动：它们本来就站在遮罩下面，遮罩淡出时自然显露
     body.classList.remove('viewing', 'artwork-only');

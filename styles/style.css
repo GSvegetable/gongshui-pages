@@ -382,18 +382,8 @@ body.view-closing .work-detail.is-active {
 .scene-choice.is-active { border:2px solid #8c5d13; background:#f4d78e; box-shadow:2px 2px 0 #211d15; }
 .scene-choice:focus-visible { outline:2px solid #8c5d13; outline-offset:2px; }
 
-/* ---------- Pixel Orbit 详情内容 ---------- */
-.orbit-detail-copy h1 { margin: 0 0 5px; color: #191711; font-size: clamp(24px,3.3vw,38px); line-height: 1.08; letter-spacing: -1.2px; }
-.orbit-detail-kicker { margin: 0 0 12px; color: #9b7542; font-size: 10px; font-weight: 900; letter-spacing: 1.5px; }
-.orbit-detail-subtitle { margin: 0 0 18px; color: #9b7542; font-size: 12px; font-weight: 800; letter-spacing: 1px; }
-.orbit-detail-copy > p:not(.orbit-detail-kicker):not(.orbit-detail-subtitle) { color: #514a3d; font-size: 14px; line-height: 1.85; }
-.orbit-detail-facts { display: grid; margin-top: 24px; border-top: 1px solid #d1c3a8; }
-.orbit-detail-facts div { display: flex; flex-direction: column; gap: 5px; padding: 13px 0; border-bottom: 1px solid #d1c3a8; }
-.orbit-detail-facts span { color: #6b5d47; font-size: 11px; }
-.orbit-detail-facts strong { color: #292319; font-size: 12px; }
-.orbit-detail-content .project-link { display: inline-flex; margin: 24px 0 14px; }
-.orbit-live-link { display: block; padding: 12px 2px; border-bottom: 1px solid #d1c3a8; color: #4d3a1d; text-decoration: none; font-size: 13px; font-weight: 800; }
-.orbit-live-link:hover { color: #a46b0e; }
+/* Pixel Orbit uses the same .detail-copy, .detail-facts and .lab-links
+   primitives as every other work; only its scene thumbnails are project-specific. */
 
 /* ---------- 响应式 ---------- */
 @media (max-width:1024px) {

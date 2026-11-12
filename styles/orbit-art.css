@@ -1,17 +1,31 @@
-/* Pixel Orbit — art-directed home preview and scene selection controls */
+/* Pixel Orbit — home preview framing, version cards and smooth iframe crossfade. */
 #pixel-orbit-card .preview-mount {
   --mount-ratio: 1.6439;
   background: #f2e8d2;
 }
-#pixel-orbit-card .preview-mount iframe {
-  background: #f2e8d2 !important;
+#pixel-orbit-card .preview-mount iframe { background: #f2e8d2 !important; }
+
+.orbit-frame-stack {
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  background:#f2e8d2;
 }
-/* Reuse Lighthouse's horizontal scene-card picker for a consistent state switch. */
-.orbit-version-picker {
-  margin:14px 0 18px;
-  gap:12px;
+.orbit-frame-stack iframe {
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  border:0;
+  opacity:0;
+  background:#f2e8d2;
+  transition:opacity 460ms cubic-bezier(.22,.8,.2,1);
 }
-.orbit-scene-choice { flex-basis: min(46%, 190px); }
+.orbit-frame-stack iframe.is-visible { opacity:1; }
+
+.orbit-version-picker { margin:14px 0 18px; gap:12px; }
+.orbit-scene-choice { flex-basis:min(46%,190px); }
 .orbit-scene-thumb {
   aspect-ratio:16/10;
   background-repeat:no-repeat;
@@ -41,6 +55,9 @@
 }
 @media(max-width:600px) {
   .orbit-version-picker { gap:8px; }
-  .orbit-scene-choice { flex-basis: min(46%, 190px); padding:7px; }
+  .orbit-scene-choice { flex-basis:min(46%,190px); padding:7px; }
   .orbit-scene-note { font-size:9px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .orbit-frame-stack iframe { transition-duration:.01ms; }
 }
