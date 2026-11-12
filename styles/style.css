@@ -698,3 +698,24 @@ main{--gallery-card-min:260px}
 .preview-card.is-open .card-inline-experience:has(.card-experience-toggle[aria-expanded="true"]){
   max-height:1100px;
 }
+
+
+/* v3.3.18 — remove lag from the live iframe scale; JS updates it frame-by-frame. */
+.preview-card.is-animating .preview-mount > :not(script):not(style){
+  transition:none !important;
+  backface-visibility:visible;
+  -webkit-backface-visibility:visible;
+}
+/* The opening controller animates this row with the card's exact Web Animations timeline. */
+.card-inline-experience{
+  max-height:0;
+  overflow:hidden;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(-12px);
+  transition:none !important;
+}
+.preview-card.is-open .card-inline-experience{
+  visibility:visible;
+  pointer-events:auto;
+}
