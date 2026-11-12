@@ -9,7 +9,7 @@
   // showcase 缓存版本号只在这里定义一次，index.html 的 iframe src 必须与它一致。
   // 之前 index.html 写 v1.3.6、这里校验 v1.3.8，
   // 每次进站都会判定"版本不符"并改写 src，白白多加载一次 iframe。
-  const SCENE_VERSION = '1.3.8';
+  const SCENE_VERSION = '1.3.9';
 
   const buttons = [...panel.querySelectorAll('[data-orbit-version]')];
   const storageKey = 'pixel-orbit-home-scene-v2';
