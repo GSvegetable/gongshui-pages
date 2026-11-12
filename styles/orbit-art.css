@@ -1,15 +1,15 @@
 /* Pixel Orbit — home preview framing, version cards and smooth iframe crossfade. */
 #pixel-orbit-card .preview-mount {
   --mount-ratio: 1.6439;
-  background: #f2e8d2;
+  background: transparent;
 }
-#pixel-orbit-card .preview-mount iframe { background: #f2e8d2 !important; }
+#pixel-orbit-card .preview-mount iframe { background: transparent !important; }
 
 .orbit-frame-stack {
   position:absolute;
   inset:0;
   overflow:hidden;
-  background:#f2e8d2;
+  background:transparent;
 }
 .orbit-frame-stack iframe {
   position:absolute;
