@@ -287,7 +287,8 @@ body.view-closing .preview-actions {
 .preview-card.is-artwork-expanded {
   z-index: 25; max-height: none; overflow: hidden;
   /* Override any legacy top reservation from earlier immersive layouts. */
-  padding: 15px !important;
+  /* Slight optical correction: move the artwork 3px upward inside the tray. */
+  padding: 18px 15px 12px !important;
   box-sizing: border-box;
 }
 .preview-card.is-artwork-expanded .preview-mount {
