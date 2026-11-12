@@ -47,7 +47,8 @@ const renderGallery = () => {
   galleryCards.forEach(item => {
     const isBookmarked = AppState.bookmarks.includes(item.dataset.id);
     const title = item.querySelector('.card-title')?.textContent || '';
-    const searchMatch = title.toLowerCase().includes(AppState.searchQuery.toLowerCase());
+    const searchableText = `${title} ${item.dataset.tags || ''}`.toLowerCase();
+    const searchMatch = searchableText.includes(AppState.searchQuery.toLowerCase());
     const shouldShow = AppState.currentTab === 'home'
       ? searchMatch
       : isBookmarked && searchMatch;
@@ -548,5 +549,42 @@ syncSearchUI();
       });
     });
     updateScenes();
+  }
+
+  /* Pixel Orbit version picker: Planet is the default; selecting either card
+     reloads only the artwork iframe with the requested scene. */
+  const orbitPanel = document.getElementById('orbit-detail-panel');
+  if (orbitPanel) {
+    const orbitChoices = [...orbitPanel.querySelectorAll('[data-orbit-version]')];
+    const orbitFrame = document.querySelector('#pixel-orbit-card iframe[data-composition-frame]');
+    let selectedOrbitVersion = 'planet';
+
+    const updateOrbitChoices = () => {
+      orbitChoices.forEach(btn => {
+        const active = btn.dataset.orbitVersion === selectedOrbitVersion;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
+    };
+
+    orbitChoices.forEach(btn => {
+      btn.addEventListener('click', event => {
+        event.stopPropagation();
+        const nextVersion = btn.dataset.orbitVersion;
+        if (!['planet', 'countryside'].includes(nextVersion)) return;
+        selectedOrbitVersion = nextVersion;
+        updateOrbitChoices();
+
+        if (orbitFrame) {
+          const nextUrl = new URL(orbitFrame.src, window.location.href);
+          if (nextUrl.searchParams.get('scene') !== nextVersion) {
+            nextUrl.searchParams.set('scene', nextVersion);
+            orbitFrame.src = nextUrl.toString();
+          }
+        }
+      });
+    });
+
+    updateOrbitChoices();
   }
 })();
