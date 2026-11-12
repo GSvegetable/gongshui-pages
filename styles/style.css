@@ -494,3 +494,21 @@ body.view-closing .work-detail.is-active {
   user-select: none;
 }
 
+
+
+/* ---------- Unified project detail actions and section headings ---------- */
+.project-link {
+  min-height:46px;
+  border-radius:8px;
+  box-shadow:0 3px 0 #211d15;
+}
+.project-link:hover { transform:translateY(1px); box-shadow:0 2px 0 #211d15; }
+.gallery-heading {
+  margin-top:30px;
+  padding-bottom:12px;
+  border-bottom:1px solid #d1c3a8;
+}
+.gallery-heading h2 { font-size:20px; }
+.gallery-heading > span { color:#75684f; font-size:12px; line-height:1.5; }
+.lab-links { margin-top:26px; }
+.lab-links h2 { font-size:18px; }
