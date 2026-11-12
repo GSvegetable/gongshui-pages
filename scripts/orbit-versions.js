@@ -75,11 +75,15 @@
     frame.dataset.orbitScene = scene;
     frame.classList.toggle('is-visible', scene === activeScene);
     frames.set(scene, frame);
-    frameScenes.set(frame.contentWindow, scene);
-    const ping = () => frame.contentWindow?.postMessage({ type: 'pixel-orbit-ping' }, '*');
+    const ping = () => {
+      // Register the WindowProxy only after the iframe is attached to the document.
+      // A detached iframe may not yet expose the same contentWindow used by message events.
+      if (frame.contentWindow) frameScenes.set(frame.contentWindow, scene);
+      frame.contentWindow?.postMessage({ type: 'pixel-orbit-ping' }, '*');
+    };
     frame.addEventListener('load', ping);
     stack.appendChild(frame);
-    // Handles the case where the iframe finished loading before this controller ran.
+    // Attach first, then register and ping; this makes the ready handshake reliable.
     ping();
   };
 
