@@ -11,7 +11,7 @@
   const valid = new Set(['countryside', 'planet', 'world']);
   const composition = card.dataset.composition === 'full' ? 'full' : 'art';
   const sourceFor = scene =>
-    'https://gsvegetable.github.io/-pixel-orbit/showcase.html?v=1.3.6&scene=' +
+    'https://gsvegetable.github.io/-pixel-orbit/showcase.html?v=1.3.7&scene=' +
     scene + '&composition=' + composition;
 
   let selected = 'planet';
