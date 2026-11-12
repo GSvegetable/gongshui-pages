@@ -22,7 +22,8 @@
     </button>
   </aside>
 
-  <a class="contributors-home-link" href="./contributors.html" aria-label="查看贡献者名单" title="贡献者名单"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>贡献者</span><i aria-hidden="true">↗</i></a>
+
+  <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language" title="Switch language">EN</button>
 
   <header class="top-bar" id="top-bar" role="search" aria-label="作品搜索">
     <div class="search-wrapper" id="search-wrapper">
@@ -78,13 +79,13 @@
         </a>
       </div>
       <div class="detail-facts">
-        <div><span>渲染技术</span><strong>WebGL2 · Canvas 2D</strong></div>
-        <div><span>交互方式</span><strong>拖动 · 触控 · 键盘</strong></div>
-        <div><span>生态的拓展</span><strong>Web · Android / iOS · React / Vue · JSON 插件</strong></div>
+        <div><span>核心体验</span><strong>昼夜渐变 · 多场景微缩世界</strong></div>
+        <div><span>交互方式</span><strong>拖动开关 · 触控 · 场景切换</strong></div>
+        <div><span>技术与兼容</span><strong>WebGL2 · Canvas 2D · Web</strong></div>
       </div>
     </div>
     <div class="gallery-heading">
-      <h2>场景选择</h2><span>左右滑动，点击图片切换展示场景</span>
+      <h2>场景选择</h2>
     </div>
     <div class="scene-picker" role="group" aria-label="切换像素世界场景">
       <button class="scene-choice" type="button" data-scene-choice="countryside" aria-label="切换到乡间小屋" aria-pressed="false"><span class="scene-thumb thumb-countryside" aria-hidden="true"></span><strong>乡间小屋</strong></button>
@@ -118,13 +119,13 @@
         </a>
       </div>
       <div class="detail-facts">
-        <div><span>核心体验</span><strong>24 小时昼夜循环</strong></div>
-        <div><span>交互方式</span><strong>圆环拖动 · 时间滑块 · 场景预设</strong></div>
-        <div><span>视觉风格</span><strong>像素艺术 · 圆形轨道 · 动态光照</strong></div>
+        <div><span>核心体验</span><strong>24 小时昼夜循环 · 动态世界</strong></div>
+        <div><span>交互方式</span><strong>圆环拖动 · 时间调节 · 版本切换</strong></div>
+        <div><span>技术与兼容</span><strong>像素渲染 · 动态光照 · Web</strong></div>
       </div>
     </div>
     <div class="gallery-heading">
-      <h2>场景选择</h2><span>选择你想体验的像素世界</span>
+      <h2>场景选择</h2>
     </div>
     <div class="scene-picker orbit-version-picker" role="group" aria-label="选择像素圆环展示版本">
       <button type="button" class="scene-choice orbit-scene-choice is-active" data-orbit-version="planet" aria-label="切换到星球版" aria-pressed="true">
@@ -163,5 +164,70 @@
   <div class="site-version" aria-label="网站版本">v3.3.8</div>
   <script src="./scripts/main.js?v=3.2.6"></script>
   <script src="./scripts/orbit-versions.js?v=1.1.6"></script>
+  <script>
+  (() => {
+    const button = document.getElementById('language-toggle');
+    if (!button) return;
+    let language = 'zh';
+    const translations = {
+      en: [
+        ['#nav-home','Home'],['#nav-bookmark','Bookmarks'],
+        ['#search-input','Search works…'],['#search-input@aria-label','Search works'],
+        ['#empty-title','Nothing here'],['#detail-title','Pixel Daylight Switch'],
+        ['#detail-panel .detail-description','A miniature pixel world inside a refractive glass switch. Move the switch to transition naturally from day through dusk into night. The seaside lighthouse is one of its interactive scenes.'],
+        ['#detail-panel .project-link span:first-of-type','View GitHub project'],
+        ['#detail-panel .detail-facts div:nth-child(1) span','Core experience'],
+        ['#detail-panel .detail-facts div:nth-child(1) strong','Day-to-night transitions · Multiple miniature scenes'],
+        ['#detail-panel .detail-facts div:nth-child(2) span','Interaction'],
+        ['#detail-panel .detail-facts div:nth-child(2) strong','Drag switch · Touch · Scene selection'],
+        ['#detail-panel .detail-facts div:nth-child(3) span','Technology & compatibility'],
+        ['#detail-panel .detail-facts div:nth-child(3) strong','WebGL2 · Canvas 2D · Web'],
+        ['#detail-panel .gallery-heading h2','Scenes'],['#detail-panel .contributor-list h2','Creators & contributors'],
+        ['#detail-panel .lab-links h2','Explore more'],
+        ['#orbit-detail-title','Pixel Orbit'],
+        ['#orbit-detail-panel .detail-copy .english-title','INTERACTIVE PIXEL WORLD'],
+        ['#orbit-detail-panel .detail-description','A tiny pixel world that changes with time. Drag the ring or adjust the time to watch the sky, sun, moon, clouds and house lights shift from morning to midnight.'],
+        ['#orbit-detail-panel .project-link span:first-of-type','View GitHub project'],
+        ['#orbit-detail-panel .detail-facts div:nth-child(1) span','Core experience'],
+        ['#orbit-detail-panel .detail-facts div:nth-child(1) strong','24-hour day-night cycle · Dynamic world'],
+        ['#orbit-detail-panel .detail-facts div:nth-child(2) span','Interaction'],
+        ['#orbit-detail-panel .detail-facts div:nth-child(2) strong','Drag ring · Adjust time · Switch versions'],
+        ['#orbit-detail-panel .detail-facts div:nth-child(3) span','Technology & compatibility'],
+        ['#orbit-detail-panel .detail-facts div:nth-child(3) strong','Pixel rendering · Dynamic lighting · Web'],
+        ['#orbit-detail-panel .gallery-heading h2','Scenes'],
+        ['#orbit-detail-panel .contributor-list h2','Creators & contributors'],
+        ['#orbit-detail-panel .lab-links h2','Explore more']
+      ]
+    };
+    const original = new Map();
+    translations.en.forEach(([key]) => {
+      const [selector, attr] = key.split('@');
+      const el = document.querySelector(selector);
+      if (el) original.set(key, attr ? el.getAttribute(attr) : el.textContent);
+    });
+    button.addEventListener('click', () => {
+      language = language === 'zh' ? 'en' : 'zh';
+      translations.en.forEach(([key, value]) => {
+        const [selector, attr] = key.split('@');
+        const el = document.querySelector(selector);
+        if (!el) return;
+        if (language === 'en') { if (attr) el.setAttribute(attr, value); else el.textContent = value; }
+        else { if (attr) el.setAttribute(attr, original.get(key)); else el.textContent = original.get(key); }
+      });
+      document.documentElement.lang = language === 'en' ? 'en' : 'zh-CN';
+      button.textContent = language === 'en' ? '中文' : 'EN';
+      button.setAttribute('aria-label', language === 'en' ? '切换语言' : 'Switch language');
+      document.querySelectorAll('[data-scene-choice]').forEach((el, i) => {
+        const zh=['乡间小屋','日式街道','现代公寓','海边灯塔','山间木屋'][i];
+        const en=['Country cottage','Japanese street','Modern apartment','Seaside lighthouse','Mountain cabin'][i];
+        el.querySelector('strong').textContent = language === 'en' ? en : zh;
+      });
+      document.querySelectorAll('[data-orbit-version]').forEach((el,i) => {
+        const zh=['星球版','田园版'][i], en=['Planet','Countryside'][i];
+        el.querySelector('strong').textContent = language === 'en' ? en : zh;
+      });
+    });
+  })();
+  </script>
 </body>
 </html>
