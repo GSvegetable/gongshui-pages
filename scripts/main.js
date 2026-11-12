@@ -363,10 +363,11 @@ syncSearchUI();
   };
 
   /* ---------- 动画 ---------- */
-  const animateCard = (work, first, last, done) => {
+  const animateCard = (work, first, last, done, revealLab = false) => {
     const card = work.card;
-    const duration = getDuration();
-    const easing = getEasing();
+    // A slower, even rise: keep the artwork moving throughout the opening.
+    const duration = Math.max(getDuration(), 760);
+    const easing = 'cubic-bezier(.4, 0, .2, 1)';
 
     card.classList.add('is-animating');
 
@@ -375,6 +376,24 @@ syncSearchUI();
       { left: last.left + 'px', top: last.top + 'px', width: last.width + 'px', height: last.height + 'px', padding: last.padding }
     ];
     const animations = [card.animate(frames, { duration, easing, fill: 'backwards' })];
+
+    // Reveal the lab row on the exact same timeline as the card rise.
+    const labRow = revealLab ? card.querySelector('.card-inline-experience') : null;
+    if (labRow) {
+      labRow.style.visibility = 'visible';
+      labRow.style.overflow = 'hidden';
+      labRow.style.maxHeight = '0px';
+      labRow.style.opacity = '0';
+      labRow.style.transform = 'translateY(-12px)';
+      animations.push(labRow.animate(
+        [
+          { maxHeight: '0px', opacity: 0, transform: 'translateY(-12px)' },
+          { maxHeight: '56px', opacity: 1, transform: 'translateY(0)' }
+        ],
+        { duration, easing, fill: 'forwards' }
+      ));
+      work.labRevealAnimation = animations[animations.length - 1];
+    }
 
     const title = card.querySelector('.card-title');
     if (title && first.titleSize && last.titleSize && first.titleSize !== last.titleSize) {
@@ -429,10 +448,18 @@ syncSearchUI();
     applyBox(card, openBox());                    // ② 直接切到最终状态
     const last = snapshot(card);                  //    量出 Last
 
-    animateCard(work, first, last, () => {        // ③ 从 First 走到 Last
+    animateCard(work, first, last, () => {
       mode = 'open';
+      const labRow = card.querySelector('.card-inline-experience');
+      if (labRow) {
+        labRow.style.maxHeight = '56px';
+        labRow.style.opacity = '1';
+        labRow.style.transform = 'none';
+        labRow.style.visibility = 'visible';
+      }
+      work.labRevealAnimation = null;
       closeBtn.focus({ preventScroll: true });
-    });
+    }, true);
   };
 
   /* ---------- 关闭 ---------- */
@@ -462,6 +489,17 @@ syncSearchUI();
 
     const first = snapshot(card);                 // 中途点关闭，也从当前画面接着走
     stopAnim();
+    if (work.labRevealAnimation) {
+      work.labRevealAnimation.cancel();
+      work.labRevealAnimation = null;
+    }
+    const labRow = card.querySelector('.card-inline-experience');
+    if (labRow) {
+      labRow.style.maxHeight = '0px';
+      labRow.style.opacity = '0';
+      labRow.style.transform = 'translateY(-12px)';
+      labRow.style.visibility = 'hidden';
+    }
 
     const ghost = snapshot(work.ghost);           // 终点 = 占位卡片的实时位置
     const last = { left: ghost.left, top: ghost.top, width: ghost.width, height: ghost.height, padding: ghost.padding, titleSize: ghost.titleSize };
