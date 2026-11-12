@@ -12,10 +12,6 @@
   background:transparent;
 }
 .orbit-frame-stack iframe {
-  /* Preserve touch gestures inside the embedded artwork instead of letting the host page consume them. */
-  touch-action: none;
-  -webkit-user-select: none;
-  user-select: none;
   position:absolute;
   inset:0;
   display:block;
