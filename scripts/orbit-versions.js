@@ -1,4 +1,4 @@
-/* Pixel Orbit scene switcher — v1.2.0
+/* Pixel Orbit scene switcher — v1.2.1
    Keep both scenes mounted so switching never waits for a fresh iframe navigation. */
 (() => {
   const card = document.getElementById('pixel-orbit-card');
@@ -33,10 +33,17 @@
 
   const frames = new Map();
   const ready = new Set();
+  const frameScenes = new Map();
+  window.addEventListener('message', event => {
+    if (!event.data || event.data.type !== 'pixel-orbit-ready') return;
+    const scene = frameScenes.get(event.source);
+    if (!scene) return;
+    ready.add(scene);
+    if (pendingScene === scene) activate(scene);
+  });
   let activeScene = selected;
   let pendingScene = null;
 
-  const sceneOf = frame => frame.dataset.orbitScene;
   const updateButtons = scene => {
     buttons.forEach(button => {
       const active = button.dataset.orbitVersion === scene;
@@ -68,10 +75,12 @@
     frame.dataset.orbitScene = scene;
     frame.classList.toggle('is-visible', scene === activeScene);
     frames.set(scene, frame);
-    frame.addEventListener('load', () => {
-      frame.contentWindow?.postMessage({ type: 'pixel-orbit-ping' }, '*');
-    });
+    frameScenes.set(frame.contentWindow, scene);
+    const ping = () => frame.contentWindow?.postMessage({ type: 'pixel-orbit-ping' }, '*');
+    frame.addEventListener('load', ping);
     stack.appendChild(frame);
+    // Handles the case where the iframe finished loading before this controller ran.
+    ping();
   };
 
   // Reuse the already-running document as one half of the two-scene pair.
@@ -85,15 +94,6 @@
   preload.allow = 'fullscreen';
   preload.className = 'orbit-frame-preload';
   registerFrame(preload, otherScene);
-
-  const frameScenes = new Map([...frames.entries()].map(([scene, frame]) => [frame.contentWindow, scene]));
-  window.addEventListener('message', event => {
-    if (!event.data || event.data.type !== 'pixel-orbit-ready') return;
-    const scene = frameScenes.get(event.source);
-    if (!scene) return;
-    ready.add(scene);
-    if (pendingScene === scene) activate(scene);
-  });
 
   preload.src = sourceFor(otherScene);
 
@@ -115,10 +115,4 @@
     activate(scene);
   }));
 
-  // If the preferred scene differs from the original URL, wait for it to paint
-  // and then reveal it. The previous scene remains visible during that wait.
-  if (selected !== initialScene) {
-    pendingScene = selected;
-    if (ready.has(selected)) activate(selected);
-  }
 })();
