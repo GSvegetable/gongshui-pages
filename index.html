@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#171717" />
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="./styles/style.css?v=3.3.13" />
-  <link rel="stylesheet" href="./styles/orbit-art.css?v=1.1.7" />
+  <link rel="stylesheet" href="./styles/style.css?v=3.3.14" />
+  <link rel="stylesheet" href="./styles/orbit-art.css?v=1.1.8" />
 </head>
 <body>
   <aside id="mario-nav" aria-label="快捷导航">
@@ -63,16 +63,6 @@
         </div>
         <div class="card-info orbit-card-info">
           <div class="orbit-card-heading"><span class="card-title">像素圆环</span><span class="work-tags"><span class="work-tag">像素风</span></span></div>
-          <section class="inline-experience-section card-inline-experience" aria-label="像素圆环延伸玩法">
-            <button class="card-experience-toggle" type="button" data-experience-url="https://gsvegetable.github.io/-pixel-orbit/lab.html" data-experience-title="参数实验室" aria-expanded="false" aria-controls="orbit-card-lab">
-              <span>参数实验室</span><span class="card-experience-chevron" aria-hidden="true">▾</span>
-            </button>
-            <div class="inline-experience-viewer" id="orbit-card-lab" hidden>
-              <div class="inline-experience-toolbar"><strong data-experience-heading>参数实验室</strong><button type="button" data-experience-close aria-label="关闭延伸体验">收起 ×</button></div>
-              <iframe data-experience-frame title="像素圆环参数实验室" loading="lazy" allow="fullscreen"></iframe>
-              <a data-experience-fallback target="_blank" rel="noopener noreferrer">如果无法显示，点击在新窗口打开 ↗</a>
-            </div>
-          </section>
         </div>
       </article>
       
@@ -135,6 +125,17 @@
     <div class="detail-overview">
       <div class="detail-copy">
         <h1 id="orbit-detail-title">像素圆环</h1>
+          <section class="inline-experience-section detail-inline-experience" aria-label="像素圆环延伸玩法">
+            <button class="card-experience-toggle" type="button" data-experience-url="https://gsvegetable.github.io/-pixel-orbit/lab.html" data-experience-title="参数实验室" aria-expanded="false" aria-controls="orbit-detail-lab">
+              <span>参数实验室</span><span class="card-experience-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="inline-experience-viewer" id="orbit-detail-lab" hidden>
+              <div class="inline-experience-toolbar"><strong data-experience-heading>参数实验室</strong><button type="button" data-experience-close aria-label="关闭延伸体验">收起 ×</button></div>
+              <iframe data-experience-frame title="像素圆环参数实验室" loading="lazy" allow="fullscreen"></iframe>
+              <a data-experience-fallback target="_blank" rel="noopener noreferrer">如果无法显示，点击在新窗口打开 ↗</a>
+            </div>
+          </section>
+
         <p class="english-title">INTERACTIVE PIXEL WORLD</p>
         <p class="detail-description">一座会随时间变化的像素小世界。拖动圆环或调整时间，观察天空、太阳、月亮、云层与房屋灯光，从清晨、正午一路变化到黄昏与深夜。</p>
         <a class="project-link" href="https://github.com/GSvegetable/-pixel-orbit" target="_blank" rel="noopener noreferrer">
@@ -176,10 +177,10 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <div class="site-version" aria-label="网站版本">v3.3.13</div>
-  <script src="./scripts/main.js?v=3.3.13"></script>
+  <div class="site-version" aria-label="网站版本">v3.3.14</div>
+  <script src="./scripts/main.js?v=3.3.14"></script>
   <script src="./scripts/orbit-versions.js?v=1.2.2"></script>
-  <script src="./scripts/inline-experiences.js?v=1.1.0"></script>
+  <script src="./scripts/inline-experiences.js?v=1.1.1"></script>
   <script>
   (() => {
     const button = document.getElementById('language-toggle');
