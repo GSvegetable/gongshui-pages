@@ -564,10 +564,15 @@ body.view-closing .work-detail.is-active {
 
 
 /* Keep top utility controls out of the way while a work is open. */
-body.viewing .top-utility-actions,
-body.view-closing .top-utility-actions{
+body.viewing .top-utility-actions{
   opacity:0!important;visibility:hidden!important;pointer-events:none!important;
   transition:opacity .16s ease,visibility 0s linear .16s;
+}
+
+/* 关闭动画一开始首页就已重新显露，顶部工具按钮同步出现，不等待作品落位。 */
+body.view-closing .top-utility-actions{
+  opacity:1;visibility:visible;pointer-events:auto;
+  transition:opacity .16s ease,visibility 0s;
 }
 
 /* Settings is a single square icon button, matching the pixel-block controls. */
