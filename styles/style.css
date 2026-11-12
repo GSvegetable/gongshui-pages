@@ -167,7 +167,7 @@ body.view-closing .top-bar { transition: none; }
 
 /* ---------- 页面基础布局 ---------- */
 main { padding: 94px 24px 48px; }
-.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; padding-left:88px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, var(--gallery-card-min, 260px)), 1fr)); gap: 24px; padding-left:88px; }
 
 /* 卡片：缩略态。尺寸 = 边框3 + 内边距8 + 作品框(边框2) */
 .preview-card {
@@ -587,3 +587,9 @@ body.view-closing .top-utility-actions{
  .top-utility-actions .settings-toggle{width:38px;height:38px;min-width:38px;min-height:38px;padding:0}
  .top-utility-actions .settings-toggle svg{width:21px;height:21px}
 }
+
+
+/* Gallery zoom changes the grid's column density, not the site chrome. */
+main{--gallery-card-min:260px}
+.grid{transform-origin:top left}
+.preview-card{touch-action:pan-y}
