@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171717">
+  <title>开发者与贡献者 | 宫水.com</title>
+  <link rel="stylesheet" href="./styles/style.css?v=3.3.7">
+  <style>
+    body { min-height:100vh; background:#171717; color:#f4f0e8; }
+    .contributors-page { width:min(900px,calc(100% - 40px)); margin:0 auto; padding:clamp(76px,12vh,130px) 0 64px; }
+    .contributors-kicker { color:#eab64b; font:800 11px/1.4 ui-monospace,monospace; letter-spacing:2px; }
+    .contributors-page h1 { margin:12px 0 10px; font-size:clamp(32px,6vw,58px); letter-spacing:-1.8px; }
+    .contributors-intro { max-width:560px; color:#bdb4a3; font-size:14px; line-height:1.9; }
+    .contributors-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:42px; }
+    .person { min-height:142px; padding:22px; border:1px solid #494237; border-radius:8px; background:#211f1b; box-shadow:4px 4px 0 #090909; }
+    .person-number { color:#d9a83f; font:700 11px ui-monospace,monospace; }
+    .person h2 { margin:15px 0 7px; font-size:20px; }
+    .person p { margin:0; color:#bdb4a3; font-size:12px; line-height:1.7; }
+    .contributors-back { display:inline-flex; margin-top:38px; padding:12px 16px; border:2px solid #f4bd3c; border-radius:6px; color:#f5ecd9; text-decoration:none; font-size:13px; font-weight:800; box-shadow:3px 3px 0 #080808; }
+    .contributors-back:hover { background:#f4bd3c; color:#211d15; }
+    @media(max-width:600px) { .contributors-page { width:calc(100% - 32px); } .contributors-grid { grid-template-columns:1fr; } .person { min-height:120px; } }
+  </style>
+</head>
+<body>
+  <main class="contributors-page">
+    <div class="contributors-kicker">PEOPLE BEHIND THE WORK</div>
+    <h1>开发者与贡献者</h1>
+    <p class="contributors-intro">每一件作品背后，都有值得感谢的参与者。这里记录宫水.com 的项目发起者、开发者与 AI 协作伙伴。</p>
+    <section class="contributors-grid" aria-label="贡献者名单">
+      <article class="person"><span class="person-number">01 / CREATOR</span><h2>GSvegetable</h2><p>宫水 · 项目发起、产品构思、设计与开发</p></article>
+      <article class="person"><span class="person-number">02 / AI COLLABORATION</span><h2>ChatGPT</h2><p>AI 协作 · 方案讨论、工程实现与优化</p></article>
+      <article class="person"><span class="person-number">03 / AI COLLABORATION</span><h2>DeepSeek</h2><p>AI 协作伙伴</p></article>
+      <article class="person"><span class="person-number">04 / AI COLLABORATION</span><h2>Claude</h2><p>AI 协作伙伴</p></article>
+      <article class="person"><span class="person-number">05 / PROJECT CONTRIBUTOR</span><h2>Ludion-ai</h2><p>海边灯塔项目协作贡献者</p></article>
+    </section>
+    <a class="contributors-back" href="./index.html">← 返回作品主页</a>
+  </main>
+</body>
+</html>
