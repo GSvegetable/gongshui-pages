@@ -28,7 +28,7 @@
   const LOCAL_USERS_KEY = 'site-auth-local-users';
 
   let session = null;          // { accessToken, refreshToken, email }
-  let user = null;             // { email }
+  let user = null;             // { id, email }  id 就是 auth.uid()，RLS 策略靠它匹配
   const listeners = new Set();
 
   const notify = () => listeners.forEach(fn => {
@@ -95,8 +95,8 @@
     const data = await api('/signup', { body: { email, password } });
     // 没开"确认邮箱"的话，signup 会直接返回会话
     if (data.access_token) {
-      storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email });
-      user = { email };
+      storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email, id: data.user && data.user.id });
+      user = { id: data.user && data.user.id, email };
       notify();
       return { email, needConfirm: false };
     }
@@ -105,8 +105,8 @@
 
   const cloudSignIn = async ({ email, password }) => {
     const data = await api('/token?grant_type=password', { body: { email, password } });
-    storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email });
-    user = { email };
+    storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email, id: data.user && data.user.id });
+    user = { id: data.user && data.user.id, email };
     notify();
     return { email, needConfirm: false };
   };
@@ -119,7 +119,7 @@
       session = { accessToken: data.access_token, refreshToken: data.refresh_token, email: saved.email };
       storeSession(session);
       const me = await api('/user', { method: 'GET', token: session.accessToken });
-      user = me && me.email ? { email: me.email } : { email: saved.email };
+      user = { id: (me && me.id) || saved.id, email: (me && me.email) || saved.email };
       notify();
       return user;
     } catch (_) {
@@ -160,8 +160,8 @@
     if (map[key]) throw new Error('这个邮箱已经注册过了');
     map[key] = await hash(password);
     saveLocalUsers(map);
-    storeSession({ accessToken: 'local', refreshToken: 'local', email: key });
-    user = { email: key };
+    storeSession({ accessToken: 'local', refreshToken: 'local', email: key, id: 'local:' + key });
+    user = { id: 'local:' + key, email: key };
     notify();
     return { email: key, needConfirm: false };
   };
@@ -171,8 +171,8 @@
     const key = email.trim().toLowerCase();
     if (!map[key]) throw new Error('邮箱或密码不对');
     if (map[key] !== await hash(password)) throw new Error('邮箱或密码不对');
-    storeSession({ accessToken: 'local', refreshToken: 'local', email: key });
-    user = { email: key };
+    storeSession({ accessToken: 'local', refreshToken: 'local', email: key, id: 'local:' + key });
+    user = { id: 'local:' + key, email: key };
     notify();
     return { email: key, needConfirm: false };
   };
@@ -183,8 +183,8 @@
     const map = localUsers();
     const key = String(saved.email || '').toLowerCase();
     if (!map[key]) return null;
-    user = { email: key };
-    storeSession({ accessToken: 'local', refreshToken: 'local', email: key });
+    user = { id: 'local:' + key, email: key };
+    storeSession({ accessToken: 'local', refreshToken: 'local', email: key, id: 'local:' + key });
     notify();
     return user;
   };
@@ -210,6 +210,9 @@
     signIn,
     signOut,
     getUser: () => user,
+    getToken: () => (session && session.accessToken) || '',
+    // access_token 过期时用它换新的（数据库请求 401 时会用到）
+    refreshSession: () => (cloud ? refresh() : Promise.resolve(user)),
     restore,
     onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); }
   };

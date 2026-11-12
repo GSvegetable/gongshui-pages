@@ -77,6 +77,7 @@
     if (previous) previous.classList.remove('is-visible');
     updateButtons(scene);
     try { localStorage.setItem(storageKey, scene); } catch (_) {}
+    window.siteSync?.patchPrefs({ orbitScene: scene });
   };
 
   const registerFrame = (frame, scene) => {

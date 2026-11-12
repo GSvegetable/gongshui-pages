@@ -249,6 +249,7 @@ syncSearchUI();
     if (!pinchStart) return;
     pinchStart = null;
     try { localStorage.setItem('ui-archive-gallery-zoom',String(cardMin)); } catch (_) {}
+    window.siteSync?.patchPrefs({ zoom: cardMin });
   };
   document.addEventListener('touchend', clearPinch, {passive:true,capture:true});
   document.addEventListener('touchcancel', clearPinch, {passive:true,capture:true});
@@ -257,6 +258,7 @@ syncSearchUI();
     event.preventDefault();
     applyZoom(cardMin * Math.exp(-event.deltaY * .003),event.clientX,event.clientY);
     try { localStorage.setItem('ui-archive-gallery-zoom',String(cardMin)); } catch (_) {}
+    window.siteSync?.patchPrefs({ zoom: cardMin });
   }, {passive:false});
 })();
 
@@ -645,12 +647,19 @@ syncSearchUI();
     else AppState.bookmarks.push(id);
     saveBookmarks();
     updateBookmarkBtn();
+    window.siteSync?.setBookmark(id, index === -1);
   });
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && mode === 'open') {
       if (expanded) toggleExpand(); else closeWork();
     }
+  });
+
+  // 登录后从云端拉回收藏，刷新一次列表
+  document.addEventListener('site:synced', () => {
+    renderGallery();
+    updateBookmarkBtn();
   });
 
   // 语言切换后刷新动态文案：搜索状态、空状态、放大按钮标签
@@ -699,21 +708,34 @@ syncSearchUI();
     sceneChoices.forEach(btn => {
       btn.addEventListener('click', e => {
         e.stopPropagation();
-        selectedScene = btn.dataset.sceneChoice;
-        try { localStorage.setItem('pds-gallery-scene', selectedScene); } catch (_) {}
-        updateScenes();
-
-        const mount = document.querySelector('#lighthouse-card .preview-mount');
-        const rootEl = mount?.querySelector('[data-ld-part="toggle-daylight"]');
-        if (rootEl) {
-          rootEl.dataset.scene = selectedScene;
-          const api = window.PixelDaylightSwitch;
-          if (api && typeof api.unmount === 'function' && typeof api.mount === 'function') {
-            api.unmount(rootEl); api.mount(rootEl);
-          }
-        }
+        applyScene(btn.dataset.sceneChoice);
       });
     });
+
+    const applyScene = value => {
+      if (!validScenes.has(value)) return;
+      selectedScene = value;
+      try { localStorage.setItem('pds-gallery-scene', selectedScene); } catch (_) {}
+      updateScenes();
+
+      const mount = document.querySelector('#lighthouse-card .preview-mount');
+      const rootEl = mount?.querySelector('[data-ld-part="toggle-daylight"]');
+      if (rootEl) {
+        rootEl.dataset.scene = selectedScene;
+        const api = window.PixelDaylightSwitch;
+        if (api && typeof api.unmount === 'function' && typeof api.mount === 'function') {
+          api.unmount(rootEl); api.mount(rootEl);
+        }
+      }
+      window.siteSync?.patchPrefs({ pdsScene: selectedScene });
+    };
+
+    // 给账号同步用：读/写灯塔场景
+    window.sitePdsScene = {
+      get: () => selectedScene,
+      set: value => applyScene(value)
+    };
+
     updateScenes();
   }
 
