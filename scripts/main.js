@@ -452,6 +452,7 @@ syncSearchUI();
       mode = 'open';
       const labRow = card.querySelector('.card-inline-experience');
       if (labRow) {
+        if (work.labRevealAnimation) work.labRevealAnimation.cancel();
         labRow.style.maxHeight = '56px';
         labRow.style.opacity = '1';
         labRow.style.transform = 'none';
