@@ -7,6 +7,7 @@
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
   <link rel="stylesheet" href="./styles/style.css?v=3.1.0" />
+  <link rel="stylesheet" href="./styles/orbit-art.css?v=1.0.0" />
 </head>
 <body>
   <aside id="mario-nav" aria-label="快捷导航">
@@ -46,7 +47,7 @@
       <!-- 作品 2 -->
       <article class="preview-card" id="pixel-orbit-card" data-id="pixel-orbit" data-detail="orbit-detail-panel" tabindex="0" aria-label="打开像素圆环作品详情">
         <div class="preview-mount">
-          <iframe src="https://gsvegetable.github.io/-pixel-orbit/showcase.html" title="Pixel Orbit 像素圆环作品展示" loading="lazy" allow="fullscreen"></iframe>
+          <iframe src="https://gsvegetable.github.io/-pixel-orbit/showcase.html?composition=art" title="Pixel Orbit 像素圆环作品展示" loading="lazy" allow="fullscreen"></iframe>
         </div>
         <div class="card-info"><span class="card-title">像素圆环</span></div>
       </article>
@@ -108,6 +109,16 @@
       <p class="orbit-detail-kicker">INTERACTIVE PIXEL WORLD</p>
       <h1 id="orbit-detail-title">像素圆环</h1>
       <p class="orbit-detail-subtitle">昼夜流转 · 互动作品</p>
+      <div class="orbit-version-switch" role="group" aria-label="选择像素圆环展示版本">
+        <button type="button" class="orbit-version-option is-active" data-orbit-version="art" aria-pressed="true">
+          <span class="orbit-version-name">艺术裁切版</span>
+          <span class="orbit-version-note">放大构图 · 上半部呈现</span>
+        </button>
+        <button type="button" class="orbit-version-option" data-orbit-version="full" aria-pressed="false">
+          <span class="orbit-version-name">完整展示版</span>
+          <span class="orbit-version-note">完整圆环 · 居中呈现</span>
+        </button>
+      </div>
       <p>一座会随时间变化的像素小世界。拖动圆环或调整时间，观察天空、太阳、月亮、云层与房屋灯光，从清晨、正午一路变化到黄昏与深夜。</p>
       <div class="orbit-detail-facts">
         <div><span>核心体验</span><strong>24 小时昼夜循环</strong></div>
@@ -133,5 +144,6 @@
   </div>
   <div class="site-version" aria-label="网站版本">v3.1.0</div>
   <script src="./scripts/main.js?v=3.1.0"></script>
+  <script src="./scripts/orbit-versions.js?v=1.0.0"></script>
 </body>
 </html>
