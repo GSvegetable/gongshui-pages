@@ -545,3 +545,19 @@ body.view-closing .work-detail.is-active {
 .contributor-list{border:0!important}
 .contributor-list + .lab-links{border:0!important;border-top:1px solid rgba(41,35,25,.28)!important;margin-top:18px;padding-top:8px}
 .contributor-list + .lab-links::before,.contributor-list + .lab-links::after{content:none!important;display:none!important}
+
+
+/* Settings menu */
+.top-utility-actions .settings-toggle{position:static;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:0 12px;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
+.top-utility-actions .settings-toggle:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #000;background:#ffd36a}
+.top-utility-actions .settings-toggle:active{transform:translate(3px,4px);box-shadow:none}
+.settings-panel{position:absolute;top:calc(100% + 12px);right:0;width:230px;padding:14px;background:#f4ecd9;color:#211d15;border:3px solid #080808;border-radius:3px;box-shadow:5px 6px 0 #000;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.settings-panel[hidden]{display:none}
+.settings-panel-title{display:flex;justify-content:space-between;align-items:center;padding-bottom:11px;border-bottom:2px solid #211d15;font-size:13px;font-weight:900}
+.settings-panel-title span{font-size:9px;opacity:.55;letter-spacing:1px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;font-size:11px;font-weight:800}
+.top-utility-actions .settings-panel .language-toggle{position:static;min-width:48px;min-height:32px;padding:0 9px;border:2px solid #080808;border-radius:2px;background:#f4bd3c;color:#211d15;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;box-shadow:2px 3px 0 #000;cursor:pointer}
+@media(max-width:600px){
+ .top-utility-actions .settings-toggle{min-height:34px;padding:0 9px;border-width:2px;font-size:10px;box-shadow:2px 3px 0 #000}
+ .settings-panel{top:calc(100% + 9px);width:215px;padding:12px}
+}
