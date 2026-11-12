@@ -663,3 +663,38 @@ main{--gallery-card-min:260px}
   transform:translateY(0);
   transition:max-height .52s cubic-bezier(.2,.75,.25,1),opacity .32s ease .08s,transform .42s cubic-bezier(.2,.75,.25,1),margin .42s ease,visibility 0s;
 }
+
+
+/* v3.3.17 — stabilize the artwork's live scale and reveal the lab during the opening motion. */
+/* Ease the per-frame ResizeObserver scale updates on the embedded artwork to avoid
+   sub-pixel shimmer while the card is moving and resizing. */
+.preview-card.is-animating .preview-mount > :not(script):not(style){
+  transition:transform 90ms linear !important;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+}
+
+/* The lab row has a real, measured reveal distance (rather than jumping after a
+   long visibility delay). Its compact row opens with the card; the iframe area
+   gets the larger height only when the user expands the lab itself. */
+.card-inline-experience{
+  max-height:0;
+  visibility:hidden;
+  transition:max-height .46s cubic-bezier(.22,.8,.2,1),
+             opacity .34s ease,
+             transform .46s cubic-bezier(.22,.8,.2,1),
+             visibility 0s linear 0s;
+}
+.preview-card.is-open .card-inline-experience{
+  max-height:56px;
+  visibility:visible;
+  opacity:1;
+  transform:translateY(0);
+  transition:max-height .46s cubic-bezier(.22,.8,.2,1),
+             opacity .34s ease .02s,
+             transform .46s cubic-bezier(.22,.8,.2,1),
+             visibility 0s;
+}
+.preview-card.is-open .card-inline-experience:has(.card-experience-toggle[aria-expanded="true"]){
+  max-height:1100px;
+}
