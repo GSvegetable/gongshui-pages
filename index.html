@@ -331,7 +331,9 @@
 
     const apply = lang => {
       targets.forEach(([key, selector, attr]) => {
-        put(key, document.querySelector(selector), attr, lang);
+        // 一个选择器可能命中多个元素（比如两个详情面板各有一个贡献者按钮），
+        // 以前只用 querySelector 取第一个，第二个面板在英文态就留了中文。
+        document.querySelectorAll(selector).forEach(el => put(key, el, attr, lang));
       });
       document.querySelectorAll('[data-orbit-version]').forEach(el => {
         const pair = orbitVersions[el.dataset.orbitVersion];
