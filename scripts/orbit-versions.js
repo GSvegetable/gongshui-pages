@@ -1,4 +1,4 @@
-/* Pixel Orbit scene switcher — v1.2.1
+/* Pixel Orbit scene switcher — v1.2.2
    Keep both scenes mounted so switching never waits for a fresh iframe navigation. */
 (() => {
   const card = document.getElementById('pixel-orbit-card');
