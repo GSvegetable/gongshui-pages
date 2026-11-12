@@ -605,3 +605,17 @@ main{--gallery-card-min:260px}
 /* Detail facts were removed; let the remaining project description use the full row. */
 .detail-overview { grid-template-columns:minmax(0,1fr); }
 .detail-copy { max-width:none; }
+
+
+/* v3.3.13 — Pixel Orbit lab sits directly beneath its title on the work card. */
+.orbit-card-info{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:8px;cursor:default}
+.orbit-card-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%}
+.card-experience-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:7px 2px 2px;border:0;background:transparent;color:#71501d;text-align:left;font:800 11px/1.4 inherit;cursor:pointer}
+.card-experience-toggle span:first-child{font-size:11px;letter-spacing:.3px}
+.card-experience-chevron{font-size:15px;transition:transform .2s ease}
+.card-experience-toggle[aria-expanded="true"] .card-experience-chevron{transform:rotate(180deg)}
+.card-inline-experience{width:100%;margin:0}
+.card-inline-experience .inline-experience-viewer{margin-top:8px}
+.card-inline-experience .inline-experience-viewer iframe{height:min(62vh,620px);min-height:320px}
+.preview-card.is-open .orbit-card-info{opacity:0;pointer-events:none}
+@media(max-width:600px){.card-inline-experience .inline-experience-viewer iframe{height:58vh;min-height:280px}}
