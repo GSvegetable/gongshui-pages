@@ -278,7 +278,9 @@ syncSearchUI();
 
   /* ---------- 可切换展示构图的作品：打开时完整显示，关闭时回到首页裁切 ---------- */
   const setComposition = (work, composition) => {
-    const frames = work?.mount?.querySelectorAll('iframe[data-composition-frame]');
+    if (!work || (composition !== 'art' && composition !== 'full')) return;
+    work.card.dataset.composition = composition;
+    const frames = work.mount?.querySelectorAll('iframe[data-composition-frame]');
     frames?.forEach(frame => {
       frame.contentWindow?.postMessage({ type: 'pixel-orbit-composition', composition }, '*');
     });
