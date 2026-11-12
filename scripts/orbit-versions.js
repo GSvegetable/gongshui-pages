@@ -70,14 +70,28 @@
     incomingFrame = next;
     stack.appendChild(next);
 
-    next.addEventListener('load', () => {
+    const onArtworkReady = event => {
+      if (event.source !== next.contentWindow || !event.data || event.data.type !== 'pixel-orbit-ready') return;
       if (incomingFrame !== next) return;
+      window.removeEventListener('message', onArtworkReady);
+
       const previous = activeFrame;
       activeFrame = next;
       incomingFrame = null;
       next.classList.add('is-visible');
       previous.classList.remove('is-visible');
       window.setTimeout(() => previous.remove(), 520);
+    };
+
+    // Keep the old scene visible until the new scene has actually painted.
+    // iframe load alone only means its document loaded; canvas rendering may still be blank.
+    window.addEventListener('message', onArtworkReady);
+    next.addEventListener('error', () => {
+      window.removeEventListener('message', onArtworkReady);
+      if (incomingFrame === next) {
+        next.remove();
+        incomingFrame = null;
+      }
     }, { once: true });
   };
 
