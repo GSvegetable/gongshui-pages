@@ -29,7 +29,25 @@
 
   let activeFrame = originalFrame;
   let incomingFrame = null;
+  let pendingReadyHandler = null;
+  let pendingReadyTimeout = null;
   activeFrame.classList.add('is-visible');
+
+  // Cancel an unfinished preload cleanly, including its message listener and timeout.
+  const clearIncoming = () => {
+    if (pendingReadyHandler) {
+      window.removeEventListener('message', pendingReadyHandler);
+      pendingReadyHandler = null;
+    }
+    if (pendingReadyTimeout !== null) {
+      window.clearTimeout(pendingReadyTimeout);
+      pendingReadyTimeout = null;
+    }
+    if (incomingFrame) {
+      incomingFrame.remove();
+      incomingFrame = null;
+    }
+  };
 
   const updateButtons = scene => {
     buttons.forEach(button => {
@@ -48,17 +66,11 @@
     const activeScene = new URL(activeFrame.src, location.href).searchParams.get('scene') === 'planet'
       ? 'planet' : 'countryside';
     if (scene === activeScene) {
-      if (incomingFrame) {
-        incomingFrame.remove();
-        incomingFrame = null;
-      }
+      clearIncoming();
       return;
     }
 
-    if (incomingFrame) {
-      incomingFrame.remove();
-      incomingFrame = null;
-    }
+    clearIncoming();
 
     const next = document.createElement('iframe');
     next.title = scene === 'planet' ? 'Pixel Orbit 星球版' : 'Pixel Orbit 田园版';
@@ -75,6 +87,11 @@
       if (event.source !== next.contentWindow || !event.data || event.data.type !== 'pixel-orbit-ready') return;
       if (incomingFrame !== next) return;
       window.removeEventListener('message', onArtworkReady);
+      pendingReadyHandler = null;
+      if (pendingReadyTimeout !== null) {
+        window.clearTimeout(pendingReadyTimeout);
+        pendingReadyTimeout = null;
+      }
 
       const previous = activeFrame;
       activeFrame = next;
@@ -86,13 +103,16 @@
 
     // Keep the old scene visible until the new scene has actually painted.
     // iframe load alone only means its document loaded; canvas rendering may still be blank.
+    pendingReadyHandler = onArtworkReady;
     window.addEventListener('message', onArtworkReady);
+
+    // If a scene fails or never becomes paint-ready, keep the working scene visible.
+    pendingReadyTimeout = window.setTimeout(() => {
+      if (incomingFrame === next) clearIncoming();
+    }, 15000);
+
     next.addEventListener('error', () => {
-      window.removeEventListener('message', onArtworkReady);
-      if (incomingFrame === next) {
-        next.remove();
-        incomingFrame = null;
-      }
+      if (incomingFrame === next) clearIncoming();
     }, { once: true });
   };
 
