@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#171717" />
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="./styles/style.css?v=3.3.21" />
+  <link rel="stylesheet" href="./styles/style.css?v=3.3.22" />
   <link rel="stylesheet" href="./styles/orbit-art.css?v=1.1.9" />
 </head>
 <body>
@@ -59,7 +59,7 @@
       <!-- 作品 2 -->
       <article class="preview-card" id="pixel-orbit-card" data-id="pixel-orbit" data-tags="像素风" data-detail="orbit-detail-panel" tabindex="0" aria-label="打开像素圆环作品详情">
         <div class="preview-mount">
-          <iframe data-composition-frame src="https://gsvegetable.github.io/-pixel-orbit/showcase.html?v=1.3.5&scene=planet&composition=art" title="Pixel Orbit 像素圆环作品展示" loading="lazy" allow="fullscreen"></iframe>
+          <iframe data-composition-frame src="https://gsvegetable.github.io/-pixel-orbit/showcase.html?v=1.3.6&scene=planet&composition=art" title="Pixel Orbit 像素圆环作品展示" loading="lazy" allow="fullscreen"></iframe>
         </div>
         <div class="card-info orbit-card-info">
           <div class="orbit-card-heading"><span class="card-title">像素圆环</span><span class="work-tags"><span class="work-tag">像素风</span></span></div>
@@ -147,9 +147,9 @@
 
     </div>
     <div class="gallery-heading">
-      <h2>场景选择</h2>
+      <h2>视觉版本</h2>
     </div>
-    <div class="scene-picker orbit-version-picker" role="group" aria-label="选择像素圆环展示版本">
+    <div class="scene-picker orbit-version-picker" role="group" aria-label="选择像素圆环视觉版本">
       <button type="button" class="scene-choice orbit-scene-choice is-active" data-orbit-version="planet" aria-label="切换到星球版" aria-pressed="true">
         <span class="scene-thumb orbit-scene-thumb orbit-thumb-planet" aria-hidden="true"></span>
         <strong>星球版</strong>
@@ -159,6 +159,11 @@
         <span class="scene-thumb orbit-scene-thumb orbit-thumb-countryside" aria-hidden="true"></span>
         <strong>田园版</strong>
         <span class="orbit-scene-note">乡间小屋 · 昼夜变化</span>
+      </button>
+      <button type="button" class="scene-choice orbit-scene-choice" data-orbit-version="world" aria-label="切换到环形世界版" aria-pressed="false">
+        <span class="scene-thumb orbit-scene-thumb orbit-thumb-world" aria-hidden="true"></span>
+        <strong>环形世界版</strong>
+        <span class="orbit-scene-note">168 像素 · 昼夜旋钮</span>
       </button>
     </div>
     <section class="lab-links contributor-list" aria-label="开发者与贡献者">
@@ -178,10 +183,10 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <div class="site-version" aria-label="网站版本">v3.3.21</div>
-  <script src="./scripts/main.js?v=3.3.21"></script>
-  <script src="./scripts/orbit-versions.js?v=1.2.3"></script>
-  <script src="./scripts/inline-experiences.js?v=1.1.2"></script>
+  <div class="site-version" aria-label="网站版本">v3.3.22</div>
+  <script src="./scripts/main.js?v=3.3.22"></script>
+  <script src="./scripts/orbit-versions.js?v=1.3.6"></script>
+  <script src="./scripts/inline-experiences.js?v=1.1.3"></script>
   <script>
   (() => {
     const button = document.getElementById('language-toggle');

@@ -722,3 +722,17 @@ main{--gallery-card-min:260px}
   visibility:visible;
   pointer-events:auto;
 }
+
+
+/* v3.3.22 — three distinct Pixel Orbit editions and a genuinely expandable lab. */
+.orbit-thumb-world{
+  background:radial-gradient(circle at 50% 46%,#f7d98c 0 12%,#bd8a43 13% 19%,#27365c 20% 34%,#11172f 35% 100%);
+  position:relative;
+}
+.orbit-thumb-world::after{
+  content:"";position:absolute;inset:20%;border:2px solid rgba(255,224,150,.82);
+  border-radius:50%;box-shadow:0 0 0 3px rgba(239,160,44,.18),0 0 12px rgba(239,160,44,.35);
+}
+.preview-card.is-open .card-inline-experience:has(.card-experience-toggle[aria-expanded="true"]){
+  max-height:none!important;overflow:visible!important;
+}

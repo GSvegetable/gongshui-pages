@@ -294,7 +294,7 @@ syncSearchUI();
         // 卡片在动画里每一帧改变大小，这里同一帧内就把内容的 scale 跟上，不会错一帧
         entries.forEach(entry => {
           const work = byMount.get(entry.target);
-          if (work) setScale(work, entry.contentRect.width);
+          if (work && !work.card.classList.contains('is-animating')) setScale(work, entry.contentRect.width);
         });
       })
     : null;
@@ -404,12 +404,23 @@ syncSearchUI();
       ));
     }
 
-    const token = { animations, cancelled: false };
+    const token = { animations, cancelled: false, scaleFrame: 0 };
     anim = token;
+
+    // ResizeObserver callbacks can arrive between compositor frames and produce
+    // tiny scale oscillations. Read the animated mount in the same rAF timeline.
+    const syncAnimatedScale = () => {
+      if (token.cancelled || !card.classList.contains('is-animating')) return;
+      setScale(work, work.mount.getBoundingClientRect().width - 4);
+      token.scaleFrame = requestAnimationFrame(syncAnimatedScale);
+    };
+    token.scaleFrame = requestAnimationFrame(syncAnimatedScale);
 
     Promise.all(animations.map(a => a.finished)).then(() => {
       if (token.cancelled) return;
       anim = null;
+      cancelAnimationFrame(token.scaleFrame);
+      setScale(work, work.mount.getBoundingClientRect().width - 4);
       card.classList.remove('is-animating');
       if (done) done();
     }).catch(() => {});
@@ -419,6 +430,7 @@ syncSearchUI();
     if (!anim) return;
     anim.cancelled = true;
     anim.animations.forEach(a => a.cancel());
+    cancelAnimationFrame(anim.scaleFrame);
     anim = null;
     if (current) current.card.classList.remove('is-animating');
   };

@@ -1,4 +1,4 @@
-/* Inline extended experiences — v1.1.2 */
+/* Inline extended experiences — v1.1.3 */
 (() => {
   document.querySelectorAll('.inline-experience-section').forEach(section => {
     const viewer = section.querySelector('.inline-experience-viewer');
@@ -14,6 +14,10 @@
       const url = button.dataset.experienceUrl;
       if (!url) return;
       if (cardToggle) cardToggle.setAttribute('aria-expanded', 'true');
+      // The opening FLIP timeline leaves an inline 56px cap on this row.
+      // Release that cap when the lab is requested so the iframe can use its full height.
+      section.style.maxHeight = 'none';
+      section.style.overflow = 'visible';
       choices.forEach(item => {
         const active = item === button;
         item.classList.toggle('is-active', active);
@@ -28,6 +32,8 @@
 
     const dismiss = () => {
       viewer.hidden = true;
+      section.style.maxHeight = cardToggle?.closest('.preview-card.is-open') ? '56px' : '';
+      section.style.overflow = 'visible';
       frame.removeAttribute('src');
       if (cardToggle) cardToggle.setAttribute('aria-expanded', 'false');
       choices.forEach(item => {

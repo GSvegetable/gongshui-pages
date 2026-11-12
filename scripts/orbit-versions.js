@@ -87,26 +87,23 @@
     ping();
   };
 
-  // Reuse the already-running document as one half of the two-scene pair.
+  // Keep all three editions mounted so every choice is an immediate cross-fade.
   registerFrame(originalFrame, initialScene);
+  originalFrame.addEventListener('error', () => ready.delete(initialScene));
 
-  const otherScene = initialScene === 'planet' ? 'countryside' : 'planet';
-  const preload = document.createElement('iframe');
-  preload.title = otherScene === 'planet' ? 'Pixel Orbit 星球版' : 'Pixel Orbit 田园版';
-  preload.dataset.compositionFrame = '';
-  preload.loading = 'eager';
-  preload.allow = 'fullscreen';
-  preload.className = 'orbit-frame-preload';
-  registerFrame(preload, otherScene);
-
-  preload.src = sourceFor(otherScene);
-
-  originalFrame.addEventListener('error', () => {
-    ready.delete(initialScene);
-  });
-  preload.addEventListener('error', () => {
-    ready.delete(otherScene);
-    if (pendingScene === otherScene) pendingScene = null;
+  [...valid].filter(scene => scene !== initialScene).forEach(scene => {
+    const preload = document.createElement('iframe');
+    preload.title = scene === 'planet' ? 'Pixel Orbit 星球版' : scene === 'world' ? 'Pixel Orbit 环形世界版' : 'Pixel Orbit 田园版';
+    preload.dataset.compositionFrame = '';
+    preload.loading = 'eager';
+    preload.allow = 'fullscreen';
+    preload.className = 'orbit-frame-preload';
+    registerFrame(preload, scene);
+    preload.addEventListener('error', () => {
+      ready.delete(scene);
+      if (pendingScene === scene) pendingScene = null;
+    });
+    preload.src = sourceFor(scene);
   });
 
   updateButtons(selected);
