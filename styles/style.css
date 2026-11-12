@@ -217,6 +217,30 @@ main { padding: 94px 24px 48px; }
 /* 只在动画期间让内容独占合成层，缩放全交给 GPU；动画结束就释放，让它按最终大小重新清晰渲染 */
 .preview-card.is-animating .preview-mount > :not(script):not(style) { will-change: transform; }
 
+/* ---------- Pixel Orbit: real cross-fade between fully painted scenes ---------- */
+/* The existing fixed stage scales this stack as one surface; both frames share it. */
+.orbit-frame-stack {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+.orbit-frame-stack > iframe {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.orbit-frame-stack > iframe.is-visible { opacity: 1; }
+
 /* ---------- 卡片底部文字 ---------- */
 .card-info {
   display: flex;
@@ -231,21 +255,33 @@ main { padding: 94px 24px 48px; }
 }
 .card-title { font-size: 13px; font-weight: 900; letter-spacing: 1px; }
 .preview-card.is-open .card-title { font-size: 18px; }
-.work-tags { display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.work-tags { display:inline-flex; align-items:center; gap:7px; flex-wrap:wrap; }
 .work-tag {
-  display:inline-flex; align-items:center;
-  padding:3px 8px;
-  border:1px solid #9c8354;
-  border-radius:3px;
-  background:#f6e8bd;
-  color:#66502b;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:5px 11px 5px 9px;
+  border:1px solid #b98a35;
+  border-radius:999px;
+  background:linear-gradient(135deg, #293957 0%, #17243d 100%);
+  color:#fff0c7;
+  box-shadow:0 2px 0 rgba(104,72,24,.28), inset 0 1px 0 rgba(255,255,255,.12);
   font-size:10px;
-  font-weight:800;
-  line-height:1.2;
-  letter-spacing:.5px;
+  font-weight:850;
+  line-height:1.25;
+  letter-spacing:.7px;
   white-space:nowrap;
 }
-.preview-card.is-open .work-tag { font-size:11px; }
+.work-tag::before {
+  content:"";
+  width:6px;
+  height:6px;
+  flex:0 0 6px;
+  border-radius:1px;
+  background:#f4bd4b;
+  box-shadow:4px 0 0 #f4bd4b, 0 4px 0 #d99132, 4px 4px 0 #d99132;
+}
+.preview-card.is-open .work-tag { padding:6px 12px 6px 10px; font-size:11px; }
 
 /* ---------- 空状态 ---------- */
 .empty-state {
