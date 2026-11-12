@@ -6,25 +6,24 @@
   <meta name="theme-color" content="#171717" />
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="./styles/style.css?v=3.3.25" />
+  <link rel="stylesheet" href="./styles/style.css?v=3.3.27" />
   <link rel="stylesheet" href="./styles/orbit-art.css?v=1.1.9" />
-  <link rel="stylesheet" href="./styles/work-index.css?v=1.0.0" />
 </head>
 <body>
   <aside id="mario-nav" aria-label="快捷导航">
     <button class="mario-block block-q active" id="nav-home" type="button" aria-label="主页" aria-pressed="true">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
     </button>
-    <button class="mario-block block-brick" id="nav-index" type="button" aria-label="指南针" aria-expanded="false" aria-controls="index-panel">
+    <a class="mario-block block-brick" id="nav-index" href="./compass.html" aria-label="指南针">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
-    </button>
+    </a>
     <button class="mario-block block-coin" id="nav-bookmark" type="button" aria-label="收藏" aria-pressed="false">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
     </button>
   </aside>
 
 
-  <div class="top-utility-actions">
+  <div class="top-utility-actions" id="top-utility">
     <a class="contributors-home-link" href="./contributors.html" aria-label="开发者与贡献者">开发者与贡献者</a>
     <button class="settings-toggle" id="settings-toggle" type="button" aria-label="设置" aria-expanded="false" aria-controls="settings-panel" title="设置">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8.25a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5Z"/><path d="M10.1 2.8h3.8l.55 2.15c.55.2 1.06.5 1.52.88l2.12-.63 1.9 3.3-1.57 1.56c.08.6.08 1.2 0 1.8L20 13.42l-1.9 3.3-2.12-.63c-.46.38-.97.68-1.52.88l-.55 2.15h-3.8l-.55-2.15a7.1 7.1 0 0 1-1.52-.88l-2.12.63-1.9-3.3 1.57-1.56a6.8 6.8 0 0 1 0-1.8L4.02 8.5l1.9-3.3 2.12.63c.46-.38.97-.68 1.52-.88L10.1 2.8Z"/></svg>
@@ -39,7 +38,6 @@
     <div class="search-wrapper" id="search-wrapper">
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"></circle><path d="m16.5 16.5 4 4"></path></svg>
       <input type="search" id="search-input" placeholder="搜索作品…" aria-label="搜索作品" aria-controls="lighthouse-card" autocomplete="off" spellcheck="false">
-      <span class="search-shortcut" id="search-hint" aria-hidden="true">/</span>
       <button class="search-clear" id="search-clear" type="button" aria-label="清除搜索" title="清除搜索" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"></path></svg>
       </button>
@@ -64,17 +62,6 @@
         </div>
         <div class="card-info orbit-card-info">
           <div class="orbit-card-heading"><span class="card-title">像素圆环</span><span class="work-tags"><span class="work-tag">像素风</span></span></div>
-          <section class="inline-experience-section card-inline-experience" aria-label="像素圆环延伸玩法">
-            <button class="card-experience-toggle" type="button" data-experience-url="https://gsvegetable.github.io/-pixel-orbit/lab.html" data-experience-title="参数实验室" aria-expanded="false" aria-controls="orbit-card-lab">
-              <span>参数实验室</span><span class="card-experience-chevron" aria-hidden="true">▾</span>
-            </button>
-            <div class="inline-experience-viewer" id="orbit-card-lab" hidden>
-              <div class="inline-experience-toolbar"><strong data-experience-heading>参数实验室</strong><button type="button" data-experience-close aria-label="关闭延伸体验">收起 ×</button></div>
-              <iframe data-experience-frame title="像素圆环参数实验室" loading="lazy" allow="fullscreen"></iframe>
-              <a data-experience-fallback target="_blank" rel="noopener noreferrer">如果无法显示，点击在新窗口打开 ↗</a>
-            </div>
-          </section>
-
         </div>
       </article>
       
@@ -96,10 +83,16 @@
         <h1 id="detail-title">像素昼夜开关</h1>
         <p class="english-title">Pixel Daylight Switch</p>
         <p class="detail-description">一个装在折射玻璃开关里的微缩像素世界。拖动开关，像素场景会从白天经过黄昏自然过渡到夜晚；海边灯塔是其中一个可交互场景。</p>
-        <a class="project-link" href="https://github.com/GSvegetable/pixel-daylight-switch" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.1c-3.1.67-3.76-1.32-3.76-1.32-.5-1.28-1.23-1.62-1.23-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.7 1.15 1.7 1.15.99 1.69 2.6 1.2 3.23.92.1-.72.39-1.2.7-1.48-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.21 1.15-2.99-.12-.28-.5-1.42.11-2.95 0 0 .94-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.44 3.05-1.14 3.05-1.14.61 1.53.23 2.67.11 2.95.72.78 1.15 1.77 1.15 2.99 0 4.29-2.61 5.23-5.1 5.51.4.35.75 1.03.75 2.08v3.08c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/></svg>
-          <span>查看 GitHub 项目</span><span class="link-arrow">↗</span>
-        </a>
+        <div class="detail-actions">
+          <a class="project-link" href="https://github.com/GSvegetable/pixel-daylight-switch" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.1c-3.1.67-3.76-1.32-3.76-1.32-.5-1.28-1.23-1.62-1.23-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.7 1.15 1.7 1.15.99 1.69 2.6 1.2 3.23.92.1-.72.39-1.2.7-1.48-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.21 1.15-2.99-.12-.28-.5-1.42.11-2.95 0 0 .94-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.44 3.05-1.14 3.05-1.14.61 1.53.23 2.67.11 2.95.72.78 1.15 1.77 1.15 2.99 0 4.29-2.61 5.23-5.1 5.51.4.35.75 1.03.75 2.08v3.08c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/></svg>
+            <span>查看 GitHub 项目</span><span class="link-arrow">↗</span>
+          </a>
+          <a class="creator-link" href="./contributors.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.4 19.6c0-3.1 2.5-5.2 5.6-5.2s5.6 2.1 5.6 5.2"></path><path d="M16.1 5.6a3.2 3.2 0 0 1 0 6"></path><path d="M17.6 14.6c1.9.7 3 2.4 3 5"></path></svg>
+            <span class="creator-link-label">开发者与贡献者</span><span class="link-arrow">↗</span>
+          </a>
+        </div>
       </div>
 
     </div>
@@ -113,23 +106,8 @@
       <button class="scene-choice" type="button" data-scene-choice="seaside" aria-label="切换到海边灯塔" aria-pressed="false"><span class="scene-thumb thumb-seaside" aria-hidden="true"></span><strong>海边灯塔</strong></button>
       <button class="scene-choice" type="button" data-scene-choice="mountain-cabin" aria-label="切换到山间木屋" aria-pressed="false"><span class="scene-thumb thumb-mountain-cabin" aria-hidden="true"></span><strong>山间木屋</strong></button>
     </div>
-    <section class="lab-links contributor-list" aria-label="开发者与贡献者">
-      <h2>开发者与贡献者</h2>
-      <div class="contributor"><strong>GSvegetable</strong><span>项目发起 · 设计与开发</span></div>
-      <div class="contributor"><strong>Ludion-ai</strong><span>海边灯塔项目协作贡献</span></div>
-    </section>
     <section class="lab-links inline-experience-section" aria-label="延伸体验">
       <h2>延伸体验</h2>
-      <div class="inline-experience-list">
-        <button type="button" data-experience-url="https://gsvegetable.github.io/pixel-daylight-switch/demos/playground.html" data-experience-title="交互参数实验室"><span class="experience-label">交互参数实验室</span> <span class="experience-cta">展开体验</span></button>
-        <button type="button" data-experience-url="https://gsvegetable.github.io/pixel-daylight-switch/demos/glass-engine.html" data-experience-title="玻璃折射实验室"><span class="experience-label">玻璃折射实验室</span> <span class="experience-cta">展开体验</span></button>
-        <button type="button" data-experience-url="https://gsvegetable.github.io/pixel-daylight-switch/demos/preview.html" data-experience-title="组件预览"><span class="experience-label">组件预览</span> <span class="experience-cta">展开体验</span></button>
-      </div>
-      <div class="inline-experience-viewer" hidden>
-        <div class="inline-experience-toolbar"><strong data-experience-heading>体验预览</strong><button type="button" data-experience-close aria-label="关闭延伸体验">关闭 ×</button></div>
-        <iframe data-experience-frame title="延伸体验" loading="lazy" allow="fullscreen"></iframe>
-        <a data-experience-fallback target="_blank" rel="noopener noreferrer">如果无法显示，点击在新窗口打开 ↗</a>
-      </div>
     </section>
   </section>
 
@@ -140,10 +118,16 @@
 
         <p class="english-title">INTERACTIVE PIXEL WORLD</p>
         <p class="detail-description">一座会随时间变化的像素小世界。拖动圆环或调整时间，观察天空、太阳、月亮、云层与房屋灯光，从清晨、正午一路变化到黄昏与深夜。</p>
-        <a class="project-link" href="https://github.com/GSvegetable/-pixel-orbit" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.1c-3.1.67-3.76-1.32-3.76-1.32-.5-1.28-1.23-1.62-1.23-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.7 1.15 1.7 1.15.99 1.69 2.6 1.2 3.23.92.1-.72.39-1.2.7-1.48-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.21 1.15-2.99-.12-.28-.5-1.42.11-2.95 0 0 .94-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.44 3.05-1.14 3.05-1.14.61 1.53.23 2.67.11 2.95.72.78.23 2.67.11 2.95.72.78 1.15 1.77 1.15 2.99 0 4.29-2.61 5.23-5.1 5.51.4.35.75 1.03.75 2.08v3.08c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/></svg>
-          <span>查看 GitHub 项目</span><span class="link-arrow">↗</span>
-        </a>
+        <div class="detail-actions">
+          <a class="project-link" href="https://github.com/GSvegetable/-pixel-orbit" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.1c-3.1.67-3.76-1.32-3.76-1.32-.5-1.28-1.23-1.62-1.23-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.7 1.15 1.7 1.15.99 1.69 2.6 1.2 3.23.92.1-.72.39-1.2.7-1.48-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.21 1.15-2.99-.12-.28-.5-1.42.11-2.95 0 0 .94-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.44 3.05-1.14 3.05-1.14.61 1.53.23 2.67.11 2.95.72.78.23 2.67.11 2.95.72.78 1.15 1.77 1.15 2.99 0 4.29-2.61 5.23-5.1 5.51.4.35.75 1.03.75 2.08v3.08c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/></svg>
+            <span>查看 GitHub 项目</span><span class="link-arrow">↗</span>
+          </a>
+          <a class="creator-link" href="./contributors.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.4 19.6c0-3.1 2.5-5.2 5.6-5.2s5.6 2.1 5.6 5.2"></path><path d="M16.1 5.6a3.2 3.2 0 0 1 0 6"></path><path d="M17.6 14.6c1.9.7 3 2.4 3 5"></path></svg>
+            <span class="creator-link-label">开发者与贡献者</span><span class="link-arrow">↗</span>
+          </a>
+        </div>
       </div>
 
     </div>
@@ -167,10 +151,6 @@
         <span class="orbit-scene-note">168 像素 · 昼夜旋钮</span>
       </button>
     </div>
-    <section class="lab-links contributor-list" aria-label="开发者与贡献者">
-      <h2>开发者与贡献者</h2>
-      <div class="contributor"><strong>GSvegetable</strong><span>独立开发 · 设计与实现</span></div>
-    </section>
   </section>
   
   <div class="preview-actions" aria-label="作品视图控制">
@@ -184,27 +164,10 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <section class="index-panel" id="index-panel" role="dialog" aria-modal="true" aria-labelledby="index-title" aria-hidden="true">
-    <div class="index-scrim"></div>
-    <div class="index-sheet">
-      <div class="index-head">
-        <p class="index-kicker">INDEX</p>
-        <h1 id="index-title">作品索引</h1>
-        <p class="index-intro">站内全部作品一览，点击任意一行直接展开作品详情。</p>
-      </div>
-      <ol class="index-list" data-index-list></ol>
-      <div class="index-foot">
-        <span class="index-count" data-index-count></span>
-        <button class="index-close" type="button" data-index-close>收起 ×</button>
-      </div>
-    </div>
-  </section>
-
-  <div class="site-version" aria-label="网站版本">v3.3.25</div>
-  <script src="./scripts/main.js?v=3.3.25"></script>
+  <div class="site-version" aria-label="网站版本">v3.3.27</div>
+  <script src="./scripts/main.js?v=3.3.27"></script>
   <script src="./scripts/orbit-versions.js?v=1.3.9"></script>
-  <script src="./scripts/inline-experiences.js?v=1.1.4"></script>
-  <script src="./scripts/work-index.js?v=1.0.0"></script>
+  <script src="./scripts/scroll-ui.js?v=1.0.0"></script>
   <script>
   (() => {
     /* =========================================================
@@ -244,7 +207,7 @@
        中英文切换 — v3.3.24
        ---------------------------------------------------------
        旧实现用「选择器@属性」的扁平表：选择器一旦撞车就会互相覆盖
-       （.lab-links h2 与 .contributor-list h2 命中同一个标题，
+       （两个不同的标题命中同一个元素，
         英文态下「开发者与贡献者」被写成 "Explore more"，
         而真正的「延伸体验」标题没人翻译）；
        中英文案还各存一份硬编码数组，页面一改就漏译
@@ -284,17 +247,7 @@
       'gallery.scenes': 'Scenes',
       'gallery.versions': 'Visual versions',
       'contributors.title': 'Creators & contributors',
-      'contributors.daylight.role': 'Project lead · Design & development',
-      'contributors.lighthouse.role': 'Seaside lighthouse collaboration',
-      'contributors.orbit.role': 'Solo development · Design & implementation',
       'explore.title': 'Explore more',
-      'explore.daylight.lab': 'Interactive parameter lab',
-      'explore.daylight.glass': 'Glass refraction lab',
-      'explore.daylight.preview': 'Component preview',
-      'explore.open': 'Open',
-      'explore.preview.heading': 'Preview',
-      'explore.close': 'Close ×',
-      'orbit.lab': 'Parameter lab',
       'orbit.version.planet': 'Planet',
       'orbit.version.countryside': 'Countryside',
       'orbit.version.world': 'Ring world',
@@ -310,11 +263,7 @@
       'action.expand': 'Expand artwork area',
       'action.restore': 'Return to work details',
       'action.close': 'Close work details',
-      'site.version': 'Site version',
-      'index.title': 'Work Index',
-      'index.intro': 'Every work on the site. Click a row to open its details.',
-      'index.close': 'Close ×',
-      'index.count': '{n} works'
+      'site.version': 'Site version'
     };
 
     // [字符串 key, 目标选择器, 属性名(留空表示改文本)]
@@ -343,28 +292,12 @@
       ['project.link', '#orbit-detail-panel .project-link span:first-of-type'],
       ['gallery.scenes', '#detail-panel .gallery-heading h2'],
       ['gallery.versions', '#orbit-detail-panel .gallery-heading h2'],
-      ['contributors.title', '#detail-panel .contributor-list > h2'],
-      ['contributors.title', '#orbit-detail-panel .contributor-list > h2'],
-      ['contributors.daylight.role', '#detail-panel .contributor-list .contributor:nth-of-type(1) span'],
-      ['contributors.lighthouse.role', '#detail-panel .contributor-list .contributor:nth-of-type(2) span'],
-      ['contributors.orbit.role', '#orbit-detail-panel .contributor-list .contributor:nth-of-type(1) span'],
+      ['contributors.title', '.creator-link-label'],
       ['explore.title', '#detail-panel .inline-experience-section > h2'],
-      ['explore.daylight.lab', '#detail-panel .inline-experience-list button:nth-child(1) .experience-label'],
-      ['explore.daylight.glass', '#detail-panel .inline-experience-list button:nth-child(2) .experience-label'],
-      ['explore.daylight.preview', '#detail-panel .inline-experience-list button:nth-child(3) .experience-label'],
-      ['explore.open', '#detail-panel .inline-experience-list button:nth-child(1) .experience-cta'],
-      ['explore.open', '#detail-panel .inline-experience-list button:nth-child(2) .experience-cta'],
-      ['explore.open', '#detail-panel .inline-experience-list button:nth-child(3) .experience-cta'],
-      ['explore.preview.heading', '#detail-panel .inline-experience-toolbar strong'],
-      ['explore.close', '#detail-panel .inline-experience-toolbar [data-experience-close]'],
-      ['orbit.lab', '#pixel-orbit-card .card-experience-toggle > span:first-child'],
       ['action.bookmark', '#bookmark-card', 'aria-label'],
       ['action.expand', '#expand-artwork', 'aria-label'],
       ['action.close', '#close-card', 'aria-label'],
-      ['site.version', '.site-version', 'aria-label'],
-      ['index.title', '#index-title'],
-      ['index.intro', '#index-panel .index-intro'],
-      ['index.close', '#index-panel [data-index-close]']
+      ['site.version', '.site-version', 'aria-label']
     ];
 
     // 视觉版本：英文按 data 属性取值，中文从 DOM 读
@@ -436,7 +369,6 @@
       document.dispatchEvent(new CustomEvent('site:languagechange', { detail: { language } }));
     });
   })();
-  </script>
   </script>
 </body>
 </html>

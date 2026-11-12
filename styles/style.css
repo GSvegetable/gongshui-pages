@@ -55,6 +55,7 @@ body.view-closing #mario-nav { transition: none; }
   cursor:pointer; background:var(--face);
   box-shadow:0 5px 0 var(--side),0 7px 0 #34220e;
   image-rendering:pixelated;
+  text-decoration:none;
   transition:transform .12s steps(2),box-shadow .12s ease;
 }
 .mario-block::before { content:none; }
@@ -93,6 +94,7 @@ body.view-closing .top-bar { transition: none; }
   align-items: center;
   gap: 12px;
   width: 100%;
+  max-width: 100%;
   min-width: 0;
   height: 52px;
   padding: 0 14px 0 17px;
@@ -102,7 +104,13 @@ body.view-closing .top-bar { transition: none; }
   border-radius: 7px;
   box-shadow: 4px 4px 0 #080808;
   cursor: text;
-  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease, background .18s ease;
+  /* 收窄时靠右停：缩回的方向才是"向右"，而不是从右边往左塌 */
+  margin-left: auto;
+  transition:
+    max-width var(--dur) var(--ease),
+    padding var(--dur) var(--ease),
+    gap var(--dur) var(--ease),
+    border-color .18s ease, box-shadow .18s ease, transform .18s ease, background .18s ease;
 }
 .search-wrapper:focus-within {
   border-color: #f4bd3c;
@@ -123,21 +131,10 @@ body.view-closing .top-bar { transition: none; }
   font-weight: 650;
   letter-spacing: .1px;
   appearance: none;
+  transition: width var(--dur) var(--ease), opacity .18s ease;
 }
 #search-input::-webkit-search-cancel-button { display: none; }
 #search-input::placeholder { color: #9b8a70; font-weight: 500; }
-.search-shortcut {
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 23px;
-  height: 23px;
-  border: 1px solid #c9bda7;
-  border-radius: 4px;
-  color: #88775d;
-  background: #fff8e9;
-  font: 600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
-}
 .search-clear {
   display: grid;
   place-items: center;
@@ -154,6 +151,24 @@ body.view-closing .top-bar { transition: none; }
 .search-clear[hidden] { display: none; }
 .search-clear:hover { color: #17130d; background: #eadcc2; }
 .search-clear svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+/* 收起时清空按钮也一起缩掉 */
+html.search-collapsed .search-clear { width: 0; min-width: 0; padding: 0; opacity: 0; overflow: hidden; pointer-events: none; }
+
+/* ---------- 下滑时：搜索栏缩回成只剩放大镜的正方形方块 ---------- */
+html.search-collapsed .search-wrapper {
+  max-width: 52px;
+  padding-left: 16px;
+  padding-right: 16px;
+  gap: 0;
+}
+html.search-collapsed #search-input {
+  width: 0;
+  min-width: 0;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+html.search-collapsed .search-status { opacity: 0; }
 .search-status {
   min-height: 14px;
   margin: 0 0 0 3px;
@@ -396,6 +411,21 @@ body.view-closing .work-detail.is-active {
 }
 .project-link:hover { transform:translate(2px,2px); box-shadow:2px 2px 0 #211d15; }
 .project-link svg { width:18px; height:18px; fill:currentColor; }
+
+/* ---------- 详情页动作区：查看 GitHub 项目 + 开发者与贡献者 ---------- */
+.detail-actions{display:flex;flex-direction:column;align-items:flex-start;gap:12px;margin-top:20px}
+.detail-actions .project-link{margin-top:0}
+/* 颜色取左侧「指南针」方块的马里奥金 */
+.creator-link{
+  display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:11px 15px;
+  border:2px solid #211d15;border-radius:8px;background:#ffd400;color:#1b160e;text-decoration:none;
+  font-size:13px;font-weight:900;box-shadow:0 3px 0 #211d15;
+  transition:transform .15s,box-shadow .15s,background .15s;
+}
+.creator-link:hover{transform:translateY(1px);box-shadow:0 2px 0 #211d15;background:#ffe04d}
+.creator-link:active{transform:translateY(3px);box-shadow:none}
+.creator-link svg{width:18px;height:18px}
+.creator-link:focus-visible{outline:2px solid #f4bd3c;outline-offset:3px}
 .link-arrow { margin-left:12px; font-size:17px; }
 .detail-facts { display:grid; gap:0; }
 .detail-facts div { display:flex; justify-content:space-between; gap:12px; padding:12px 0; }
@@ -496,8 +526,6 @@ body.view-closing .work-detail.is-active {
   user-select: none;
 }
 
-
-
 /* ---------- Unified project detail actions and section headings ---------- */
 .project-link {
   min-height:46px;
@@ -514,8 +542,6 @@ body.view-closing .work-detail.is-active {
 .lab-links { margin-top:26px; }
 .lab-links h2 { font-size:18px; }
 
-
-
 /* ---------- Language switch ---------- */
 .language-toggle{position:fixed;top:25px;right:28px;z-index:19;min-width:48px;height:38px;padding:0 12px;border:2px solid #080808;border-radius:4px;background:#efa02c;color:#211d15;font-size:11px;font-weight:900;letter-spacing:.4px;box-shadow:0 3px 0 #080808;cursor:pointer;transition:transform .14s,box-shadow .14s}
 .language-toggle:hover{transform:translateY(2px);box-shadow:0 1px 0 #080808}
@@ -525,6 +551,13 @@ body.view-closing .work-detail.is-active {
 
 /* ---------- Top-right utility buttons: match the site's Mario block style ---------- */
 .top-utility-actions{position:fixed;top:24px;right:28px;z-index:120;display:flex;align-items:center;gap:10px}
+/* 下滑时这组按钮躲到屏幕外：文字链接整个滑出去，齿轮方块斜着在右缘露出约一半，
+   像在偷偷看；点一下它们就回到原位。
+   用独立的 translate / rotate 属性，和按钮自己的 hover transform 不打架。 */
+.top-utility-actions .contributors-home-link,
+.top-utility-actions .settings-toggle{transition:translate var(--dur) var(--ease),rotate var(--dur) var(--ease),transform .1s,box-shadow .1s,background .15s}
+html.utility-peeking .contributors-home-link{translate:200% 0;rotate:-8deg}
+html.utility-peeking .settings-toggle{translate:104% 0;rotate:-8deg}
 .top-utility-actions .contributors-home-link,
 .top-utility-actions .language-toggle{position:static;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 12px;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.25px;text-decoration:none;white-space:nowrap;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
 .top-utility-actions .contributors-home-link:hover,
@@ -548,7 +581,6 @@ body.view-closing .work-detail.is-active {
 .contributor-list + .lab-links{border:0!important;border-top:1px solid rgba(41,35,25,.28)!important;margin-top:18px;padding-top:8px}
 .contributor-list + .lab-links::before,.contributor-list + .lab-links::after{content:none!important;display:none!important}
 
-
 /* Settings menu */
 .top-utility-actions .settings-toggle{position:static;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:0 12px;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
 .top-utility-actions .settings-toggle:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #000;background:#ffd36a}
@@ -567,7 +599,6 @@ body.view-closing .work-detail.is-active {
  .top-utility-actions .settings-toggle{min-height:34px;padding:0 9px;border-width:2px;font-size:10px;box-shadow:2px 3px 0 #000}
  .settings-panel{top:calc(100% + 9px);width:215px;padding:12px}
 }
-
 
 /* Keep top utility controls out of the way while a work is open. */
 body.viewing .top-utility-actions{
@@ -599,76 +630,26 @@ body.view-closing .top-utility-actions{
  .top-utility-actions .settings-toggle svg{width:21px;height:21px}
 }
 
-
 /* Gallery zoom changes the grid's column density, not the site chrome. */
 main{--gallery-card-min:260px}
 .grid{transform-origin:top left}
 .preview-card{touch-action:pan-y}
 
-
 /* Detail facts were removed; let the remaining project description use the full row. */
 .detail-overview { grid-template-columns:minmax(0,1fr); }
 .detail-copy { max-width:none; }
-
 
 /* v3.3.13 — Pixel Orbit lab sits directly beneath its title on the work card. */
 .orbit-card-info{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:0;cursor:default}
 .preview-card.is-open .orbit-card-info{gap:8px}
 .orbit-card-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%}
-.card-experience-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:7px 2px 2px;border:0;background:transparent;color:#71501d;text-align:left;font-family:inherit;font-size:11px;font-weight:800;line-height:1.4;cursor:pointer}
-.card-experience-toggle span:first-child{font-size:11px;letter-spacing:.3px}
-.card-experience-chevron{font-size:15px;transition:transform .2s ease}
-.card-experience-toggle[aria-expanded="true"] .card-experience-chevron{transform:rotate(180deg)}
-.card-inline-experience{width:100%;margin:0}
-.card-inline-experience .inline-experience-viewer{margin-top:8px}
-.card-inline-experience .inline-experience-viewer iframe{height:min(62vh,620px);min-height:320px}
 .preview-card.is-open .orbit-card-info{opacity:1;pointer-events:auto}
-@media(max-width:600px){.card-inline-experience .inline-experience-viewer iframe{height:58vh;min-height:280px}}
-
-
-/* v3.3.14 — keep Pixel Orbit lab inside its opened detail panel. */
-.detail-inline-experience{width:100%;margin:10px 0 18px}
-.detail-inline-experience .card-experience-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:10px 2px;border:0;border-bottom:1px solid rgba(41,35,25,.2);background:transparent;color:#71501d;text-align:left;font-family:inherit;font-size:13px;font-weight:800;line-height:1.4;cursor:pointer}
-.detail-inline-experience .card-experience-chevron{font-size:17px;transition:transform .2s ease}
-.detail-inline-experience .card-experience-toggle[aria-expanded="true"] .card-experience-chevron{transform:rotate(180deg)}
-.detail-inline-experience .inline-experience-viewer{margin-top:12px}
-.detail-inline-experience .inline-experience-viewer iframe{height:min(66vh,680px);min-height:360px}
-
+@media(max-width:600px){}
 
 /* v3.3.15 — restore the title and place the lab beneath the expanded artwork. */
 .orbit-card-info{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:10px}
 .orbit-card-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%}
 .preview-card.is-open .orbit-card-info{opacity:1!important;visibility:visible!important;pointer-events:auto!important}
-.card-inline-experience{width:100%;margin:0}
-.card-inline-experience .card-experience-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:10px 4px;border:0;border-top:1px solid rgba(41,35,25,.2);border-bottom:1px solid rgba(41,35,25,.2);background:transparent;color:#71501d;text-align:left;font-family:inherit;font-size:13px;font-weight:800;line-height:1.4;cursor:pointer}
-.card-inline-experience .card-experience-chevron{font-size:17px;transition:transform .2s ease}
-.card-inline-experience .card-experience-toggle[aria-expanded="true"] .card-experience-chevron{transform:rotate(180deg)}
-.card-inline-experience .inline-experience-viewer{margin-top:12px}
-.card-inline-experience .inline-experience-viewer iframe{height:min(62vh,620px);min-height:320px}
-
-
-/* v3.3.16 — keep the lab completely hidden until the artwork is opened. */
-.card-inline-experience{
-  width:100%;
-  max-height:0;
-  margin:0;
-  overflow:hidden;
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-  transform:translateY(-8px);
-  transition:max-height .42s cubic-bezier(.2,.75,.25,1),opacity .28s ease,transform .42s cubic-bezier(.2,.75,.25,1),margin .42s ease,visibility 0s linear .42s;
-}
-.preview-card.is-open .card-inline-experience{
-  max-height:1100px;
-  margin:0;
-  opacity:1;
-  visibility:visible;
-  pointer-events:auto;
-  transform:translateY(0);
-  transition:max-height .52s cubic-bezier(.2,.75,.25,1),opacity .32s ease .08s,transform .42s cubic-bezier(.2,.75,.25,1),margin .42s ease,visibility 0s;
-}
-
 
 /* v3.3.17 — stabilize the artwork's live scale and reveal the lab during the opening motion. */
 /* Ease the per-frame ResizeObserver scale updates on the embedded artwork to avoid
@@ -679,54 +660,12 @@ main{--gallery-card-min:260px}
   -webkit-backface-visibility:hidden;
 }
 
-/* The lab row has a real, measured reveal distance (rather than jumping after a
-   long visibility delay). Its compact row opens with the card; the iframe area
-   gets the larger height only when the user expands the lab itself. */
- .card-inline-experience{
-  display:none;
-  max-height:0;
-  visibility:hidden;
-  transition:max-height .46s cubic-bezier(.22,.8,.2,1),
-             opacity .34s ease,
-             transform .46s cubic-bezier(.22,.8,.2,1),
-             visibility 0s linear 0s;
-}
-.preview-card.is-open .card-inline-experience{
-  max-height:56px;
-  visibility:visible;
-  opacity:1;
-  transform:translateY(0);
-  transition:max-height .46s cubic-bezier(.22,.8,.2,1),
-             opacity .34s ease .02s,
-             transform .46s cubic-bezier(.22,.8,.2,1),
-             visibility 0s;
-}
-.preview-card.is-open .card-inline-experience:has(.card-experience-toggle[aria-expanded="true"]){
-  max-height:1100px;
-}
-
-
 /* v3.3.18 — remove lag from the live iframe scale; JS updates it frame-by-frame. */
 .preview-card.is-animating .preview-mount > :not(script):not(style){
   transition:none !important;
   backface-visibility:visible;
   -webkit-backface-visibility:visible;
 }
-/* The opening controller animates this row with the card's exact Web Animations timeline. */
-.card-inline-experience{
-  max-height:0;
-  overflow:hidden;
-  opacity:0;
-  visibility:hidden;
-  transform:translateY(-12px);
-  transition:none !important;
-}
- .preview-card.is-open .card-inline-experience{
-  display:block;
-  visibility:visible;
-  pointer-events:auto;
-}
-
 
 /* v3.3.22 — three distinct Pixel Orbit editions and a genuinely expandable lab. */
 .orbit-thumb-world{
@@ -736,7 +675,4 @@ main{--gallery-card-min:260px}
 .orbit-thumb-world::after{
   content:"";position:absolute;inset:20%;border:2px solid rgba(255,224,150,.82);
   border-radius:50%;box-shadow:0 0 0 3px rgba(239,160,44,.18),0 0 12px rgba(239,160,44,.35);
-}
-.preview-card.is-open .card-inline-experience:has(.card-experience-toggle[aria-expanded="true"]){
-  max-height:none!important;overflow:visible!important;
 }
