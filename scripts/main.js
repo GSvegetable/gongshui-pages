@@ -365,9 +365,10 @@ syncSearchUI();
   /* ---------- 动画 ---------- */
   const animateCard = (work, first, last, done, revealLab = false) => {
     const card = work.card;
-    // A slower, even rise: keep the artwork moving throughout the opening.
-    const duration = Math.max(getDuration(), 760);
-    const easing = 'cubic-bezier(.4, 0, .2, 1)';
+    // Match the detail panel's CSS --dur / --ease exactly, in both directions.
+    // The card and side panel must arrive and leave together.
+    const duration = getDuration();
+    const easing = getEasing();
 
     card.classList.add('is-animating');
 
