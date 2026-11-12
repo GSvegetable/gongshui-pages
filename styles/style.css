@@ -512,3 +512,20 @@ body.view-closing .work-detail.is-active {
 .gallery-heading > span { color:#75684f; font-size:12px; line-height:1.5; }
 .lab-links { margin-top:26px; }
 .lab-links h2 { font-size:18px; }
+
+
+/* ---------- Homepage contributors directory entry ---------- */
+.contributors-home-link {
+  position:fixed; top:26px; right:28px; z-index:19;
+  display:inline-flex; align-items:center; gap:12px;
+  padding:12px 16px; border:2px solid #f4bd3c; border-radius:7px;
+  background:#211d15; color:#f5ecd9; text-decoration:none;
+  font-size:13px; font-weight:850; letter-spacing:.2px;
+  box-shadow:4px 4px 0 #080808;
+  transition:transform .16s ease, background .16s ease, color .16s ease;
+}
+.contributors-home-link:hover { transform:translate(2px,2px); background:#f4bd3c; color:#211d15; }
+.contributors-home-link span { font-size:17px; }
+@media (max-width:600px) {
+  .contributors-home-link { top:74px; right:14px; padding:9px 11px; font-size:11px; }
+}
