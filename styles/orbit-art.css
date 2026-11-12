@@ -1,0 +1,43 @@
+/* Pixel Orbit — art-directed home preview and matching detail controls */
+#pixel-orbit-card .preview-mount {
+  --mount-ratio: 1.6439;
+  background: #f2e8d2;
+}
+#pixel-orbit-card .preview-mount iframe {
+  background: #f2e8d2 !important;
+}
+.orbit-version-switch {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:22px 0 18px;
+}
+.orbit-version-option {
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:6px;
+  min-width:0;
+  padding:12px 11px;
+  border:1px solid #cbbd9f;
+  background:#fff8e9;
+  color:#403522;
+  text-align:left;
+  cursor:pointer;
+  transition:background .18s,border-color .18s,transform .18s;
+}
+.orbit-version-option:hover { transform:translateY(-2px); border-color:#9b7542; }
+.orbit-version-option.is-active {
+  border:2px solid #8c5d13;
+  background:#f4d78e;
+  box-shadow:2px 2px 0 #211d15;
+}
+.orbit-version-name { font-size:12px; font-weight:900; }
+.orbit-version-note { color:#77684f; font-size:10px; line-height:1.5; }
+.orbit-version-option:focus-visible { outline:2px solid #8c5d13; outline-offset:3px; }
+@media(max-width:600px) {
+  .orbit-version-switch { gap:6px; }
+  .orbit-version-option { padding:10px 8px; }
+  .orbit-version-name { font-size:11px; }
+  .orbit-version-note { font-size:9px; }
+}
