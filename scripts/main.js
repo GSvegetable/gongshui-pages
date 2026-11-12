@@ -174,10 +174,11 @@ syncSearchUI();
     const ratio = ratioOf(work);
     const availW = window.innerWidth - 36;
     const availH = window.innerHeight - 36;
-    // 卡片 = 左右(边框3+内边距15+作品框边框2)×2 = 40；上下 = 3+56 + 作品框(+4) + 15+3 = 作品高 + 81
-    const contentW = Math.max(160, Math.floor(Math.min(availW - 40, (availH - 81) * ratio)));
-    const width = contentW + 40;
-    const height = Math.round(contentW / ratio + 81);
+    // 托盘四边对称：左右/上下均为边框3 + 内边距15 + 作品框边框2
+    const chrome = 40;
+    const contentW = Math.max(160, Math.floor(Math.min(availW - chrome, (availH - chrome) * ratio)));
+    const width = contentW + chrome;
+    const height = Math.round(contentW / ratio + chrome);
     return {
       left: Math.round((window.innerWidth - width) / 2),
       top: Math.round((window.innerHeight - height) / 2),
