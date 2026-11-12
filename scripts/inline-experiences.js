@@ -6,7 +6,7 @@
     const heading = section.querySelector('[data-experience-heading]');
     const fallback = section.querySelector('[data-experience-fallback]');
     const close = section.querySelector('[data-experience-close]');
-    const choices = [...section.querySelectorAll('[data-experience-url]')];
+    const choices = [...section.querySelectorAll('[data-experience-url]:not(.card-experience-toggle)')];
     const cardToggle = section.querySelector('.card-experience-toggle');
     if (!viewer || !frame || !heading || !fallback || !close) return;
 
@@ -40,7 +40,7 @@
       event.stopPropagation();
       if (viewer.hidden) {
         const lab = section.querySelector('[data-experience-url]');
-        if (lab) activate(lab);
+        activate(cardToggle);
       } else dismiss();
     });
     choices.forEach(button => {
