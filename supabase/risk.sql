@@ -12,7 +12,7 @@
 --    IP   > 5：IP 只能粗略到"一个出口"。国内移动网络是 CGNAT，
 --              咖啡厅、写字楼、基站背后都是一大堆真人共用一个 IP，
 --              阈值压到 2 会把正常用户误伤，所以放宽到 5。
---              （想更严就把下面 FINGERPRINT_LIMIT / IP_LIMIT 改小）
+--              （阈值都在 risk_limits() 里，想改就改那两行）
 -- =========================================================
 
 -- -------------------------------------------------------------
@@ -34,6 +34,11 @@ create index if not exists signup_risk_ip_idx         on public.signup_risk (ip,
 create index if not exists signup_risk_user_idx       on public.signup_risk (user_id);
 
 alter table public.signup_risk enable row level security;
+
+-- 权限：登录用户只能读自己的那一条、只能给自己登记一条；匿名一律不给。
+-- 这一句别漏——漏了客户端插不进去，会报 42501 permission denied。
+grant select, insert on public.signup_risk to authenticated;
+revoke all on public.signup_risk from anon;
 
 -- -------------------------------------------------------------
 -- 2. 策略：本人只能看自己那一条；可以给自己登记一条；
@@ -83,7 +88,14 @@ create trigger trg_signup_risk_guard before update on public.signup_risk
 
 -- -------------------------------------------------------------
 -- 4. 判定函数
+--    两个阈值（想改严/改松就改这两行）
 -- -------------------------------------------------------------
+create or replace function public.risk_limits() returns jsonb
+language sql immutable as $$
+  select jsonb_build_object('fingerprint', 2, 'ip', 5);
+$$;
+
+--
 -- 这个账号是不是高风险（给 RLS 策略用）
 create or replace function public.is_high_risk(uid uuid) returns boolean
 language sql stable security definer set search_path = public as $$
@@ -98,9 +110,6 @@ security definer
 set search_path = public
 as $$
 declare
-  -- 两个阈值（改这里就行）
-  FINGERPRINT_LIMIT constant integer := 2;   -- 同一台设备
-  IP_LIMIT        constant integer := 5;   -- 同一个出口（网络出口会共享，所以放宽）
   v_uid uuid := auth.uid();
   h json;
   v_ip text;
@@ -128,7 +137,8 @@ begin
   select count(*) into v_ip_count from public.signup_risk
     where ip = v_ip and created_at > now() - interval '24 hours';
 
-  v_risk := (v_fp_count > FINGERPRINT_LIMIT) or (v_ip_count > IP_LIMIT);
+  v_risk := (v_fp_count > (select (risk_limits->>'fingerprint')::int from risk_limits()))
+         or (v_ip_count > (select (risk_limits->>'ip')::int from risk_limits()));
   if v_risk then
     update public.signup_risk set high_risk = true where user_id = v_uid;
   end if;
@@ -143,6 +153,71 @@ $$;
 
 grant execute on function public.apply_signup_risk() to authenticated;
 grant execute on function public.is_high_risk(uuid) to authenticated;
+
+-- -------------------------------------------------------------
+-- 4b. 客户端只调这两个函数，表本身不开放给浏览器
+--     登记：只传指纹和用户名，用户 id 和 IP 都由服务端取
+-- -------------------------------------------------------------
+create or replace function public.register_signup_risk(p_fingerprint text, p_username text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_fp_count integer := 0;
+  v_ip_count integer := 0;
+  v_risk boolean := false;
+begin
+  if v_uid is null then
+    raise exception '未登录';
+  end if;
+
+  -- 同一个人重复调用只留一条，别把计数刷上去
+  delete from public.signup_risk where user_id = v_uid;
+  insert into public.signup_risk (user_id, username, fingerprint)
+    values (v_uid, p_username, coalesce(nullif(p_fingerprint, ''), 'unknown'));
+
+  select count(*) into v_fp_count from public.signup_risk
+    where fingerprint = coalesce(nullif(p_fingerprint, ''), 'unknown')
+      and created_at > now() - interval '24 hours';
+  select count(*) into v_ip_count from public.signup_risk
+    where ip = (select ip from public.signup_risk where user_id = v_uid limit 1)
+      and created_at > now() - interval '24 hours';
+
+  v_risk := (v_fp_count > (select (risk_limits->>'fingerprint')::int from risk_limits()))
+         or (v_ip_count > (select (risk_limits->>'ip')::int from risk_limits()));
+  if v_risk then
+    update public.signup_risk set high_risk = true where user_id = v_uid;
+  end if;
+
+  return jsonb_build_object(
+    'fingerprint_count', v_fp_count,
+    'ip_count', v_ip_count,
+    'high_risk', v_risk
+  );
+end;
+$$;
+
+-- 查当前账号的风险状态（刷新页面后用）
+create or replace function public.my_risk_status()
+returns jsonb
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select jsonb_build_object(
+    'high_risk', coalesce((select r.high_risk from public.signup_risk r
+                             where r.user_id = auth.uid()
+                             order by r.created_at desc limit 1), false),
+    'registered', exists (select 1 from public.signup_risk r where r.user_id = auth.uid())
+  );
+$$;
+
+grant execute on function public.register_signup_risk(text, text) to authenticated;
+grant execute on function public.my_risk_status() to authenticated;
 
 -- -------------------------------------------------------------
 -- 5. 高风险账号：收藏和偏好写入被拒（真正的拦截在这里）

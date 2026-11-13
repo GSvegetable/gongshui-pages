@@ -50,19 +50,22 @@
     get counts() { return state.counts; },
     get registered() { return state.registered; },
 
-    // 注册成功后登记一条风控记录
+    // 注册成功后登记一条风控记录，并让服务端判一次
+    // 走 RPC：用户 id 和 IP 都由服务端取，浏览器碰不到表本身
     async record(userId, username) {
       if (!cloud) return false;
       const token = window.siteAuth.getToken();
-      if (!token || !userId) return false;
+      if (!token) return false;
       if (!window.siteFingerprint) return false;
       try {
         const fingerprint = await window.siteFingerprint.get();
-        await request('POST', 'signup_risk', {
-          user_id: userId,
-          username: username || null,
-          fingerprint
-        }, token, { Prefer: 'resolution=ignore-duplicates,return=minimal' });
+        const data = await request('POST', 'rpc/register_signup_risk',
+                                   { p_fingerprint: fingerprint, p_username: username || null }, token);
+        state.counts = {
+          fingerprint: (data && data.fingerprint_count) || 0,
+          ip: (data && data.ip_count) || 0
+        };
+        state.highRisk = !!(data && data.high_risk);
         state.registered = true;
         return true;
       } catch (error) {
@@ -78,7 +81,8 @@
       const token = window.siteAuth.getToken();
       if (!token) return state.counts;
       try {
-        const data = await request('POST', 'rpc/apply_signup_risk', {}, token);
+        const data = await request('POST', 'rpc/register_signup_risk',
+                                   { p_fingerprint: '', p_username: null }, token);
         state.counts = {
           fingerprint: (data && data.fingerprint_count) || 0,
           ip: (data && data.ip_count) || 0
@@ -97,9 +101,9 @@
       const user = window.siteAuth.getUser();
       if (!token || !user || !user.id) return false;
       try {
-        const rows = await request('GET', 'signup_risk?select=high_risk&user_id=eq.' + encodeURIComponent(user.id) + '&limit=1', null, token);
-        state.highRisk = !!(rows && rows[0] && rows[0].high_risk);
-        state.registered = !!(rows && rows[0]);
+        const data = await request('POST', 'rpc/my_risk_status', {}, token);
+        state.highRisk = !!(data && data.high_risk);
+        state.registered = !!(data && data.registered);
       } catch (error) {
         console.warn('风控状态查询失败：', error && error.message);
       }
