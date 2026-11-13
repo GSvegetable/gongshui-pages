@@ -373,9 +373,13 @@ syncSearchUI();
   const positionWorkExtras = () => {
     if (!workExtras || !current || !current.mount) return;
     const mr = current.mount.getBoundingClientRect();
+    const cr = current.card.getBoundingClientRect();
     workExtras.style.left = Math.round(mr.left) + 'px';
     workExtras.style.width = Math.round(mr.width) + 'px';
-    workExtras.style.top = Math.round(mr.bottom + window.scrollY + 14) + 'px';
+    // v2.8.4：用整张卡片的底部定位，而不是作品框（mount）的底部。
+    // mount 下面还有卡片的标题栏，之前 mount.bottom + 14 会让「版本对比」开关
+    // 正好压在标题栏上，被卡片（z-index 21）整个盖住，点不到也看不见。
+    workExtras.style.top = Math.round(cr.bottom + window.scrollY + 14) + 'px';
   };
 
   const updateWorkSpacer = () => {
