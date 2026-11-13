@@ -692,7 +692,20 @@ syncSearchUI();
 
   /* =========================================================
      专属业务逻辑：海边灯塔的场景切换（不影响通用框架）
-     ========================================================= */  const detailPanel = document.getElementById('detail-panel');
+     预览统一运行在 iframe 内，通过消息同步场景，避免跨文档直接操作。
+     ========================================================= */
+  const pdsPreviewFrame = document.querySelector('#lighthouse-card iframe[data-pds-preview]');
+  const syncPdsPreviewScene = scene => {
+    pdsPreviewFrame?.contentWindow?.postMessage({ type: 'pds-set-scene', scene }, '*');
+  };
+  if (pdsPreviewFrame) {
+    pdsPreviewFrame.addEventListener('load', () => syncPdsPreviewScene(window.sitePdsScene?.get?.() || 'seaside'));
+    window.addEventListener('message', event => {
+      if (event.source !== pdsPreviewFrame.contentWindow || event.data?.type !== 'pds-preview-ready') return;
+      syncPdsPreviewScene(window.sitePdsScene?.get?.() || 'seaside');
+    });
+  }
+  const detailPanel = document.getElementById('detail-panel');
   if (detailPanel) {
     const sceneChoices = [...detailPanel.querySelectorAll('[data-scene-choice]')];
     const validScenes = new Set(sceneChoices.map(b => b.dataset.sceneChoice));
@@ -723,15 +736,7 @@ syncSearchUI();
       try { localStorage.setItem('pds-gallery-scene', selectedScene); } catch (_) {}
       updateScenes();
 
-      const mount = document.querySelector('#lighthouse-card .preview-mount');
-      const rootEl = mount?.querySelector('[data-ld-part="toggle-daylight"]');
-      if (rootEl) {
-        rootEl.dataset.scene = selectedScene;
-        const api = window.PixelDaylightSwitch;
-        if (api && typeof api.unmount === 'function' && typeof api.mount === 'function') {
-          api.unmount(rootEl); api.mount(rootEl);
-        }
-      }
+      syncPdsPreviewScene(selectedScene);
       window.siteSync?.patchPrefs({ pdsScene: selectedScene });
     };
 
