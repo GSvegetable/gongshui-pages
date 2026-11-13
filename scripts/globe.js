@@ -460,7 +460,8 @@
       view.style.setProperty('--globe-h', baseHeight + 'px');
     }
     view.style.setProperty('--kb-pan', Math.round(pan) + 'px');
-    view.style.setProperty('--kb-lift', Math.round(Math.max(0, H - visH)) + 'px');
+    // 修复：kb 是键盘的实际高度，直接使用，不需要再计算 H - visH
+    view.style.setProperty('--kb-lift', Math.round(kb) + 'px');
   }
 
   /* ---------- 页面骨架 ---------- */

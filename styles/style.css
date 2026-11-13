@@ -782,7 +782,7 @@ main{--gallery-card-min:300px}
 
 .folder-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px 18px; padding: 14px 0 0;
+  gap: 20px 18px; padding: 14px 0 0 88px;
 }
 .folder-card {
   position: relative; padding: 14px 12px; text-align: left;
