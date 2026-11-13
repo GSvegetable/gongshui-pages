@@ -4,6 +4,7 @@
 
 | 版本 | 日期 | 更新内容 |
 |---|---|---|
+| **v2.6.0** | 2026-11-13 | 指南针视图改成「投稿者地球」：可旋转 3D 地球 + 投稿名单，库/贴图/国旗全部内置，不依赖外部 CDN |
 | **v2.5.0** | 2026-11-13 | 收起后的搜索方块改成指南针黄并与马里奥方块同尺寸对齐；右上角贡献者/设置换位；像素圆环在首页即可把玩 |
 | **v3.3.35** | 2026-11-13 | 风控登记改走数据库函数（表不对前端开放），阈值集中到 `risk_limits()` |
 | **v3.3.34** | 2026-11-13 | 账号改为用户名（不再出现邮箱）；新增设备风控（FingerprintJS 内置 + 双存储指纹 + 服务端软限制），建表脚本 `supabase/risk.sql` |
@@ -35,3 +36,18 @@
 | v3.0.0 | — | 重构作品控制器与卡片管理 |
 | v2.x | — | 持续优化详情布局与动画 |
 | v1.0.0 | — | 网站初始上线 |
+
+## 指南针 · 投稿者地球
+
+点首页左边第二个马里奥方块（指南针），会看到一颗可旋转的 3D 地球，每位投稿者在自己所在的国家/城市插一面旗。
+
+- **投稿数据**：`data/contributors.json`，加一条就多一面旗，不用改代码。
+  - 必填 `name`（显示名）、`country`（两位国家代码）。
+  - 可选 `github`（自动取头像）、`avatar`、`city`、`lat` + `lng`（精确位置，精确到约 1 公里）、`pin`（`avatar` / `flag`）、`works`（对应作品的 `data-id`）、`note`。
+- **资源全部内置**，不依赖任何外部 CDN（国内网络也能打开）：
+  - `scripts/vendor/globe.gl.min.js` — globe.gl（MIT）
+  - `assets/earth/` — 地球贴图（NASA Blue Marble / 夜视 / 地形，来自 three-globe 示例资源）
+  - `assets/flags/` — 61 张国旗 SVG（flagcdn，基于 flag-icons，MIT）
+  - `data/ne_110m_admin_0_countries.geojson` — 国界数据（Natural Earth 110m，公共领域）
+- **没有 WebGL** 的设备自动降级成一份普通的投稿者名单。
+- 地球的开关由首页的指南针视图驱动（`scripts/main.js` → `setCompassView`），`scripts/globe.js` 暴露 `window.siteGlobe`。

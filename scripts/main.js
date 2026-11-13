@@ -161,6 +161,11 @@ const setCompassView = on => {
     navBookmark.classList.remove('active');
     navBookmark.setAttribute('aria-pressed', 'false');
     renderGallery();
+    // 指南针视图里的投稿地球：开
+    if (window.siteGlobe && typeof window.siteGlobe.open === 'function') window.siteGlobe.open();
+  } else if (window.siteGlobe && typeof window.siteGlobe.close === 'function') {
+    // 关
+    window.siteGlobe.close();
   }
 };
 

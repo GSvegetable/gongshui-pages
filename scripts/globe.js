@@ -1,19 +1,23 @@
 /* =========================================================
-   投稿者地球 —— 首页第二个按钮（指南针）
+   投稿者地球 —— 挂在首页「指南针」视图里
    ---------------------------------------------------------
-   · 地球用 globe.gl（three.js），第一次点指南针时才加载，不拖慢首页
+   · 地球用 globe.gl（three.js），第一次打开指南针时才加载，不拖慢首页
+   · 库、贴图、国旗、边界数据全部内置在仓库里，不依赖任何外部 CDN
    · 数据在 data/contributors.json：加一条就多一面旗，不用改代码
    · 没有 WebGL / 加载失败时，会降级成一份普通的投稿者名单
    · 投稿者的名字、备注全部用 textContent 写入，不会被注入 HTML
+   · 开关由主站的指南针视图驱动（main.js → setCompassView），这里只管地球自己
    ========================================================= */
 (() => {
   'use strict';
 
   const REPO = 'GSvegetable/gongshui-pages';
-  const GLOBE_LIB = 'https://unpkg.com/globe.gl@2/dist/globe.gl.min.js';
-  const IMG = 'https://unpkg.com/three-globe/example/img/';
-  const COUNTRY_GEOJSON = 'https://unpkg.com/three-globe/example/datasets/ne_110m_admin_0_countries.geojson';
+  // 资源全部内置在仓库里：不依赖 unpkg / flagcdn，国内网络打开也能正常显示
+  const GLOBE_LIB = './scripts/vendor/globe.gl.min.js';
+  const IMG = './assets/earth/';
+  const COUNTRY_GEOJSON = './data/ne_110m_admin_0_countries.geojson';
   const DATA_URL = './data/contributors.json';
+  const FLAG_DIR = './assets/flags/';
   const GLOBE_R = 100; // globe.gl 里地球半径固定是 100
 
   /* 国家代码 → [纬度, 经度, 中文名]。只填国家时，旗子插在这个"国家中心"。
@@ -40,8 +44,20 @@
   /* ---------- 纯函数（不碰 DOM，方便单独测试） ---------- */
   const num = v => (typeof v === 'number' && Number.isFinite(v)) ? v : null;
   const isSafeUrl = u => typeof u === 'string' && /^(https:\/\/|\.\/|\/(?!\/))/.test(u);
-  const flagUrl = code => 'https://flagcdn.com/' + code.toLowerCase() + '.svg';
+  const flagUrl = code => FLAG_DIR + String(code || '').toUpperCase() + '.svg';
   const round2 = v => Math.round(v * 100) / 100; // 约 1 公里：保护投稿者隐私，不会暴露到门牌
+
+  /* 国家名：英文态用系统自带的国家名，中文态用内置表 */
+  const countryLabel = code => {
+    const i18n = window.siteI18n;
+    const lang = i18n && i18n.lang === 'en' ? 'en' : 'zh-CN';
+    const info = COUNTRIES[code];
+    try {
+      const name = new Intl.DisplayNames([lang], { type: 'region' }).of(code);
+      if (name) return name;
+    } catch (_) { /* 老浏览器没有 Intl.DisplayNames */ }
+    return info ? info[2] : code;
+  };
 
   function normalize(raw, index) {
     if (!raw || typeof raw !== 'object') return null;
@@ -64,7 +80,7 @@
     return {
       id: String(raw.id || ('c' + index)),
       name, github, country,
-      countryName: info ? info[2] : country,
+      countryName: countryLabel(country),
       city: String(raw.city || '').trim().slice(0, 40),
       lat, lng, precise,
       plotLat: lat, plotLng: lng,
@@ -117,17 +133,28 @@
   }
 
   /* ---------- 页面接入 ---------- */
-  const body = document.body;
-  const navGlobe = document.getElementById('nav-globe') || document.querySelector('[aria-label="指南针"]');
   const navHome = document.getElementById('nav-home');
-  const navBookmark = document.getElementById('nav-bookmark');
-  if (!navGlobe) return;
+  // 指南针视图只存在于首页；别的页面直接不启动
+  if (!document.getElementById('compass-view')) return;
 
   const el = (tag, className, text) => {
     const node = document.createElement(tag);
     if (className) node.className = className;
     if (text != null) node.textContent = text;
     return node;
+  };
+
+  /* 取词：跟着站点的中英切换走（英文走 index.html 的 siteI18n，中文回退写在调用处） */
+  const tr = (key, fallback, vars) => {
+    const i18n = window.siteI18n;
+    const isEn = i18n && i18n.lang === 'en';
+    let value = fallback;
+    if (isEn && i18n && typeof i18n.t === 'function') {
+      const en = i18n.t(key, vars);
+      if (en) value = en;
+    }
+    if (!vars) return value;
+    return Object.keys(vars).reduce((s, name) => s.split('{' + name + '}').join(vars[name]), value);
   };
 
   const readDuration = () => {
@@ -189,8 +216,16 @@
   const avatarImg = c => {
     const img = el('img');
     img.src = c.avatar; img.alt = c.name; img.loading = 'lazy'; img.decoding = 'async'; img.referrerPolicy = 'no-referrer';
-    img.addEventListener('error', () => { img.replaceWith(el('span', 'gpin-initial', c.name.charAt(0).toUpperCase())); });
+    // 加载不出来就把图撤掉，底下那层首字母露出来，不留白方块
+    img.addEventListener('error', () => img.remove());
     return img;
+  };
+  /* 头像/国旗底下垫一层首字母：图还在转圈的时候也不是空的 */
+  const faceContent = c => {
+    const frag = document.createDocumentFragment();
+    frag.appendChild(el('span', 'gpin-initial', c.name.charAt(0).toUpperCase()));
+    frag.appendChild(c.pin === 'avatar' ? avatarImg(c) : flagImg(c.country));
+    return frag;
   };
   const whereText = c => c.countryName + (c.city ? ' · ' + c.city : '');
 
@@ -200,7 +235,7 @@
     btn.type = 'button';
     btn.setAttribute('aria-label', c.name + '，' + whereText(c));
     const face = el('span', 'gpin-face');
-    face.appendChild(c.pin === 'avatar' ? avatarImg(c) : flagImg(c.country));
+    face.appendChild(faceContent(c));
     btn.appendChild(face);
     if (c.pin === 'avatar') {
       const badge = el('span', 'gpin-flag');
@@ -218,7 +253,7 @@
     const chip = el('button', 'globe-chip');
     chip.type = 'button';
     const face = el('span', 'chip-face');
-    face.appendChild(c.pin === 'avatar' ? avatarImg(c) : flagImg(c.country));
+    face.appendChild(faceContent(c));
     chip.appendChild(face);
     chip.appendChild(el('span', 'chip-name', c.name));
     chip.title = c.name + ' · ' + whereText(c);
@@ -244,13 +279,13 @@
   const renderCard = c => {
     card.replaceChildren();
     const close = el('button', 'gc-close', '×');
-    close.type = 'button'; close.setAttribute('aria-label', '关闭');
+    close.type = 'button'; close.setAttribute('aria-label', tr('globe.close', '关闭'));
     close.addEventListener('click', deselect);
     card.appendChild(close);
 
     const head = el('div', 'gc-head');
     const av = el('span', 'gc-avatar' + (c.pin === 'flag' ? ' is-flag' : ''));
-    av.appendChild(c.pin === 'avatar' ? avatarImg(c) : flagImg(c.country));
+    av.appendChild(faceContent(c));
     head.appendChild(av);
     const who = el('div');
     who.appendChild(el('h3', 'gc-name', c.name));
@@ -273,7 +308,7 @@
       const list = el('div', 'gc-works');
       c.works.forEach(id => {
         const title = workTitle(id);
-        const b = el('button', 'gc-work' + (title ? '' : ' is-static'), title ? '看作品 · ' + title : id);
+        const b = el('button', 'gc-work' + (title ? '' : ' is-static'), title ? tr('globe.work', '看作品 · {title}', { title }) : id);
         b.type = 'button';
         if (title) b.addEventListener('click', () => goToWork(id));
         list.appendChild(b);
@@ -327,12 +362,47 @@
   }
   const startTick = () => { if (!rafId) rafId = requestAnimationFrame(tick); };
 
+  /* 线条图标：和站点其它图标同一套（24 网格 / 2.4 描边 / 圆头） */
+  const icon = parts => {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '2.4');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.classList.add('globe-icon');
+    parts.forEach(part => {
+      if (part[0] === 'circle') {
+        const c = document.createElementNS(NS, 'circle');
+        c.setAttribute('cx', part[1]); c.setAttribute('cy', part[2]); c.setAttribute('r', part[3]);
+        svg.appendChild(c);
+      } else {
+        const p = document.createElementNS(NS, 'path');
+        p.setAttribute('d', part[1]);
+        svg.appendChild(p);
+      }
+    });
+    return svg;
+  };
+
+  const ICON_MOON = [['path', 'M20.5 14.3A8.5 8.5 0 0 1 9.7 3.5 8.5 8.5 0 1 0 20.5 14.3Z']];
+  const ICON_SUN = [
+    ['circle', '12', '12', '4'],
+    ['path', 'M12 2.6v2.2M12 19.2v2.2M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6'],
+  ];
+
   /* ---------- 页面骨架 ---------- */
   function buildDom() {
     if (view) return;
+    const host = document.getElementById('compass-view');
+    if (!host) return;
+
     view = el('section', 'globe-view');
     view.id = 'globe-view';
-    view.setAttribute('aria-label', '投稿者地球');
+    view.setAttribute('aria-label', tr('globe.view.title', '投稿者地球'));
     view.setAttribute('aria-hidden', 'true');
 
     stage = el('div', 'globe-stage');
@@ -340,12 +410,12 @@
 
     const title = el('div', 'globe-title');
     title.appendChild(el('p', 'globe-kicker', 'CONTRIBUTORS GLOBE'));
-    title.appendChild(el('h2', null, '投稿者地球'));
+    title.appendChild(el('h2', null, tr('globe.view.title', '投稿者地球')));
     statsLine = el('p', 'globe-stats', '');
     title.appendChild(statsLine);
     view.appendChild(title);
 
-    statusBox = el('div', 'globe-status', '正在展开地球…');
+    statusBox = el('div', 'globe-status', tr('globe.loading', '正在展开地球…'));
     view.appendChild(statusBox);
 
     card = el('aside', 'globe-card');
@@ -358,24 +428,31 @@
     dock.appendChild(roster);
 
     const tools = el('div', 'globe-tools');
-    dayBtn = el('button', 'globe-btn', '☾ 看夜晚');
+    dayBtn = el('button', 'globe-btn');
     dayBtn.type = 'button';
     dayBtn.setAttribute('aria-pressed', 'false');
+    dayBtn.appendChild(icon(ICON_MOON));
+    dayBtn.appendChild(el('span', null, tr('globe.night', '看夜晚')));
     dayBtn.addEventListener('click', toggleNight);
     tools.appendChild(dayBtn);
-    const cta = el('a', 'globe-btn globe-btn--cta', '＋ 我要插旗');
+    const cta = el('a', 'globe-btn globe-btn--cta');
+    cta.appendChild(el('span', null, tr('globe.cta', '＋ 我要插旗')));
     cta.href = issueUrl(); cta.target = '_blank'; cta.rel = 'noopener noreferrer';
-    cta.title = '在 GitHub 上提交一个投稿，作者会把你的旗子插上去';
+    cta.title = tr('globe.cta.title', '在 GitHub 上提交一个投稿，作者会把你的旗子插上去');
     tools.appendChild(cta);
     dock.appendChild(tools);
     view.appendChild(dock);
 
-    document.body.appendChild(view);
+    host.appendChild(view);
+    host.classList.add('globe-mounted');
   }
 
   function toggleNight() {
     night = !night;
-    dayBtn.textContent = night ? '☀ 看白天' : '☾ 看夜晚';
+    dayBtn.replaceChildren(
+      icon(night ? ICON_SUN : ICON_MOON),
+      el('span', null, night ? tr('globe.day', '看白天') : tr('globe.night', '看夜晚'))
+    );
     dayBtn.setAttribute('aria-pressed', String(night));
     if (g) g.globeImageUrl(IMG + (night ? 'earth-night.jpg' : 'earth-blue-marble.jpg'));
   }
@@ -385,7 +462,7 @@
     statusBox.classList.toggle('is-error', !!isError);
     statusBox.replaceChildren(document.createTextNode(message));
     if (retry) {
-      const b = el('button', null, '重试');
+      const b = el('button', null, tr('globe.retry', '重试'));
       b.type = 'button';
       b.addEventListener('click', retry);
       statusBox.appendChild(el('br'));
@@ -463,13 +540,17 @@
       roster.appendChild(chip);
     });
     const countries = new Set(list.map(c => c.country)).size;
-    statsLine.textContent = list.length ? list.length + ' 位投稿者 · 点亮 ' + countries + ' 个国家/地区' : '还没有投稿者，来插第一面旗吧';
+    statsLine.textContent = list.length
+      ? (list.length === 1 && countries === 1
+        ? tr('globe.stats.one', '1 位投稿者 · 点亮 1 个国家/地区')
+        : tr('globe.stats', '{count} 位投稿者 · 点亮 {countries} 个国家/地区', { count: list.length, countries }))
+      : tr('globe.empty', '还没有投稿者，来插第一面旗吧');
   }
 
   function ensureReady() {
     if (readyPromise) return readyPromise;
     readyPromise = (async () => {
-      showStatus('正在展开地球…');
+      showStatus(tr('globe.loading', '正在展开地球…'));
       const webgl = hasWebGL();
       const [list] = await Promise.all([loadData(), webgl ? loadScript(GLOBE_LIB) : Promise.resolve()]);
       contributors = list;
@@ -479,54 +560,73 @@
         initGlobe(list);
       } else {
         view.classList.add('is-list'); // 没有 WebGL：只显示名单
-        if (!webgl) showStatus('这台设备不支持 3D 地球，先看看投稿者名单吧。');
+        if (!webgl) showStatus(tr('globe.nowebgl', '这台设备不支持 3D 地球，先看看投稿者名单吧。'));
       }
       if (statusBox && !(view.classList.contains('is-list') && !webgl)) statusBox.hidden = true;
     })().catch(err => {
       readyPromise = null;
       console.error('[globe]', err);
-      showStatus('地球没能加载出来：' + (err && err.message ? err.message : '网络错误'), true, () => { if (isOpen) openGlobe(); });
+      showStatus(tr('globe.error', '地球没能加载出来：{msg}', { msg: err && err.message ? err.message : tr('globe.network', '网络错误') }), true, () => { if (isOpen) openGlobe(); });
       throw err;
     });
     return readyPromise;
   }
 
-  /* ---------- 打开 / 关闭 ---------- */
-  function setNavActive(on) {
-    navGlobe.classList.toggle('active', on);
-    navGlobe.setAttribute('aria-pressed', String(on));
-    if (on) {
-      [navHome, navBookmark].forEach(b => { if (b) { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); } });
-    }
-  }
-
+  /* ---------- 打开 / 关闭 ----------
+     指南针是首页里的一个视图，开关由主站的 main.js（setCompassView）负责，
+     它来调这里的 open() / close()。这里不再自己动导航按钮，免得两边打架。 */
   async function openGlobe() {
     buildDom();
+    if (!view) return;
     if (isOpen && readyPromise) return;
     isOpen = true;
-    body.classList.add('view-globe');
     view.setAttribute('aria-hidden', 'false');
-    setNavActive(true);
     try { await ensureReady(); } catch (_) { return; }
     if (!isOpen) return;
     if (g) { g.resumeAnimation(); g.width(stage.clientWidth).height(stage.clientHeight); }
     startTick();
+    refreshText();
   }
 
   function closeGlobe() {
     if (!isOpen) return;
     isOpen = false;
-    body.classList.remove('view-globe');
     if (view) view.setAttribute('aria-hidden', 'true');
-    setNavActive(false);
     if (selected) deselect();
     clearTimeout(resumeTimer);
     if (g) setTimeout(() => { if (!isOpen) g.pauseAnimation(); }, readDuration() + 60);
   }
 
-  navGlobe.addEventListener('click', openGlobe);
-  [navHome, navBookmark].forEach(b => b && b.addEventListener('click', closeGlobe));
+  /* 中英切换后把地球里的文案重新刷一遍 */
+  function refreshText() {
+    if (!view) return;
+    // 国名跟着语言走：中文用内置表，英文用系统自带的国家名
+    contributors.forEach(c => { c.countryName = countryLabel(c.country); });
+    view.setAttribute('aria-label', tr('globe.view.title', '投稿者地球'));
+    const h2 = view.querySelector('.globe-title h2');
+    if (h2) h2.textContent = tr('globe.view.title', '投稿者地球');
+    if (dayBtn) {
+      dayBtn.replaceChildren(
+        icon(night ? ICON_SUN : ICON_MOON),
+        el('span', null, night ? tr('globe.day', '看白天') : tr('globe.night', '看夜晚'))
+      );
+    }
+    const cta = view.querySelector('.globe-btn--cta span');
+    if (cta) cta.textContent = tr('globe.cta', '＋ 我要插旗');
+    if (contributors.length) buildRoster(contributors);
+    if (selected) renderCard(selected);
+  }
+
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && isOpen && selected) deselect();
   });
+  document.addEventListener('site:languagechange', () => { refreshText(); });
+
+  /* 暴露给主站：main.js 的 setCompassView(true / false) 会调这里 */
+  window.siteGlobe = {
+    open: openGlobe,
+    close: closeGlobe,
+    refresh: refreshText,
+    isOpen: () => isOpen,
+  };
 })();

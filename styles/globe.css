@@ -1,13 +1,11 @@
 /* =========================================================
-   投稿者地球（首页第二个按钮）
+   投稿者地球（挂在首页「指南针」视图里）
    和主站同一套语言：奶油色 #f5ecd9 + 黑描边 + 硬阴影 + 黄/红按钮。
    时长与曲线沿用 style.css 里的 --dur / --ease。
    ========================================================= */
 
-/* 进入地球视图：作品网格和搜索框让位（网格用 height:0 收起而不是 display:none，
-   这样卡片宽度不变、里面的 iframe 不会被 resize / 重载） */
-body.view-globe main { height: 0; overflow: hidden; visibility: hidden; padding-top: 0; padding-bottom: 0; }
-body.view-globe .top-bar { opacity: 0; visibility: hidden; pointer-events: none; transition: none; }
+/* 地球盖在指南针视图上；作品网格和搜索框的收起由 style.css 的 compass-mode 负责 */
+#compass-view.globe-mounted .compass-view-inner { display: none; }
 
 .globe-view {
   position: fixed; inset: 0; z-index: 15; overflow: hidden;
@@ -16,7 +14,7 @@ body.view-globe .top-bar { opacity: 0; visibility: hidden; pointer-events: none;
   opacity: 0; visibility: hidden; pointer-events: none;
   transition: opacity var(--dur) var(--ease), visibility 0s linear var(--dur);
 }
-body.view-globe .globe-view {
+body.compass-mode .globe-view {
   opacity: 1; visibility: visible; pointer-events: auto;
   transition: opacity var(--dur) var(--ease), visibility 0s;
 }
@@ -71,6 +69,9 @@ body.view-globe .globe-view {
 .gpin--flag .gpin-face { width: 42px; height: 30px; }
 .gpin.is-selected .gpin-face { border-color: #f4bd3c; box-shadow: 3px 3px 0 #080808, 0 0 0 3px #080808; }
 .gpin-face img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* 头像没加载出来（或者还在转圈）时，底下那层首字母先顶着，不留白方块 */
+.gpin-face > img, .globe-chip .chip-face > img { position: absolute; inset: 0; }
+.gpin-face > .gpin-initial, .globe-chip .chip-face > .gpin-initial { position: absolute; inset: 0; }
 .gpin-initial {
   display: grid; place-items: center; width: 100%; height: 100%;
   color: #1a1712; font-size: 18px; font-weight: 900;
@@ -88,7 +89,7 @@ body.view-globe .globe-view {
 
 /* ---------- 选中后的信息卡 ---------- */
 .globe-card {
-  position: absolute; top: 24px; right: 28px; z-index: 5;
+  position: absolute; top: 86px; right: 28px; z-index: 5;
   width: min(330px, calc(100vw - 32px)); padding: 18px 18px 16px;
   background: #f5ecd9; color: #1a1712; border: 3px solid #080808; border-radius: 4px;
   box-shadow: 6px 6px 0 #080808;
@@ -114,6 +115,7 @@ body.view-globe .globe-view {
 .gc-github { display: inline-block; margin-top: 3px; color: #8c5d13; font-size: 12px; font-weight: 800; text-decoration: none; }
 .gc-github:hover { text-decoration: underline; }
 .gc-where { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; color: #514a3d; font-size: 13px; font-weight: 700; }
+.gc-where span { white-space: nowrap; }
 .gc-where img { width: 22px; height: 15px; object-fit: cover; border: 1px solid #080808; border-radius: 2px; }
 .gc-note { margin: 10px 0 0; color: #514a3d; font-size: 13px; line-height: 1.7; }
 .gc-works { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
@@ -132,6 +134,8 @@ body.view-globe .globe-view {
   display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
   pointer-events: none;
 }
+/* 指南针视图里右下角有版本号，底部这一排往上抬一点，别压着 */
+body.compass-mode .globe-dock { bottom: 56px; }
 .globe-roster {
   display: flex; gap: 10px; max-width: min(720px, 100%); padding: 4px 6px 8px 2px;
   overflow-x: auto; overscroll-behavior-x: contain; pointer-events: auto;
@@ -146,8 +150,9 @@ body.view-globe .globe-view {
 .globe-chip:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #080808; }
 .globe-chip:active { transform: translate(3px, 3px); box-shadow: none; }
 .globe-chip.is-selected { background: #f4bd3c; }
-.globe-chip .chip-face { display: block; overflow: hidden; width: 26px; height: 26px; border: 2px solid #080808; border-radius: 3px; background: #fff8e9; }
+.globe-chip .chip-face { display: block; overflow: hidden; position: relative; width: 26px; height: 26px; border: 2px solid #080808; border-radius: 3px; background: #fff8e9; }
 .globe-chip .chip-face img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.globe-chip .chip-face .gpin-initial { font-size: 12px; }
 .globe-chip .chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .globe-tools { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; pointer-events: auto; }
