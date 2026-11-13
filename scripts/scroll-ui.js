@@ -28,6 +28,10 @@
   let lastY = window.scrollY;
   // 用户手动点开过搜索栏：下一次滚动就重新收回去
   let manualExpand = false;
+  // 手动展开后的短暂冷却：聚焦输入框会让浏览器顺手滚一下页面，
+  // 这一下滚动不能再把搜索栏收回去（否则就是「展开一下又立刻缩回」的抽搐）。
+  let lastManualExpand = 0;
+  const MANUAL_HOLD = 600;
 
   const setSearch = collapsed => {
     if (root.classList.contains('search-collapsed') === collapsed) return;
@@ -47,6 +51,11 @@
       manualExpand = false;
       setSearch(false);
       setUtility(false);
+      return;
+    }
+    if (performance.now() - lastManualExpand < MANUAL_HOLD) {
+      // 刚手动展开，紧跟其后的这次滚动多半是聚焦输入框引起的，忽略掉
+      manualExpand = false;
       return;
     }
     if (manualExpand) {
@@ -72,13 +81,17 @@
     if (event.target.closest('#search-clear')) return;
     if (!root.classList.contains('search-collapsed')) return;
     manualExpand = true;
+    lastManualExpand = performance.now();
     setSearch(false);
-    searchInput?.focus();
+    searchInput?.focus({ preventScroll: true });
   });
 
   // 键盘快捷键（/ 或 Ctrl+K）把焦点送进输入框时，也要先把方块展开
   searchInput?.addEventListener('focus', () => {
-    if (root.classList.contains('search-collapsed')) manualExpand = true;
+    if (root.classList.contains('search-collapsed')) {
+      manualExpand = true;
+      lastManualExpand = performance.now();
+    }
     setSearch(false);
   });
 

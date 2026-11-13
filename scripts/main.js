@@ -188,7 +188,7 @@ navIndex?.addEventListener('click', () => {
 
 searchInput.addEventListener('input', event => updateSearch(event.target.value));
 searchClear.addEventListener('click', () => { updateSearch(''); searchInput.focus(); });
-searchWrapper.addEventListener('click', event => { if (event.target !== searchClear) searchInput.focus(); });
+searchWrapper.addEventListener('click', event => { if (event.target !== searchClear) searchInput.focus({ preventScroll: true }); });
 
 document.addEventListener('keydown', event => {
   const target = event.target;
@@ -683,6 +683,21 @@ syncSearchUI();
 
   closeBtn.addEventListener('click', closeWork);
   expandBtn.addEventListener('click', toggleExpand);
+
+  /* ---------- 详情页「开发者与贡献者」：跳去地球页并自动选中对应作者 ---------- */
+  document.querySelectorAll('.creator-link[data-creator-work]').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const workId = link.dataset.creatorWork;
+      closeWork();
+      // 等卡片收回动画结束再打开地球，避免和关闭动画抢画面
+      setTimeout(() => {
+        setCompassView(true);
+        window.siteGlobe?.selectWork?.(workId);
+      }, getDuration() + 40);
+    });
+  });
 
   bookmarkBtn.addEventListener('click', () => {
     const id = AppState.activeWorkId;

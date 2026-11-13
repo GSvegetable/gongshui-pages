@@ -197,8 +197,10 @@
   };
 
   /* ---------- 状态 ---------- */
-  let view = null, stage = null, statusBox = null, card = null, roster = null, statsLine = null, dayBtn = null;
+  let view = null, stage = null, statusBox = null, card = null, roster = null, dayBtn = null;
   let searchWrap = null, searchInput = null, cta = null;
+  let collapseTimer = 0;
+  let pendingSelectWork = null;
   let g = null;                 // globe.gl 实例
   let contributors = [];
   let selected = null;
@@ -411,13 +413,6 @@
     return true;
   };
 
-  const buildStats = list => {
-    const countries = new Set(list.map(c => c.country)).size;
-    statsLine.textContent = list.length
-      ? tr('globe.stats', '来自 {countries} 个国家的 {count} 位作者', { countries, count: list.length })
-      : tr('globe.empty', '还没有作者，来插第一面旗吧');
-  };
-
   const applySearch = () => {
     const q = (searchInput && searchInput.value) || '';
     const matches = contributors.filter(c => fuzzy([c.name, c.github, c.countryName, c.city, c.note].join(' '), q));
@@ -435,6 +430,15 @@
     if (view) view.classList.toggle('globe-search-collapsed', on);
     if (on && searchInput && document.activeElement === searchInput) searchInput.blur();
   };
+  const expandSearch = () => {
+    clearTimeout(collapseTimer);
+    collapseSearch(false);
+  };
+  // 滑动地球一次 → 收缩；保持 15 秒后自动展开；期间点搜索栏立即展开
+  const scheduleExpand = () => {
+    clearTimeout(collapseTimer);
+    collapseTimer = setTimeout(() => collapseSearch(false), 15000);
+  };
 
   /* ---------- 页面骨架 ---------- */
   function buildDom() {
@@ -449,10 +453,6 @@
 
     stage = el('div', 'globe-stage');
     view.appendChild(stage);
-
-    // 大标题去掉，只留一行小字：来自 X 个国家的 X 位作者
-    statsLine = el('p', 'globe-stats', '');
-    view.appendChild(statsLine);
 
     statusBox = el('div', 'globe-status', tr('globe.loading', '正在展开地球…'));
     view.appendChild(statusBox);
@@ -478,7 +478,8 @@
     searchInput.autocomplete = 'off';
     searchInput.spellcheck = false;
     searchInput.addEventListener('input', applySearch);
-    searchInput.addEventListener('focus', () => collapseSearch(false));
+    searchInput.addEventListener('focus', expandSearch);
+    searchWrap.addEventListener('click', expandSearch);
     searchWrap.appendChild(searchInput);
     searchCol.appendChild(searchWrap);
     dock.appendChild(searchCol);
@@ -505,6 +506,18 @@
     view.appendChild(dock);
     host.appendChild(view);
     host.classList.add('globe-mounted');
+
+    // 键盘弹起时只上移搜索列：配合 viewport 的 interactive-widget=resizes-visual，
+    // 地球和整页不动，只有搜索框往上让开键盘。
+    const vv = window.visualViewport;
+    if (vv) {
+      const reposition = () => {
+        const lift = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+        view.style.setProperty('--kb-lift', lift + 'px');
+      };
+      vv.addEventListener('resize', reposition);
+      vv.addEventListener('scroll', reposition);
+    }
   }
 
   function toggleNight() {
@@ -686,13 +699,21 @@
     controls.autoRotateSpeed = 0.4;
     controls.minDistance = 160;
     controls.maxDistance = 600;
-    controls.addEventListener('start', () => { clearTimeout(resumeTimer); controls.autoRotate = false; collapseSearch(true); });
-    controls.addEventListener('end', () => { if (!selected) scheduleAutoRotate(5000); collapseSearch(false); });
+    controls.addEventListener('start', () => {
+      clearTimeout(resumeTimer);
+      controls.autoRotate = false;
+      collapseSearch(true);
+      scheduleExpand();
+    });
+    controls.addEventListener('end', () => { if (!selected) scheduleAutoRotate(5000); });
 
     // 一开场从远处飞近，落在投稿者们大致所在的经度
     const midLng = list.length ? list.reduce((s, c) => s + c.plotLng, 0) / list.length : 105;
     g.pointOfView({ lat: 22, lng: midLng, altitude: 4 }, 0);
-    setTimeout(() => g.pointOfView({ lat: 22, lng: midLng, altitude: 2.3 }, 2200), 80);
+    // 若是从详情页「开发者与贡献者」进来，跳过开场飞近，直接把镜头交给被选中的作者
+    if (!pendingSelectWork) {
+      setTimeout(() => g.pointOfView({ lat: 22, lng: midLng, altitude: 2.3 }, 2200), 80);
+    }
 
     new ResizeObserver(() => {
       if (stage.clientWidth && stage.clientHeight) g.width(stage.clientWidth).height(stage.clientHeight);
@@ -734,7 +755,6 @@
       const textures = (webgl && !geo) ? preloadTextures() : Promise.resolve();
       contributors = list;
       list.forEach(buildPin);
-      buildStats(list);
       applySearch();
       if (webgl && window.Globe) {
         initGlobe(list, geo);
@@ -746,6 +766,7 @@
         if (!webgl) showStatus(tr('globe.nowebgl', '这台设备不支持 3D 地球，先看看投稿者名单吧。'));
         else if (statusBox) statusBox.hidden = true;
       }
+      applyPendingSelect();
     })().catch(err => {
       readyPromise = null;
       console.error('[globe]', err);
@@ -799,7 +820,7 @@
       cta.setAttribute('aria-label', tip);
       cta.title = tip;
     }
-    if (contributors.length) buildStats(contributors);
+    if (contributors.length) applyPendingSelect();
     applySearch();
     if (selected) renderCard(selected);
   }
@@ -809,11 +830,24 @@
   });
   document.addEventListener('site:languagechange', () => { refreshText(); });
 
+  /* 从详情页点「开发者与贡献者」时：打开地球并自动选中对应作者 */
+  function applyPendingSelect() {
+    if (!pendingSelectWork || !contributors.length) return;
+    const id = pendingSelectWork;
+    pendingSelectWork = null;
+    const target = contributors.find(c => c.works.includes(id)) || contributors[0];
+    if (target) select(target, true);
+  }
+
   /* 暴露给主站：main.js 的 setCompassView(true / false) 会调这里 */
   window.siteGlobe = {
     open: openGlobe,
     close: closeGlobe,
     refresh: refreshText,
     isOpen: () => isOpen,
+    selectWork: workId => {
+      pendingSelectWork = workId;
+      if (contributors.length) applyPendingSelect();
+    },
   };
 })();
