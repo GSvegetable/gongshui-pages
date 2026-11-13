@@ -790,7 +790,8 @@ body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .bookmark-remove:
 
 /* ===== v2.8.2 — 作品视图：左侧随页面滚动，右侧面板独立滚动 ===== */
 .work-spacer { display: block; height: 0; }
-.preview-card.is-open.is-settled { position: absolute; }
+/* 作品打开后：卡片改为文档流坐标的绝对定位，随页面滚动，且不再有内部滚动条 */
+.preview-card.is-open.is-settled { position: absolute; max-height: none; overflow: visible; }
 
 /* 版本对比：主视图下方「版本对比」开关 + 副视图 */
 .work-extras {
