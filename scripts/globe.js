@@ -208,6 +208,7 @@
   let night = false;
   let rafId = 0;
   let resumeTimer = 0;
+  let baseHeight = 0;           // 地球视图钉死的高度：键盘弹出时不跟着缩
   let readyPromise = null;
   let pixelTex = null;          // 像素地球的贴图（白天 / 夜晚 / 星空）；null = 用写实照片
 
@@ -440,6 +441,28 @@
     collapseTimer = setTimeout(() => collapseSearch(false), 15000);
   };
 
+  /* ---------- 键盘：页面不动，只抬搜索栏 ----------
+     v2.8.6：手机上键盘弹出时，浏览器要么压缩布局视口，要么平移可视视口（visualViewport.offsetTop），
+     两种都会让整个地球页跟着动。这里把地球视图高度钉死，再用 offsetTop 做反向平移，
+     视觉上页面纹丝不动；搜索列只按键盘高度上移，停在键盘上方。 */
+  function syncViewport() {
+    if (!view) return;
+    const vv = window.visualViewport;
+    const visH = vv ? vv.height : window.innerHeight;
+    const pan = vv ? Math.max(0, vv.offsetTop) : 0;
+    const H = baseHeight || window.innerHeight;
+    const kb = Math.max(0, H - visH - pan);
+    const typing = document.activeElement === searchInput;
+    // 修复：只在非输入状态下更新 baseHeight，避免键盘弹出时页面被顶起
+    // 键盘弹出时，如果没有正在输入，baseHeight 应该保持不变
+    if (!typing && kb < 40) {
+      baseHeight = window.innerHeight;
+      view.style.setProperty('--globe-h', baseHeight + 'px');
+    }
+    view.style.setProperty('--kb-pan', Math.round(pan) + 'px');
+    view.style.setProperty('--kb-lift', Math.round(Math.max(0, H - visH)) + 'px');
+  }
+
   /* ---------- 页面骨架 ---------- */
   function buildDom() {
     if (view) return;
@@ -477,8 +500,10 @@
     searchInput.setAttribute('aria-label', tr('globe.search.placeholder', '搜索作者…'));
     searchInput.autocomplete = 'off';
     searchInput.spellcheck = false;
-    searchInput.addEventListener('input', applySearch);
-    searchInput.addEventListener('focus', expandSearch);
+    let typing = false;
+    searchInput.addEventListener('input', () => { typing = true; applySearch(); });
+    searchInput.addEventListener('focus', () => { expandSearch(); setTimeout(syncViewport, 60); });
+    searchInput.addEventListener('blur', () => { typing = false; setTimeout(syncViewport, 60); });
     searchWrap.addEventListener('click', expandSearch);
     searchWrap.appendChild(searchInput);
     searchCol.appendChild(searchWrap);
@@ -507,17 +532,16 @@
     host.appendChild(view);
     host.classList.add('globe-mounted');
 
-    // 键盘弹起时只上移搜索列：配合 viewport 的 interactive-widget=resizes-visual，
-    // 地球和整页不动，只有搜索框往上让开键盘。
+    // 键盘弹起时页面完全不动，只把搜索列抬到键盘上方（见 syncViewport）。
+    baseHeight = window.innerHeight;
+    view.style.setProperty('--globe-h', baseHeight + 'px');
     const vv = window.visualViewport;
     if (vv) {
-      const reposition = () => {
-        const lift = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-        view.style.setProperty('--kb-lift', lift + 'px');
-      };
-      vv.addEventListener('resize', reposition);
-      vv.addEventListener('scroll', reposition);
+      vv.addEventListener('resize', syncViewport);
+      vv.addEventListener('scroll', syncViewport);
     }
+    window.addEventListener('resize', syncViewport);
+    window.addEventListener('orientationchange', () => { baseHeight = window.innerHeight; syncViewport(); });
   }
 
   function toggleNight() {
@@ -791,6 +815,8 @@
     }
     try { await ensureReady(); } catch (_) { return; }
     if (!isOpen) return;
+    baseHeight = window.innerHeight;
+    syncViewport();
     if (g) { g.resumeAnimation(); g.width(stage.clientWidth).height(stage.clientHeight); }
     startTick();
     startGyro();
@@ -801,6 +827,10 @@
     if (!isOpen) return;
     isOpen = false;
     stopGyro();
+    if (view) {
+      view.style.setProperty('--kb-pan', '0px');
+      view.style.setProperty('--kb-lift', '0px');
+    }
     if (view) view.setAttribute('aria-hidden', 'true');
     if (selected) deselect();
     clearTimeout(resumeTimer);
@@ -836,45 +866,93 @@
   });
   document.addEventListener('site:languagechange', () => { refreshText(); });
 
-  /* ---------- 陀螺仪：移动端轻微、强阻尼的倾斜旋转 ---------- */
+  /* ---------- 陀螺仪：移动端轻微、强阻尼的倾斜旋转 ----------
+     v2.8.6：
+     · 不再要求 pointer: coarse —— 有些手机/浏览器会把指针报成 fine，直接不装监听。
+       现在只要有 DeviceOrientationEvent 就装上，真的收到传感器事件才启动动画。
+     · 第一次读到的姿态作零点：竖握、横握、平板都能用，不会因为基准角不对而"毫无反应"。
+     · 同时听 deviceorientationabsolute 和 deviceorientation，覆盖不同浏览器。
+     · 幅度略加大（3.2° / 2.2°），阻尼 8%/帧，顺滑但不晕。 */
   let gyro = null;
-  const gyroSupported = () =>
-    !!window.DeviceOrientationEvent && window.matchMedia('(pointer: coarse)').matches;
+  const gyroClamp = v => Math.max(-1, Math.min(1, v));
 
   function setupGyro() {
-    if (gyro || !gyroSupported()) return;
-    gyro = { tx: 0, ty: 0, x: 0, y: 0, raf: 0 };
-    window.addEventListener('deviceorientation', event => {
+    if (gyro || !window.DeviceOrientationEvent) return;
+    gyro = { tx: 0, ty: 0, x: 0, y: 0, raf: 0, active: false, baseBeta: null, baseGamma: null, last: 0 };
+    const onOrient = event => {
       if (!gyro || event.beta == null || event.gamma == null) return;
-      // gamma：左右倾斜；beta：前后倾斜（竖握手机时约 45~60，取 55 当零点）
-      gyro.tx = Math.max(-1, Math.min(1, event.gamma / 20));
-      gyro.ty = Math.max(-1, Math.min(1, (event.beta - 55) / 22));
-    }, true);
+      // 第一帧姿态当零点，之后只算相对倾斜
+      if (gyro.baseBeta == null) {
+        gyro.baseBeta = event.beta;
+        gyro.baseGamma = event.gamma;
+      }
+      gyro.tx = gyroClamp((event.gamma - gyro.baseGamma) / 18);
+      gyro.ty = gyroClamp((event.beta - gyro.baseBeta) / 18);
+      gyro.last = performance.now();
+      if (!gyro.active) {
+        gyro.active = true;
+        if (isOpen) startGyroLoop();
+      }
+    };
+    window.addEventListener('deviceorientationabsolute', onOrient, true);
+    window.addEventListener('deviceorientation', onOrient, true);
+    const recalibrate = () => { if (gyro) { gyro.baseBeta = null; gyro.baseGamma = null; } };
+    window.addEventListener('orientationchange', recalibrate);
+    if (screen.orientation && screen.orientation.addEventListener) {
+      screen.orientation.addEventListener('change', recalibrate);
+    }
+    // iOS 第一次拒绝授权后，再点一下地球可以重新申请
+    const retryPermission = () => {
+      if (typeof window.DeviceOrientationEvent?.requestPermission === 'function') {
+        window.DeviceOrientationEvent.requestPermission().catch(() => {});
+      }
+    };
+    if (stage) stage.addEventListener('pointerdown', retryPermission, { passive: true });
   }
 
   function gyroFrame() {
     if (!gyro) return;
-    // 强阻尼：每帧只追 6%，平滑、不晕、不跟着手抖
-    gyro.x += (gyro.tx - gyro.x) * 0.06;
-    gyro.y += (gyro.ty - gyro.y) * 0.06;
-    if (stage) {
-      stage.style.transform =
-        'perspective(1200px) rotateY(' + (gyro.x * 2.4).toFixed(3) + 'deg)' +
-        ' rotateX(' + (-gyro.y * 1.7).toFixed(3) + 'deg) scale(1.05)';
+    gyro.x += (gyro.tx - gyro.x) * 0.08;
+    gyro.y += (gyro.ty - gyro.y) * 0.08;
+    const still = Math.abs(gyro.x) < 0.003 && Math.abs(gyro.y) < 0.003;
+    const idle = performance.now() - gyro.last > 1500;
+    // 1.5 秒没有新的传感器事件：收工。桌面浏览器只会给一次 0 值事件，
+    // 不能因此留下一个 scale(1.05) 把地球悄悄放大。
+    if (idle) {
+      if (still && view) view.style.transform = '';
+      gyro.raf = 0;
+      gyro.active = false;
+      return;
     }
+    if (view) {
+      view.style.transform = still
+        ? ''
+        : 'perspective(1200px) rotateY(' + (gyro.x * 3.2).toFixed(3) + 'deg)' +
+          ' rotateX(' + (-gyro.y * 2.2).toFixed(3) + 'deg) scale(1.05)';
+    }
+    gyro.raf = requestAnimationFrame(gyroFrame);
+  }
+
+  function startGyroLoop() {
+    if (!gyro || gyro.raf) return;
     gyro.raf = requestAnimationFrame(gyroFrame);
   }
 
   function startGyro() {
     setupGyro();
-    if (!gyro || gyro.raf) return;
-    gyro.raf = requestAnimationFrame(gyroFrame);
+    if (!gyro) return;
+    startGyroLoop();
   }
 
   function stopGyro() {
     if (!gyro) return;
     cancelAnimationFrame(gyro.raf);
     gyro.raf = 0;
+    gyro.active = false;
+    gyro.baseBeta = null;
+    gyro.baseGamma = null;
+    gyro.x = 0;
+    gyro.y = 0;
     if (stage) stage.style.transform = '';
   }
 

@@ -310,33 +310,23 @@ main { padding: 94px 24px 48px; }
 }
 .card-title { font-size: 13px; font-weight: 900; letter-spacing: 1px; }
 .preview-card.is-open .card-title { font-size: 18px; }
-.work-tags { display:inline-flex; align-items:center; gap:7px; flex-wrap:wrap; }
-.work-tag {
-  display:inline-flex;
-  align-items:center;
-  gap:7px;
-  padding:3px 8px 3px 7px;
-  border:1px solid #b98a35;
-  border-radius:999px;
-  background:linear-gradient(135deg, #293957 0%, #17243d 100%);
-  color:#fff0c7;
-  box-shadow:0 2px 0 rgba(104,72,24,.28), inset 0 1px 0 rgba(255,255,255,.12);
-  font-size:9px;
-  font-weight:800;
-  line-height:1.25;
-  letter-spacing:.7px;
-  white-space:nowrap;
+/* v2.8.6 — 「像素风」标签离开卡片下巴，搬到详情面板里做成真正的标签样式 */
+.work-tags { display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.detail-tags { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px; }
+.detail-tags .work-tag {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:5px 10px 6px; border:2px solid #211d15; border-radius:3px;
+  background:#f4d78e; color:#3a2c12;
+  box-shadow:2px 3px 0 #211d15;
+  font:900 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing:1.6px; white-space:nowrap;
+  transform:rotate(-1.5deg);
 }
-.work-tag::before {
-  content:"";
-  width:6px;
-  height:6px;
-  flex:0 0 6px;
-  border-radius:1px;
-  background:#f4bd4b;
-  box-shadow:4px 0 0 #f4bd4b, 0 4px 0 #d99132, 4px 4px 0 #d99132;
+.detail-tags .work-tag::before {
+  content:"#";
+  color:#8c5d13;
+  font-size:11px; font-weight:900; letter-spacing:0;
 }
-.preview-card.is-open .work-tag { padding:3px 8px 3px 7px; font-size:9px; }
 
 /* ---------- 空状态 ---------- */
 .empty-state {
@@ -758,38 +748,162 @@ main{--gallery-card-min:300px}
   border-radius:50%;box-shadow:0 0 0 3px rgba(239,160,44,.18),0 0 12px rgba(239,160,44,.35);
 }
 
-/* v2.7 — 收藏视图：收藏时用列表式书架呈现，和首页网格区分开 */
-.bookmarks-heading {
-  display: flex; align-items: baseline; gap: 12px;
-  margin: 0 0 18px; padding-left: 88px;
-}
-.bookmarks-heading h2 { margin: 0; color: #191711; font-size: 22px; letter-spacing: -.5px; }
-.bookmarks-heading .bookmarks-count { color: #8a7a5c; font: 700 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
-.bookmarks-heading[hidden] { display: none; }
+/* ===== v2.8.6 — 收藏页重做：文件夹模式（文件夹列表 → 文件夹内作品缩略图） ===== */
+.bookmarks-view { padding: 0 0 6px; }
+.bookmarks-view[hidden] { display: none; }
 
-.bookmark-desc, .bookmark-remove { display: none; }
-
-body.is-bookmarks .grid { grid-template-columns: minmax(0, 1fr); gap: 16px; max-width: 780px; }
-body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) { display: flex; flex-direction: row; align-items: center; gap: 16px; }
-body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .preview-mount { flex: 0 0 190px; width: 190px; }
-body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .card-info { flex: 1 1 auto; flex-direction: column; align-items: stretch; gap: 8px; margin-top: 0; padding: 0 4px; }
-body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .card-title { font-size: 17px; letter-spacing: .5px; }
-body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .bookmark-desc {
-  display: block; margin: 0; color: #6b5d47; font-size: 12px; line-height: 1.65;
+.bookmarks-toolbar {
+  display: flex; align-items: center; gap: 12px;
+  margin: 0 0 20px; padding-left: 88px;
 }
-body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .bookmark-remove {
-  display: inline-flex; align-items: center; justify-content: center; align-self: flex-start;
-  gap: 6px; height: 30px; padding: 0 11px; cursor: pointer;
-  border: 2px solid #080808; border-radius: 3px; background: #f4bd3c; color: #211d15;
+.bookmarks-toolbar h2 { margin: 0; color: #191711; font-size: 22px; letter-spacing: -.5px; }
+.bookmarks-toolbar h2::after { content: ''; } /* 去掉计数小字 */
+.bookmarks-back {
+  display: grid; place-items: center; width: 34px; height: 34px; margin-left: -2px;
+  border: 3px solid #080808; border-radius: 4px; background: #f4bd3c; color: #211d15;
+  box-shadow: 2px 3px 0 #000; cursor: pointer; transition: transform .1s, box-shadow .1s;
+}
+.bookmarks-back svg { width: 17px; height: 17px; }
+.bookmarks-back:hover { background: #ffd36a; }
+.bookmarks-back:active { transform: translate(2px, 3px); box-shadow: none; }
+.bookmarks-back[hidden] { display: none; }
+
+.folder-new {
+  display: inline-flex; align-items: center; gap: 7px; margin-left: auto;
+  height: 38px; padding: 0 14px; cursor: pointer;
+  border: 3px solid #080808; border-radius: 4px; background: #f4bd3c; color: #211d15;
   font: 900 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
-  box-shadow: 2px 3px 0 #000; transition: transform .1s, box-shadow .1s, background .15s;
+  box-shadow: 3px 4px 0 #000; transition: transform .1s, box-shadow .1s, background .15s;
 }
-body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .bookmark-remove:hover { background: #ffd36a; }
-body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .bookmark-remove:active { transform: translate(2px, 3px); box-shadow: none; }
+.folder-new:hover { background: #ffd36a; }
+.folder-new:active { transform: translate(3px, 4px); box-shadow: none; }
+.folder-new[hidden] { display: none; }
+.folder-new-plus { font-size: 14px; line-height: 1; }
+
+.folder-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px 18px; padding: 14px 0 0;
+}
+.folder-card {
+  position: relative; padding: 14px 12px; text-align: left;
+  border: 3px solid #080808; border-radius: 5px; background: #f5ecd9; color: #1a1712;
+  box-shadow: 4px 4px 0 rgba(0,0,0,.5);
+  cursor: pointer; transition: transform .12s ease, box-shadow .12s ease;
+}
+.folder-card:hover { transform: translate(-1px, -2px); box-shadow: 5px 6px 0 rgba(0,0,0,.55); }
+.folder-card:focus-visible { outline: 3px solid #f4bd3c; outline-offset: 4px; }
+.folder-thumbs { display: flex; gap: 6px; min-height: 40px; margin-bottom: 10px; }
+.folder-thumb {
+  width: 60px; height: 40px; border: 2px solid #080808; border-radius: 3px;
+  background: #211d15; flex: 0 0 auto;
+}
+.folder-thumb[data-work="pixel-daylight-switch"] {
+  background: linear-gradient(160deg, #d6ecff 0%, #93c6e6 38%, #2c4757 39%, #1a2a36 100%);
+}
+.folder-thumb[data-work="pixel-orbit"] {
+  background: radial-gradient(circle at 50% 52%, #ffd36a 0 20%, #b8792d 21% 34%, #1b2947 35% 100%);
+}
+.folder-thumb.is-empty {
+  background: repeating-linear-gradient(135deg, #e7dcc4 0 6px, #f0e7d3 6px 12px);
+  box-shadow: none; border-style: dashed; border-color: #b9a889;
+}
+.folder-name {
+  display: block; max-width: 100%; color: #191711;
+  font-size: 16px; font-weight: 900; letter-spacing: .3px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.folder-meta { display: none; } /* 去掉计数 */
+.folder-actions { display: none; } /* 去掉重命名/删除按钮 */
+.folder-name-input {
+  width: 100%; height: 32px; padding: 0 8px;
+  border: 2px solid #080808; border-radius: 3px; background: #fffdf7; color: #1a1712;
+  font: 900 14px/1 ui-monospace, SFMono-Regular, Menlo, monospace; outline: none;
+}
+.folder-hint { padding: 60px 20px; margin: 0; text-align: center; color: #8b7d67; font-size: 13px; font-weight: 700; }
+.folder-hint[hidden] { display: none; }
+
+/* 文件夹内部：作品缩略图网格 */
+body.folders-root .grid { display: none; }
+body.folder-open .folder-grid,
+body.folder-open .folder-hint { display: none; }
+body.is-bookmarks.folder-open .grid {
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 22px; max-width: none;
+}
+body.is-bookmarks.folder-open .preview-card:not(.is-open):not(.is-closing) { position: relative; padding: 8px; }
+/* 「移出文件夹」按钮默认不出现：只在收藏页打开文件夹时显示在缩略图右上角 */
+.bookmark-remove { display: none; }
+body.is-bookmarks .bookmark-desc { display: none; }
+body.is-bookmarks.folder-open .bookmark-remove {
+  display: grid; place-items: center; position: absolute; top: 16px; right: 16px; z-index: 3;
+  width: 26px; height: 26px; padding: 0; cursor: pointer;
+  border: 2px solid #080808; border-radius: 3px; background: #f5ecd9; color: #211d15;
+  font: 900 13px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  box-shadow: 2px 2px 0 #000; transition: transform .1s, box-shadow .1s, background .15s;
+}
+body.is-bookmarks.folder-open .bookmark-remove:hover { background: #e94c43; color: #fff; }
+body.is-bookmarks.folder-open .bookmark-remove:active { transform: translate(2px, 2px); box-shadow: none; }
+
+/* 「收藏到文件夹」弹层 */
+.folder-picker {
+  position: fixed; z-index: 130; width: 264px; padding: 14px;
+  border: 3px solid #080808; border-radius: 5px; background: #f5ecd9; color: #1a1712;
+  box-shadow: 6px 7px 0 rgba(0,0,0,.72);
+}
+.folder-picker[hidden] { display: none; }
+.fp-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-bottom: 10px; color: #8a6a1c;
+  font: 900 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 1.2px;
+}
+.fp-close {
+  display: grid; place-items: center; width: 22px; height: 22px; padding: 0;
+  border: 2px solid #080808; border-radius: 3px; background: #f5ecd9; cursor: pointer;
+  font: 900 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: #211d15;
+}
+.fp-close:hover { background: #f4bd3c; }
+.fp-list { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; }
+.fp-empty { margin: 2px 0 4px; color: #8a7a5c; font: 700 11px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.fp-row {
+  display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 9px;
+  border: 2px solid transparent; border-radius: 3px; background: #efe6d2; color: #211d15;
+  font: 800 12px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; text-align: left; cursor: pointer;
+}
+.fp-row:hover { background: #f7eeda; }
+.fp-check {
+  display: grid; place-items: center; width: 16px; height: 16px; flex: 0 0 auto;
+  border: 2px solid #211d15; border-radius: 2px; background: #fffdf7;
+}
+.fp-row.is-in .fp-check { background: #f4bd3c; }
+.fp-row.is-in .fp-check::after {
+  content: "✓"; font: 900 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: #211d15;
+}
+.fp-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fp-count { color: #8a7a5c; font: 700 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.fp-new { display: flex; gap: 6px; margin-top: 10px; }
+.fp-new input {
+  flex: 1 1 auto; min-width: 0; height: 32px; padding: 0 8px;
+  border: 2px solid #211d15; border-radius: 3px; background: #fffdf7; color: #1a1712;
+  font: 700 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; outline: none;
+}
+.fp-new input:focus { border-color: #f4bd3c; box-shadow: 0 0 0 3px rgba(244,189,60,.25); }
+.fp-new button {
+  width: 34px; height: 32px; padding: 0; cursor: pointer;
+  border: 2px solid #080808; border-radius: 3px; background: #f4bd3c; color: #211d15;
+  font: 900 15px/1 ui-monospace, SFMono-Regular, Menlo, monospace; box-shadow: 2px 2px 0 #000;
+}
 
 @media (max-width: 600px) {
-  .bookmarks-heading { padding-left: 64px; }
-  body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .preview-mount { flex: 0 0 130px; width: 130px; }
+  .bookmarks-toolbar { padding-left: 64px; gap: 10px; margin-bottom: 20px; }
+  .bookmarks-toolbar h2 { font-size: 19px; }
+  .folder-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 12px; padding-top: 12px; }
+  .folder-card { padding: 16px 10px 12px; }
+  .folder-tab { width: 64px; }
+  .folder-thumb { width: 100%; max-width: 60px; height: 40px; }
+  .folder-actions { opacity: 1; }
+  .folder-new { height: 34px; padding: 0 10px; }
+  body.is-bookmarks.folder-open .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .folder-picker { left: 14px; right: 14px; bottom: 14px; width: auto; padding: 16px; }
 }
 
 /* v2.7 — 设置面板去掉标题与横线后，账号/语言按钮统一尺寸 */

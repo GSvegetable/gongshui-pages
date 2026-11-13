@@ -9,6 +9,10 @@
 
 .globe-view {
   position: fixed; inset: 0; z-index: 15; overflow: hidden;
+  /* v2.8.6：高度由 JS 钉死（--globe-h），键盘弹出时不再压缩地球；
+     --kb-pan 抵消浏览器把可视视口往上平移的那一段，页面视觉上纹丝不动。 */
+  height: var(--globe-h, 100%);
+  transform: translateY(var(--kb-pan, 0px));
   color: #f5ecd9;
   background: radial-gradient(120% 90% at 55% 42%, #0e1628 0%, #070a12 55%, #04060b 100%);
   opacity: 0; visibility: hidden; pointer-events: none;
@@ -19,7 +23,7 @@ body.compass-mode .globe-view {
   transition: opacity var(--dur) var(--ease), visibility 0s;
 }
 
-.globe-stage { position: absolute; inset: 0; cursor: grab; touch-action: none; }
+.globe-stage { position: absolute; inset: 0; cursor: grab; touch-action: none; will-change: transform; }
 .globe-stage:active { cursor: grabbing; }
 .globe-stage canvas { outline: none; }
 

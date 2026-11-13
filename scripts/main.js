@@ -16,7 +16,9 @@ const works = [...document.querySelectorAll('.preview-card[data-id]')].map(card 
 const AppState = {
   currentTab: 'home', // 'home' | 'bookmarks'
   searchQuery: '',
-  bookmarks: [],
+  bookmarks: [],            // 所有文件夹里作品的并集（老接口 / 云端同步仍用它）
+  bookmarkFolders: [],      // [{ id, name, works: [workId] }]
+  openFolderId: null,       // 收藏页当前打开的文件夹（null = 文件夹列表）
   activeWorkId: works.length ? works[0].id : null
 };
 
@@ -27,6 +29,135 @@ try {
 
 const saveBookmarks = () => {
   try { localStorage.setItem('ui-archive-bookmarks', JSON.stringify(AppState.bookmarks)); } catch (_) {}
+};
+
+/* =========================================================
+   0.6 收藏夹：文件夹模式
+   ---------------------------------------------------------
+   收藏从「平铺的一串 id」升级成「文件夹 → 作品 id 列表」：
+   · 文件夹结构存 localStorage 'ui-archive-bookmark-folders'，
+     并跟偏好一起同步到云端（sync.js 的 bookmarkFolders）。
+   · 老版本只有一串收藏 id：第一次加载时自动迁移进「我的收藏」文件夹。
+   ========================================================= */
+const FOLDERS_KEY = 'ui-archive-bookmark-folders';
+const folderUid = () => 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const workIdSet = () => new Set(works.map(w => w.id));
+
+const normalizeFolders = list => (Array.isArray(list) ? list : [])
+  .filter(f => f && typeof f.id === 'string' && typeof f.name === 'string')
+  .map(f => ({
+    id: f.id,
+    name: String(f.name).slice(0, 24),
+    works: (Array.isArray(f.works) ? f.works : []).filter(id => workIdSet().has(id))
+  }));
+
+const deriveBookmarkIds = () => {
+  const set = new Set();
+  AppState.bookmarkFolders.forEach(folder => folder.works.forEach(id => set.add(id)));
+  AppState.bookmarks = Array.from(set);
+};
+
+const loadFolders = () => {
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem(FOLDERS_KEY) || '[]'); } catch (_) {}
+  list = normalizeFolders(list);
+  // 老数据迁移：没有文件夹但有收藏 → 装进一个「我的收藏」
+  if (!list.length && AppState.bookmarks.length) {
+    const works_ = AppState.bookmarks.filter(id => workIdSet().has(id));
+    if (works_.length) list = [{ id: 'default', name: '我的收藏', works: works_ }];
+  }
+  AppState.bookmarkFolders = list;
+  deriveBookmarkIds();
+};
+
+const saveFolders = ({ sync = true } = {}) => {
+  deriveBookmarkIds();
+  try { localStorage.setItem(FOLDERS_KEY, JSON.stringify(AppState.bookmarkFolders)); } catch (_) {}
+  saveBookmarks();
+  if (sync) {
+    try { window.siteSync?.patchPrefs?.({ bookmarkFolders: JSON.stringify(AppState.bookmarkFolders) }); } catch (_) {}
+  }
+};
+
+const folderById = id => AppState.bookmarkFolders.find(f => f.id === id) || null;
+const folderOfWork = workId => AppState.bookmarkFolders.filter(f => f.works.includes(workId));
+
+const workTitleOf = workId => {
+  const w = works.find(item => item.id === workId);
+  return w ? (w.card.querySelector('.card-title')?.textContent || '') : '';
+};
+
+/* 新建 / 重命名 / 删除 / 文件夹成员切换 */
+const createFolder = (name, { workId = null } = {}) => {
+  const folder = {
+    id: folderUid(),
+    name: (String(name || '').trim() || tr('folders.new', '新建文件夹')).slice(0, 24),
+    works: workId ? [workId] : []
+  };
+  AppState.bookmarkFolders.push(folder);
+  saveFolders();
+  if (workId) window.siteSync?.setBookmark?.(workId, true);
+  document.dispatchEvent(new CustomEvent('site:bookmarkchange'));
+  return folder;
+};
+
+const toggleWorkInFolder = (workId, folderId) => {
+  const folder = folderById(folderId);
+  if (!folder || !workId) return;
+  const had = AppState.bookmarks.includes(workId);
+  if (folder.works.includes(workId)) folder.works = folder.works.filter(id => id !== workId);
+  else folder.works.push(workId);
+  const now = AppState.bookmarkFolders.some(f => f.works.includes(workId));
+  saveFolders();
+  if (had !== now) window.siteSync?.setBookmark?.(workId, now);
+  document.dispatchEvent(new CustomEvent('site:bookmarkchange'));
+  renderGallery();
+};
+
+const removeWorkFromFolder = (workId, folderId) => {
+  const folder = folderById(folderId);
+  if (!folder) return;
+  folder.works = folder.works.filter(id => id !== workId);
+  const still = AppState.bookmarkFolders.some(f => f.works.includes(workId));
+  saveFolders();
+  if (!still) window.siteSync?.setBookmark?.(workId, false);
+  document.dispatchEvent(new CustomEvent('site:bookmarkchange'));
+  renderGallery();
+};
+
+const renameFolder = (folderId, name) => {
+  const folder = folderById(folderId);
+  if (!folder) return;
+  const next = String(name || '').trim().slice(0, 24);
+  if (!next || next === folder.name) return;
+  folder.name = next;
+  saveFolders();
+  renderGallery();
+};
+
+const deleteFolder = (folderId) => {
+  const folder = folderById(folderId);
+  if (!folder) return;
+  if (!window.confirm('删除文件夹「' + folder.name + '」？')) return;
+  const orphaned = folder.works.filter(id => !AppState.bookmarkFolders.some(f => f.id !== folderId && f.works.includes(id)));
+  AppState.bookmarkFolders = AppState.bookmarkFolders.filter(f => f.id !== folderId);
+  if (AppState.openFolderId === folderId) AppState.openFolderId = null;
+  saveFolders();
+  orphaned.forEach(id => window.siteSync?.setBookmark?.(id, false));
+  document.dispatchEvent(new CustomEvent('site:bookmarkchange'));
+  renderGallery();
+};
+
+const openFolder = (folderId) => {
+  if (!folderById(folderId)) return;
+  AppState.openFolderId = folderId;
+  renderGallery();
+  window.scrollTo(0, 0);
+};
+
+const closeFolder = () => {
+  AppState.openFolderId = null;
+  renderGallery();
 };
 
 /* =========================================================
@@ -92,35 +223,148 @@ const searchDescOf = card => {
   return panel?.querySelector('.detail-description')?.textContent || '';
 };
 
-const renderGallery = () => {
-  let visibleCount = 0;
-  document.body.classList.toggle('is-bookmarks', AppState.currentTab === 'bookmarks');
-  const bmHeading = document.getElementById('bookmarks-heading');
-  if (bmHeading) {
-    const total = galleryCards.filter(c => AppState.bookmarks.includes(c.dataset.id)).length;
-    bmHeading.hidden = AppState.currentTab !== 'bookmarks';
-    const bmCount = document.getElementById('bookmarks-count');
-    if (bmCount) bmCount.textContent = tr('bookmarks.count', total + ' 件', { n: total });
+const renderFolderCard = folder => {
+  const card = document.createElement('div');
+  card.className = 'folder-card';
+  card.tabIndex = 0;
+  card.dataset.folderId = folder.id;
+  card.setAttribute('role', 'button');
+  card.setAttribute('aria-label', folder.name);
+
+  const thumbs = document.createElement('span');
+  thumbs.className = 'folder-thumbs';
+  const ids = folder.works.slice(0, 3);
+  if (!ids.length) {
+    const empty = document.createElement('span');
+    empty.className = 'folder-thumb is-empty';
+    thumbs.appendChild(empty);
+  } else {
+    ids.forEach(id => {
+      const thumb = document.createElement('span');
+      thumb.className = 'folder-thumb';
+      thumb.dataset.work = id;
+      thumbs.appendChild(thumb);
+    });
   }
+  card.appendChild(thumbs);
+
+  const name = document.createElement('span');
+  name.className = 'folder-name';
+  name.textContent = folder.name;
+  card.appendChild(name);
+
+  card.addEventListener('click', event => {
+    if (event.target.closest('.folder-name-input')) return;
+    openFolder(folder.id);
+  });
+  card.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    if (event.target.closest('.folder-name-input')) return;
+    event.preventDefault();
+    openFolder(folder.id);
+  });
+  return card;
+};
+
+const startFolderRename = (folder, card) => {
+  const nameEl = card.querySelector('.folder-name');
+  if (!nameEl) return;
+  const input = document.createElement('input');
+  input.className = 'folder-name-input';
+  input.type = 'text';
+  input.maxLength = 24;
+  input.value = folder.name;
+  input.setAttribute('aria-label', tr('folders.rename', '重命名文件夹'));
+  nameEl.replaceWith(input);
+  input.focus();
+  input.select();
+  let done = false;
+  const commit = save => {
+    if (done) return;
+    done = true;
+    const value = input.value.trim();
+    if (save && value) {
+      renameFolder(folder.id, value);
+    } else {
+      renderGallery();
+    }
+  };
+  input.addEventListener('keydown', event => {
+    if (event.key === 'Enter') { event.preventDefault(); commit(true); }
+    else if (event.key === 'Escape') { event.preventDefault(); commit(false); }
+  });
+  input.addEventListener('blur', () => commit(true));
+};
+
+const renderFolderGrid = () => {
+  const grid = document.getElementById('folder-grid');
+  const hint = document.getElementById('folder-hint');
+  if (!grid) return;
+  grid.replaceChildren();
   const query = norm(AppState.searchQuery);
+  const matches = AppState.bookmarkFolders.filter(folder => {
+    if (!query) return true;
+    if (norm(folder.name).includes(query)) return true;
+    return folder.works.some(id => norm(workTitleOf(id)).includes(query));
+  });
+  matches.forEach(folder => grid.appendChild(renderFolderCard(folder)));
+  if (hint) {
+    const noneAtAll = AppState.bookmarkFolders.length === 0;
+    hint.hidden = !noneAtAll && matches.length > 0;
+    hint.textContent = noneAtAll
+      ? tr('folders.empty', '还没有文件夹，点右上角「新建文件夹」开始整理收藏')
+      : tr('empty.folderNoMatch', '没有匹配的文件夹');
+  }
+};
+
+const renderGallery = () => {
+  const inBookmarks = AppState.currentTab === 'bookmarks';
+  document.body.classList.toggle('is-bookmarks', inBookmarks);
+
+  let folder = inBookmarks && AppState.openFolderId ? folderById(AppState.openFolderId) : null;
+  if (inBookmarks && AppState.openFolderId && !folder) AppState.openFolderId = null;
+  if (!inBookmarks) folder = null;
+
+  document.body.classList.toggle('folders-root', inBookmarks && !folder);
+  document.body.classList.toggle('folder-open', inBookmarks && !!folder);
+
+  const bookmarksView = document.getElementById('bookmarks-view');
+  if (bookmarksView) bookmarksView.hidden = !inBookmarks;
+  if (inBookmarks) {
+    const backBtn = document.getElementById('bookmarks-back');
+    const newBtn = document.getElementById('folder-new');
+    const titleEl = document.getElementById('bookmarks-title');
+    if (backBtn) backBtn.hidden = !folder;
+    if (newBtn) newBtn.hidden = !!folder;
+    if (titleEl) titleEl.textContent = folder ? folder.name : tr('bookmarks.title', '收藏夹');
+    renderFolderGrid();
+  }
+
+  const query = norm(AppState.searchQuery);
+  let visibleWorks = 0;
   galleryCards.forEach(item => {
-    const isBookmarked = AppState.bookmarks.includes(item.dataset.id);
+    const id = item.dataset.id;
     const searchMatch = query
       ? (fuzzyMatch(searchTextOf(item), query) || norm(searchDescOf(item)).includes(query))
       : true;
-    const shouldShow = AppState.currentTab === 'home'
-      ? searchMatch
-      : isBookmarked && searchMatch;
-    item.classList.toggle('hidden', !shouldShow);
-    if (shouldShow) visibleCount++;
+    let show;
+    if (!inBookmarks) show = searchMatch;
+    else if (folder) show = folder.works.includes(id) && searchMatch;
+    else show = false; // 文件夹列表页不显示作品卡片
+    item.classList.toggle('hidden', !show);
+    if (show) visibleWorks++;
   });
 
-  if (!visibleCount) {
-    emptyDesc.textContent = AppState.currentTab === 'bookmarks'
-      ? (AppState.searchQuery
-          ? tr('empty.bookmarkNoMatch', '收藏中没有找到匹配的作品')
-          : tr('empty.bookmarkEmpty', '你还没有收藏任何作品哦'))
-      : (AppState.searchQuery
+  if (inBookmarks && !folder) {
+    emptyState.classList.remove('visible');
+    return;
+  }
+  if (!visibleWorks) {
+    emptyDesc.textContent = inBookmarks
+      ? (query
+          ? tr('empty.bookmarkNoMatch', '文件夹中没有找到匹配的作品')
+          : tr('empty.folderEmpty', '这个文件夹还是空的，去作品页把喜欢的收进来'))
+      : (query
           ? tr('empty.noMatch', '没有找到匹配的作品')
           : tr('empty.noWorks', '还没有添加作品'));
     emptyState.classList.add('visible');
@@ -180,7 +424,10 @@ navHome.addEventListener('click', () => {
 
 navBookmark.addEventListener('click', () => {
   setCompassView(false);
+  const wasBookmarks = AppState.currentTab === 'bookmarks';
   AppState.currentTab = 'bookmarks';
+  // 已经在收藏页：再点一次就在「文件夹列表」和「打开的文件夹」之间切换
+  AppState.openFolderId = wasBookmarks ? (AppState.openFolderId ? null : AppState.openFolderId) : null;
   navBookmark.classList.add('active'); navHome.classList.remove('active');
   navBookmark.setAttribute('aria-pressed', 'true'); navHome.setAttribute('aria-pressed', 'false');
   renderGallery();
@@ -205,49 +452,205 @@ document.addEventListener('keydown', event => {
   }
 });
 
+loadFolders();
 renderGallery();
 syncSearchUI();
 
-/* ---------- 收藏视图元信息：描述 + 移除按钮（只在收藏视图显示） ---------- */
+/* ---------- 文件夹内作品：右上角「移出文件夹」按钮 ---------- */
 (() => {
   works.forEach(work => {
-    const info = work.card.querySelector('.card-info');
-    if (!info) return;
-
-    const desc = document.createElement('p');
-    desc.className = 'bookmark-desc';
-    info.appendChild(desc);
-
     const remove = document.createElement('button');
     remove.type = 'button';
     remove.className = 'bookmark-remove';
+    remove.textContent = '✕';
     remove.addEventListener('click', event => {
       event.stopPropagation();
-      AppState.bookmarks = AppState.bookmarks.filter(id => id !== work.id);
-      saveBookmarks();
-      window.siteSync?.setBookmark(work.id, false);
-      renderGallery();
+      if (!AppState.openFolderId) return;
+      removeWorkFromFolder(work.id, AppState.openFolderId);
     });
-    info.appendChild(remove);
+    work.card.appendChild(remove);
   });
 
   const syncMeta = () => {
+    const label = tr('folders.remove', '移出文件夹');
     works.forEach(work => {
-      const desc = work.card.querySelector('.bookmark-desc');
-      if (desc) {
-        const t = work.panel?.querySelector('.detail-description')?.textContent || '';
-        desc.textContent = t.length > 80 ? t.slice(0, 80) + '…' : t;
-      }
       const remove = work.card.querySelector('.bookmark-remove');
       if (remove) {
-        const label = tr('bookmark.remove', '移除收藏');
-        remove.textContent = label;
         remove.setAttribute('aria-label', label);
+        remove.title = label;
       }
     });
   };
   syncMeta();
   document.addEventListener('site:languagechange', syncMeta);
+})();
+
+/* =========================================================
+   0.7 收藏夹 UI：工具栏 / 新建 / 返回 / 「收藏到文件夹」弹层
+   ========================================================= */
+(() => {
+  const backBtn = document.getElementById('bookmarks-back');
+  const newBtn = document.getElementById('folder-new');
+  if (backBtn) backBtn.addEventListener('click', () => closeFolder());
+  if (newBtn) {
+    newBtn.addEventListener('click', () => {
+      const folder = createFolder(tr('folders.new', '新建文件夹'));
+      renderGallery();
+      const card = document.querySelector('.folder-card[data-folder-id="' + folder.id + '"]');
+      if (card) startFolderRename(folder, card);
+    });
+  }
+
+  // 云端偏好 / 其他设备把文件夹结构同步回来
+  document.addEventListener('site:folders', () => {
+    loadFolders();
+    renderGallery();
+    document.dispatchEvent(new CustomEvent('site:bookmarkchange'));
+  });
+
+  // 登录同步完成：把云端收藏并进文件夹（不在任何文件夹里的收进默认文件夹）
+  document.addEventListener('site:synced', () => {
+    const merged = new Set(Array.isArray(AppState.bookmarks) ? AppState.bookmarks : []);
+    const known = new Set();
+    AppState.bookmarkFolders.forEach(folder => {
+      folder.works = folder.works.filter(id => merged.has(id));
+      folder.works.forEach(id => known.add(id));
+    });
+    const orphan = Array.from(merged).filter(id => !known.has(id));
+    if (orphan.length) {
+      let def = AppState.bookmarkFolders.find(f => f.id === 'default') || AppState.bookmarkFolders[0];
+      if (!def) {
+        def = { id: 'default', name: '我的收藏', works: [] };
+        AppState.bookmarkFolders.push(def);
+      }
+      def.works.push(...orphan);
+    }
+    saveFolders({ sync: false });
+    renderGallery();
+    document.dispatchEvent(new CustomEvent('site:bookmarkchange'));
+  });
+
+  /* ---------- 「收藏到文件夹」弹层 ---------- */
+  let picker = null;
+  let outsideHandler = null;
+  const isMobileUI = () => window.matchMedia('(max-width: 600px)').matches;
+
+  const build = () => {
+    picker = document.createElement('div');
+    picker.className = 'folder-picker';
+    picker.id = 'folder-picker';
+    picker.hidden = true;
+    picker.setAttribute('role', 'dialog');
+    picker.innerHTML =
+      '<div class="fp-head"><span class="fp-title"></span>' +
+      '<button class="fp-close" type="button" aria-label="关闭">×</button></div>' +
+      '<div class="fp-list"></div>' +
+      '<form class="fp-new"><input type="text" maxlength="24" autocomplete="off" />' +
+      '<button type="submit" aria-label="新建文件夹">＋</button></form>';
+    document.body.appendChild(picker);
+    picker.querySelector('.fp-close').addEventListener('click', close);
+    picker.addEventListener('click', event => event.stopPropagation());
+    picker.querySelector('.fp-new').addEventListener('submit', event => {
+      event.preventDefault();
+      const input = picker.querySelector('.fp-new input');
+      const name = input.value.trim();
+      if (!name) { input.focus(); return; }
+      createFolder(name, { workId: AppState.activeWorkId });
+      input.value = '';
+      renderList();
+      position();
+    });
+  };
+
+  const renderList = () => {
+    if (!picker) return;
+    picker.querySelector('.fp-title').textContent = tr('folders.picker.title', '收藏到文件夹');
+    picker.querySelector('.fp-new input').placeholder = tr('folders.picker.new', '新建文件夹名…');
+    const list = picker.querySelector('.fp-list');
+    list.replaceChildren();
+    const workId = AppState.activeWorkId;
+    if (!AppState.bookmarkFolders.length) {
+      const empty = document.createElement('p');
+      empty.className = 'fp-empty';
+      empty.textContent = tr('folders.empty', '还没有文件夹，下面新建一个');
+      list.appendChild(empty);
+    }
+    AppState.bookmarkFolders.forEach(folder => {
+      const inFolder = folder.works.includes(workId);
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'fp-row' + (inFolder ? ' is-in' : '');
+      row.setAttribute('aria-pressed', String(inFolder));
+      const check = document.createElement('span');
+      check.className = 'fp-check';
+      check.setAttribute('aria-hidden', 'true');
+      const name = document.createElement('span');
+      name.className = 'fp-name';
+      name.textContent = folder.name;
+      const count = document.createElement('span');
+      count.className = 'fp-count';
+      count.textContent = folder.works.length
+        ? tr('folders.count', folder.works.length + ' 件', { n: folder.works.length })
+        : '';
+      row.append(check, name, count);
+      row.addEventListener('click', () => {
+        toggleWorkInFolder(workId, folder.id);
+        renderList();
+      });
+      list.appendChild(row);
+    });
+  };
+
+  const position = () => {
+    if (!picker || picker.hidden) return;
+    if (isMobileUI()) {
+      picker.style.left = '';
+      picker.style.top = '';
+      return;
+    }
+    const btn = document.getElementById('bookmark-card');
+    const rect = btn ? btn.getBoundingClientRect() : { right: window.innerWidth - 28, bottom: 84, top: 40 };
+    const width = picker.offsetWidth || 264;
+    const height = picker.offsetHeight || 300;
+    let left = Math.max(12, Math.min(rect.right - width, window.innerWidth - width - 12));
+    let top = rect.bottom + 12;
+    if (top + height > window.innerHeight - 12) top = Math.max(12, rect.top - height - 12);
+    picker.style.left = left + 'px';
+    picker.style.top = top + 'px';
+  };
+
+  const open = () => {
+    if (picker && !picker.hidden) { close(); return; }
+    if (!picker) build();
+    renderList();
+    picker.hidden = false;
+    position();
+    setTimeout(() => {
+      if (outsideHandler) document.removeEventListener('click', outsideHandler, true);
+      outsideHandler = event => {
+        if (picker.contains(event.target)) return;
+        if (event.target.closest && event.target.closest('#bookmark-card')) return;
+        close();
+      };
+      document.addEventListener('click', outsideHandler, true);
+    }, 0);
+  };
+
+  const close = () => {
+    if (!picker) return;
+    picker.hidden = true;
+    if (outsideHandler) {
+      document.removeEventListener('click', outsideHandler, true);
+      outsideHandler = null;
+    }
+  };
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && picker && !picker.hidden) close();
+  });
+  window.addEventListener('resize', position);
+
+  window.siteFolderPicker = { open, close };
 })();
 
 /* =========================================================
@@ -797,6 +1200,7 @@ syncSearchUI();
 
   const closeWork = () => {
     if (mode === 'closed' || mode === 'closing' || !current) return;
+    window.siteFolderPicker?.close?.();
     window.siteNav?.close('work');
     if (compareOn) setCompareOn(false);
     // 页面向下滚过时，先回到顶部再关闭，避免卡片从屏幕外飞回
@@ -959,15 +1363,13 @@ syncSearchUI();
     });
   });
 
-  bookmarkBtn.addEventListener('click', () => {
-    const id = AppState.activeWorkId;
-    const index = AppState.bookmarks.indexOf(id);
-    if (index > -1) AppState.bookmarks.splice(index, 1);
-    else AppState.bookmarks.push(id);
-    saveBookmarks();
-    updateBookmarkBtn();
-    window.siteSync?.setBookmark(id, index === -1);
+  bookmarkBtn.addEventListener('click', event => {
+    event.stopPropagation();
+    if (window.siteFolderPicker) window.siteFolderPicker.open();
   });
+
+  // 文件夹归属变了，刷新收藏按钮的按下态
+  document.addEventListener('site:bookmarkchange', () => updateBookmarkBtn());
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && mode === 'open') {

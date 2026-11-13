@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#171717" />
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="./styles/style.css?v=2.8.5" />
+  <link rel="stylesheet" href="./styles/style.css?v=2.8.6" />
   <link rel="stylesheet" href="./styles/orbit-art.css?v=1.2.2" />
-  <link rel="stylesheet" href="./styles/globe.css?v=2.8.2" />
+  <link rel="stylesheet" href="./styles/globe.css?v=2.8.6" />
 </head>
 <body>
   <aside id="mario-nav" aria-label="快捷导航">
@@ -55,9 +55,16 @@
         <p class="compass-view-note">地球正在展开…</p>
       </div>
     </section>
-    <div class="bookmarks-heading" id="bookmarks-heading" hidden>
-      <h2>我的收藏</h2>
-      <span class="bookmarks-count" id="bookmarks-count">0</span>
+    <div class="bookmarks-view" id="bookmarks-view" hidden>
+      <div class="bookmarks-toolbar">
+        <button class="bookmarks-back" id="bookmarks-back" type="button" aria-label="返回收藏夹" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="square"/></svg>
+        </button>
+        <h2 id="bookmarks-title">收藏夹</h2>
+        <button class="folder-new" id="folder-new" type="button"><span class="folder-new-plus" aria-hidden="true">＋</span><span id="folder-new-label">新建文件夹</span></button>
+      </div>
+      <div class="folder-grid" id="folder-grid"></div>
+      <p class="folder-hint" id="folder-hint" hidden>还没有文件夹，点右上角「新建文件夹」开始整理收藏</p>
     </div>
     <div class="grid">
       <!-- 作品 1 -->
@@ -65,7 +72,7 @@
         <div class="preview-mount">
           <iframe data-pds-preview src="https://gsvegetable.github.io/1_pixel-daylight-switch/preview.html" title="Pixel Daylight Switch 像素昼夜开关作品展示" loading="lazy" allow="fullscreen"></iframe>
         </div>
-        <div class="card-info"><span class="card-title">像素昼夜开关</span><span class="work-tags"><span class="work-tag">像素风</span></span></div>
+        <div class="card-info"><span class="card-title">像素昼夜开关</span></div>
       </article>
       
       <!-- 作品 2 -->
@@ -74,7 +81,7 @@
           <iframe data-composition-frame src="https://gsvegetable.github.io/2_pixel-dusk/showcase.html?v=1.3.9&scene=planet&composition=art" title="Pixel Orbit 像素圆环作品展示" loading="lazy" allow="fullscreen"></iframe>
         </div>
         <div class="card-info orbit-card-info">
-          <div class="orbit-card-heading"><span class="card-title">像素圆环</span><span class="work-tags"><span class="work-tag">像素风</span></span></div>
+          <div class="orbit-card-heading"><span class="card-title">像素圆环</span></div>
         </div>
       </article>
       
@@ -96,6 +103,7 @@
       <div class="detail-copy">
         <h1 id="detail-title">像素昼夜开关</h1>
         <p class="english-title">Pixel Daylight Switch</p>
+        <div class="detail-tags"><span class="work-tag">像素风</span></div>
         <p class="detail-description">一个装在折射玻璃开关里的微缩像素世界。拖动开关，像素场景会从白天经过黄昏自然过渡到夜晚；海边灯塔是其中一个可交互场景。</p>
         <div class="detail-actions">
           <a class="project-link" href="https://github.com/GSvegetable/1_pixel-daylight-switch" target="_blank" rel="noopener noreferrer">
@@ -136,6 +144,7 @@
         <h1 id="orbit-detail-title">像素圆环</h1>
 
         <p class="english-title">INTERACTIVE PIXEL WORLD</p>
+        <div class="detail-tags"><span class="work-tag">像素风</span></div>
         <p class="detail-description">一座会随时间变化的像素小世界。拖动圆环或调整时间，观察天空、太阳、月亮、云层与房屋灯光，从清晨、正午一路变化到黄昏与深夜。</p>
         <div class="detail-actions">
           <a class="project-link" href="https://github.com/GSvegetable/2_pixel-dusk" target="_blank" rel="noopener noreferrer">
@@ -203,9 +212,9 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <div class="site-version" aria-label="网站版本">v2.8.5</div>
-  <script src="./scripts/globe.js?v=2.8.2"></script>
-  <script src="./scripts/main.js?v=2.8.5"></script>
+  <div class="site-version" aria-label="网站版本">v2.8.6</div>
+  <script src="./scripts/globe.js?v=2.8.6"></script>
+  <script src="./scripts/main.js?v=2.8.6"></script>
   <script src="./scripts/nav-history.js?v=1.0.0"></script>
   <script src="./scripts/compare.js?v=1.3.0"></script>
   <script src="./scripts/orbit-versions.js?v=1.3.10"></script>
@@ -214,7 +223,7 @@
   <script src="./scripts/auth-config.js?v=1.0.1"></script>
   <script src="./scripts/auth.js?v=1.0.3"></script>
   <script src="./scripts/account.js?v=1.0.0"></script>
-  <script src="./scripts/sync.js?v=1.0.1"></script>
+  <script src="./scripts/sync.js?v=1.1.0"></script>
   <script src="./scripts/risk.js?v=1.0.2"></script>
   <script>
   (() => {
@@ -285,9 +294,21 @@
       'empty.noWorks': 'No works added yet',
       'empty.noMatch': 'No matching works found',
       'empty.bookmarkEmpty': 'You have not bookmarked any work yet',
-      'empty.bookmarkNoMatch': 'No matching works in bookmarks',
-      'bookmarks.title': 'My bookmarks',
-      'bookmarks.count': '{n} works',
+      'empty.bookmarkNoMatch': 'No matching works in this folder',
+      'empty.folderEmpty': 'This folder is empty — bookmark works to fill it.',
+      'empty.folderNoMatch': 'No matching folders',
+      'bookmarks.title': 'Bookmarks',
+      'folders.new': 'New folder',
+      'folders.back': 'Back to folders',
+      'folders.rename': 'Rename folder',
+      'folders.delete': 'Delete folder',
+      'folders.count': '{n} works',
+      'folders.empty': 'No folders yet — tap “New folder” to start sorting your favourites.',
+      'folders.picker.title': 'Save to folder',
+      'folders.picker.new': 'New folder name',
+      'folders.picker.add': 'Add',
+      'folders.picker.close': 'Close',
+      'folders.remove': 'Remove from folder',
       'bookmark.remove': 'Remove',
       'card.daylight': 'Pixel Daylight Switch',
       'card.orbit': 'Pixel Orbit',
@@ -359,7 +380,9 @@
       ['mario.home', '#nav-home', 'aria-label'],
       ['mario.compass', '.mario-block.block-brick', 'aria-label'],
       ['mario.bookmarks', '#nav-bookmark', 'aria-label'],
-      ['bookmarks.title', '#bookmarks-heading h2'],
+      ['folders.new', '#folder-new-label'],
+      ['folders.back', '#bookmarks-back', 'aria-label'],
+      ['folders.empty', '#folder-hint'],
       ['search.placeholder', '#search-input', 'placeholder'],
       ['search.label', '#search-input', 'aria-label'],
       ['empty.title', '#empty-state .empty-title'],
@@ -367,8 +390,8 @@
       ['card.orbit', '#pixel-orbit-card .card-title'],
       ['card.daylight.aria', '#lighthouse-card', 'aria-label'],
       ['card.orbit.aria', '#pixel-orbit-card', 'aria-label'],
-      ['tag.pixel', '#lighthouse-card .work-tag'],
-      ['tag.pixel', '#pixel-orbit-card .work-tag'],
+      ['tag.pixel', '#detail-panel .work-tag'],
+      ['tag.pixel', '#orbit-detail-panel .work-tag'],
       ['detail.daylight', '#detail-title'],
       ['detail.orbit', '#orbit-detail-title'],
       ['detail.daylight.description', '#detail-panel .detail-description'],

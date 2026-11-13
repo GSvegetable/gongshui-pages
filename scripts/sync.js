@@ -1,5 +1,5 @@
 /* =========================================================
-   账号数据同步 — v1.0.0
+   账号数据同步 — v1.1.0
    ---------------------------------------------------------
    登录之后，收藏和偏好跟着账号走：换台设备登录也还在。
 
@@ -18,7 +18,9 @@
   const PREF_KEYS = {
     zoom: 'ui-archive-gallery-zoom',
     pdsScene: 'pds-gallery-scene',
-    orbitScene: 'pixel-orbit-home-scene-v2'
+    orbitScene: 'pixel-orbit-home-scene-v2',
+    // v2.8.6：收藏夹的文件夹结构（JSON 字符串），跟偏好一起跨设备同步
+    bookmarkFolders: 'ui-archive-bookmark-folders'
   };
 
   const state = {
@@ -118,6 +120,17 @@
     }
     if (prefs.orbitScene != null && window.siteOrbitScene) {
       try { window.siteOrbitScene.set(prefs.orbitScene); } catch (_) {}
+    }
+    if (prefs.bookmarkFolders != null) {
+      try {
+        const list = typeof prefs.bookmarkFolders === 'string'
+          ? JSON.parse(prefs.bookmarkFolders)
+          : prefs.bookmarkFolders;
+        if (Array.isArray(list)) {
+          localStorage.setItem(PREF_KEYS.bookmarkFolders, JSON.stringify(list));
+          document.dispatchEvent(new CustomEvent('site:folders'));
+        }
+      } catch (_) {}
     }
   };
 
