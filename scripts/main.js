@@ -351,48 +351,106 @@ syncSearchUI();
   let expanded = false;     // 是否处于"放大作品展示区域"
   let anim = null;          // 正在跑的动画
 
-  /* ---------- 场景比较：挂在左侧主预览图正下方，关闭时缩回预览后面 ---------- */
-  const compareDock = document.getElementById('compare-dock');
-  let compareShown = false;
-  let dockClosing = false;
+  /* ---------- 作品视图：左侧随页面滚动（取消吸顶），右侧面板独立滚动 ---------- */
+  let settled = false;
+  let compareOn = false;
+  let selectedView = null; // 'main' | 'sub' | null
+  let scrollY0 = 0;
+
   const scopeOf = workId => (workId === 'pixel-orbit' ? 'orbit' : 'pds');
+  const workSpacer = document.getElementById('work-spacer');
+  const workExtras = document.getElementById('work-extras');
+  const compareToggle = document.getElementById('compare-toggle');
+  const compareView = document.getElementById('compare-view');
 
-  const positionCompareDock = () => {
-    if (!compareDock || !current) return;
-    const r = current.card.getBoundingClientRect();
-    const gap = 14;
-    compareDock.style.left = Math.round(r.left) + 'px';
-    compareDock.style.width = Math.round(r.width) + 'px';
-    compareDock.style.top = Math.round(r.bottom + gap) + 'px';
-    compareDock.style.maxHeight = Math.max(90, Math.round(window.innerHeight - r.bottom - gap - 14)) + 'px';
+  const mainVersion = () => {
+    try {
+      if (current && scopeOf(current.id) === 'orbit') return localStorage.getItem('pixel-orbit-home-scene-v2') || 'planet';
+      return window.sitePdsScene?.get?.() || 'seaside';
+    } catch (_) { return 'seaside'; }
   };
 
-  const showCompareDock = work => {
-    if (!compareDock) return;
-    const scope = scopeOf(work.id);
-    const section = compareDock.querySelector('[data-compare="' + scope + '"]');
-    if (!section) return;
-    compareDock.querySelectorAll('.scene-compare').forEach(s => { s.hidden = s !== section; });
-    positionCompareDock();
-    compareDock.hidden = false;
-    compareDock.classList.remove('is-hiding');
-    // 强制先绘制一次初始态，再挂 is-shown，入场过渡才会真的播
-    void compareDock.offsetWidth;
-    compareDock.classList.add('is-shown');
-    compareShown = true;
-    window.siteCompare?.open?.(scope);
+  const positionWorkExtras = () => {
+    if (!workExtras || !current || !current.mount) return;
+    const mr = current.mount.getBoundingClientRect();
+    workExtras.style.left = Math.round(mr.left) + 'px';
+    workExtras.style.width = Math.round(mr.width) + 'px';
+    workExtras.style.top = Math.round(mr.bottom + window.scrollY + 14) + 'px';
   };
 
-  const hideCompareDock = done => {
-    if (!compareDock || compareDock.hidden) { if (done) done(); return; }
-    compareShown = false;
-    compareDock.classList.remove('is-shown');
-    compareDock.classList.add('is-hiding');
-    setTimeout(() => {
-      compareDock.hidden = true;
-      compareDock.classList.remove('is-hiding');
-      if (done) done();
-    }, 170);
+  const updateWorkSpacer = () => {
+    if (!workSpacer) return;
+    if (!settled || !current) { workSpacer.style.height = ''; return; }
+    const gridEl = document.querySelector('main .grid');
+    const gridBottom = gridEl ? gridEl.getBoundingClientRect().bottom + window.scrollY : 0;
+    let contentBottom = current.card.getBoundingClientRect().bottom + window.scrollY;
+    if (workExtras && !workExtras.hidden) {
+      contentBottom = Math.max(contentBottom, workExtras.getBoundingClientRect().bottom + window.scrollY);
+    }
+    workSpacer.style.height = Math.max(0, Math.round(contentBottom + 40 - gridBottom)) + 'px';
+  };
+
+  const clearSelection = () => {
+    selectedView = null;
+    current?.card.classList.remove('is-compare-selected');
+    compareView?.classList.remove('is-selected');
+  };
+  const selectView = view => {
+    if (!compareOn) return;
+    selectedView = view;
+    current?.card.classList.toggle('is-compare-selected', view === 'main');
+    compareView?.classList.toggle('is-selected', view === 'sub');
+  };
+
+  const syncCompareUI = () => {
+    if (compareToggle) compareToggle.setAttribute('aria-pressed', String(compareOn));
+    if (compareView) compareView.hidden = !(compareOn && !!current);
+    document.body.classList.toggle('compare-mode', compareOn && !!current);
+    if (!compareOn) clearSelection();
+  };
+
+  const setCompareOn = on => {
+    if (!current) return;
+    compareOn = on;
+    if (on) window.siteCompare?.show?.(scopeOf(current.id), mainVersion());
+    else { window.siteCompare?.hide?.(); clearSelection(); }
+    syncCompareUI();
+    positionWorkExtras();
+    updateWorkSpacer();
+  };
+
+  /* 打开动画结束后：卡片转成文档坐标绝对定位，随页面上下自然滚动（取消吸顶） */
+  const settle = () => {
+    if (!current) return;
+    const card = current.card;
+    const r = card.getBoundingClientRect();
+    card.style.position = 'absolute';
+    card.style.top = Math.round(r.top + window.scrollY) + 'px';
+    card.style.left = Math.round(r.left) + 'px';
+    card.style.width = Math.round(r.width) + 'px';
+    card.classList.add('is-settled');
+    settled = true;
+    unlockScroll();
+    if (workExtras) workExtras.hidden = false;
+    syncCompareUI();
+    positionWorkExtras();
+    updateWorkSpacer();
+  };
+
+  /* 关闭 / 放大前：转回视口固定坐标 */
+  const unsettle = () => {
+    if (!settled || !current) return;
+    const card = current.card;
+    const r = card.getBoundingClientRect();
+    card.classList.remove('is-settled');
+    card.style.position = 'fixed';
+    card.style.top = Math.round(r.top) + 'px';
+    card.style.left = Math.round(r.left) + 'px';
+    card.style.width = Math.round(r.width) + 'px';
+    settled = false;
+    lockScroll();
+    if (workExtras) workExtras.hidden = true;
+    if (workSpacer) workSpacer.style.height = '';
   };
 
   /* ---------- 几何：展开后卡片 / 放大作品后卡片应该在哪 ---------- */
@@ -598,6 +656,7 @@ syncSearchUI();
   const openWork = work => {
     if (mode !== 'closed') return;
     const card = work.card;
+    scrollY0 = window.scrollY;
 
     current = work;
     mode = 'opening';
@@ -626,7 +685,7 @@ syncSearchUI();
     animateCard(work, first, last, () => {
       mode = 'open';
       closeBtn.focus({ preventScroll: true });
-      showCompareDock(work);
+      settle();
     });
   };
 
@@ -643,9 +702,14 @@ syncSearchUI();
     mode = 'closed';
     current = null;
     expanded = false;
-    compareShown = false;
-    if (compareDock) { compareDock.hidden = true; compareDock.classList.remove('is-shown', 'is-hiding'); }
-    window.siteCompare?.close?.(scopeOf(work.id));
+    settled = false;
+    compareOn = false;
+    selectedView = null;
+    if (workExtras) workExtras.hidden = true;
+    if (workSpacer) workSpacer.style.height = '';
+    document.body.classList.remove('compare-mode');
+    if (compareView) compareView.hidden = true;
+    window.siteCompare?.hide?.();
     AppState.activeWorkId = works[0].id;
     if (AppState.currentTab === 'bookmarks') renderGallery();
     updateBookmarkBtn();
@@ -657,6 +721,7 @@ syncSearchUI();
     if (mode === 'closed' || mode === 'closing' || !current) return;
     const work = current;
     const card = work.card;
+    if (settled) unsettle();
 
     const first = snapshot(card);                 // 中途点关闭，也从当前画面接着走
     stopAnim();
@@ -681,13 +746,11 @@ syncSearchUI();
 
   const closeWork = () => {
     if (mode === 'closed' || mode === 'closing' || !current) return;
-    if (dockClosing) return;
     window.siteNav?.close('work');
-    // 先让「场景比较」往上缩、藏到主预览图后方，再跑整个详情关闭动画
-    if (compareShown && compareDock && !compareDock.hidden) {
-      dockClosing = true;
-      hideCompareDock(() => { dockClosing = false; doCloseWork(); });
-      return;
+    if (compareOn) setCompareOn(false);
+    // 页面向下滚过时，先回到顶部再关闭，避免卡片从屏幕外飞回
+    if (settled && window.scrollY > 0) {
+      try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch (_) { window.scrollTo(0, 0); }
     }
     doCloseWork();
   };
@@ -697,13 +760,13 @@ syncSearchUI();
     if (mode !== 'open') return;
     const work = current;
     const card = work.card;
+    if (settled) unsettle();
 
     mode = 'expanding';
     const first = snapshot(card);
     expanded = !expanded;
 
     if (expanded) {
-      hideCompareDock();
       body.classList.add('artwork-only');
       card.classList.add('is-artwork-expanded');
       applyBox(card, expandedBox(work));
@@ -717,7 +780,7 @@ syncSearchUI();
     const last = snapshot(card);
     animateCard(work, first, last, () => {
       mode = 'open';
-      if (!expanded) showCompareDock(work);
+      if (!expanded) settle();
     });
   };
 
@@ -754,19 +817,54 @@ syncSearchUI();
   closeBtn.addEventListener('click', closeWork);
   expandBtn.addEventListener('click', toggleExpand);
 
+  /* ---------- 版本对比：开关 / 选中 / 换版本路由 ---------- */
+  compareToggle?.addEventListener('click', () => setCompareOn(!compareOn));
+
+  // 点主视图 → 选中主视图
+  works.forEach(work => {
+    work.mount?.addEventListener('click', () => {
+      if (compareOn && settled) selectView('main');
+    });
+  });
+
+  // 点副视图 → 选中副视图（由 compare.js 派发）
+  document.addEventListener('site:compare-select', event => {
+    if (compareOn && settled) selectView(event.detail?.view === 'sub' ? 'sub' : 'main');
+  });
+
+  // 点页面空白处 → 取消黄框
+  document.addEventListener('click', event => {
+    if (!compareOn || !selectedView) return;
+    if (event.target.closest('.preview-mount, .compare-view, .compare-toggle, .work-detail, .preview-actions, .top-utility-actions, #mario-nav')) return;
+    clearSelection();
+  });
+
+  // 对比模式下选中副视图时，「场景选择 / 视觉版本」只换副视图
+  [document.getElementById('detail-panel'), document.getElementById('orbit-detail-panel')].forEach(panel => {
+    if (!panel) return;
+    panel.addEventListener('click', event => {
+      const btn = event.target.closest('[data-scene-choice], [data-orbit-version]');
+      if (!btn) return;
+      if (!compareOn || !settled || selectedView !== 'sub') return;
+      event.stopPropagation();
+      event.preventDefault();
+      const v = btn.dataset.sceneChoice || btn.dataset.orbitVersion;
+      window.siteCompare?.setVersion?.(v);
+    }, true);
+  });
+
   /* ---------- 详情页「开发者与贡献者」：跳去地球页并自动选中对应作者 ---------- */
   document.querySelectorAll('.creator-link[data-creator-work]').forEach(link => {
     link.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
       const workId = link.dataset.creatorWork;
-      const dockWait = compareDock && !compareDock.hidden ? 180 : 0;
       closeWork();
-      // 等卡片收回动画（含场景比较上缩）结束再打开地球，避免画面打架
+      // 等卡片收回动画结束再打开地球，避免画面打架
       setTimeout(() => {
         setCompassView(true);
         window.siteGlobe?.selectWork?.(workId);
-      }, dockWait + getDuration() + 60);
+      }, getDuration() + 80);
     });
   });
 
@@ -810,9 +908,16 @@ syncSearchUI();
     refreshStages();
 
     if (current && ['opening', 'expanding', 'open'].includes(mode)) {
-      applyBox(current.card, expanded ? expandedBox(current) : openBox());
+      if (settled && !expanded) {
+        const box = openBox();
+        current.card.style.left = box.left + 'px';
+        current.card.style.width = box.width + 'px';
+        positionWorkExtras();
+        updateWorkSpacer();
+      } else {
+        applyBox(current.card, expanded ? expandedBox(current) : openBox());
+      }
       mode = 'open';
-      if (!expanded && compareShown) positionCompareDock();
     }
   });
 

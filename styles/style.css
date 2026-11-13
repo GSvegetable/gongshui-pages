@@ -788,45 +788,44 @@ body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .bookmark-remove:
   box-shadow: 2px 3px 0 #000;
 }
 
-/* ===== v2.8 — 场景比较 ===== */
-.scene-compare { margin-top: 26px; }
-.scene-compare-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 16px 0 6px; }
-.scene-compare-head h2 { margin: 0; color: #191711; font-size: 18px; letter-spacing: -.3px; }
-.scene-compare-note { color: #75684f; font-size: 11px; line-height: 1.5; }
-.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
-.compare-pane { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.compare-picks { display: flex; flex-wrap: wrap; gap: 6px; }
-.compare-pick {
-  padding: 5px 9px; border: 2px solid #cbbda3; border-radius: 999px;
-  background: #fff8e9; color: #4d3a1d; cursor: pointer;
-  font: 800 11px/1.1 ui-monospace, SFMono-Regular, Menlo, monospace;
-  transition: border-color .15s, background .15s, color .15s;
-}
-.compare-pick:hover { border-color: #b98936; }
-.compare-pick.is-active { border-color: #8c5d13; background: #f4bd3c; color: #211d15; }
-.compare-pick:focus-visible { outline: 2px solid #8c5d13; outline-offset: 2px; }
-.compare-frame {
-  position: relative; aspect-ratio: 1.6439;
-  border: 2px solid #211d15; border-radius: 4px; background: #0e0d0a; overflow: hidden;
-}
-.compare-frame iframe { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border: 0; }
-.compare-caption { margin: 0; color: #6b5d47; font-size: 11px; font-weight: 700; }
-.compare-caption strong { color: #292319; }
-@media (max-width: 600px) {
-  .compare-grid { grid-template-columns: 1fr; }
-}
+/* ===== v2.8.2 — 作品视图：左侧随页面滚动，右侧面板独立滚动 ===== */
+.work-spacer { display: block; height: 0; }
+.preview-card.is-open.is-settled { position: absolute; }
 
-/* ===== v2.8.1 — 场景比较挂到左侧主预览图下方 ===== */
-.compare-dock {
-  position: fixed; z-index: 20;
-  display: flex; flex-direction: column;
-  overflow-y: auto; overscroll-behavior: contain;
+/* 版本对比：主视图下方「版本对比」开关 + 副视图 */
+.work-extras {
+  position: absolute; z-index: 20;
+  display: flex; flex-direction: column; gap: 12px;
   pointer-events: auto;
-  opacity: 0; transform: translateY(10px);
-  transition: opacity .2s ease, transform .2s ease;
 }
-.compare-dock[hidden] { display: none; }
-.compare-dock.is-shown { opacity: 1; transform: none; }
-.compare-dock.is-hiding { opacity: 0; transform: translateY(-46px); transition: opacity .17s ease, transform .17s ease; }
-.compare-dock .scene-compare { margin-top: 0; }
-.compare-dock .scene-compare[hidden] { display: none; }
+.work-extras[hidden] { display: none; }
+
+.compare-toggle {
+  align-self: flex-start;
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 40px; padding: 0 16px; cursor: pointer;
+  border: 3px solid #080808; border-radius: 4px;
+  background: #f5ecd9; color: #211d15;
+  font: 900 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  box-shadow: 3px 4px 0 #000;
+  transition: transform .1s, box-shadow .1s, background .15s;
+}
+.compare-toggle:hover { background: #ffd36a; }
+.compare-toggle[aria-pressed="true"] { background: #f4bd3c; }
+.compare-toggle:active { transform: translate(3px, 4px); box-shadow: none; }
+
+.compare-view { display: flex; flex-direction: column; gap: 8px; }
+.compare-view[hidden] { display: none; }
+.compare-view .compare-frame {
+  position: relative; width: 100%; aspect-ratio: 1.6439;
+  border: 3px solid #080808; border-radius: 4px; background: #0e0d0a; overflow: hidden;
+  cursor: pointer; box-shadow: 5px 6px 0 #000;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.compare-view .compare-frame iframe { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.compare-view.is-selected .compare-frame { border-color: #f4bd3c; box-shadow: 0 0 0 3px #f4bd3c, 5px 6px 0 #000; }
+.compare-view-caption { margin: 0; color: #8a7a5c; font: 700 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+/* 选中主视图：作品框变黄；对比模式下点画面是选中，不操作作品 */
+.preview-card.is-compare-selected .preview-mount { border-color: #f4bd3c; box-shadow: 0 0 0 3px #f4bd3c; }
+body.compare-mode .preview-card.is-open .preview-mount > :not(script):not(style) { pointer-events: none; }

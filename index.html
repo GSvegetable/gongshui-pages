@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#171717" />
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="./styles/style.css?v=2.8.1" />
+  <link rel="stylesheet" href="./styles/style.css?v=2.8.2" />
   <link rel="stylesheet" href="./styles/orbit-art.css?v=1.2.2" />
-  <link rel="stylesheet" href="./styles/globe.css?v=2.8.1" />
+  <link rel="stylesheet" href="./styles/globe.css?v=2.8.2" />
 </head>
 <body>
   <aside id="mario-nav" aria-label="快捷导航">
@@ -88,6 +88,7 @@
         <p class="empty-desc" id="empty-desc">没有找到相关的作品</p>
       </div>
     </div>
+    <div id="work-spacer" class="work-spacer" aria-hidden="true"></div>
   </main>
 
   <section class="detail-content work-detail" id="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detail-title" aria-hidden="true">
@@ -180,43 +181,12 @@
     </section>
   </section>
 
-  <div class="compare-dock" id="compare-dock" hidden>
-    <section class="scene-compare" data-compare="pds" data-source="detail-panel" aria-label="场景比较">
-      <div class="scene-compare-head">
-        <h2>场景比较</h2>
-        <span class="scene-compare-note">左右各挑一个场景，并排对照</span>
-      </div>
-      <div class="compare-grid">
-        <div class="compare-pane" data-pane="a" data-scene="seaside">
-          <div class="compare-picks" role="group" aria-label="左侧场景"></div>
-          <div class="compare-frame"></div>
-          <p class="compare-caption">左 · <strong>海边灯塔</strong></p>
-        </div>
-        <div class="compare-pane" data-pane="b" data-scene="countryside">
-          <div class="compare-picks" role="group" aria-label="右侧场景"></div>
-          <div class="compare-frame"></div>
-          <p class="compare-caption">右 · <strong>乡间小屋</strong></p>
-        </div>
-      </div>
-    </section>
-    <section class="scene-compare" data-compare="orbit" data-source="orbit-detail-panel" aria-label="场景比较">
-      <div class="scene-compare-head">
-        <h2>场景比较</h2>
-        <span class="scene-compare-note">左右各挑一个版本，并排对照</span>
-      </div>
-      <div class="compare-grid">
-        <div class="compare-pane" data-pane="a" data-scene="planet">
-          <div class="compare-picks" role="group" aria-label="左侧版本"></div>
-          <div class="compare-frame"></div>
-          <p class="compare-caption">左 · <strong>星球版</strong></p>
-        </div>
-        <div class="compare-pane" data-pane="b" data-scene="countryside">
-          <div class="compare-picks" role="group" aria-label="右侧版本"></div>
-          <div class="compare-frame"></div>
-          <p class="compare-caption">右 · <strong>田园版</strong></p>
-        </div>
-      </div>
-    </section>
+  <div class="work-extras" id="work-extras" hidden>
+    <button class="compare-toggle" id="compare-toggle" type="button" aria-pressed="false">版本对比</button>
+    <div class="compare-view" id="compare-view" hidden>
+      <div class="compare-frame" id="compare-frame"></div>
+      <p class="compare-view-caption">副视图 · 点图选中后用「场景选择」换版本</p>
+    </div>
   </div>
 
   <div class="preview-actions" aria-label="作品视图控制">
@@ -230,11 +200,11 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <div class="site-version" aria-label="网站版本">v2.8.1</div>
-  <script src="./scripts/globe.js?v=2.8.1"></script>
-  <script src="./scripts/main.js?v=2.8.1"></script>
+  <div class="site-version" aria-label="网站版本">v2.8.2</div>
+  <script src="./scripts/globe.js?v=2.8.2"></script>
+  <script src="./scripts/main.js?v=2.8.2"></script>
   <script src="./scripts/nav-history.js?v=1.0.0"></script>
-  <script src="./scripts/compare.js?v=1.1.0"></script>
+  <script src="./scripts/compare.js?v=1.2.0"></script>
   <script src="./scripts/orbit-versions.js?v=1.3.10"></script>
   <script src="./scripts/scroll-ui.js?v=2.0.0"></script>
   <!-- 账号：配置 → 客户端 → 顶栏入口 → 数据同步，顺序不能换（sync 依赖 auth） -->
@@ -329,7 +299,7 @@
       'gallery.scenes': 'Scenes',
       'gallery.versions': 'Visual versions',
       'compare.title': 'Scene compare',
-      'compare.note': 'Pick a scene or version on each side',
+      'compare.toggle': 'Version compare',
       'contributors.title': 'Creators & contributors',
       'compass.view.title': 'Compass',
       'compass.view.note': 'Unfolding the globe…',
@@ -400,8 +370,7 @@
       ['project.link', '#orbit-detail-panel .project-link span:first-of-type'],
       ['gallery.scenes', '#detail-panel .gallery-heading h2'],
       ['gallery.versions', '#orbit-detail-panel .gallery-heading h2'],
-      ['compare.title', '.scene-compare-head h2'],
-      ['compare.note', '.scene-compare-note'],
+      ['compare.toggle', '#compare-toggle'],
       ['contributors.title', '.creator-link-label'],
       ['compass.view.title', '#compass-view-title'],
       ['compass.view.note', '.compass-view-note'],
