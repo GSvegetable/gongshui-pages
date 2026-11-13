@@ -178,6 +178,8 @@ html.search-collapsed .search-clear { width: 0; min-width: 0; padding: 0; opacit
 /* ---------- 下滑时：搜索栏缩回成放大镜方块，滑到左侧导航那一列 ----------
    收起后是一个 58×58 的方块，和左边三个马里奥方块同尺寸、同左缘，
    只是上下位置不一样（导航是垂直居中的，搜索栏贴着顶部）。 */
+/* 收起后就是一个和左边三个马里奥方块一模一样的方块：
+   同样的 58×58、同样的边框/圆角/投影，用指南针那块黄（#ffd400 + #b58f00 侧边）。 */
 html.search-collapsed .search-wrapper {
   width: 58px;
   max-width: 58px;
@@ -189,8 +191,8 @@ html.search-collapsed .search-wrapper {
   transform: translateX(var(--collapse-shift));
   border: 3px solid #34220e;
   border-radius: 5px;
-  background: #efa02c;
-  box-shadow: 0 5px 0 #a85f10, 0 7px 0 #34220e;
+  background: #ffd400;
+  box-shadow: 0 5px 0 #b58f00, 0 7px 0 #34220e;
 }
 html.search-collapsed .search-icon { width: 25px; height: 25px; color: #1b2146; stroke-width: 2.4; }
 html.search-collapsed #search-input {

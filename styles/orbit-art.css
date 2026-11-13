@@ -29,9 +29,9 @@
 .orbit-frame-stack > iframe { pointer-events:none; }
 .orbit-frame-stack > iframe.is-visible { pointer-events:auto; }
 
-/* 首页里它只是预览：画面不吃点击和滚轮，
-   滚轮要能正常滚页面，点击交给卡片标题去开作品。 */
-body:not(.viewing):not(.artwork-only) .orbit-frame-stack > iframe.is-visible { pointer-events:none; }
+/* 首页里也保持可交互：像素圆环在首页就能拖（和灯塔那个作品一样），
+   不必先展开作品。卡片本身点画面是不打开作品的（点标题才开），
+   所以这里放开指针事件不会抢走卡片的点击。 */
 @media(max-width:600px) {
 }
 @media(prefers-reduced-motion:reduce) {
