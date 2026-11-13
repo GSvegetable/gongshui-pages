@@ -489,7 +489,7 @@
     g = window.Globe({ animateIn: true })(stage)
       .width(stage.clientWidth).height(stage.clientHeight)
       .backgroundColor('#04060b')
-      .backgroundImageUrl(IMG + 'night-sky.png')
+      .backgroundImageUrl(IMG + 'night-sky.jpg')
       .globeImageUrl(IMG + 'earth-blue-marble.jpg')
       .bumpImageUrl(IMG + 'earth-topology.png')
       .showAtmosphere(true).atmosphereColor('#8fb8ff').atmosphereAltitude(0.18)
@@ -547,22 +547,35 @@
       : tr('globe.empty', '还没有投稿者，来插第一面旗吧');
   }
 
+  /* 贴图跟库一起下载：否则先等库、再等贴图，慢网络下白屏很久 */
+  const preloadTextures = () => Promise.all(
+    ['earth-blue-marble.jpg', 'earth-night.jpg', 'earth-topology.png', 'night-sky.jpg'].map(name => new Promise(resolve => {
+      const img = new Image();
+      img.onload = img.onerror = resolve;
+      img.src = IMG + name;
+    }))
+  );
+
   function ensureReady() {
     if (readyPromise) return readyPromise;
     readyPromise = (async () => {
       showStatus(tr('globe.loading', '正在展开地球…'));
       const webgl = hasWebGL();
+      const textures = webgl ? preloadTextures() : Promise.resolve();
       const [list] = await Promise.all([loadData(), webgl ? loadScript(GLOBE_LIB) : Promise.resolve()]);
       contributors = list;
       list.forEach(buildPin);
       buildRoster(list);
       if (webgl && window.Globe) {
         initGlobe(list);
+        // 提示条一直挂到贴图真的下完、球面画出来为止
+        textures.then(() => { if (statusBox) statusBox.hidden = true; });
+        setTimeout(() => { if (statusBox) statusBox.hidden = true; }, 20000);
       } else {
         view.classList.add('is-list'); // 没有 WebGL：只显示名单
         if (!webgl) showStatus(tr('globe.nowebgl', '这台设备不支持 3D 地球，先看看投稿者名单吧。'));
+        else if (statusBox) statusBox.hidden = true;
       }
-      if (statusBox && !(view.classList.contains('is-list') && !webgl)) statusBox.hidden = true;
     })().catch(err => {
       readyPromise = null;
       console.error('[globe]', err);
