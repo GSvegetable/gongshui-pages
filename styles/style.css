@@ -815,3 +815,18 @@ body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .bookmark-remove:
 @media (max-width: 600px) {
   .compare-grid { grid-template-columns: 1fr; }
 }
+
+/* ===== v2.8.1 — 场景比较挂到左侧主预览图下方 ===== */
+.compare-dock {
+  position: fixed; z-index: 20;
+  display: flex; flex-direction: column;
+  overflow-y: auto; overscroll-behavior: contain;
+  pointer-events: auto;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .2s ease, transform .2s ease;
+}
+.compare-dock[hidden] { display: none; }
+.compare-dock.is-shown { opacity: 1; transform: none; }
+.compare-dock.is-hiding { opacity: 0; transform: translateY(-46px); transition: opacity .17s ease, transform .17s ease; }
+.compare-dock .scene-compare { margin-top: 0; }
+.compare-dock .scene-compare[hidden] { display: none; }

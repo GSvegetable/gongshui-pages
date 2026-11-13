@@ -154,15 +154,19 @@ const setCompassView = on => {
   navHome.classList.toggle('active', !on);
   navHome.setAttribute('aria-pressed', String(!on));
   if (on) {
+    window.siteNav?.open('globe', () => setCompassView(false));
     AppState.currentTab = 'home';
     navBookmark.classList.remove('active');
     navBookmark.setAttribute('aria-pressed', 'false');
     renderGallery();
     // 指南针视图里的投稿地球：开
     if (window.siteGlobe && typeof window.siteGlobe.open === 'function') window.siteGlobe.open();
-  } else if (window.siteGlobe && typeof window.siteGlobe.close === 'function') {
-    // 关
-    window.siteGlobe.close();
+  } else {
+    window.siteNav?.close('globe');
+    if (window.siteGlobe && typeof window.siteGlobe.close === 'function') {
+      // 关
+      window.siteGlobe.close();
+    }
   }
 };
 
@@ -346,6 +350,50 @@ syncSearchUI();
   let current = null;       // 当前作品
   let expanded = false;     // 是否处于"放大作品展示区域"
   let anim = null;          // 正在跑的动画
+
+  /* ---------- 场景比较：挂在左侧主预览图正下方，关闭时缩回预览后面 ---------- */
+  const compareDock = document.getElementById('compare-dock');
+  let compareShown = false;
+  let dockClosing = false;
+  const scopeOf = workId => (workId === 'pixel-orbit' ? 'orbit' : 'pds');
+
+  const positionCompareDock = () => {
+    if (!compareDock || !current) return;
+    const r = current.card.getBoundingClientRect();
+    const gap = 14;
+    compareDock.style.left = Math.round(r.left) + 'px';
+    compareDock.style.width = Math.round(r.width) + 'px';
+    compareDock.style.top = Math.round(r.bottom + gap) + 'px';
+    compareDock.style.maxHeight = Math.max(90, Math.round(window.innerHeight - r.bottom - gap - 14)) + 'px';
+  };
+
+  const showCompareDock = work => {
+    if (!compareDock) return;
+    const scope = scopeOf(work.id);
+    const section = compareDock.querySelector('[data-compare="' + scope + '"]');
+    if (!section) return;
+    compareDock.querySelectorAll('.scene-compare').forEach(s => { s.hidden = s !== section; });
+    positionCompareDock();
+    compareDock.hidden = false;
+    compareDock.classList.remove('is-hiding');
+    // 强制先绘制一次初始态，再挂 is-shown，入场过渡才会真的播
+    void compareDock.offsetWidth;
+    compareDock.classList.add('is-shown');
+    compareShown = true;
+    window.siteCompare?.open?.(scope);
+  };
+
+  const hideCompareDock = done => {
+    if (!compareDock || compareDock.hidden) { if (done) done(); return; }
+    compareShown = false;
+    compareDock.classList.remove('is-shown');
+    compareDock.classList.add('is-hiding');
+    setTimeout(() => {
+      compareDock.hidden = true;
+      compareDock.classList.remove('is-hiding');
+      if (done) done();
+    }, 170);
+  };
 
   /* ---------- 几何：展开后卡片 / 放大作品后卡片应该在哪 ---------- */
   const isMobile = () => window.matchMedia('(max-width: 600px)').matches;
@@ -574,9 +622,11 @@ syncSearchUI();
     applyBox(card, openBox());                    // ② 直接切到最终状态
     const last = snapshot(card);                  //    量出 Last
 
+    window.siteNav?.open('work', () => closeWork());
     animateCard(work, first, last, () => {
       mode = 'open';
       closeBtn.focus({ preventScroll: true });
+      showCompareDock(work);
     });
   };
 
@@ -593,6 +643,9 @@ syncSearchUI();
     mode = 'closed';
     current = null;
     expanded = false;
+    compareShown = false;
+    if (compareDock) { compareDock.hidden = true; compareDock.classList.remove('is-shown', 'is-hiding'); }
+    window.siteCompare?.close?.(scopeOf(work.id));
     AppState.activeWorkId = works[0].id;
     if (AppState.currentTab === 'bookmarks') renderGallery();
     updateBookmarkBtn();
@@ -600,7 +653,7 @@ syncSearchUI();
     card.focus({ preventScroll: true });
   };
 
-  const closeWork = () => {
+  const doCloseWork = () => {
     if (mode === 'closed' || mode === 'closing' || !current) return;
     const work = current;
     const card = work.card;
@@ -626,6 +679,19 @@ syncSearchUI();
     animateCard(work, first, last, () => finishClose(work));
   };
 
+  const closeWork = () => {
+    if (mode === 'closed' || mode === 'closing' || !current) return;
+    if (dockClosing) return;
+    window.siteNav?.close('work');
+    // 先让「场景比较」往上缩、藏到主预览图后方，再跑整个详情关闭动画
+    if (compareShown && compareDock && !compareDock.hidden) {
+      dockClosing = true;
+      hideCompareDock(() => { dockClosing = false; doCloseWork(); });
+      return;
+    }
+    doCloseWork();
+  };
+
   /* ---------- 放大 / 还原作品展示区域 ---------- */
   const toggleExpand = () => {
     if (mode !== 'open') return;
@@ -637,6 +703,7 @@ syncSearchUI();
     expanded = !expanded;
 
     if (expanded) {
+      hideCompareDock();
       body.classList.add('artwork-only');
       card.classList.add('is-artwork-expanded');
       applyBox(card, expandedBox(work));
@@ -648,7 +715,10 @@ syncSearchUI();
     setExpandControl(expanded);
 
     const last = snapshot(card);
-    animateCard(work, first, last, () => { mode = 'open'; });
+    animateCard(work, first, last, () => {
+      mode = 'open';
+      if (!expanded) showCompareDock(work);
+    });
   };
 
   const setExpandControl = isExpanded => {
@@ -690,12 +760,13 @@ syncSearchUI();
       event.preventDefault();
       event.stopPropagation();
       const workId = link.dataset.creatorWork;
+      const dockWait = compareDock && !compareDock.hidden ? 180 : 0;
       closeWork();
-      // 等卡片收回动画结束再打开地球，避免和关闭动画抢画面
+      // 等卡片收回动画（含场景比较上缩）结束再打开地球，避免画面打架
       setTimeout(() => {
         setCompassView(true);
         window.siteGlobe?.selectWork?.(workId);
-      }, getDuration() + 40);
+      }, dockWait + getDuration() + 60);
     });
   });
 
@@ -741,6 +812,7 @@ syncSearchUI();
     if (current && ['opening', 'expanding', 'open'].includes(mode)) {
       applyBox(current.card, expanded ? expandedBox(current) : openBox());
       mode = 'open';
+      if (!expanded && compareShown) positionCompareDock();
     }
   });
 

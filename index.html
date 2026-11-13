@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#171717" />
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="./styles/style.css?v=2.8.0" />
+  <link rel="stylesheet" href="./styles/style.css?v=2.8.1" />
   <link rel="stylesheet" href="./styles/orbit-art.css?v=1.2.2" />
-  <link rel="stylesheet" href="./styles/globe.css?v=2.8.0" />
+  <link rel="stylesheet" href="./styles/globe.css?v=2.8.1" />
 </head>
 <body>
   <aside id="mario-nav" aria-label="快捷导航">
@@ -119,24 +119,6 @@
       <button class="scene-choice" type="button" data-scene-choice="seaside" aria-label="切换到海边灯塔" aria-pressed="false"><span class="scene-thumb thumb-seaside" aria-hidden="true"></span><strong>海边灯塔</strong></button>
       <button class="scene-choice" type="button" data-scene-choice="mountain-cabin" aria-label="切换到山间木屋" aria-pressed="false"><span class="scene-thumb thumb-mountain-cabin" aria-hidden="true"></span><strong>山间木屋</strong></button>
     </div>
-    <section class="scene-compare" data-compare="pds" aria-label="场景比较">
-      <div class="scene-compare-head">
-        <h2>场景比较</h2>
-        <span class="scene-compare-note">左右各挑一个场景，并排对照</span>
-      </div>
-      <div class="compare-grid">
-        <div class="compare-pane" data-pane="a" data-scene="seaside">
-          <div class="compare-picks" role="group" aria-label="左侧场景"></div>
-          <div class="compare-frame"></div>
-          <p class="compare-caption">左 · <strong>海边灯塔</strong></p>
-        </div>
-        <div class="compare-pane" data-pane="b" data-scene="countryside">
-          <div class="compare-picks" role="group" aria-label="右侧场景"></div>
-          <div class="compare-frame"></div>
-          <p class="compare-caption">右 · <strong>乡间小屋</strong></p>
-        </div>
-      </div>
-    </section>
     <section class="embed-snippet" aria-labelledby="embed-daylight-title">
       <h2 id="embed-daylight-title">嵌进你的网页</h2>
       <div class="code-block">
@@ -187,7 +169,37 @@
         <span class="orbit-scene-note">168 像素 · 昼夜旋钮</span>
       </button>
     </div>
-    <section class="scene-compare" data-compare="orbit" aria-label="场景比较">
+    <section class="embed-snippet" aria-labelledby="embed-orbit-title">
+      <h2 id="embed-orbit-title">嵌进你的网页</h2>
+      <div class="code-block">
+        <pre><code>&lt;div data-pixel-orbit-embed&gt;&lt;/div&gt;
+&lt;script src="https://gsvegetable.github.io/2_pixel-dusk/embed.js" data-scene="planet"&gt;&lt;/script&gt;</code></pre>
+        <button class="code-copy" type="button" data-copy-code>复制</button>
+      </div>
+      <p class="embed-note">data-scene 可选 countryside（田园）、planet（星球）、world（环形世界）；data-composition 可选 art（主页那种下沉构图）或 full（完整圆环）。</p>
+    </section>
+  </section>
+
+  <div class="compare-dock" id="compare-dock" hidden>
+    <section class="scene-compare" data-compare="pds" data-source="detail-panel" aria-label="场景比较">
+      <div class="scene-compare-head">
+        <h2>场景比较</h2>
+        <span class="scene-compare-note">左右各挑一个场景，并排对照</span>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-pane" data-pane="a" data-scene="seaside">
+          <div class="compare-picks" role="group" aria-label="左侧场景"></div>
+          <div class="compare-frame"></div>
+          <p class="compare-caption">左 · <strong>海边灯塔</strong></p>
+        </div>
+        <div class="compare-pane" data-pane="b" data-scene="countryside">
+          <div class="compare-picks" role="group" aria-label="右侧场景"></div>
+          <div class="compare-frame"></div>
+          <p class="compare-caption">右 · <strong>乡间小屋</strong></p>
+        </div>
+      </div>
+    </section>
+    <section class="scene-compare" data-compare="orbit" data-source="orbit-detail-panel" aria-label="场景比较">
       <div class="scene-compare-head">
         <h2>场景比较</h2>
         <span class="scene-compare-note">左右各挑一个版本，并排对照</span>
@@ -205,16 +217,7 @@
         </div>
       </div>
     </section>
-    <section class="embed-snippet" aria-labelledby="embed-orbit-title">
-      <h2 id="embed-orbit-title">嵌进你的网页</h2>
-      <div class="code-block">
-        <pre><code>&lt;div data-pixel-orbit-embed&gt;&lt;/div&gt;
-&lt;script src="https://gsvegetable.github.io/2_pixel-dusk/embed.js" data-scene="planet"&gt;&lt;/script&gt;</code></pre>
-        <button class="code-copy" type="button" data-copy-code>复制</button>
-      </div>
-      <p class="embed-note">data-scene 可选 countryside（田园）、planet（星球）、world（环形世界）；data-composition 可选 art（主页那种下沉构图）或 full（完整圆环）。</p>
-    </section>
-  </section>
+  </div>
 
   <div class="preview-actions" aria-label="作品视图控制">
     <button class="action-btn bookmark-card" id="bookmark-card" type="button" aria-label="收藏作品" aria-pressed="false">
@@ -227,10 +230,11 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <div class="site-version" aria-label="网站版本">v2.8.0</div>
-  <script src="./scripts/globe.js?v=2.8.0"></script>
-  <script src="./scripts/main.js?v=2.8.0"></script>
-  <script src="./scripts/compare.js?v=1.0.0"></script>
+  <div class="site-version" aria-label="网站版本">v2.8.1</div>
+  <script src="./scripts/globe.js?v=2.8.1"></script>
+  <script src="./scripts/main.js?v=2.8.1"></script>
+  <script src="./scripts/nav-history.js?v=1.0.0"></script>
+  <script src="./scripts/compare.js?v=1.1.0"></script>
   <script src="./scripts/orbit-versions.js?v=1.3.10"></script>
   <script src="./scripts/scroll-ui.js?v=2.0.0"></script>
   <!-- 账号：配置 → 客户端 → 顶栏入口 → 数据同步，顺序不能换（sync 依赖 auth） -->
@@ -255,6 +259,8 @@
       if (!settingsPanel || !settingsToggle) return;
       settingsPanel.hidden = !open;
       settingsToggle.setAttribute('aria-expanded', String(open));
+      if (open) window.siteNav?.open('settings', () => setPanelOpen(false));
+      else window.siteNav?.close('settings');
     };
 
     if (settingsToggle && settingsPanel) {

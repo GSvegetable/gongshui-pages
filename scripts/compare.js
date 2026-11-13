@@ -1,15 +1,16 @@
 /* =========================================================
-   场景比较 — v1.0.0
+   场景比较 — v1.1.0
    ---------------------------------------------------------
-   作品详情页里左右两栏各选一个场景/版本，实时并排对照。
+   挂在左侧主预览图正下方的 #compare-dock 里，左右两栏各选一个
+   场景/版本实时并排对照；宽屏下双栏更舒展。
    · 像素昼夜开关：预览页用 postMessage 切换场景（pds-set-scene）
-   · 像素圆环：showcase 页用 ?scene= 切换版本
-   iframe 只在对应作品详情打开（面板 is-active）时才创建，
-   首页不会因为比较功能一起变慢。
+   · 像素圆环：showcase 页用 ?scene= 切版本；composition=full
+     直接渲染「上浮 / 完整圆环」状态，不是首页那种下沉裁切。
+   只在作品打开、主站调用 siteCompare.open(scope) 时才加载 iframe。
    ========================================================= */
 (() => {
   const PDS_PREVIEW = 'https://gsvegetable.github.io/1_pixel-daylight-switch/preview.html';
-  const ORBIT_SHOWCASE = 'https://gsvegetable.github.io/2_pixel-dusk/showcase.html?v=1.4.0&composition=art';
+  const ORBIT_SHOWCASE = 'https://gsvegetable.github.io/2_pixel-dusk/showcase.html?v=1.4.0&composition=full';
 
   const CONFIG = {
     pds: { base: PDS_PREVIEW, mode: 'post', scenes: ['countryside', 'japanese-street', 'apartment', 'seaside', 'mountain-cabin'] },
@@ -24,31 +25,27 @@
     frame.contentWindow?.postMessage({ type: 'pds-set-scene', scene: frame.dataset.scene || 'seaside' }, '*');
   });
 
-  const sections = [...document.querySelectorAll('.scene-compare')];
+  const sections = [...document.querySelectorAll('.compare-dock .scene-compare')];
   if (!sections.length) return;
 
-  const sourceSelectorFor = scope => (scope === 'orbit' ? '[data-orbit-version]' : '[data-scene-choice]');
-  const idOf = button => button.dataset.orbitVersion || button.dataset.sceneChoice;
-
-  const makeLabelReader = panel => {
-    const cache = new Map();
-    return scope => id => {
-      if (!cache.has(scope)) {
-        const sources = [...panel.querySelectorAll('.scene-picker ' + sourceSelectorFor(scope))];
-        cache.set(scope, sources);
-      }
-      const btn = cache.get(scope).find(b => idOf(b) === id);
+  const labelReaderFor = section => {
+    const src = document.getElementById(section.dataset.source || '');
+    const scope = section.dataset.compare;
+    const sel = scope === 'orbit' ? '[data-orbit-version]' : '[data-scene-choice]';
+    return id => {
+      if (!src) return id;
+      const btn = [...src.querySelectorAll('.scene-picker ' + sel)]
+        .find(b => (b.dataset.orbitVersion || b.dataset.sceneChoice) === id);
       return btn?.querySelector('strong')?.textContent?.trim() || id;
     };
   };
 
-  sections.forEach(section => {
+  const buildSection = section => {
     const scope = section.dataset.compare;
     const cfg = CONFIG[scope];
-    const panel = section.closest('.work-detail');
-    if (!cfg || !panel) return;
+    if (!cfg) return null;
 
-    const labelOf = makeLabelReader(panel)(scope);
+    const labelOf = labelReaderFor(section);
     const panes = [...section.querySelectorAll('.compare-pane')];
     let initialized = false;
 
@@ -113,38 +110,55 @@
       syncFrame(pane, id);
     };
 
-    // 先把选择按钮摆好（不加载 iframe），面板打开时再真正载入
     panes.forEach(pane => {
       buildChips(pane);
       markActive(pane, pane.dataset.scene || cfg.scenes[0]);
     });
 
-    const init = () => {
+    const open = () => {
       if (initialized) return;
       initialized = true;
       panes.forEach(pane => syncFrame(pane, pane.dataset.scene || cfg.scenes[0]));
     };
 
-    // 作品面板的 is-active 由 main.js 的作品控制器切换
-    new MutationObserver(() => {
-      if (panel.classList.contains('is-active')) init();
-    }).observe(panel, { attributes: true, attributeFilter: ['class'] });
-    if (panel.classList.contains('is-active')) init();
-  });
+    // 详情关闭后卸掉 iframe，避免隐藏作品在后台一直跑动画
+    const close = () => {
+      initialized = false;
+      panes.forEach(pane => {
+        const frame = pane.querySelector('iframe');
+        if (!frame) return;
+        if (cfg.mode === 'post') pdsFrames.delete(frame.contentWindow);
+        frame.remove();
+      });
+    };
 
-  // 中英切换后，比较区的场景按钮文字跟着同步
-  document.addEventListener('site:languagechange', () => {
-    sections.forEach(section => {
-      const scope = section.dataset.compare;
-      const cfg = CONFIG[scope];
-      const panel = section.closest('.work-detail');
-      if (!cfg || !panel) return;
-      const labelOf = makeLabelReader(panel)(scope);
-      section.querySelectorAll('.compare-pane').forEach(pane => {
+    const refreshLabels = () => {
+      panes.forEach(pane => {
         pane.querySelectorAll('.compare-pick').forEach(b => { b.textContent = labelOf(b.dataset.scene); });
         const strong = pane.querySelector('.compare-caption strong');
         if (strong) strong.textContent = labelOf(pane.dataset.scene);
       });
-    });
+    };
+
+    return { scope, open, close, refreshLabels };
+  };
+
+  const built = sections.map(buildSection).filter(Boolean);
+
+  // 主站（main.js 作品控制器）在作品打开时调用
+  window.siteCompare = {
+    open(scope) {
+      const rec = built.find(b => b.scope === scope);
+      if (rec) rec.open();
+    },
+    close(scope) {
+      const rec = built.find(b => b.scope === scope);
+      if (rec) rec.close();
+    }
+  };
+
+  // 中英切换后，比较区的场景按钮文字跟着同步
+  document.addEventListener('site:languagechange', () => {
+    built.forEach(rec => rec.refreshLabels());
   });
 })();

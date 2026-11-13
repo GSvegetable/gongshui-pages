@@ -785,16 +785,22 @@
     if (isOpen && readyPromise) return;
     isOpen = true;
     view.setAttribute('aria-hidden', 'false');
+    // iOS 需要用户手势里申请陀螺仪权限（Android 不需要）
+    if (window.DeviceOrientationEvent && typeof window.DeviceOrientationEvent.requestPermission === 'function') {
+      try { await window.DeviceOrientationEvent.requestPermission(); } catch (_) {}
+    }
     try { await ensureReady(); } catch (_) { return; }
     if (!isOpen) return;
     if (g) { g.resumeAnimation(); g.width(stage.clientWidth).height(stage.clientHeight); }
     startTick();
+    startGyro();
     refreshText();
   }
 
   function closeGlobe() {
     if (!isOpen) return;
     isOpen = false;
+    stopGyro();
     if (view) view.setAttribute('aria-hidden', 'true');
     if (selected) deselect();
     clearTimeout(resumeTimer);
@@ -829,6 +835,48 @@
     if (e.key === 'Escape' && isOpen && selected) deselect();
   });
   document.addEventListener('site:languagechange', () => { refreshText(); });
+
+  /* ---------- 陀螺仪：移动端轻微、强阻尼的倾斜旋转 ---------- */
+  let gyro = null;
+  const gyroSupported = () =>
+    !!window.DeviceOrientationEvent && window.matchMedia('(pointer: coarse)').matches;
+
+  function setupGyro() {
+    if (gyro || !gyroSupported()) return;
+    gyro = { tx: 0, ty: 0, x: 0, y: 0, raf: 0 };
+    window.addEventListener('deviceorientation', event => {
+      if (!gyro || event.beta == null || event.gamma == null) return;
+      // gamma：左右倾斜；beta：前后倾斜（竖握手机时约 45~60，取 55 当零点）
+      gyro.tx = Math.max(-1, Math.min(1, event.gamma / 20));
+      gyro.ty = Math.max(-1, Math.min(1, (event.beta - 55) / 22));
+    }, true);
+  }
+
+  function gyroFrame() {
+    if (!gyro) return;
+    // 强阻尼：每帧只追 6%，平滑、不晕、不跟着手抖
+    gyro.x += (gyro.tx - gyro.x) * 0.06;
+    gyro.y += (gyro.ty - gyro.y) * 0.06;
+    if (stage) {
+      stage.style.transform =
+        'perspective(1200px) rotateY(' + (gyro.x * 2.4).toFixed(3) + 'deg)' +
+        ' rotateX(' + (-gyro.y * 1.7).toFixed(3) + 'deg) scale(1.05)';
+    }
+    gyro.raf = requestAnimationFrame(gyroFrame);
+  }
+
+  function startGyro() {
+    setupGyro();
+    if (!gyro || gyro.raf) return;
+    gyro.raf = requestAnimationFrame(gyroFrame);
+  }
+
+  function stopGyro() {
+    if (!gyro) return;
+    cancelAnimationFrame(gyro.raf);
+    gyro.raf = 0;
+    if (stage) stage.style.transform = '';
+  }
 
   /* 从详情页点「开发者与贡献者」时：打开地球并自动选中对应作者 */
   function applyPendingSelect() {
