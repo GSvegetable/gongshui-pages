@@ -216,7 +216,7 @@ html.search-collapsed .search-status { opacity: 0; }
 
 /* ---------- 页面基础布局 ---------- */
 main { padding: 94px 24px 48px; }
-.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, var(--gallery-card-min, 260px)), 1fr)); gap: 24px; padding-left:88px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, var(--gallery-card-min, 300px)), 1fr)); gap: 24px; padding-left:88px; }
 
 /* 卡片：缩略态。尺寸 = 边框3 + 内边距8 + 作品框(边框2) */
 .preview-card {
@@ -695,7 +695,7 @@ body.view-closing .top-utility-actions{
 }
 
 /* Gallery zoom changes the grid's column density, not the site chrome. */
-main{--gallery-card-min:260px}
+main{--gallery-card-min:300px}
 .grid{transform-origin:top left}
 .preview-card{touch-action:pan-y}
 
@@ -741,14 +741,46 @@ main{--gallery-card-min:260px}
   border-radius:50%;box-shadow:0 0 0 3px rgba(239,160,44,.18),0 0 12px rgba(239,160,44,.35);
 }
 
-/* v2.6.1 — 卡片标题固定单行：画廊缩小时标题不再折成两排把卡片撑高，
-   过长用省略号收尾；两张卡片底边因此保持齐平。 */
-.card-title {
-  flex: 1 1 auto;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* v2.7 — 收藏视图：收藏时用列表式书架呈现，和首页网格区分开 */
+.bookmarks-heading {
+  display: flex; align-items: baseline; gap: 12px;
+  margin: 0 0 18px; padding-left: 88px;
 }
-.card-info > .work-tags,
-.orbit-card-heading > .work-tags { flex: 0 0 auto; }
+.bookmarks-heading h2 { margin: 0; color: #191711; font-size: 22px; letter-spacing: -.5px; }
+.bookmarks-heading .bookmarks-count { color: #8a7a5c; font: 700 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.bookmarks-heading[hidden] { display: none; }
+
+.bookmark-desc, .bookmark-remove { display: none; }
+
+body.is-bookmarks .grid { grid-template-columns: minmax(0, 1fr); gap: 16px; max-width: 780px; }
+body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) { display: flex; flex-direction: row; align-items: center; gap: 16px; }
+body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .preview-mount { flex: 0 0 190px; width: 190px; }
+body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .card-info { flex: 1 1 auto; flex-direction: column; align-items: stretch; gap: 8px; margin-top: 0; padding: 0 4px; }
+body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .card-title { font-size: 17px; letter-spacing: .5px; }
+body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .bookmark-desc {
+  display: block; margin: 0; color: #6b5d47; font-size: 12px; line-height: 1.65;
+}
+body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .bookmark-remove {
+  display: inline-flex; align-items: center; justify-content: center; align-self: flex-start;
+  gap: 6px; height: 30px; padding: 0 11px; cursor: pointer;
+  border: 2px solid #080808; border-radius: 3px; background: #f4bd3c; color: #211d15;
+  font: 900 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  box-shadow: 2px 3px 0 #000; transition: transform .1s, box-shadow .1s, background .15s;
+}
+body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .bookmark-remove:hover { background: #ffd36a; }
+body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .bookmark-remove:active { transform: translate(2px, 3px); box-shadow: none; }
+
+@media (max-width: 600px) {
+  .bookmarks-heading { padding-left: 64px; }
+  body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .preview-mount { flex: 0 0 130px; width: 130px; }
+}
+
+/* v2.7 — 设置面板去掉标题与横线后，账号/语言按钮统一尺寸 */
+.top-utility-actions .settings-panel .account-entry,
+.top-utility-actions .settings-panel .language-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 56px; height: 32px; min-height: 32px; padding: 0 11px;
+  border: 2px solid #080808; border-radius: 3px;
+  font: 900 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  box-shadow: 2px 3px 0 #000;
+}

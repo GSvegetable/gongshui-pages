@@ -185,21 +185,20 @@
 
   const issueUrl = () => {
     const text = [
-      '## 我想在「投稿者地球」上插旗',
+      '## 投稿插旗',
       '',
       '- 显示名：',
-      '- GitHub 用户名（可选，用来自动取头像）：',
-      '- 国家代码（如 CN / JP / US / NZ）：',
-      '- 精确位置（可选，经纬度；建议只填到城市级别，我们会取整到约 1 公里）：',
-      '- 显示方式：头像 / 国旗',
-      '- 对应的作品：',
+      '- 国家代码（如 CN）：',
+      '- GitHub 用户名（可选）：',
+      '- 位置（可选，城市或经纬度）：',
       '- 一句话（可选）：'
     ].join('\n');
-    return 'https://github.com/' + REPO + '/issues/new?title=' + encodeURIComponent('投稿插旗：') + '&body=' + encodeURIComponent(text);
+    return 'https://github.com/' + REPO + '/issues/new?title=' + encodeURIComponent('投稿插旗') + '&body=' + encodeURIComponent(text);
   };
 
   /* ---------- 状态 ---------- */
   let view = null, stage = null, statusBox = null, card = null, roster = null, statsLine = null, dayBtn = null;
+  let searchWrap = null, searchInput = null, cta = null;
   let g = null;                 // globe.gl 实例
   let contributors = [];
   let selected = null;
@@ -397,6 +396,45 @@
     ['circle', '12', '12', '4'],
     ['path', 'M12 2.6v2.2M12 19.2v2.2M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6'],
   ];
+  const ICON_SEARCH = [['circle', '11', '11', '7'], ['path', 'M16.5 16.5l4 4']];
+  const ICON_FLAG = [['path', 'M6 21V4'], ['path', 'M6 4h12l-3 4 3 4H6']];
+
+  /* ---------- 搜索：模糊匹配投稿者 ---------- */
+  const normQ = v => (v || '').toLowerCase().replace(/\s+/g, '');
+  const fuzzy = (text, query) => {
+    if (!query) return true;
+    const t = normQ(text), q = normQ(query);
+    if (!q) return true;
+    if (t.includes(q)) return true;
+    let at = 0;
+    for (const ch of q) { at = t.indexOf(ch, at); if (at === -1) return false; at += 1; }
+    return true;
+  };
+
+  const buildStats = list => {
+    const countries = new Set(list.map(c => c.country)).size;
+    statsLine.textContent = list.length
+      ? tr('globe.stats', '来自 {countries} 个国家的 {count} 位作者', { countries, count: list.length })
+      : tr('globe.empty', '还没有作者，来插第一面旗吧');
+  };
+
+  const applySearch = () => {
+    const q = (searchInput && searchInput.value) || '';
+    const matches = contributors.filter(c => fuzzy([c.name, c.github, c.countryName, c.city, c.note].join(' '), q));
+    roster.replaceChildren();
+    matches.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach(c => {
+      const chip = buildChip(c);
+      chip.setAttribute('role', 'listitem');
+      roster.appendChild(chip);
+    });
+    roster.hidden = q.trim() === '';
+    if (view) view.classList.toggle('globe-searching', q.trim() !== '');
+  };
+
+  const collapseSearch = on => {
+    if (view) view.classList.toggle('globe-search-collapsed', on);
+    if (on && searchInput && document.activeElement === searchInput) searchInput.blur();
+  };
 
   /* ---------- 页面骨架 ---------- */
   function buildDom() {
@@ -412,12 +450,9 @@
     stage = el('div', 'globe-stage');
     view.appendChild(stage);
 
-    const title = el('div', 'globe-title');
-    title.appendChild(el('p', 'globe-kicker', 'CONTRIBUTORS GLOBE'));
-    title.appendChild(el('h2', null, tr('globe.view.title', '投稿者地球')));
+    // 大标题去掉，只留一行小字：来自 X 个国家的 X 位作者
     statsLine = el('p', 'globe-stats', '');
-    title.appendChild(statsLine);
-    view.appendChild(title);
+    view.appendChild(statsLine);
 
     statusBox = el('div', 'globe-status', tr('globe.loading', '正在展开地球…'));
     view.appendChild(statusBox);
@@ -427,37 +462,57 @@
     view.appendChild(card);
 
     const dock = el('div', 'globe-dock');
+
+    // 左下：搜索栏（替代原来的投稿者名单）；匹配结果列在搜索栏上方
+    const searchCol = el('div', 'globe-search-col');
     roster = el('div', 'globe-roster');
     roster.setAttribute('role', 'list');
-    dock.appendChild(roster);
+    searchCol.appendChild(roster);
 
+    searchWrap = el('label', 'globe-search');
+    searchWrap.appendChild(icon(ICON_SEARCH));
+    searchInput = el('input');
+    searchInput.type = 'search';
+    searchInput.placeholder = tr('globe.search.placeholder', '搜索作者…');
+    searchInput.setAttribute('aria-label', tr('globe.search.placeholder', '搜索作者…'));
+    searchInput.autocomplete = 'off';
+    searchInput.spellcheck = false;
+    searchInput.addEventListener('input', applySearch);
+    searchInput.addEventListener('focus', () => collapseSearch(false));
+    searchWrap.appendChild(searchInput);
+    searchCol.appendChild(searchWrap);
+    dock.appendChild(searchCol);
+
+    // 右下：看夜晚 / 插旗，只保留图标
     const tools = el('div', 'globe-tools');
-    dayBtn = el('button', 'globe-btn');
+    dayBtn = el('button', 'globe-btn globe-btn--icon');
     dayBtn.type = 'button';
     dayBtn.setAttribute('aria-pressed', 'false');
+    dayBtn.setAttribute('aria-label', tr('globe.night', '看夜晚'));
+    dayBtn.title = tr('globe.night', '看夜晚');
     dayBtn.appendChild(icon(ICON_MOON));
-    dayBtn.appendChild(el('span', null, tr('globe.night', '看夜晚')));
     dayBtn.addEventListener('click', toggleNight);
     tools.appendChild(dayBtn);
-    const cta = el('a', 'globe-btn globe-btn--cta');
-    cta.appendChild(el('span', null, tr('globe.cta', '＋ 我要插旗')));
+
+    cta = el('a', 'globe-btn globe-btn--cta globe-btn--icon');
     cta.href = issueUrl(); cta.target = '_blank'; cta.rel = 'noopener noreferrer';
-    cta.title = tr('globe.cta.title', '在 GitHub 上提交一个投稿，作者会把你的旗子插上去');
+    cta.setAttribute('aria-label', tr('globe.cta.title', '在 GitHub 上提交插旗，作者会把你的旗子插上去'));
+    cta.title = tr('globe.cta.title', '在 GitHub 上提交插旗，作者会把你的旗子插上去');
+    cta.appendChild(icon(ICON_FLAG));
     tools.appendChild(cta);
     dock.appendChild(tools);
-    view.appendChild(dock);
 
+    view.appendChild(dock);
     host.appendChild(view);
     host.classList.add('globe-mounted');
   }
 
   function toggleNight() {
     night = !night;
-    dayBtn.replaceChildren(
-      icon(night ? ICON_SUN : ICON_MOON),
-      el('span', null, night ? tr('globe.day', '看白天') : tr('globe.night', '看夜晚'))
-    );
+    dayBtn.replaceChildren(icon(night ? ICON_SUN : ICON_MOON));
     dayBtn.setAttribute('aria-pressed', String(night));
+    dayBtn.setAttribute('aria-label', night ? tr('globe.day', '看白天') : tr('globe.night', '看夜晚'));
+    dayBtn.title = dayBtn.getAttribute('aria-label');
     if (g) {
       g.globeImageUrl(pixelTex
         ? (night ? pixelTex.night : pixelTex.day)
@@ -631,8 +686,8 @@
     controls.autoRotateSpeed = 0.4;
     controls.minDistance = 160;
     controls.maxDistance = 600;
-    controls.addEventListener('start', () => { clearTimeout(resumeTimer); controls.autoRotate = false; });
-    controls.addEventListener('end', () => { if (!selected) scheduleAutoRotate(5000); });
+    controls.addEventListener('start', () => { clearTimeout(resumeTimer); controls.autoRotate = false; collapseSearch(true); });
+    controls.addEventListener('end', () => { if (!selected) scheduleAutoRotate(5000); collapseSearch(false); });
 
     // 一开场从远处飞近，落在投稿者们大致所在的经度
     const midLng = list.length ? list.reduce((s, c) => s + c.plotLng, 0) / list.length : 105;
@@ -654,21 +709,6 @@
         .polygonAltitude(0.006);
       if (typeof g.polygonsTransitionDuration === 'function') g.polygonsTransitionDuration(0);
     }
-  }
-
-  function buildRoster(list) {
-    roster.replaceChildren();
-    list.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach(c => {
-      const chip = buildChip(c);
-      chip.setAttribute('role', 'listitem');
-      roster.appendChild(chip);
-    });
-    const countries = new Set(list.map(c => c.country)).size;
-    statsLine.textContent = list.length
-      ? (list.length === 1 && countries === 1
-        ? tr('globe.stats.one', '1 位投稿者 · 点亮 1 个国家/地区')
-        : tr('globe.stats', '{count} 位投稿者 · 点亮 {countries} 个国家/地区', { count: list.length, countries }))
-      : tr('globe.empty', '还没有投稿者，来插第一面旗吧');
   }
 
   /* 写实地球的贴图跟库一起下载：否则先等库、再等贴图，慢网络下白屏很久 */
@@ -694,7 +734,8 @@
       const textures = (webgl && !geo) ? preloadTextures() : Promise.resolve();
       contributors = list;
       list.forEach(buildPin);
-      buildRoster(list);
+      buildStats(list);
+      applySearch();
       if (webgl && window.Globe) {
         initGlobe(list, geo);
         // 提示条一直挂到贴图真的下完、球面画出来为止
@@ -745,17 +786,21 @@
     // 国名跟着语言走：中文用内置表，英文用系统自带的国家名
     contributors.forEach(c => { c.countryName = countryLabel(c.country); });
     view.setAttribute('aria-label', tr('globe.view.title', '投稿者地球'));
-    const h2 = view.querySelector('.globe-title h2');
-    if (h2) h2.textContent = tr('globe.view.title', '投稿者地球');
-    if (dayBtn) {
-      dayBtn.replaceChildren(
-        icon(night ? ICON_SUN : ICON_MOON),
-        el('span', null, night ? tr('globe.day', '看白天') : tr('globe.night', '看夜晚'))
-      );
+    if (searchInput) {
+      searchInput.placeholder = tr('globe.search.placeholder', '搜索作者…');
+      searchInput.setAttribute('aria-label', tr('globe.search.placeholder', '搜索作者…'));
     }
-    const cta = view.querySelector('.globe-btn--cta span');
-    if (cta) cta.textContent = tr('globe.cta', '＋ 我要插旗');
-    if (contributors.length) buildRoster(contributors);
+    if (dayBtn) {
+      dayBtn.setAttribute('aria-label', night ? tr('globe.day', '看白天') : tr('globe.night', '看夜晚'));
+      dayBtn.title = dayBtn.getAttribute('aria-label');
+    }
+    if (cta) {
+      const tip = tr('globe.cta.title', '在 GitHub 上提交插旗，作者会把你的旗子插上去');
+      cta.setAttribute('aria-label', tip);
+      cta.title = tip;
+    }
+    if (contributors.length) buildStats(contributors);
+    applySearch();
     if (selected) renderCard(selected);
   }
 

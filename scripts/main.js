@@ -60,7 +60,6 @@ const emptyDesc = document.getElementById('empty-desc');
 const searchInput = document.getElementById('search-input');
 const searchWrapper = document.getElementById('search-wrapper');
 const searchClear = document.getElementById('search-clear');
-const searchStatus = document.getElementById('search-status');
 
 /* ---------- 模糊搜索 ----------
    整段包含算命中；再往前一步，查询的字符按顺序散落在标题里也算命中
@@ -95,6 +94,14 @@ const searchDescOf = card => {
 
 const renderGallery = () => {
   let visibleCount = 0;
+  document.body.classList.toggle('is-bookmarks', AppState.currentTab === 'bookmarks');
+  const bmHeading = document.getElementById('bookmarks-heading');
+  if (bmHeading) {
+    const total = galleryCards.filter(c => AppState.bookmarks.includes(c.dataset.id)).length;
+    bmHeading.hidden = AppState.currentTab !== 'bookmarks';
+    const bmCount = document.getElementById('bookmarks-count');
+    if (bmCount) bmCount.textContent = tr('bookmarks.count', total + ' 件', { n: total });
+  }
   const query = norm(AppState.searchQuery);
   galleryCards.forEach(item => {
     const isBookmarked = AppState.bookmarks.includes(item.dataset.id);
@@ -127,16 +134,6 @@ const syncSearchUI = () => {
   searchWrapper.classList.toggle('is-active', query.length > 0);
   searchClear.hidden = query.length === 0;
   searchInput.value = query;
-  if (query) {
-    const visible = galleryCards.filter(item => !item.classList.contains('hidden')).length;
-    searchStatus.textContent = visible
-      ? tr('search.found', '找到 ' + visible + ' 个作品', { n: visible })
-      : tr('search.none', '没有找到匹配的作品');
-    searchStatus.classList.add('visible');
-  } else {
-    searchStatus.textContent = '';
-    searchStatus.classList.remove('visible');
-  }
 };
 
 const updateSearch = value => {
@@ -207,6 +204,48 @@ document.addEventListener('keydown', event => {
 renderGallery();
 syncSearchUI();
 
+/* ---------- 收藏视图元信息：描述 + 移除按钮（只在收藏视图显示） ---------- */
+(() => {
+  works.forEach(work => {
+    const info = work.card.querySelector('.card-info');
+    if (!info) return;
+
+    const desc = document.createElement('p');
+    desc.className = 'bookmark-desc';
+    info.appendChild(desc);
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'bookmark-remove';
+    remove.addEventListener('click', event => {
+      event.stopPropagation();
+      AppState.bookmarks = AppState.bookmarks.filter(id => id !== work.id);
+      saveBookmarks();
+      window.siteSync?.setBookmark(work.id, false);
+      renderGallery();
+    });
+    info.appendChild(remove);
+  });
+
+  const syncMeta = () => {
+    works.forEach(work => {
+      const desc = work.card.querySelector('.bookmark-desc');
+      if (desc) {
+        const t = work.panel?.querySelector('.detail-description')?.textContent || '';
+        desc.textContent = t.length > 80 ? t.slice(0, 80) + '…' : t;
+      }
+      const remove = work.card.querySelector('.bookmark-remove');
+      if (remove) {
+        const label = tr('bookmark.remove', '移除收藏');
+        remove.textContent = label;
+        remove.setAttribute('aria-label', label);
+      }
+    });
+  };
+  syncMeta();
+  document.addEventListener('site:languagechange', syncMeta);
+})();
+
 /* =========================================================
    1.5 主页画廊双指缩放：只改变卡片网格密度，不缩放导航和搜索栏
    ========================================================= */
@@ -214,7 +253,7 @@ syncSearchUI();
   const gallery = document.querySelector('main .grid');
   const main = document.querySelector('main');
   if (!gallery || !main) return;
-  const MIN = 150, MAX = 520, DEFAULT = 260;
+  const MIN = 230, MAX = 560, DEFAULT = 300;
   let cardMin = DEFAULT;
   let pinchStart = null;
   const applyZoom = (next, focalX = window.innerWidth / 2, focalY = window.innerHeight / 2) => {

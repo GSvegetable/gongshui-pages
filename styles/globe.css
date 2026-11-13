@@ -183,3 +183,56 @@ body.compass-mode .globe-dock { bottom: 56px; }
   .globe-btn { height: 40px; padding: 0 11px; border-width: 2px; }
   .globe-card { top: auto; right: 14px; bottom: 150px; left: 14px; width: auto; }
 }
+
+/* ---------- v2.7：去掉大标题，只留一行小字 ---------- */
+.globe-stats {
+  position: absolute; top: 24px; left: 112px; z-index: 3;
+  margin: 0; color: #cbbda3; font-size: 13px; font-weight: 700; letter-spacing: .4px;
+  pointer-events: none; user-select: none;
+}
+
+/* ---------- v2.7：左下角搜索栏（替代投稿者名单按钮） ---------- */
+.globe-search-col {
+  flex: 1 1 auto; max-width: 420px; min-width: 0;
+  display: flex; flex-direction: column; align-items: stretch; gap: 10px;
+  pointer-events: auto;
+}
+.globe-roster { max-width: 100%; padding: 4px 2px 6px; }
+.globe-roster[hidden] { display: none; }
+.globe-search {
+  display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 14px;
+  color: #211d15; background: #f5ecd9; border: 2px solid #080808; border-radius: 7px;
+  box-shadow: 4px 4px 0 #080808; cursor: text;
+  transition: max-width var(--dur) var(--ease), height var(--dur) var(--ease),
+    padding var(--dur) var(--ease), gap var(--dur) var(--ease), background .18s ease;
+}
+.globe-search .globe-icon { width: 19px; height: 19px; flex: 0 0 auto; color: #554632; }
+.globe-search input {
+  min-width: 0; width: 100%; height: 100%; padding: 0; border: 0; outline: 0;
+  background: transparent; color: #1a1712; font-size: 14px; font-weight: 650;
+  appearance: none;
+}
+.globe-search input::placeholder { color: #9b8a70; font-weight: 500; }
+.globe-search input::-webkit-search-cancel-button { display: none; }
+.globe-search:focus-within { border-color: #f4bd3c; box-shadow: 4px 4px 0 #080808, 0 0 0 3px rgba(244,189,60,.2); }
+
+/* 拖动地球时搜索栏缩成一个小方块（和首页搜索栏的收起行为一上一下呼应） */
+.globe-view.globe-search-collapsed .globe-search {
+  width: 46px; max-width: 46px; height: 46px; padding: 0; gap: 0; justify-content: center;
+  border-radius: 5px; background: #ffd400; border-color: #34220e;
+  box-shadow: 0 4px 0 #b58f00, 0 6px 0 #34220e;
+}
+.globe-view.globe-search-collapsed .globe-search .globe-icon { width: 22px; height: 22px; color: #1b2146; }
+.globe-view.globe-search-collapsed .globe-search input { width: 0; min-width: 0; padding: 0; opacity: 0; pointer-events: none; }
+
+/* ---------- v2.7：看夜晚 / 插旗按钮只保留图标 ---------- */
+.globe-btn--icon { width: 44px; padding: 0; gap: 0; }
+.globe-btn--icon svg { width: 20px; height: 20px; }
+
+@media (max-width: 600px) {
+  .globe-stats { top: 18px; left: 78px; font-size: 12px; }
+  .globe-search-col { flex: 0 0 auto; }
+  .globe-search { height: 42px; padding: 0 12px; }
+  .globe-view.globe-search-collapsed .globe-search { width: 42px; max-width: 42px; height: 42px; }
+  .globe-btn--icon { width: 40px; }
+}
