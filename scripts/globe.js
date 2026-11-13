@@ -7,6 +7,9 @@
    · 没有 WebGL / 加载失败时，会降级成一份普通的投稿者名单
    · 投稿者的名字、备注全部用 textContent 写入，不会被注入 HTML
    · 开关由主站的指南针视图驱动（main.js → setCompassView），这里只管地球自己
+   · v2.7：像素风地球——贴图用国家边界数据在画布上现画（有投稿者的国家直接染成琥珀色），
+     渲染分辨率降到 1/3 再用 nearest 放大成方块像素，片元着色器里再做色阶量化 + 抖动。
+     边界数据拿不到时，自动回退到原来的写实照片地球。
    ========================================================= */
 (() => {
   'use strict';
@@ -205,6 +208,7 @@
   let rafId = 0;
   let resumeTimer = 0;
   let readyPromise = null;
+  let pixelTex = null;          // 像素地球的贴图（白天 / 夜晚 / 星空）；null = 用写实照片
 
   /* ---------- 小零件：头像 / 国旗（加载失败有后备） ---------- */
   const flagImg = code => {
@@ -454,7 +458,11 @@
       el('span', null, night ? tr('globe.day', '看白天') : tr('globe.night', '看夜晚'))
     );
     dayBtn.setAttribute('aria-pressed', String(night));
-    if (g) g.globeImageUrl(IMG + (night ? 'earth-night.jpg' : 'earth-blue-marble.jpg'));
+    if (g) {
+      g.globeImageUrl(pixelTex
+        ? (night ? pixelTex.night : pixelTex.day)
+        : IMG + (night ? 'earth-night.jpg' : 'earth-blue-marble.jpg'));
+    }
   }
 
   function showStatus(message, isError, retry) {
@@ -482,21 +490,139 @@
     return list;
   }
 
+  // 国家边界：像素地球的贴图要靠它画；拿不到就回退写实地球，不算错误
+  const loadGeo = () => fetch(COUNTRY_GEOJSON).then(r => (r.ok ? r.json() : null)).catch(() => null);
+
+  /* =========================================================
+     像素地球：贴图 + 渲染
+     ========================================================= */
+  // 两套配色：白天（奶油 / 草绿 / 雾蓝 / 琥珀）和夜晚（深靛 + 只有投稿者的国家亮着灯）
+  const PIX = {
+    day: {
+      sea: ['#1b2452', '#273381', '#1b2452'],
+      land: [[0, '#eef3ec'], [0.09, '#dde7da'], [0.15, '#6b8a58'], [0.27, '#7c9a4e'], [0.36, '#a3a655'], [0.5, '#6e9444'],
+             [0.64, '#a3a655'], [0.73, '#7c9a4e'], [0.8, '#6b8a58'], [0.835, '#dde7da'], [1, '#f4f7f2']],
+      border: 'rgba(40,58,30,.55)', lit: '#f0a52c', litEdge: '#ffd36a'
+    },
+    night: {
+      sea: ['#0a0e2a', '#121a44', '#0a0e2a'],
+      land: [[0, '#59648f'], [0.09, '#46517e'], [0.15, '#1f2b55'], [0.5, '#25326a'], [0.8, '#1f2b55'], [0.835, '#46517e'], [1, '#59648f']],
+      border: 'rgba(120,140,220,.35)', lit: '#ffd36a', litEdge: '#fff2b8'
+    }
+  };
+  const geoCode = f => (f.properties && (f.properties.ISO_A2_EH || f.properties.ISO_A2)) || '';
+
+  function paintStars() {
+    const W = 2048, H = 1024;
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#0b1030'; ctx.fillRect(0, 0, W, H);
+    let s = 20261113; // 固定种子：每次打开星星都在同一个位置
+    const rnd = () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296);
+    for (let i = 0; i < 520; i++) {
+      const x = Math.floor(rnd() * W), y = Math.floor(rnd() * H), r = rnd();
+      ctx.fillStyle = r < 0.08 ? '#ffd36a' : r < 0.3 ? '#8fb8ff' : '#f5ecd9';
+      const size = r < 0.06 ? 3 : 2;
+      ctx.fillRect(x, y, size, size);
+    }
+    return cv.toDataURL('image/png');
+  }
+
+  function buildEarthTextures(geo, lit) {
+    const W = 720, H = 360;
+    const feats = geo.features || [];
+    const trace = (ctx, geom) => {
+      const polys = !geom ? [] : geom.type === 'Polygon' ? [geom.coordinates] : geom.type === 'MultiPolygon' ? geom.coordinates : [];
+      ctx.beginPath();
+      polys.forEach(poly => poly.forEach(ring => {
+        ring.forEach((pt, i) => {
+          const x = (pt[0] + 180) / 360 * W, y = (90 - pt[1]) / 180 * H;
+          if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+        });
+        ctx.closePath();
+      }));
+    };
+    const paint = pal => {
+      const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      const ctx = cv.getContext('2d');
+      const sea = ctx.createLinearGradient(0, 0, 0, H);
+      sea.addColorStop(0, pal.sea[0]); sea.addColorStop(0.5, pal.sea[1]); sea.addColorStop(1, pal.sea[2]);
+      ctx.fillStyle = sea; ctx.fillRect(0, 0, W, H);
+      const land = ctx.createLinearGradient(0, 0, 0, H);
+      pal.land.forEach(s => land.addColorStop(s[0], s[1]));
+      ctx.lineJoin = 'round';
+      // 先画普通国家，再画有投稿者的国家：金色边线不会被邻国的边线盖住
+      [false, true].forEach(isLit => {
+        feats.forEach(f => {
+          if (lit.has(geoCode(f)) !== isLit) return;
+          trace(ctx, f.geometry);
+          ctx.fillStyle = isLit ? pal.lit : land;
+          ctx.fill('evenodd');
+          ctx.strokeStyle = isLit ? pal.litEdge : pal.border;
+          ctx.lineWidth = isLit ? 1.2 : 0.7;
+          ctx.stroke();
+        });
+      });
+      return cv.toDataURL('image/png');
+    };
+    return { day: paint(PIX.day), night: paint(PIX.night), stars: paintStars() };
+  }
+
+  /* 把 globe.gl 的画面变成像素风：
+     ① 渲染分辨率降到 1/3（手机 1/2），再用 image-rendering:pixelated 放大成方块；
+     ② 在球面材质的片元着色器末尾做 7 阶色阶量化 + 2×2 有序抖动，让明暗过渡变成像素画那种网点。
+     两步各自 try/catch：任何一步在某个浏览器不支持，也只是少一点风格，不会白屏。 */
+  function stylizePixel() {
+    try {
+      const px = stage.clientWidth < 600 ? 2 : 3;
+      const r = g.renderer();
+      r.setPixelRatio(1 / px);
+      r.domElement.style.imageRendering = 'pixelated';
+    } catch (_) { /* 保持默认清晰渲染 */ }
+    try {
+      const mat = g.globeMaterial();
+      mat.onBeforeCompile = shader => {
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <dithering_fragment>',
+          '#include <dithering_fragment>\n' +
+          '{ vec2 q = mod(floor(gl_FragCoord.xy), 2.0);\n' +
+          '  float t = (mod(q.x * 2.0 + q.y * 3.0, 4.0) + 0.5) / 4.0;\n' +
+          '  gl_FragColor.rgb = floor(gl_FragColor.rgb * 7.0 + 0.5 + (t - 0.5) * 0.7) / 7.0; }'
+        );
+      };
+      mat.needsUpdate = true;
+    } catch (_) { /* 保持默认着色 */ }
+  }
+
   /* ---------- 初始化地球 ---------- */
-  function initGlobe(list) {
+  function initGlobe(list, geo) {
     const getXYZ = (lat, lng) => toXYZ(lat, lng, GLOBE_R * 1.01);
+
+    pixelTex = null;
+    if (geo) {
+      try { pixelTex = buildEarthTextures(geo, new Set(list.map(c => c.country))); }
+      catch (err) { console.warn('[globe] 像素贴图生成失败，改用写实地球', err); pixelTex = null; }
+    }
 
     g = window.Globe({ animateIn: true })(stage)
       .width(stage.clientWidth).height(stage.clientHeight)
-      .backgroundColor('#04060b')
-      .backgroundImageUrl(IMG + 'night-sky.jpg')
-      .globeImageUrl(IMG + 'earth-blue-marble.jpg')
-      .bumpImageUrl(IMG + 'earth-topology.png')
-      .showAtmosphere(true).atmosphereColor('#8fb8ff').atmosphereAltitude(0.18)
+      .showAtmosphere(true).atmosphereColor('#8fb8ff').atmosphereAltitude(pixelTex ? 0.12 : 0.18)
       .htmlElementsData(list)
       .htmlLat(d => d.plotLat).htmlLng(d => d.plotLng).htmlAltitude(0.012)
       .htmlElement(d => d.el);
     if (typeof g.htmlTransitionDuration === 'function') g.htmlTransitionDuration(0);
+
+    if (pixelTex) {
+      g.backgroundColor('#0b1030')
+        .backgroundImageUrl(pixelTex.stars)
+        .globeImageUrl(night ? pixelTex.night : pixelTex.day);
+      stylizePixel();
+    } else {
+      g.backgroundColor('#04060b')
+        .backgroundImageUrl(IMG + 'night-sky.jpg')
+        .globeImageUrl(IMG + (night ? 'earth-night.jpg' : 'earth-blue-marble.jpg'))
+        .bumpImageUrl(IMG + 'earth-topology.png');
+    }
 
     list.forEach(c => { c.xyz = getXYZ(c.plotLat, c.plotLng); });
 
@@ -517,19 +643,17 @@
       if (stage.clientWidth && stage.clientHeight) g.width(stage.clientWidth).height(stage.clientHeight);
     }).observe(stage);
 
-    // 有投稿者的国家描一圈金边（拿不到边界数据就算了，不影响主体）
-    fetch(COUNTRY_GEOJSON).then(r => r.json()).then(geo => {
+    // 写实地球才需要：有投稿者的国家描一圈金边（像素地球已经把它直接染在贴图上了）
+    if (!pixelTex && geo && typeof g.polygonsData === 'function') {
       const lit = new Set(list.map(c => c.country));
-      const code = f => (f.properties && (f.properties.ISO_A2_EH || f.properties.ISO_A2)) || '';
-      const features = (geo.features || []).filter(f => lit.has(code(f)));
-      if (typeof g.polygonsData !== 'function') return;
+      const features = (geo.features || []).filter(f => lit.has(geoCode(f)));
       g.polygonsData(features)
         .polygonCapColor(() => 'rgba(244,189,60,0.28)')
         .polygonSideColor(() => 'rgba(244,189,60,0.12)')
         .polygonStrokeColor(() => '#f4bd3c')
         .polygonAltitude(0.006);
       if (typeof g.polygonsTransitionDuration === 'function') g.polygonsTransitionDuration(0);
-    }).catch(() => {});
+    }
   }
 
   function buildRoster(list) {
@@ -547,7 +671,7 @@
       : tr('globe.empty', '还没有投稿者，来插第一面旗吧');
   }
 
-  /* 贴图跟库一起下载：否则先等库、再等贴图，慢网络下白屏很久 */
+  /* 写实地球的贴图跟库一起下载：否则先等库、再等贴图，慢网络下白屏很久 */
   const preloadTextures = () => Promise.all(
     ['earth-blue-marble.jpg', 'earth-night.jpg', 'earth-topology.png', 'night-sky.jpg'].map(name => new Promise(resolve => {
       const img = new Image();
@@ -561,13 +685,18 @@
     readyPromise = (async () => {
       showStatus(tr('globe.loading', '正在展开地球…'));
       const webgl = hasWebGL();
-      const textures = webgl ? preloadTextures() : Promise.resolve();
-      const [list] = await Promise.all([loadData(), webgl ? loadScript(GLOBE_LIB) : Promise.resolve()]);
+      const [list, , geo] = await Promise.all([
+        loadData(),
+        webgl ? loadScript(GLOBE_LIB) : Promise.resolve(),
+        webgl ? loadGeo() : Promise.resolve(null)
+      ]);
+      // 有边界数据就走像素地球（贴图现画，不用下载照片）；没有才预加载写实照片
+      const textures = (webgl && !geo) ? preloadTextures() : Promise.resolve();
       contributors = list;
       list.forEach(buildPin);
       buildRoster(list);
       if (webgl && window.Globe) {
-        initGlobe(list);
+        initGlobe(list, geo);
         // 提示条一直挂到贴图真的下完、球面画出来为止
         textures.then(() => { if (statusBox) statusBox.hidden = true; });
         setTimeout(() => { if (statusBox) statusBox.hidden = true; }, 20000);
