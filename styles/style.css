@@ -552,12 +552,26 @@ body.view-closing .work-detail.is-active {
   .action-btn { width: 40px; height: 40px; border-width: 2px; }
   .action-btn svg { width: 20px; height: 20px; }
 
-  /* 不写 body.viewing：关闭途中面板尺寸也不能变，否则会在滑出时跳一下 */
+  /* v2.8.5 — 手机端作品视图：上半屏放作品，详情面板改成底部抽屉（下半屏）滑出。
+     旧版面板从右侧盖住整块作品区，手机上根本看不到作品，对比区也没地方放。 */
   .work-detail {
-    top:14px; right:14px; bottom:14px; width:min(82vw,360px);
-    min-width:0; padding: 66px 18px 28px; border-radius:2px;
-    box-shadow:-18px 0 48px rgba(0,0,0,.3);
+    top:auto; left:14px; right:14px; bottom:14px;
+    width:auto; min-width:0; max-width:none;
+    height:46vh; max-height:520px;
+    padding:18px 18px 26px; border-radius:4px;
+    box-shadow:0 -18px 48px rgba(0,0,0,.35);
+    transform:translateY(110%);
   }
+  /* 不写 body.viewing：关闭途中面板尺寸也不能变，否则会在滑出时跳一下 */
+  body.viewing:not(.artwork-only) .work-detail.is-active { transform:none; }
+  body.artwork-only .work-detail.is-active,
+  body.view-closing .work-detail.is-active { transform:translateY(110%); }
+  /* 手机上外框热区加宽一点，手指更好点 */
+  .cmp-edge--top, .cmp-edge--bottom { height:20px; }
+  .cmp-edge--left, .cmp-edge--right { width:20px; }
+  /* 对比模式：主视图缩到左半屏，卡片标题让位给并排的两个画面 */
+  body.compare-mode .preview-card.is-open .card-info { display:none; }
+  .work-detail .compare-control { margin-top:16px; }
   .detail-description { font-size:13px; }
   .scene-choice strong { font-size:10px; }
   .orbit-detail-copy > p:not(.orbit-detail-kicker):not(.orbit-detail-subtitle) { font-size: 13px; }
@@ -823,10 +837,58 @@ body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) .bookmark-remove:
   cursor: pointer; box-shadow: 5px 6px 0 #000;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
-.compare-view .compare-frame iframe { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.compare-view .compare-frame iframe { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border: 0; pointer-events: auto; }
 .compare-view.is-selected .compare-frame { border-color: #f4bd3c; box-shadow: 0 0 0 3px #f4bd3c, 5px 6px 0 #000; }
 .compare-view-caption { margin: 0; color: #8a7a5c; font: 700 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
 
-/* 选中主视图：作品框变黄；对比模式下点画面是选中，不操作作品 */
+/* 选中主视图：作品框变黄 */
 .preview-card.is-compare-selected .preview-mount { border-color: #f4bd3c; box-shadow: 0 0 0 3px #f4bd3c; }
-body.compare-mode .preview-card.is-open .preview-mount > :not(script):not(style) { pointer-events: none; }
+
+/* ===== v2.8.5 — 「版本对比」开关搬进右侧面板（「嵌进你的网页」上方） ===== */
+.work-detail .compare-control { display:flex; flex-direction:column; gap:7px; margin:24px 0 8px; }
+.work-detail .compare-toggle { align-self:flex-start; }
+.compare-hint { margin:0; color:#8a7a5c; font:700 11px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+/* ===== v2.8.5 — 选中改为「点外框」：画面中间永远可交互 ===== */
+.cmp-ring { position:absolute; inset:0; z-index:6; display:none; pointer-events:none; }
+/* 只在当前作品的主视图 / 副视图上启用外框；网格里其他卡片（包括被遮罩盖住的）不显示 */
+body.compare-mode .preview-card.is-open .cmp-ring,
+body.compare-mode .compare-frame .cmp-ring { display:block; }
+.cmp-edge {
+  position:absolute; appearance:none; margin:0; padding:0; border:0;
+  background:transparent; cursor:pointer; pointer-events:auto;
+}
+.cmp-edge--top { top:0; left:0; right:0; height:16px; }
+.cmp-edge--bottom { bottom:0; left:0; right:0; height:16px; }
+.cmp-edge--left { top:0; bottom:0; left:0; width:16px; }
+.cmp-edge--right { top:0; bottom:0; right:0; width:16px; }
+.cmp-ring-border {
+  position:absolute; inset:0; border:2px dashed rgba(244,189,60,.5);
+  pointer-events:none; transition:border-color .12s ease, box-shadow .12s ease;
+}
+.cmp-ring:hover .cmp-ring-border { border-color:#f4bd3c; border-style:solid; }
+.preview-card.is-compare-selected .cmp-ring-border,
+.compare-view.is-selected .cmp-ring-border {
+  border:3px solid #f4bd3c;
+  box-shadow:0 0 0 2px rgba(8,8,8,.6), 0 0 18px rgba(244,189,60,.45);
+}
+.cmp-ring-badge {
+  display:none; position:absolute; top:8px; left:8px; z-index:2;
+  padding:4px 7px; border:2px solid #080808; border-radius:2px;
+  background:#f4bd3c; color:#1b160e;
+  font:900 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing:.5px;
+  pointer-events:none;
+}
+.preview-card.is-compare-selected .cmp-ring-badge,
+.compare-view.is-selected .cmp-ring-badge { display:block; }
+/* 外框挂在 .preview-mount 里，要躲开「舞台内容绝对定位 + scale」那条通用规则 */
+.preview-mount > .cmp-ring {
+  position:absolute !important;
+  left:0 !important; top:0 !important; right:0 !important; bottom:0 !important;
+  width:auto !important; height:auto !important; max-width:none !important; max-height:none !important;
+  margin:0 !important; border:0 !important; border-radius:0 !important;
+  transform:none !important; transform-origin:0 0 !important;
+  pointer-events:none;
+}
+.preview-card.is-animating .cmp-ring { display:none !important; }
+body.artwork-only .cmp-ring, body.view-closing .cmp-ring { display:none !important; }

@@ -377,9 +377,16 @@ syncSearchUI();
     workExtras.style.left = Math.round(mr.left) + 'px';
     workExtras.style.width = Math.round(mr.width) + 'px';
     // v2.8.4：用整张卡片的底部定位，而不是作品框（mount）的底部。
-    // mount 下面还有卡片的标题栏，之前 mount.bottom + 14 会让「版本对比」开关
+    // mount 下面还有卡片的标题栏，之前 mount.bottom + 14 会让开关
     // 正好压在标题栏上，被卡片（z-index 21）整个盖住，点不到也看不见。
     workExtras.style.top = Math.round(cr.bottom + window.scrollY + 14) + 'px';
+    // v2.8.5：手机上作品和详情面板（底部抽屉）上下分屏，
+    // 对比副视图改为放在主视图右侧、同一水平线上，两边各占一半宽度。
+    if (isMobile() && compareOn) {
+      workExtras.style.left = Math.round(cr.left + cr.width + 12) + 'px';
+      workExtras.style.width = Math.round(mr.width) + 'px';
+      workExtras.style.top = Math.round(mr.top + window.scrollY) + 'px';
+    }
   };
 
   const updateWorkSpacer = () => {
@@ -416,11 +423,20 @@ syncSearchUI();
   const setCompareOn = on => {
     if (!current) return;
     compareOn = on;
-    if (on) window.siteCompare?.show?.(scopeOf(current.id), mainVersion());
-    else { window.siteCompare?.hide?.(); clearSelection(); }
+    if (on) {
+      window.siteCompare?.show?.(scopeOf(current.id), mainVersion());
+      // 默认选中主视图，场景选择马上就有明确的作用对象
+      selectView('main');
+    } else {
+      window.siteCompare?.hide?.();
+      clearSelection();
+    }
     syncCompareUI();
-    positionWorkExtras();
-    updateWorkSpacer();
+    if (settled) {
+      if (isMobile()) applyMobileWorkBox(on ? mobileCompareBox() : openBox());
+      positionWorkExtras();
+      updateWorkSpacer();
+    }
   };
 
   /* 打开动画结束后：卡片转成文档坐标绝对定位，随页面上下自然滚动（取消吸顶） */
@@ -436,6 +452,8 @@ syncSearchUI();
     settled = true;
     unlockScroll();
     if (workExtras) workExtras.hidden = false;
+    // 手机上如果对比是开着的（极少见：动画途中点的开关），落地时直接按并排版式收好
+    if (isMobile() && compareOn) applyMobileWorkBox(mobileCompareBox());
     syncCompareUI();
     positionWorkExtras();
     updateWorkSpacer();
@@ -465,6 +483,24 @@ syncSearchUI();
     const detailWidth = Math.min(520, Math.max(300, window.innerWidth * 0.38 - 36));
     const width = Math.min(860, window.innerWidth - 36 - detailWidth - 24);
     return { left: 18, top: 18, width: Math.max(320, width) };
+  };
+
+  /* v2.8.5 — 手机上打开「版本对比」时，主视图缩到左半屏，副视图并排右半屏。
+     详情面板是底部抽屉，场景选择仍在抽屉里，两个视图都完整可见。 */
+  const mobileCompareBox = () => {
+    const width = Math.max(150, Math.floor((window.innerWidth - 28 - 12) / 2));
+    // 往下让开顶部那排浮动按钮（收藏 / 放大 / 关闭），
+    // 否则副视图顶边的外框热区会被按钮压住点不到。
+    return { left: 14, top: 62, width };
+  };
+
+  const applyMobileWorkBox = box => {
+    if (!current) return;
+    const card = current.card;
+    card.style.left = box.left + 'px';
+    if (box.top != null) card.style.top = box.top + 'px';
+    card.style.width = box.width + 'px';
+    card.style.removeProperty('height');
   };
 
   const ratioOf = work => parseFloat(getComputedStyle(work.mount).getPropertyValue('--mount-ratio')) || DEFAULT_RATIO;
@@ -574,6 +610,14 @@ syncSearchUI();
       w.panel.classList.toggle('is-active', on);
       w.panel.setAttribute('aria-hidden', String(!on));
     });
+    // v2.8.5：「版本对比」开关搬进右侧详情面板，放在「嵌进你的网页」标题上方。
+    // 面板是互斥的，所以只要把这一个节点挪进当前面板即可。
+    const control = document.getElementById('compare-control');
+    if (work?.panel && control) {
+      const embed = work.panel.querySelector('.embed-snippet');
+      if (embed) work.panel.insertBefore(control, embed);
+      else work.panel.appendChild(control);
+    }
   };
 
   /* ---------- 可切换展示构图的作品：打开时完整显示，关闭时回到首页裁切 ---------- */
@@ -696,7 +740,10 @@ syncSearchUI();
   /* ---------- 关闭 ---------- */
   const finishClose = work => {
     const card = work.card;
-    ['left', 'top', 'width', 'height'].forEach(p => card.style.removeProperty(p));
+    // v2.8.5：position 必须一起清掉。unsettle() 会把 position: fixed 写成行内样式，
+    // 只清 left/top/width/height 的话，卡片关完还残留 fixed + width:100% →
+    // 直接铺满整个视口，把页面撑爆（用户报的「点 X 关闭后作品放大铺满全屏」）。
+    ['position', 'left', 'top', 'width', 'height'].forEach(p => card.style.removeProperty(p));
     card.classList.remove('is-closing', 'is-animating');
     if (work.ghost) { work.ghost.remove(); work.ghost = null; }
     body.classList.remove('view-closing');
@@ -824,17 +871,57 @@ syncSearchUI();
   /* ---------- 版本对比：开关 / 选中 / 换版本路由 ---------- */
   compareToggle?.addEventListener('click', () => setCompareOn(!compareOn));
 
-  // 点主视图 → 选中主视图
-  works.forEach(work => {
-    work.mount?.addEventListener('click', () => {
-      if (compareOn && settled) selectView('main');
+  /* ---------- v2.8.5：选中交互重做：点外框选中，点中间照常玩 ----------
+     旧做法：对比模式下一律把作品内容的 pointer-events 关掉，点画面任意位置＝选中。
+     结果只要开了对比，作品就玩不了了，必须再关掉对比才能继续体验。
+     新做法：画面中间永远保持可交互；选中只认「四周 16px 的外框」——
+     每个视图盖一圈边缘热区 + 虚线描边，点外框才选中，点中间照常操作作品。
+     黄框 + 「已选中」角标表示「场景选择」当前作用在哪个视图。 */
+  const RING_SIDES = ['top', 'right', 'bottom', 'left'];
+  const ringLabel = view => (view === 'sub'
+    ? tr('compare.selectSub', '选中副视图')
+    : tr('compare.selectMain', '选中主视图'));
+  const makeViewRing = (host, view) => {
+    if (!host) return null;
+    const ring = document.createElement('div');
+    ring.className = 'cmp-ring';
+    ring.dataset.view = view;
+    RING_SIDES.forEach(side => {
+      const edge = document.createElement('button');
+      edge.type = 'button';
+      edge.className = 'cmp-edge cmp-edge--' + side;
+      edge.setAttribute('aria-label', ringLabel(view));
+      ring.appendChild(edge);
     });
-  });
+    const border = document.createElement('span');
+    border.className = 'cmp-ring-border';
+    border.setAttribute('aria-hidden', 'true');
+    ring.appendChild(border);
+    const badge = document.createElement('span');
+    badge.className = 'cmp-ring-badge';
+    badge.textContent = tr('compare.selected', '已选中');
+    badge.setAttribute('aria-hidden', 'true');
+    ring.appendChild(badge);
+    ring.addEventListener('click', event => {
+      event.stopPropagation();
+      if (!compareOn || !settled) return;
+      selectView(view);
+    });
+    host.appendChild(ring);
+    return ring;
+  };
 
-  // 点副视图 → 选中副视图（由 compare.js 派发）
-  document.addEventListener('site:compare-select', event => {
-    if (compareOn && settled) selectView(event.detail?.view === 'sub' ? 'sub' : 'main');
-  });
+  works.forEach(work => makeViewRing(work.mount, 'main'));
+  makeViewRing(document.getElementById('compare-frame'), 'sub');
+
+  const refreshRingLabels = () => {
+    document.querySelectorAll('.cmp-ring').forEach(ring => {
+      const view = ring.dataset.view;
+      ring.querySelectorAll('.cmp-edge').forEach(edge => edge.setAttribute('aria-label', ringLabel(view)));
+      const badge = ring.querySelector('.cmp-ring-badge');
+      if (badge) badge.textContent = tr('compare.selected', '已选中');
+    });
+  };
 
   // 点页面空白处 → 取消黄框
   document.addEventListener('click', event => {
@@ -899,6 +986,7 @@ syncSearchUI();
     renderGallery();
     syncSearchUI();
     setExpandControl(expanded);
+    refreshRingLabels();
   });
 
   window.addEventListener('resize', () => {
@@ -913,8 +1001,9 @@ syncSearchUI();
 
     if (current && ['opening', 'expanding', 'open'].includes(mode)) {
       if (settled && !expanded) {
-        const box = openBox();
+        const box = isMobile() && compareOn ? mobileCompareBox() : openBox();
         current.card.style.left = box.left + 'px';
+        if (box.top != null) current.card.style.top = box.top + 'px';
         current.card.style.width = box.width + 'px';
         positionWorkExtras();
         updateWorkSpacer();

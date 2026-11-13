@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#171717" />
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="./styles/style.css?v=2.8.3" />
+  <link rel="stylesheet" href="./styles/style.css?v=2.8.5" />
   <link rel="stylesheet" href="./styles/orbit-art.css?v=1.2.2" />
   <link rel="stylesheet" href="./styles/globe.css?v=2.8.2" />
 </head>
@@ -182,10 +182,13 @@
   </section>
 
   <div class="work-extras" id="work-extras" hidden>
-    <button class="compare-toggle" id="compare-toggle" type="button" aria-pressed="false">版本对比</button>
+    <div class="compare-control" id="compare-control">
+      <button class="compare-toggle" id="compare-toggle" type="button" aria-pressed="false">版本对比</button>
+      <p class="compare-hint" id="compare-hint">点画面外框选中要换版本的那张，画面中间照常可玩</p>
+    </div>
     <div class="compare-view" id="compare-view" hidden>
       <div class="compare-frame" id="compare-frame"></div>
-      <p class="compare-view-caption">副视图 · 点图选中后用「场景选择」换版本</p>
+      <p class="compare-view-caption">副视图 · 点外框选中后用「场景选择」换版本</p>
     </div>
   </div>
 
@@ -200,11 +203,11 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <div class="site-version" aria-label="网站版本">v2.8.4</div>
+  <div class="site-version" aria-label="网站版本">v2.8.5</div>
   <script src="./scripts/globe.js?v=2.8.2"></script>
-  <script src="./scripts/main.js?v=2.8.4"></script>
+  <script src="./scripts/main.js?v=2.8.5"></script>
   <script src="./scripts/nav-history.js?v=1.0.0"></script>
-  <script src="./scripts/compare.js?v=1.2.0"></script>
+  <script src="./scripts/compare.js?v=1.3.0"></script>
   <script src="./scripts/orbit-versions.js?v=1.3.10"></script>
   <script src="./scripts/scroll-ui.js?v=2.0.0"></script>
   <!-- 账号：配置 → 客户端 → 顶栏入口 → 数据同步，顺序不能换（sync 依赖 auth） -->
@@ -299,6 +302,10 @@
       'gallery.scenes': 'Scenes',
       'gallery.versions': 'Visual versions',
       'compare.title': 'Scene compare',
+      'compare.hint': 'Tap the frame to pick which view the scene picker changes — the artwork itself stays interactive.',
+      'compare.selected': 'Selected',
+      'compare.selectMain': 'Select main view',
+      'compare.selectSub': 'Select compare view',
       'compare.toggle': 'Version compare',
       'contributors.title': 'Creators & contributors',
       'compass.view.title': 'Compass',
@@ -371,6 +378,8 @@
       ['gallery.scenes', '#detail-panel .gallery-heading h2'],
       ['gallery.versions', '#orbit-detail-panel .gallery-heading h2'],
       ['compare.toggle', '#compare-toggle'],
+      ['compare.hint', '.compare-hint'],
+      ['compare.selected', '.cmp-ring-badge'],
       ['contributors.title', '.creator-link-label'],
       ['compass.view.title', '#compass-view-title'],
       ['compass.view.note', '.compass-view-note'],
