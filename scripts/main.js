@@ -747,6 +747,7 @@ syncSearchUI();
     };
 
     updateScenes();
+    syncPdsPreviewScene(selectedScene);
   }
 
 
