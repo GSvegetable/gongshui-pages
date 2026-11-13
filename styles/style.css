@@ -740,3 +740,15 @@ main{--gallery-card-min:260px}
   content:"";position:absolute;inset:20%;border:2px solid rgba(255,224,150,.82);
   border-radius:50%;box-shadow:0 0 0 3px rgba(239,160,44,.18),0 0 12px rgba(239,160,44,.35);
 }
+
+/* v2.6.1 — 卡片标题固定单行：画廊缩小时标题不再折成两排把卡片撑高，
+   过长用省略号收尾；两张卡片底边因此保持齐平。 */
+.card-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-info > .work-tags,
+.orbit-card-heading > .work-tags { flex: 0 0 auto; }
