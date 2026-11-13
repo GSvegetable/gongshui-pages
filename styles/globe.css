@@ -1,0 +1,180 @@
+/* =========================================================
+   投稿者地球（首页第二个按钮）
+   和主站同一套语言：奶油色 #f5ecd9 + 黑描边 + 硬阴影 + 黄/红按钮。
+   时长与曲线沿用 style.css 里的 --dur / --ease。
+   ========================================================= */
+
+/* 进入地球视图：作品网格和搜索框让位（网格用 height:0 收起而不是 display:none，
+   这样卡片宽度不变、里面的 iframe 不会被 resize / 重载） */
+body.view-globe main { height: 0; overflow: hidden; visibility: hidden; padding-top: 0; padding-bottom: 0; }
+body.view-globe .top-bar { opacity: 0; visibility: hidden; pointer-events: none; transition: none; }
+
+.globe-view {
+  position: fixed; inset: 0; z-index: 15; overflow: hidden;
+  color: #f5ecd9;
+  background: radial-gradient(120% 90% at 55% 42%, #0e1628 0%, #070a12 55%, #04060b 100%);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity var(--dur) var(--ease), visibility 0s linear var(--dur);
+}
+body.view-globe .globe-view {
+  opacity: 1; visibility: visible; pointer-events: auto;
+  transition: opacity var(--dur) var(--ease), visibility 0s;
+}
+
+.globe-stage { position: absolute; inset: 0; cursor: grab; touch-action: none; }
+.globe-stage:active { cursor: grabbing; }
+.globe-stage canvas { outline: none; }
+
+/* ---------- 标题 ---------- */
+.globe-title {
+  position: absolute; top: 24px; left: 112px; z-index: 3;
+  pointer-events: none; user-select: none;
+}
+.globe-kicker { margin: 0 0 6px; color: #f4bd3c; font: 700 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 2px; }
+.globe-title h2 { margin: 0; font-size: clamp(22px, 3vw, 32px); font-weight: 900; letter-spacing: -.5px; line-height: 1.1; }
+.globe-stats { margin: 8px 0 0; color: #b8aa92; font-size: 12px; font-weight: 600; letter-spacing: .3px; }
+
+/* ---------- 加载 / 状态 ---------- */
+.globe-status {
+  position: absolute; left: 50%; top: 50%; z-index: 4; transform: translate(-50%, -50%);
+  max-width: min(420px, 80vw); padding: 12px 16px; text-align: center;
+  background: #f5ecd9; color: #1a1712; border: 3px solid #080808; border-radius: 4px;
+  box-shadow: 4px 4px 0 #080808; font-size: 13px; font-weight: 800; line-height: 1.6;
+  transition: opacity .3s ease;
+}
+.globe-status[hidden] { display: none; }
+.globe-status.is-error { background: #fbd9d4; }
+.globe-status button {
+  display: inline-block; margin-top: 8px; padding: 6px 12px; cursor: pointer;
+  background: #f4bd3c; color: #1b160e; border: 2px solid #080808; border-radius: 3px; font-weight: 900;
+}
+
+/* ---------- 地球上的"旗子"（头像 / 国旗） ---------- */
+.gpin-wrap { width: 0; height: 0; pointer-events: none; }
+.gpin {
+  position: absolute; left: 0; top: 0; padding: 0; border: 0; background: none;
+  transform: translate(-50%, -100%); transform-origin: 50% 100%;
+  pointer-events: auto; cursor: pointer;
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,.5));
+  transition: opacity .25s ease, transform .15s ease;
+}
+.gpin.is-behind { opacity: 0; pointer-events: none; }
+.gpin:hover, .gpin.is-selected { transform: translate(-50%, -100%) scale(1.12); z-index: 2; }
+.gpin:focus-visible { outline: 2px solid #f4bd3c; outline-offset: 4px; }
+
+.gpin-face {
+  position: relative; display: block; overflow: hidden;
+  width: 44px; height: 44px;
+  background: #f5ecd9; border: 3px solid #080808; border-radius: 4px;
+  box-shadow: 3px 3px 0 #080808;
+}
+.gpin--flag .gpin-face { width: 42px; height: 30px; }
+.gpin.is-selected .gpin-face { border-color: #f4bd3c; box-shadow: 3px 3px 0 #080808, 0 0 0 3px #080808; }
+.gpin-face img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.gpin-initial {
+  display: grid; place-items: center; width: 100%; height: 100%;
+  color: #1a1712; font-size: 18px; font-weight: 900;
+}
+.gpin-flag {
+  position: absolute; right: -10px; bottom: 6px; z-index: 1; overflow: hidden;
+  width: 22px; height: 15px; background: #f5ecd9; border: 2px solid #080808; border-radius: 2px;
+  box-shadow: 2px 2px 0 #080808;
+}
+.gpin-flag img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.gpin-tail {
+  position: absolute; left: 50%; bottom: -9px; width: 0; height: 0; transform: translateX(-50%);
+  border-style: solid; border-width: 9px 7px 0; border-color: #080808 transparent transparent;
+}
+
+/* ---------- 选中后的信息卡 ---------- */
+.globe-card {
+  position: absolute; top: 24px; right: 28px; z-index: 5;
+  width: min(330px, calc(100vw - 32px)); padding: 18px 18px 16px;
+  background: #f5ecd9; color: #1a1712; border: 3px solid #080808; border-radius: 4px;
+  box-shadow: 6px 6px 0 #080808;
+  opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(14px);
+  transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease), visibility 0s linear var(--dur);
+}
+.globe-card.is-open {
+  opacity: 1; visibility: visible; pointer-events: auto; transform: none;
+  transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease), visibility 0s;
+}
+.gc-close {
+  position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; padding: 0; cursor: pointer;
+  background: #e94c43; color: #fff; border: 2px solid #080808; border-radius: 3px; font-size: 16px; font-weight: 900; line-height: 1;
+}
+.gc-head { display: flex; align-items: center; gap: 12px; padding-right: 30px; }
+.gc-avatar {
+  flex: 0 0 auto; display: block; overflow: hidden; width: 56px; height: 56px;
+  background: #fff8e9; border: 3px solid #080808; border-radius: 4px; box-shadow: 3px 3px 0 #080808;
+}
+.gc-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.gc-avatar.is-flag { height: 40px; align-self: center; }
+.gc-name { margin: 0; font-size: 18px; font-weight: 900; line-height: 1.2; word-break: break-word; }
+.gc-github { display: inline-block; margin-top: 3px; color: #8c5d13; font-size: 12px; font-weight: 800; text-decoration: none; }
+.gc-github:hover { text-decoration: underline; }
+.gc-where { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; color: #514a3d; font-size: 13px; font-weight: 700; }
+.gc-where img { width: 22px; height: 15px; object-fit: cover; border: 1px solid #080808; border-radius: 2px; }
+.gc-note { margin: 10px 0 0; color: #514a3d; font-size: 13px; line-height: 1.7; }
+.gc-works { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
+.gc-work {
+  padding: 6px 10px; cursor: pointer;
+  background: #f4bd3c; color: #1b160e; border: 2px solid #080808; border-radius: 3px;
+  box-shadow: 2px 2px 0 #080808; font-size: 12px; font-weight: 900;
+  transition: transform .1s, box-shadow .1s;
+}
+.gc-work:active { transform: translate(2px, 2px); box-shadow: none; }
+.gc-work.is-static { cursor: default; background: #eadcc2; }
+
+/* ---------- 底部：投稿者名单 + 工具 ---------- */
+.globe-dock {
+  position: absolute; left: 112px; right: 28px; bottom: 26px; z-index: 3;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+  pointer-events: none;
+}
+.globe-roster {
+  display: flex; gap: 10px; max-width: min(720px, 100%); padding: 4px 6px 8px 2px;
+  overflow-x: auto; overscroll-behavior-x: contain; pointer-events: auto;
+  scrollbar-width: thin; scrollbar-color: #6b5d47 transparent;
+}
+.globe-chip {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 8px; max-width: 180px; padding: 5px 10px 5px 5px; cursor: pointer;
+  background: #f5ecd9; color: #1a1712; border: 2px solid #080808; border-radius: 4px; box-shadow: 3px 3px 0 #080808;
+  font-size: 12px; font-weight: 900;
+  transition: transform .1s, box-shadow .1s;
+}
+.globe-chip:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #080808; }
+.globe-chip:active { transform: translate(3px, 3px); box-shadow: none; }
+.globe-chip.is-selected { background: #f4bd3c; }
+.globe-chip .chip-face { display: block; overflow: hidden; width: 26px; height: 26px; border: 2px solid #080808; border-radius: 3px; background: #fff8e9; }
+.globe-chip .chip-face img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.globe-chip .chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.globe-tools { display: flex; align-items: center; gap: 12px; flex: 0 0 auto; pointer-events: auto; }
+.globe-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 14px; cursor: pointer;
+  background: #f5ecd9; color: #1a1712; border: 3px solid #000; border-radius: 4px; box-shadow: 3px 4px 0 #000;
+  font-size: 13px; font-weight: 900; text-decoration: none; white-space: nowrap;
+  transition: transform .1s, box-shadow .1s;
+}
+.globe-btn:active { transform: translate(3px, 4px); box-shadow: none; }
+.globe-btn:focus-visible { outline: 2px solid #f5bd32; outline-offset: 3px; }
+.globe-btn--cta { background: #f4bd3c; }
+.globe-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- 没有 WebGL 时的降级：只列名单 ---------- */
+.globe-view.is-list .globe-stage { display: none; }
+.globe-view.is-list .globe-roster {
+  flex-wrap: wrap; max-width: none; overflow: visible;
+}
+.globe-view.is-list .globe-dock { top: 130px; bottom: auto; flex-direction: column; align-items: flex-start; }
+
+/* ---------- 手机 ---------- */
+@media (max-width: 600px) {
+  .globe-title { top: 18px; left: 78px; }
+  .globe-dock { left: 14px; right: 14px; bottom: 16px; flex-direction: column; align-items: stretch; gap: 10px; }
+  .globe-roster { max-width: 100%; }
+  .globe-tools { justify-content: flex-end; gap: 8px; }
+  .globe-btn { height: 40px; padding: 0 11px; border-width: 2px; }
+  .globe-card { top: auto; right: 14px; bottom: 150px; left: 14px; width: auto; }
+}

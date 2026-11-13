@@ -1,0 +1,20 @@
+{
+  "_说明": [
+    "这是「投稿者地球」的数据。每个投稿者一条，往 contributors 数组里加一项就会出现在地球上，不用改任何代码。",
+    "必填：name（显示名）、country（两位国家代码，如 CN / JP / US / NZ）。",
+    "可选：github（用来自动取头像）、avatar（自己的头像图片 https 链接）、city（展示用的城市名）、",
+    "lat + lng（想插在精确位置才填；不填就插在国家中心。坐标会被取整到约 1 公里，建议只填到城市级别）、",
+    "pin（avatar 显示头像 / flag 显示国旗；不写时有头像就显示头像）、works（对应 index.html 里卡片的 data-id）、note（一句话）。"
+  ],
+  "contributors": [
+    {
+      "id": "gsvegetable",
+      "name": "GSvegetable",
+      "github": "GSvegetable",
+      "country": "NZ",
+      "pin": "avatar",
+      "works": ["pixel-daylight-switch", "pixel-orbit"],
+      "note": "这个网站的主人，两件作品的作者。"
+    }
+  ]
+}
