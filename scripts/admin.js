@@ -14,6 +14,13 @@
     el.hidden = false;
   };
   const hideNotice = () => { $('notice').hidden = true; };
+  const lockScreen = () => {
+    document.body.classList.remove('admin-authorized');
+    $('users-body').innerHTML = '<tr><td colspan="5" class="empty-cell">访问受限</td></tr>';
+    ['stat-total', 'stat-today', 'stat-week', 'stat-risk'].forEach(id => { $(id).textContent = '—'; });
+    $('result-count').textContent = '—';
+    $('page-label').textContent = '—';
+  };
   const fmtDate = value => {
     if (!value) return '—';
     const d = new Date(value);
@@ -79,7 +86,9 @@
     try {
       const data = await rpc($('search').value.trim());
       render(data);
+      document.body.classList.add('admin-authorized');
     } catch (error) {
+      lockScreen();
       console.error('Admin overview failed:', error);
       const message = String(error.message || '');
       if (error.status === 401) {
@@ -99,6 +108,7 @@
   }
 
   async function init() {
+    lockScreen();
     if (!config.url || !config.anonKey) {
       showNotice('账号服务尚未配置，无法连接管理后台。', 'error');
       return;
@@ -119,6 +129,7 @@
       $('sign-out').hidden = false;
       await load();
     } catch (error) {
+      lockScreen();
       showNotice('验证登录状态失败：' + (error.message || '未知错误'), 'error');
     }
   }
