@@ -13,6 +13,9 @@
 --              咖啡厅、写字楼、基站背后都是一大堆真人共用一个 IP，
 --              阈值压到 2 会把正常用户误伤，所以放宽到 5。
 --              （阈值都在 risk_limits() 里，想改就改那两行）
+---  规则：只用设备指纹判断同一设备短时间内的重复注册。
+--        IP 仅作诊断统计，不单独触发限制，避免误伤共享网络中的正常用户。
+--        登录不登记注册记录；每个账号最多保留一条。
 -- =========================================================
 
 -- -------------------------------------------------------------
@@ -32,6 +35,7 @@ create table if not exists public.signup_risk (
 create index if not exists signup_risk_fingerprint_idx on public.signup_risk (fingerprint, created_at desc);
 create index if not exists signup_risk_ip_idx         on public.signup_risk (ip, created_at desc);
 create index if not exists signup_risk_user_idx       on public.signup_risk (user_id);
+create unique index if not exists signup_risk_one_row_per_user_idx on public.signup_risk (user_id);
 
 alter table public.signup_risk enable row level security;
 
@@ -148,128 +152,61 @@ grant execute on function public.is_high_risk(uuid) to authenticated;
 
 -- 注册之后调一次：数一数 24 小时内同指纹、同 IP 各注册了多少个
 create or replace function public.apply_signup_risk()
-returns jsonb
-language plpgsql
-security definer
-set search_path = public
-as $$
+returns jsonb language plpgsql security definer set search_path = public as $$
 declare
-  v_uid uuid := auth.uid();
-  h json;
-  v_ip text;
-  v_fp text;
-  v_fp_count integer := 0;
-  v_ip_count integer := 0;
-  v_risk boolean := false;
+  v_uid uuid := auth.uid(); v_fp text; v_ip text;
+  v_fp_count integer := 0; v_ip_count integer := 0; v_risk boolean := false;
 begin
-  if v_uid is null then
-    raise exception '未登录';
-  end if;
-
+  if v_uid is null then raise exception '未登录'; end if;
   if public.is_developer_whitelisted(v_uid) then
     update public.signup_risk set high_risk = false where user_id = v_uid;
-    return jsonb_build_object(
-      'fingerprint_count', 0,
-      'ip_count', 0,
-      'high_risk', false,
-      'whitelisted', true
-    );
+    return jsonb_build_object('fingerprint_count',0,'ip_count',0,'high_risk',false,'whitelisted',true);
   end if;
-
-  h := coalesce(current_setting('request.headers', true)::json, '{}'::json);
-  v_ip := nullif(split_part(coalesce(
-      h->>'x-forwarded-for', h->>'X-Forwarded-For', h->>'cf-connecting-ip', ''), ',', 1), ' ');
-
-  select fingerprint into v_fp
-    from public.signup_risk where user_id = v_uid order by created_at desc limit 1;
-  if v_fp is null then
-    return jsonb_build_object('fingerprint_count', 0, 'ip_count', 0, 'high_risk', false);
+  select fingerprint, ip into v_fp, v_ip from public.signup_risk where user_id = v_uid order by created_at desc limit 1;
+  if v_fp is null then return jsonb_build_object('fingerprint_count',0,'ip_count',0,'high_risk',false); end if;
+  if v_fp <> 'unknown' then
+    select count(*) into v_fp_count from public.signup_risk where fingerprint = v_fp
+      and created_at > now() - interval '24 hours' and not public.is_developer_whitelisted(user_id);
   end if;
-
-  select count(*) into v_fp_count from public.signup_risk
-    where fingerprint = v_fp
-      and created_at > now() - interval '24 hours'
-      and not public.is_developer_whitelisted(user_id);
-  select count(*) into v_ip_count from public.signup_risk
-    where ip = v_ip
-      and created_at > now() - interval '24 hours'
-      and not public.is_developer_whitelisted(user_id);
-
-  v_risk := (v_fp_count > (select (risk_limits->>'fingerprint')::int from risk_limits()))
-         or (v_ip_count > (select (risk_limits->>'ip')::int from risk_limits()));
-  if v_risk then
-    update public.signup_risk set high_risk = true where user_id = v_uid;
+  if v_ip is not null then
+    select count(*) into v_ip_count from public.signup_risk where ip = v_ip
+      and created_at > now() - interval '24 hours' and not public.is_developer_whitelisted(user_id);
   end if;
-
-  return jsonb_build_object(
-    'fingerprint_count', v_fp_count,
-    'ip_count', v_ip_count,
-    'high_risk', v_risk
-  );
+  -- 共享 IP 只统计、不拦截；只有同一设备指纹的重复注册才触发限制。
+  v_risk := v_fp <> 'unknown' and v_fp_count > (select (risk_limits->>'fingerprint')::int from risk_limits());
+  update public.signup_risk set high_risk = v_risk where user_id = v_uid;
+  return jsonb_build_object('fingerprint_count',v_fp_count,'ip_count',v_ip_count,'high_risk',v_risk);
 end;
 $$;
 
-revoke all on function public.apply_signup_risk() from public, anon;
-grant execute on function public.apply_signup_risk() to authenticated;
-
--- -------------------------------------------------------------
--- 4b. 客户端只调这两个函数，表本身不开放给浏览器
---     登记：只传指纹和用户名，用户 id 和 IP 都由服务端取
--- -------------------------------------------------------------
+-- 注册登记与风险判定分开：判定函数绝不重新插入注册记录。
 create or replace function public.register_signup_risk(p_fingerprint text, p_username text)
-returns jsonb
-language plpgsql
-security definer
-set search_path = public
-as $$
+returns jsonb language plpgsql security definer set search_path = public as $$
 declare
-  v_uid uuid := auth.uid();
-  v_fp_count integer := 0;
-  v_ip_count integer := 0;
-  v_risk boolean := false;
+  v_uid uuid := auth.uid(); v_fp text; v_ip text;
+  v_fp_count integer := 0; v_ip_count integer := 0; v_risk boolean := false;
 begin
-  if v_uid is null then
-    raise exception '未登录';
-  end if;
-
+  if v_uid is null then raise exception '未登录'; end if;
   if public.is_developer_whitelisted(v_uid) then
-    delete from public.signup_risk where user_id = v_uid;
-    insert into public.signup_risk (user_id, username, fingerprint)
-      values (v_uid, p_username, coalesce(nullif(p_fingerprint, ''), 'unknown'));
     update public.signup_risk set high_risk = false where user_id = v_uid;
-    return jsonb_build_object(
-      'fingerprint_count', 0,
-      'ip_count', 0,
-      'high_risk', false,
-      'whitelisted', true
-    );
+    return jsonb_build_object('fingerprint_count',0,'ip_count',0,'high_risk',false,'whitelisted',true);
   end if;
-
-  -- 同一个人重复调用只留一条，别把计数刷上去
-  delete from public.signup_risk where user_id = v_uid;
+  -- 每个账号只登记一次；重复请求不会覆盖真实指纹，也不会刷新注册时间。
   insert into public.signup_risk (user_id, username, fingerprint)
-    values (v_uid, p_username, coalesce(nullif(p_fingerprint, ''), 'unknown'));
-
-  select count(*) into v_fp_count from public.signup_risk
-    where fingerprint = coalesce(nullif(p_fingerprint, ''), 'unknown')
-      and created_at > now() - interval '24 hours'
-      and not public.is_developer_whitelisted(user_id);
-  select count(*) into v_ip_count from public.signup_risk
-    where ip = (select ip from public.signup_risk where user_id = v_uid limit 1)
-      and created_at > now() - interval '24 hours'
-      and not public.is_developer_whitelisted(user_id);
-
-  v_risk := (v_fp_count > (select (risk_limits->>'fingerprint')::int from risk_limits()))
-         or (v_ip_count > (select (risk_limits->>'ip')::int from risk_limits()));
-  if v_risk then
-    update public.signup_risk set high_risk = true where user_id = v_uid;
+  values (v_uid, p_username, coalesce(nullif(p_fingerprint, ''), 'unknown'))
+  on conflict (user_id) do nothing;
+  select fingerprint, ip into v_fp, v_ip from public.signup_risk where user_id = v_uid order by created_at desc limit 1;
+  if v_fp <> 'unknown' then
+    select count(*) into v_fp_count from public.signup_risk where fingerprint = v_fp
+      and created_at > now() - interval '24 hours' and not public.is_developer_whitelisted(user_id);
   end if;
-
-  return jsonb_build_object(
-    'fingerprint_count', v_fp_count,
-    'ip_count', v_ip_count,
-    'high_risk', v_risk
-  );
+  if v_ip is not null then
+    select count(*) into v_ip_count from public.signup_risk where ip = v_ip
+      and created_at > now() - interval '24 hours' and not public.is_developer_whitelisted(user_id);
+  end if;
+  v_risk := v_fp <> 'unknown' and v_fp_count > (select (risk_limits->>'fingerprint')::int from risk_limits());
+  update public.signup_risk set high_risk = v_risk where user_id = v_uid;
+  return jsonb_build_object('fingerprint_count',v_fp_count,'ip_count',v_ip_count,'high_risk',v_risk);
 end;
 $$;
 
@@ -293,10 +230,23 @@ as $$
   );
 $$;
 
+revoke all on function public.apply_signup_risk() from public, anon;
+grant execute on function public.apply_signup_risk() to authenticated;
 revoke all on function public.register_signup_risk(text, text) from public, anon;
 grant execute on function public.register_signup_risk(text, text) to authenticated;
 revoke all on function public.my_risk_status() from public, anon;
 grant execute on function public.my_risk_status() to authenticated;
+
+-- 迁移旧规则：清除仅因共享 IP 触发的历史误判，再按设备指纹重新标记。
+update public.signup_risk set high_risk = false where high_risk;
+update public.signup_risk r
+   set high_risk = true
+ where r.fingerprint <> 'unknown'
+   and r.created_at > now() - interval '24 hours'
+   and (select count(*) from public.signup_risk x
+         where x.fingerprint = r.fingerprint and x.created_at > now() - interval '24 hours'
+           and not public.is_developer_whitelisted(x.user_id))
+       > (select (risk_limits->>'fingerprint')::int from risk_limits());
 
 -- -------------------------------------------------------------
 -- 5. 高风险账号：收藏和偏好写入被拒（真正的拦截在这里）
