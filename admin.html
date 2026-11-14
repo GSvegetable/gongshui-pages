@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111214">
+  <title>管理后台 · 宫水.com</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◈</text></svg>">
+  <link rel="stylesheet" href="./styles/admin.css?v=1.0.0">
+</head>
+<body>
+  <div class="admin-shell">
+    <header class="admin-topbar">
+      <a class="brand" href="./index.html"><span class="brand-mark">宫</span><span>宫水<span class="brand-muted"> / CONTROL</span></span></a>
+      <div class="topbar-right">
+        <span class="live-indicator"><i></i> PRIVATE</span>
+        <span id="admin-email" class="admin-email">正在验证权限…</span>
+        <button id="sign-out" class="quiet-button" type="button" hidden>退出</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <section class="page-heading">
+        <div>
+          <p class="eyebrow">OVERVIEW / AUTHENTICATION</p>
+          <h1>注册概览</h1>
+          <p class="subtitle">查看宫水.com 的账号增长与注册状态</p>
+        </div>
+        <button id="refresh" class="refresh-button" type="button"><span class="refresh-icon">↻</span> 刷新数据</button>
+      </section>
+
+      <div id="notice" class="notice" role="status" hidden></div>
+
+      <section class="stats-grid" aria-label="注册统计">
+        <article class="stat-card stat-primary"><span class="stat-label">注册总数</span><strong id="stat-total">—</strong><span class="stat-foot">全部账号</span><span class="stat-symbol">◈</span></article>
+        <article class="stat-card"><span class="stat-label">今日新增</span><strong id="stat-today">—</strong><span class="stat-foot">UTC 自然日</span><span class="stat-symbol">＋</span></article>
+        <article class="stat-card"><span class="stat-label">近 7 天新增</span><strong id="stat-week">—</strong><span class="stat-foot">滚动 7 × 24 小时</span><span class="stat-symbol">↗</span></article>
+        <article class="stat-card"><span class="stat-label">高风险账号</span><strong id="stat-risk">—</strong><span class="stat-foot">收藏 / 偏好同步受限</span><span class="stat-symbol">!</span></article>
+      </section>
+
+      <section class="users-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">USER DIRECTORY</p><h2>用户列表</h2></div>
+          <span id="result-count" class="result-count">等待数据</span>
+        </div>
+        <div class="table-tools">
+          <label class="search-box"><span>⌕</span><input id="search" type="search" placeholder="搜索邮箱或用户名…" autocomplete="off"></label>
+          <span class="sort-note">按注册时间 · 最新优先</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>用户</th><th>注册时间</th><th>邮箱验证</th><th>最近登录</th><th>风控状态</th></tr></thead>
+            <tbody id="users-body"><tr><td colspan="5" class="empty-cell">正在读取注册数据…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <span id="page-label">—</span>
+          <div><button id="prev" class="page-button" type="button" disabled>← 上一页</button><button id="next" class="page-button" type="button" disabled>下一页 →</button></div>
+        </div>
+      </section>
+      <footer class="admin-footer"><span>宫水.com · PRIVATE ADMIN</span><span>数据由 Supabase 安全函数提供</span></footer>
+    </main>
+  </div>
+  <script src="./scripts/auth-config.js?v=1.0.1"></script>
+  <script src="./scripts/auth.js?v=1.0.4"></script>
+  <script src="./scripts/admin.js?v=1.0.0"></script>
+</body>
+</html>
