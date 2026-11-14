@@ -39,7 +39,7 @@
     return value.toLowerCase() + '@' + (config.emailDomain || 'gongshui.com');
   };
 
-  const toUsername = email => String(email || '').split('@')[0] || '';
+  const toUsername = (email, metadata) => (metadata && metadata.username) || String(email || '').split('@')[0] || '';
 
   let session = null;          // { accessToken, refreshToken, email }
   let user = null;             // { id, email }  id 就是 auth.uid()，RLS 策略靠它匹配
@@ -107,24 +107,35 @@
     return String(message);
   };
 
-  const cloudSignUp = async ({ email, password }) => {
+  const cloudSignUp = async ({ email, password, username }) => {
     const mail = toEmail(email);
-    const data = await api('/signup', { body: { email: mail, password } });
-    // 没开"确认邮箱"的话，signup 会直接返回会话
+    const cleanUsername = String(username || toUsername(mail)).trim();
+    const data = await api('/signup', { body: { email: mail, password, data: { username: cleanUsername } } });
+    // 开启邮箱确认时，Supabase 会按邮件模板发送验证码；关闭时直接建立会话。
     if (data.access_token) {
-      const account = { id: data.user && data.user.id, email: mail, username: toUsername(mail) };
+      const account = { id: data.user && data.user.id, email: mail, username: toUsername(mail, data.user && data.user.user_metadata) || cleanUsername };
       storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email: mail, id: account.id, username: account.username });
       user = account;
       notify();
       return { email: mail, username: account.username, userId: account.id, needConfirm: false };
     }
-    return { email: mail, username: toUsername(mail), needConfirm: true };
+    return { email: mail, username: cleanUsername, needConfirm: true };
+  };
+
+  const cloudVerifySignupOtp = async ({ email, token }) => {
+    const mail = toEmail(email);
+    const data = await api('/verify', { body: { email: mail, token: String(token || '').trim(), type: 'signup' } });
+    const account = { id: data.user && data.user.id, email: mail, username: toUsername(mail, data.user && data.user.user_metadata) };
+    storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email: mail, id: account.id, username: account.username });
+    user = account;
+    notify();
+    return { email: mail, username: account.username, userId: account.id, needConfirm: false };
   };
 
   const cloudSignIn = async ({ email, password }) => {
     const mail = toEmail(email);
     const data = await api('/token?grant_type=password', { body: { email: mail, password } });
-    const account = { id: data.user && data.user.id, email: mail, username: toUsername(mail) };
+    const account = { id: data.user && data.user.id, email: mail, username: toUsername(mail, data.user && data.user.user_metadata) };
     storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email: mail, id: account.id, username: account.username });
     user = account;
     notify();
@@ -140,7 +151,7 @@
       storeSession(session);
       const me = await api('/user', { method: 'GET', token: session.accessToken });
       const mail = (me && me.email) || saved.email;
-      user = { id: (me && me.id) || saved.id, email: mail, username: toUsername(mail) };
+      user = { id: (me && me.id) || saved.id, email: mail, username: toUsername(mail, me && me.user_metadata) };
       notify();
       return user;
     } catch (_) {
@@ -175,16 +186,16 @@
     return String(text);   // 老浏览器兜底
   };
 
-  const localSignUp = async ({ email, password }) => {
+  const localSignUp = async ({ email, password, username }) => {
     const map = localUsers();
     const key = email.trim().toLowerCase();
     if (map[key]) throw new Error('这个用户名已经被注册过了');
     map[key] = await hash(password);
     saveLocalUsers(map);
     storeSession({ accessToken: 'local', refreshToken: 'local', email: key, id: 'local:' + key, username: key });
-    user = { id: 'local:' + key, email: key, username: key };
+    user = { id: 'local:' + key, email: key, username: String(username || key).trim() };
     notify();
-    return { email: key, username: key, needConfirm: false };
+    return { email: key, username: user.username, needConfirm: false };
   };
 
   const localSignIn = async ({ email, password }) => {
@@ -251,7 +262,7 @@
 
       const me = await api('/user', { method: 'GET', token: accessToken });
       storeSession({ accessToken, refreshToken, email: me.email, id: me.id, username: toUsername(me.email) });
-      user = { id: me.id, email: me.email, username: toUsername(me.email) };
+      user = { id: me.id, email: me.email, username: toUsername(me.email, me.user_metadata) };
       redirect.type = type || 'signup';
       redirect.user = user;
       // 落地页和账号页可能不是同一个页面，把类型记下来传过去
@@ -267,12 +278,12 @@
 
   // 重新发一封确认邮件（SMTP 限流恢复了就能再试）
   const resendConfirmation = async email => {
-    await api('/resend', { body: { type: 'signup', email } });
+    await api('/resend', { body: { type: 'signup', email: toEmail(email) } });
   };
 
   // 找回密码：发重置邮件
   const requestReset = async email => {
-    await api('/recover', { body: { email } });
+    await api('/recover', { body: { email: toEmail(email) } });
   };
 
   // 拿着邮件链接换来的会话，把新密码写回去
@@ -283,6 +294,7 @@
   };
 
   const signUp = payload => cloud ? cloudSignUp(payload) : localSignUp(payload);
+  const verifySignupOtp = payload => cloud ? cloudVerifySignupOtp(payload) : Promise.reject(new Error('本地模式不支持邮箱验证码'));
   const signIn = payload => cloud ? cloudSignIn(payload) : localSignIn(payload);
   const signOut = () => cloud ? cloudSignOut() : (storeSession(null), user = null, notify(), Promise.resolve());
 
@@ -303,6 +315,7 @@
     mode,
     isConfigured: cloud,
     signUp,
+    verifySignupOtp,
     signIn,
     signOut,
     getUser: () => user,
