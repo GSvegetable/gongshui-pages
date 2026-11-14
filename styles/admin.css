@@ -49,9 +49,16 @@ button{cursor:pointer}
   position:sticky;top:0;z-index:20;flex:0 0 auto;
   display:flex;align-items:center;justify-content:space-between;gap:14px;
   height:58px;padding:0 var(--gutter);
-  background:rgba(23,23,23,.94);
-  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
-  border-bottom:1px solid rgba(244,236,217,.16);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.105) 0%,rgba(255,255,255,.035) 42%,rgba(255,255,255,.012) 100%),
+    rgba(31,31,34,.58);
+  -webkit-backdrop-filter:blur(24px) saturate(180%) brightness(1.08);
+  backdrop-filter:blur(24px) saturate(180%) brightness(1.08);
+  border-bottom:1px solid rgba(255,255,255,.24);
+  box-shadow:0 8px 28px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.18);
+}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  .topbar{background:rgba(25,25,27,.96)}
 }
 .brand{display:inline-flex;align-items:center;gap:10px;min-width:0;color:var(--paper);text-decoration:none}
 .brand-mark{
