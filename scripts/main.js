@@ -715,6 +715,74 @@ syncSearchUI();
 
 
 /* =========================================================
+   1.6 主页画廊布局切换：自适应 / 两列，使用 FLIP 保持画布连续
+   ========================================================= */
+(() => {
+  const main = document.querySelector('main');
+  const gallery = main?.querySelector('.grid');
+  const button = document.getElementById('layout-toggle');
+  if (!main || !gallery || !button) return;
+
+  const KEY = 'ui-archive-gallery-layout';
+  const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  let mode = 'auto';
+
+  const syncButton = () => {
+    const twoColumns = mode === 'two';
+    button.setAttribute('aria-pressed', String(twoColumns));
+    const label = twoColumns ? '切换为自适应布局' : '切换为两列布局';
+    button.setAttribute('aria-label', label);
+    button.title = label;
+  };
+
+  const setLayout = (next, options = {}) => {
+    const normalized = next === 'two' ? 'two' : 'auto';
+    if (normalized === mode) { syncButton(); return; }
+
+    const cards = [...gallery.querySelectorAll(':scope > .preview-card:not(.hidden)')];
+    const firstRects = new Map(cards.map(card => [card, card.getBoundingClientRect()]));
+    mode = normalized;
+    main.classList.toggle('gallery-layout-two', mode === 'two');
+    syncButton();
+
+    requestAnimationFrame(() => {
+      for (const card of cards) {
+        const first = firstRects.get(card);
+        if (!first || !card.isConnected) continue;
+        const last = card.getBoundingClientRect();
+        if (!first.width || !first.height || !last.width || !last.height) continue;
+        const dx = first.left - last.left;
+        const dy = first.top - last.top;
+        const sx = first.width / last.width;
+        const sy = first.height / last.height;
+        if (reducedMotion() || (!dx && !dy && sx === 1 && sy === 1)) continue;
+        card.animate([
+          { transformOrigin: 'top left', transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})` },
+          { transformOrigin: 'top left', transform: 'none' }
+        ], { duration: 560, easing: 'cubic-bezier(.2,.75,.25,1)', fill: 'both' });
+      }
+    });
+
+    if (options.persist !== false) {
+      try { localStorage.setItem(KEY, mode); } catch (_) {}
+    }
+    if (options.sync !== false) {
+      try { window.siteSync?.patchPrefs({ layout: mode }); } catch (_) {}
+    }
+  };
+
+  try { if (localStorage.getItem(KEY) === 'two') mode = 'two'; } catch (_) {}
+  main.classList.toggle('gallery-layout-two', mode === 'two');
+  syncButton();
+  button.addEventListener('click', () => setLayout(mode === 'two' ? 'auto' : 'two'));
+  window.siteGalleryLayout = {
+    get: () => mode,
+    set: (next, options = {}) => setLayout(next, options)
+  };
+})();
+
+
+/* =========================================================
    2. 万能作品展示框架 (Work Controller)
    ---------------------------------------------------------
    做法（FLIP）：
