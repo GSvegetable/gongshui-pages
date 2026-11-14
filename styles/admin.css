@@ -55,7 +55,7 @@ button{cursor:pointer}
 .topbar .brand,
 .topbar .admin-email,
 .topbar .btn-ghost{
-  position:relative;isolation:isolate;overflow:hidden;
+  position:relative;isolation:isolate;
   border:1px solid rgba(255,255,255,.24);border-radius:999px;
   background:
     radial-gradient(120% 180% at 18% -35%,rgba(255,255,255,.34),transparent 58%),
