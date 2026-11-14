@@ -138,7 +138,7 @@ begin
   end if;
 
   select coalesce(
-    jsonb_agg(jsonb_build_object('work_id', b.work_id, 'created_at', b.created_at) order by b.created_at desc),
+    jsonb_agg(jsonb_build_object('work_id', b.work_id) order by b.work_id),
     '[]'::jsonb
   )
   into v_bookmarks
