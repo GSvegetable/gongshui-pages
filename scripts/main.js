@@ -266,10 +266,12 @@ const searchDescOf = card => {
 const renderFolderCard = folder => {
   const card = document.createElement('div');
   card.className = 'folder-card';
+  if (AppState.openFolderId === folder.id) card.classList.add('is-expanded');
   card.tabIndex = 0;
   card.dataset.folderId = folder.id;
   card.setAttribute('role', 'button');
   card.setAttribute('aria-label', folder.name);
+  card.setAttribute('aria-expanded', String(AppState.openFolderId === folder.id));
 
   const thumbs = document.createElement('span');
   thumbs.className = 'folder-thumbs';
