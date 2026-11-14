@@ -109,7 +109,8 @@
 
       row.appendChild(node('td','count-cell',fmtNum(user.bookmarks_count)));
       const account = node('td');
-      account.appendChild(makeStatus(user.email_confirmed_at ? '邮箱已验证' : '待验证', user.email_confirmed_at ? 'ok' : 'pending'));
+      const banned = !!(user.banned_until && new Date(user.banned_until) > new Date());
+      account.appendChild(makeStatus(banned ? '封禁中' : '正常', banned ? 'risk' : 'ok'));
       row.appendChild(account);
       const risk = node('td');
       risk.appendChild(makeStatus(user.high_risk ? '需留意' : '正常', user.high_risk ? 'risk' : 'normal'));
@@ -330,7 +331,7 @@
       banButton.disabled = true;
       try {
         await adminAction('ban',profile.id,{durationSeconds:seconds});
-        closeDetail(); showNotice('账号已封禁，截止时间：' + fmtDate(new Date(Date.now()+seconds*1000).toISOString()),'success'); await load();
+        closeDetail(); await load(); showNotice('账号已封禁，截止时间：' + fmtDate(new Date(Date.now()+seconds*1000).toISOString()),'success');
       } catch (error) { showNotice(error.message,'error'); }
       finally { banButton.disabled = false; }
     });
@@ -342,7 +343,7 @@
       unbanButton.disabled = true;
       try {
         await adminAction('unban',profile.id);
-        closeDetail(); showNotice('账号已解封，可以重新登录。','success'); await load();
+        closeDetail(); await load(); showNotice('账号已解封，可以重新登录。','success');
       } catch (error) { showNotice(error.message,'error'); unbanButton.disabled = false; }
     });
     buttonRow.appendChild(unbanButton);
@@ -354,7 +355,7 @@
       deleteButton.disabled = true;
       try {
         await adminAction('delete',profile.id);
-        closeDetail(); showNotice('账号已彻底删除。用户以后仍可重新注册新账号。','success'); offset = 0; await load();
+        closeDetail(); offset = 0; await load(); showNotice('账号已彻底删除。用户以后仍可重新注册新账号。','success');
       } catch (error) { showNotice(error.message,'error'); deleteButton.disabled = false; }
     });
     buttonRow.appendChild(deleteButton);
