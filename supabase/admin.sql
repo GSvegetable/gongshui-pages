@@ -27,7 +27,7 @@ declare
   v_limit integer := greatest(1, least(coalesce(p_limit, 20), 100));
   v_offset integer := greatest(0, coalesce(p_offset, 0));
 begin
-  if not public.is_developer_whitelisted() then
+  if not public.is_developer_whitelisted(auth.uid()) then
     raise exception 'ADMIN_ACCESS_DENIED' using errcode = '42501';
   end if;
 
