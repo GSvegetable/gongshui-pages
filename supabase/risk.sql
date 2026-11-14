@@ -212,8 +212,8 @@ begin
 end;
 $$;
 
+revoke all on function public.apply_signup_risk() from public, anon;
 grant execute on function public.apply_signup_risk() to authenticated;
-revoke all on function public.apply_signup_risk() from public, anon;\ngrant execute on function public.apply_signup_risk() to authenticated;
 
 -- -------------------------------------------------------------
 -- 4b. 客户端只调这两个函数，表本身不开放给浏览器
@@ -296,8 +296,10 @@ as $$
   );
 $$;
 
-revoke all on function public.register_signup_risk(text, text) from public, anon;\ngrant execute on function public.register_signup_risk(text, text) to authenticated;
-revoke all on function public.my_risk_status() from public, anon;\ngrant execute on function public.my_risk_status() to authenticated;
+revoke all on function public.register_signup_risk(text, text) from public, anon;
+grant execute on function public.register_signup_risk(text, text) to authenticated;
+revoke all on function public.my_risk_status() from public, anon;
+grant execute on function public.my_risk_status() to authenticated;
 
 -- -------------------------------------------------------------
 -- 5. 高风险账号：收藏和偏好写入被拒（真正的拦截在这里）
