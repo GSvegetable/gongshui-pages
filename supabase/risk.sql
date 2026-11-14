@@ -49,7 +49,7 @@ create policy "risk_read_own" on public.signup_risk
 -- 3. IP 由服务端填，高风险标记由服务端管
 -- -------------------------------------------------------------
 create or replace function public.signup_risk_fill_ip() returns trigger
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = pg_catalog as $
 declare
   h json;
 begin
