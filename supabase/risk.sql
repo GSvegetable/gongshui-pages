@@ -23,7 +23,7 @@ create table if not exists public.signup_risk (
 );
 
 create index if not exists signup_risk_fingerprint_idx on public.signup_risk (fingerprint, created_at desc);
-create index if not exists signup_risk_ip_idx         on public.signup_risk (ip, created_at desc);
+drop index if exists public.signup_risk_ip_idx;
 create index if not exists signup_risk_user_idx       on public.signup_risk (user_id);
 create unique index if not exists signup_risk_one_row_per_user_idx on public.signup_risk (user_id);
 
