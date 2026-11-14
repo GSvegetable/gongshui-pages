@@ -203,7 +203,7 @@
     else bookmarks.forEach(item => {
       const line = node('div','bookmark-item');
       line.append(node('span','bookmark-id',item.work_id || '未知作品'));
-      line.append(node('span','bookmark-date',fmtDate(item.created_at)));
+      line.append(node('span','bookmark-date','已收藏'));
       bookmarkList.appendChild(line);
     });
     const bookmarkWrap = node('div'); bookmarkWrap.style.marginTop = '17px';
