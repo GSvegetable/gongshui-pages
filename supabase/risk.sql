@@ -114,23 +114,22 @@ revoke all on table private.developer_allowlist from public, anon, authenticated
 drop function if exists public.is_high_risk(uuid);
 drop function if exists public.is_developer_whitelisted(uuid);
 
-create or replace function public.is_developer_whitelisted()
+create or replace function public.is_developer_whitelisted(uid uuid)
 returns boolean
 language sql
 stable
 security definer
 set search_path = pg_catalog, public, auth, private
-as $$
+as $
   select exists (
     select 1
       from auth.users u
       join private.developer_allowlist a
         on a.email = lower(coalesce(u.email, ''))
-     where u.id = auth.uid()
+     where u.id = uid
   );
-$$;
-revoke all on function public.is_developer_whitelisted() from public, anon;
-grant execute on function public.is_developer_whitelisted() to authenticated;
+$;
+revoke all on function public.is_developer_whitelisted(uuid) from public, anon, authenticated;
 
 -- 仅判断当前登录账号，避免客户端探测任意用户的风控状态。
 create or replace function public.is_high_risk()
@@ -141,7 +140,7 @@ security definer
 set search_path = pg_catalog, public, auth, private
 as $$
   select
-    not public.is_developer_whitelisted()
+    not public.is_developer_whitelisted(v_uid)
     and exists (
       select 1 from public.signup_risk r
        where r.user_id = auth.uid() and r.high_risk
@@ -170,7 +169,7 @@ begin
     raise exception '未登录';
   end if;
 
-  if public.is_developer_whitelisted() then
+  if public.is_developer_whitelisted(v_uid) then
     update public.signup_risk set high_risk = false where user_id = v_uid;
     return jsonb_build_object(
       'fingerprint_count', 0,
@@ -312,13 +311,13 @@ create policy "bm_ins" on public.user_bookmarks
 drop policy if exists "pf_ins" on public.user_preferences;
 create policy "pf_ins" on public.user_preferences
   for insert to authenticated
-  with check (auth.uid() = user_id and not public.is_high_risk(auth.uid()));
+  with check (auth.uid() = user_id and not public.is_high_risk());
 
 drop policy if exists "pf_upd" on public.user_preferences;
 create policy "pf_upd" on public.user_preferences
   for update to authenticated
-  using (auth.uid() = user_id and not public.is_high_risk(auth.uid()))
-  with check (auth.uid() = user_id and not public.is_high_risk(auth.uid()));
+  using (auth.uid() = user_id and not public.is_high_risk())
+  with check (auth.uid() = user_id and not public.is_high_risk());
 
 -- 清理测试数据（想从零开始测的时候跑一次）：
 -- delete from public.signup_risk;
