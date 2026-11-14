@@ -127,8 +127,7 @@
       const data = await rpc('admin_user_overview', {
         p_search:$('search').value.trim() || null, p_limit:PAGE_SIZE, p_offset:offset
       });
-      const analytics = await rpc('admin_user_analytics',{}).catch(error => { console.warn('Admin analytics unavailable:',error); return null; });
-      renderUsers(data); renderAnalytics(analytics); document.body.classList.add('admin-authorized');
+      renderUsers(data); renderAnalytics(data.analytics || null); document.body.classList.add('admin-authorized');
     } catch (error) {
       lockScreen(); console.error('Admin overview failed:', error);
       if (error.status === 401) showNotice('登录状态已失效，请重新登录后再进入管理后台。','error');
