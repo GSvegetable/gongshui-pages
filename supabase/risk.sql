@@ -27,6 +27,9 @@ create index if not exists signup_risk_ip_idx         on public.signup_risk (ip,
 create index if not exists signup_risk_user_idx       on public.signup_risk (user_id);
 create unique index if not exists signup_risk_one_row_per_user_idx on public.signup_risk (user_id);
 
+-- 不再保留历史 IP；该字段仅为兼容旧结构保留。
+update public.signup_risk set ip = null where ip is not null;
+
 alter table public.signup_risk enable row level security;
 
 -- 权限：客户端只能读取自己的记录，不能直接插入、更新或删除。
