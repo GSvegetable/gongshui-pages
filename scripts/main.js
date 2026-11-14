@@ -1,3 +1,5 @@
+const TRUSTED_PREVIEW_ORIGIN = 'https://gsvegetable.github.io';
+
 /* =========================================================
    0. 作品自动发现 + 全局状态
    ---------------------------------------------------------
@@ -1240,11 +1242,11 @@ syncSearchUI();
           const latest = work.card.dataset.composition;
           frame.contentWindow?.postMessage(
             { type: 'pixel-orbit-composition', composition: latest },
-            '*'
+            TRUSTED_PREVIEW_ORIGIN
           );
         });
       }
-      frame.contentWindow?.postMessage({ type: 'pixel-orbit-composition', composition }, '*');
+      frame.contentWindow?.postMessage({ type: 'pixel-orbit-composition', composition }, TRUSTED_PREVIEW_ORIGIN);
     });
   };
 
@@ -1622,12 +1624,12 @@ syncSearchUI();
      ========================================================= */
   const pdsPreviewFrame = document.querySelector('#lighthouse-card iframe[data-pds-preview]');
   const syncPdsPreviewScene = scene => {
-    pdsPreviewFrame?.contentWindow?.postMessage({ type: 'pds-set-scene', scene }, '*');
+    pdsPreviewFrame?.contentWindow?.postMessage({ type: 'pds-set-scene', scene }, TRUSTED_PREVIEW_ORIGIN);
   };
   if (pdsPreviewFrame) {
     pdsPreviewFrame.addEventListener('load', () => syncPdsPreviewScene(window.sitePdsScene?.get?.() || 'seaside'));
     window.addEventListener('message', event => {
-      if (event.source !== pdsPreviewFrame.contentWindow || event.data?.type !== 'pds-preview-ready') return;
+      if (event.origin !== TRUSTED_PREVIEW_ORIGIN || event.source !== pdsPreviewFrame.contentWindow || event.data?.type !== 'pds-preview-ready') return;
       syncPdsPreviewScene(window.sitePdsScene?.get?.() || 'seaside');
     });
   }
