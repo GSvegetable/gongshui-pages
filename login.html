@@ -250,9 +250,6 @@
         other.classList.toggle('is-active', on);
         other.setAttribute('aria-selected', String(on));
       });
-      awaitingCode = false;
-      codeInput.value = '';
-      resendBtn.disabled = false;
       show('');
       render();
     });
