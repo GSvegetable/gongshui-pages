@@ -4,7 +4,7 @@
    只改样式与前端渲染；数据仍走 Supabase RPC，鉴权与 RLS 不变。 */
 
 :root{
-  color-scheme: dark;
+  color-scheme: light;
   --bg:#171717;
   --paper:#f4ecd9;
   --paper-2:#eee3c9;
