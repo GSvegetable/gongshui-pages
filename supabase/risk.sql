@@ -96,11 +96,43 @@ language sql immutable as $$
 $$;
 
 --
+-- -------------------------------------------------------------
+-- 4a. 开发者白名单
+--     仅豁免这三个指定邮箱；不关闭普通用户的设备/IP 风控。
+--     白名单注册记录也不计入其他用户的 24 小时阈值。
+-- -------------------------------------------------------------
+create or replace function public.is_developer_whitelisted(uid uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, auth
+as $
+  select exists (
+    select 1
+      from auth.users u
+     where u.id = uid
+       and lower(coalesce(u.email, '')) in (
+         '3301296046@qq.com',
+         'gsyxyc@outlook.com',
+         'z1211hang@qq.com'
+       )
+  );
+$;
+
+revoke all on function public.is_developer_whitelisted(uuid) from public, anon;
+grant execute on function public.is_developer_whitelisted(uuid) to authenticated;
+
 -- 这个账号是不是高风险（给 RLS 策略用）
 create or replace function public.is_high_risk(uid uuid) returns boolean
-language sql stable security definer set search_path = public as $$
-  select exists (select 1 from public.signup_risk r where r.user_id = uid and r.high_risk);
-$$;
+language sql stable security definer set search_path = public as $
+  select
+    not public.is_developer_whitelisted(uid)
+    and exists (
+      select 1 from public.signup_risk r
+       where r.user_id = uid and r.high_risk
+    );
+$;
 
 -- 注册之后调一次：数一数 24 小时内同指纹、同 IP 各注册了多少个
 create or replace function public.apply_signup_risk()
@@ -122,6 +154,16 @@ begin
     raise exception '未登录';
   end if;
 
+  if public.is_developer_whitelisted(v_uid) then
+    update public.signup_risk set high_risk = false where user_id = v_uid;
+    return jsonb_build_object(
+      'fingerprint_count', 0,
+      'ip_count', 0,
+      'high_risk', false,
+      'whitelisted', true
+    );
+  end if;
+
   h := coalesce(current_setting('request.headers', true)::json, '{}'::json);
   v_ip := nullif(split_part(coalesce(
       h->>'x-forwarded-for', h->>'X-Forwarded-For', h->>'cf-connecting-ip', ''), ',', 1), ' ');
@@ -133,9 +175,13 @@ begin
   end if;
 
   select count(*) into v_fp_count from public.signup_risk
-    where fingerprint = v_fp and created_at > now() - interval '24 hours';
+    where fingerprint = v_fp
+      and created_at > now() - interval '24 hours'
+      and not public.is_developer_whitelisted(user_id);
   select count(*) into v_ip_count from public.signup_risk
-    where ip = v_ip and created_at > now() - interval '24 hours';
+    where ip = v_ip
+      and created_at > now() - interval '24 hours'
+      and not public.is_developer_whitelisted(user_id);
 
   v_risk := (v_fp_count > (select (risk_limits->>'fingerprint')::int from risk_limits()))
          or (v_ip_count > (select (risk_limits->>'ip')::int from risk_limits()));
@@ -174,6 +220,19 @@ begin
     raise exception '未登录';
   end if;
 
+  if public.is_developer_whitelisted(v_uid) then
+    delete from public.signup_risk where user_id = v_uid;
+    insert into public.signup_risk (user_id, username, fingerprint)
+      values (v_uid, p_username, coalesce(nullif(p_fingerprint, ''), 'unknown'));
+    update public.signup_risk set high_risk = false where user_id = v_uid;
+    return jsonb_build_object(
+      'fingerprint_count', 0,
+      'ip_count', 0,
+      'high_risk', false,
+      'whitelisted', true
+    );
+  end if;
+
   -- 同一个人重复调用只留一条，别把计数刷上去
   delete from public.signup_risk where user_id = v_uid;
   insert into public.signup_risk (user_id, username, fingerprint)
@@ -181,10 +240,12 @@ begin
 
   select count(*) into v_fp_count from public.signup_risk
     where fingerprint = coalesce(nullif(p_fingerprint, ''), 'unknown')
-      and created_at > now() - interval '24 hours';
+      and created_at > now() - interval '24 hours'
+      and not public.is_developer_whitelisted(user_id);
   select count(*) into v_ip_count from public.signup_risk
     where ip = (select ip from public.signup_risk where user_id = v_uid limit 1)
-      and created_at > now() - interval '24 hours';
+      and created_at > now() - interval '24 hours'
+      and not public.is_developer_whitelisted(user_id);
 
   v_risk := (v_fp_count > (select (risk_limits->>'fingerprint')::int from risk_limits()))
          or (v_ip_count > (select (risk_limits->>'ip')::int from risk_limits()));
@@ -209,10 +270,14 @@ security definer
 set search_path = public
 as $$
   select jsonb_build_object(
-    'high_risk', coalesce((select r.high_risk from public.signup_risk r
-                             where r.user_id = auth.uid()
-                             order by r.created_at desc limit 1), false),
-    'registered', exists (select 1 from public.signup_risk r where r.user_id = auth.uid())
+    'high_risk', case
+      when public.is_developer_whitelisted(auth.uid()) then false
+      else coalesce((select r.high_risk from public.signup_risk r
+                       where r.user_id = auth.uid()
+                       order by r.created_at desc limit 1), false)
+    end,
+    'registered', exists (select 1 from public.signup_risk r where r.user_id = auth.uid()),
+    'whitelisted', public.is_developer_whitelisted(auth.uid())
   );
 $$;
 
