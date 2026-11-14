@@ -730,7 +730,8 @@ syncSearchUI();
   const syncButton = () => {
     const twoColumns = mode === 'two';
     button.setAttribute('aria-pressed', String(twoColumns));
-    const label = twoColumns ? '切换为自适应布局' : '切换为两列布局';
+    const label = window.siteI18n?.t(twoColumns ? 'layout.toggle.auto' : 'layout.toggle.two')
+      || (twoColumns ? '切换为自适应布局' : '切换为两列布局');
     button.setAttribute('aria-label', label);
     button.title = label;
   };
@@ -774,6 +775,7 @@ syncSearchUI();
   try { if (localStorage.getItem(KEY) === 'two') mode = 'two'; } catch (_) {}
   main.classList.toggle('gallery-layout-two', mode === 'two');
   syncButton();
+  document.addEventListener('site:languagechange', syncButton);
   button.addEventListener('click', () => setLayout(mode === 'two' ? 'auto' : 'two'));
   window.siteGalleryLayout = {
     get: () => mode,
