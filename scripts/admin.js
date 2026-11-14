@@ -109,7 +109,8 @@
 
       row.appendChild(node('td','count-cell',fmtNum(user.bookmarks_count)));
       const account = node('td');
-      account.appendChild(makeStatus(user.email_confirmed_at ? '邮箱已验证' : '待验证', user.email_confirmed_at ? 'ok' : 'pending'));
+      const banned = !!(user.banned_until && new Date(user.banned_until) > new Date());
+      account.appendChild(makeStatus(banned ? '封禁中' : '正常', banned ? 'risk' : 'ok'));
       row.appendChild(account);
       const risk = node('td');
       risk.appendChild(makeStatus(user.high_risk ? '需留意' : '正常', user.high_risk ? 'risk' : 'normal'));
@@ -127,7 +128,7 @@
       const data = await rpc('admin_user_overview', {
         p_search:$('search').value.trim() || null, p_limit:PAGE_SIZE, p_offset:offset
       });
-      renderUsers(data); document.body.classList.add('admin-authorized');
+      renderUsers(data); renderAnalytics(data.analytics || null); document.body.classList.add('admin-authorized');
     } catch (error) {
       lockScreen(); console.error('Admin overview failed:', error);
       if (error.status === 401) showNotice('登录状态已失效，请重新登录后再进入管理后台。','error');
@@ -139,6 +140,65 @@
       busy = false; $('refresh').disabled = false; $('refresh').textContent = '↻ 刷新数据';
     }
   }
+
+
+  const renderAnalytics = data => {
+    const bars = $('signup-bars');
+    bars.replaceChildren();
+    const trend = data && Array.isArray(data.registration_trend) ? data.registration_trend : [];
+    if (!trend.length) {
+      bars.append(node('div','chart-empty','图表数据暂不可用'));
+      $('signup-total').textContent = '—';
+    } else {
+      const max = Math.max(1, ...trend.map(item => Number(item.count || 0)));
+      trend.forEach(item => {
+        const wrap = node('div','signup-bar-wrap');
+        const bar = node('span','signup-bar');
+        const fill = node('i','signup-bar-fill');
+        const count = Number(item.count || 0);
+        fill.style.height = Math.max(3, count / max * 100) + '%';
+        fill.title = item.date + '：' + count + ' 位新用户';
+        bar.setAttribute('aria-label', item.date + '：' + count + ' 位新用户');
+        bar.appendChild(fill); wrap.appendChild(bar); bars.appendChild(wrap);
+      });
+      $('signup-total').textContent = fmtNum(trend.reduce((sum,item) => sum + Number(item.count || 0),0));
+    }
+
+    const account = data && data.account_status || {};
+    const available = Number(account.available || 0);
+    const banned = Number(account.banned || 0);
+    const accountTotal = available + banned;
+    const circumference = 2 * Math.PI * 43;
+    const arc = accountTotal ? banned / accountTotal * circumference : 0;
+    $('account-donut-banned').setAttribute('stroke-dasharray', arc + ' ' + circumference);
+    $('account-donut-total').textContent = fmtNum(accountTotal);
+    $('account-available').textContent = fmtNum(available);
+    $('account-banned').textContent = fmtNum(banned);
+
+    const risk = data && data.risk_status || {};
+    const normal = Number(risk.normal || 0);
+    const highRisk = Number(risk.high_risk || 0);
+    const riskTotal = normal + highRisk;
+    const riskPercent = riskTotal ? highRisk / riskTotal * 100 : 0;
+    $('risk-fill').style.width = riskPercent + '%';
+    $('risk-count').textContent = fmtNum(highRisk);
+    $('risk-percent').textContent = riskPercent.toFixed(1) + '%';
+    $('risk-normal').textContent = fmtNum(normal);
+  };
+
+  const adminAction = async (action, userId, extra = {}) => {
+    const token = window.siteAuth && window.siteAuth.getToken();
+    if (!token) throw new Error('登录状态已失效，请重新登录。');
+    const response = await fetch(config.url + '/functions/v1/admin-user-action', {
+      method:'POST',
+      headers:{apikey:config.anonKey,Authorization:'Bearer ' + token,'Content-Type':'application/json'},
+      body:JSON.stringify(Object.assign({action,userId},extra))
+    });
+    let payload = null;
+    try { payload = await response.json(); } catch (_) {}
+    if (!response.ok) throw new Error(payload && payload.error || '账号操作失败，请稍后重试。');
+    return payload;
+  };
 
   const field = (label, value, mono = false) => {
     const wrap = node('div','detail-field');
@@ -238,6 +298,70 @@
     const privacyNote = node('p','empty-note','出于隐私与安全原则，此处不显示密码、会话令牌、IP 地址或原始设备标识。');
     privacyNote.style.lineHeight = '1.7'; privacyNote.style.marginTop = '14px';
     security.appendChild(privacyNote); root.appendChild(security);
+
+    const actions = section('账号管理','ACCOUNT ACTIONS');
+    const actionWrap = node('div','account-actions');
+    const isBanned = !!(profile.banned_until && new Date(profile.banned_until) > new Date());
+    const stateLine = node('div','account-action-state');
+    stateLine.appendChild(makeStatus(isBanned ? '封禁中' : '账号正常', isBanned ? 'risk' : 'ok'));
+    if (isBanned) stateLine.appendChild(node('span','action-expiry','封禁截止：' + fmtDate(profile.banned_until)));
+    actionWrap.appendChild(stateLine);
+
+    const durationLabel = node('label','action-label','封禁期限');
+    const duration = node('select','ban-duration');
+    [['3600','1 小时'],['86400','24 小时'],['604800','7 天'],['2592000','30 天'],['custom','自定义截止时间']].forEach(([value,label]) => {
+      const option = node('option','',label); option.value = value; duration.appendChild(option);
+    });
+    durationLabel.appendChild(duration); actionWrap.appendChild(durationLabel);
+    const customDate = node('input','ban-custom-date');
+    customDate.type = 'datetime-local'; customDate.hidden = true;
+    duration.addEventListener('change',() => { customDate.hidden = duration.value !== 'custom'; });
+    actionWrap.appendChild(customDate);
+
+    const buttonRow = node('div','action-button-row');
+    const banButton = node('button','action-button action-ban','确认封禁'); banButton.type = 'button';
+    banButton.addEventListener('click',async () => {
+      let seconds = Number(duration.value);
+      if (duration.value === 'custom') {
+        const end = customDate.value ? new Date(customDate.value).getTime() : NaN;
+        seconds = Math.floor((end - Date.now()) / 1000);
+      }
+      if (!Number.isFinite(seconds) || seconds < 60) { showNotice('请选择至少 1 分钟后的封禁截止时间。','error'); return; }
+      if (!window.confirm('确定封禁 ' + (profile.email || profile.username || profile.id) + '？')) return;
+      banButton.disabled = true;
+      try {
+        await adminAction('ban',profile.id,{durationSeconds:seconds});
+        closeDetail(); await load(); showNotice('账号已封禁，截止时间：' + fmtDate(new Date(Date.now()+seconds*1000).toISOString()),'success');
+      } catch (error) { showNotice(error.message,'error'); }
+      finally { banButton.disabled = false; }
+    });
+    buttonRow.appendChild(banButton);
+
+    const unbanButton = node('button','action-button action-unban','立即解封'); unbanButton.type = 'button'; unbanButton.disabled = !isBanned;
+    unbanButton.addEventListener('click',async () => {
+      if (!isBanned || !window.confirm('确定立即解除这个账号的封禁？')) return;
+      unbanButton.disabled = true;
+      try {
+        await adminAction('unban',profile.id);
+        closeDetail(); await load(); showNotice('账号已解封，可以重新登录。','success');
+      } catch (error) { showNotice(error.message,'error'); unbanButton.disabled = false; }
+    });
+    buttonRow.appendChild(unbanButton);
+
+    const deleteButton = node('button','action-button action-delete','彻底删除账号'); deleteButton.type = 'button';
+    deleteButton.addEventListener('click',async () => {
+      const typed = window.prompt('此操作不可恢复。请输入 DELETE 确认删除：' + (profile.email || profile.username || profile.id));
+      if (typed !== 'DELETE') return;
+      deleteButton.disabled = true;
+      try {
+        await adminAction('delete',profile.id);
+        closeDetail(); offset = 0; await load(); showNotice('账号已彻底删除。用户以后仍可重新注册新账号。','success');
+      } catch (error) { showNotice(error.message,'error'); deleteButton.disabled = false; }
+    });
+    buttonRow.appendChild(deleteButton);
+    actionWrap.appendChild(buttonRow);
+    actionWrap.appendChild(node('p','action-warning','删除会永久移除该用户的 Auth 账号及关联收藏、偏好和风控记录；封禁只限制登录，不删除账号数据。'));
+    actions.appendChild(actionWrap); root.appendChild(actions);
   };
 
   let detailBusy = false;
