@@ -73,7 +73,7 @@ begin
   ) into v_profile from auth.users u where u.id=p_user_id and u.deleted_at is null;
   if v_profile is null then raise exception 'USER_NOT_FOUND' using errcode='P0002'; end if;
 
-  select coalesce(jsonb_agg(jsonb_build_object('work_id',b.work_id,'created_at',b.created_at) order by b.created_at desc),'[]'::jsonb)
+  select coalesce(jsonb_agg(jsonb_build_object('work_id',b.work_id) order by b.work_id),'[]'::jsonb)
     into v_bookmarks from public.user_bookmarks b where b.user_id=p_user_id;
   select p.updated_at,jsonb_strip_nulls(jsonb_build_object(
     'zoom',p.data->'zoom','layout',p.data->'layout','pdsScene',p.data->'pdsScene',
