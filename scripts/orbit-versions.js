@@ -122,6 +122,7 @@
     preload.title = scene === 'planet' ? 'Pixel Orbit 星球版' : scene === 'world' ? 'Pixel Orbit 环形世界版' : 'Pixel Orbit 田园版';
     preload.dataset.compositionFrame = '';
     preload.loading = 'eager';
+    preload.referrerPolicy = 'no-referrer';
     preload.allow = 'fullscreen';
     preload.className = 'orbit-frame-preload';
     registerFrame(preload, scene);
