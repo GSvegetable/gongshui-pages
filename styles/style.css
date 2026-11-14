@@ -1026,7 +1026,7 @@ body.artwork-only .cmp-ring, body.view-closing .cmp-ring { display:none !importa
 
 /* ---------- 返回顶部：与右上角工具方块同尺寸，滚动时从底部接力入场 ---------- */
 .back-to-top{
-  position:fixed;right:28px;bottom:24px;z-index:120;
+  position:fixed;right:28px;bottom:24px;z-index:121;
   display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;
   border:3px solid #080808;border-radius:3px;background:#ffd400;color:#1b2146;
   box-shadow:3px 4px 0 #000;cursor:pointer;
