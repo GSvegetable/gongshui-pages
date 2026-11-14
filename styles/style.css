@@ -1040,3 +1040,54 @@ body.artwork-only .cmp-ring, body.view-closing .cmp-ring { display:none !importa
 html.back-to-top-visible .back-to-top{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0);transition:transform var(--dur) var(--ease),opacity var(--dur) var(--ease),visibility 0s,background .15s}
 .back-to-top:focus-visible{outline:2px solid #f4bd3c;outline-offset:4px}
 @media(max-width:600px){.back-to-top{right:14px;bottom:16px}}
+
+
+/* v2.8.14 — 收藏页专属工具栏：用新建文件夹替换布局与设置入口 */
+body.is-bookmarks .top-utility-actions .layout-toggle,
+body.is-bookmarks .top-utility-actions .settings-toggle { display:none !important; }
+body.is-bookmarks .top-utility-actions { pointer-events:none; }
+body.is-bookmarks .bookmarks-toolbar .folder-new {
+  position:fixed; top:24px; right:28px; z-index:121; margin:0;
+  pointer-events:auto;
+}
+@media(max-width:600px){
+  body.is-bookmarks .bookmarks-toolbar .folder-new { top:72px; right:14px; }
+}
+.folder-card { padding-right:42px; }
+.folder-delete {
+  position:absolute; top:9px; right:9px; z-index:2;
+  display:grid; place-items:center; width:27px; height:27px; padding:0;
+  border:2px solid #080808; border-radius:3px; background:#efe6d2; color:#211d15;
+  box-shadow:2px 2px 0 #000; cursor:pointer;
+  font:900 18px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+  transition:background .12s, color .12s, transform .1s, box-shadow .1s;
+}
+.folder-delete:hover { background:#e94c43; color:#fff; }
+.folder-delete:active { transform:translate(2px,2px); box-shadow:none; }
+
+/* 账号弹窗：点击账号先查看资料，只有二次确认后才退出 */
+.account-modal-backdrop {
+  position:fixed; inset:0; z-index:500; display:grid; place-items:center;
+  padding:20px; background:rgba(12,10,7,.58); backdrop-filter:blur(4px);
+}
+.account-modal {
+  width:min(390px,100%); border:3px solid #080808; border-radius:4px;
+  background:#f5ecd9; color:#211d15; box-shadow:6px 7px 0 #000;
+  animation:account-modal-in .16s ease-out;
+}
+@keyframes account-modal-in { from{opacity:0;transform:translateY(-8px) scale(.98)} to{opacity:1;transform:none} }
+.account-modal-head { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 18px; border-bottom:3px solid #080808; background:#efe6d2; }
+.account-modal-kicker { margin:0 0 5px; color:#a2701a; font:900 9px/1 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:1.8px; }
+.account-modal-head h2 { margin:0; font-size:19px; font-weight:900; }
+.account-modal-close { width:30px; height:30px; border:2px solid #080808; border-radius:3px; background:#f4bd3c; color:#211d15; font:900 20px/1 ui-monospace,monospace; cursor:pointer; box-shadow:2px 3px 0 #000; }
+.account-modal-body { padding:20px 18px 18px; }
+.account-modal-label { display:block; margin-bottom:7px; color:#8b7d67; font:800 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:1px; }
+.account-modal-username { display:block; overflow-wrap:anywhere; font-size:17px; font-weight:900; }
+.account-modal-actions { display:flex; gap:10px; margin-top:22px; }
+.account-modal-actions button { flex:1; min-height:40px; padding:0 12px; border:2px solid #080808; border-radius:3px; font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace; cursor:pointer; box-shadow:2px 3px 0 #000; }
+.account-modal-logout,.account-modal-confirm { background:#f4bd3c; color:#211d15; }
+.account-modal-cancel { background:#fffdf7; color:#211d15; }
+.account-modal-actions button:active { transform:translate(2px,3px); box-shadow:none; }
+.account-modal-confirm-title { margin:0; font-size:16px; font-weight:900; }
+.account-modal-confirm-text { margin:9px 0 0; color:#74664f; font-size:12px; line-height:1.7; }
+@media(prefers-reduced-motion:reduce){.account-modal{animation:none}}
