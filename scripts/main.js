@@ -150,9 +150,9 @@ const deleteFolder = (folderId) => {
 
 const openFolder = (folderId) => {
   if (!folderById(folderId)) return;
-  AppState.openFolderId = folderId;
+  // 再点当前文件夹即收起；点另一个文件夹则原地切换。
+  AppState.openFolderId = AppState.openFolderId === folderId ? null : folderId;
   renderGallery();
-  window.scrollTo(0, 0);
 };
 
 const closeFolder = () => {
@@ -187,6 +187,46 @@ const navIndex = document.getElementById('nav-index');
 const compassView = document.getElementById('compass-view');
 const galleryCards = works.map(work => work.card);
 const emptyState = document.getElementById('empty-state');
+const galleryGrid = document.querySelector('main > .grid');
+
+// 收藏页使用原作品卡片节点：只搬动 DOM，不克隆卡片，主页的 FLIP 展开逻辑和事件监听因此完整保留。
+const restoreFolderWorks = () => {
+  if (!galleryGrid || !emptyState) return;
+  works.forEach(work => {
+    work.card.classList.remove('folder-peeked', 'folder-item-enter');
+    work.card.style.removeProperty('--folder-item-index');
+    galleryGrid.insertBefore(work.card, emptyState);
+  });
+};
+
+// 收藏页作品采用两次点击：第一次轻轻探出，第二次交给原有 openWork / FLIP。
+works.forEach(work => {
+  const card = work.card;
+  card.addEventListener('click', event => {
+    const folder = folderById(AppState.openFolderId);
+    if (AppState.currentTab !== 'bookmarks' || !folder || !folder.works.includes(work.id)) return;
+    if (event.target.closest('.preview-mount, button, a, input, select, textarea, [role="button"]')) return;
+    if (!card.classList.contains('folder-peeked')) {
+      card.classList.add('folder-peeked');
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    } else {
+      card.classList.remove('folder-peeked');
+    }
+  }, true);
+  card.addEventListener('keydown', event => {
+    const folder = folderById(AppState.openFolderId);
+    if (AppState.currentTab !== 'bookmarks' || !folder || !folder.works.includes(work.id)) return;
+    if (event.target !== card || !['Enter', ' '].includes(event.key)) return;
+    if (!card.classList.contains('folder-peeked')) {
+      card.classList.add('folder-peeked');
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    } else {
+      card.classList.remove('folder-peeked');
+    }
+  }, true);
+});
 const emptyDesc = document.getElementById('empty-desc');
 const searchInput = document.getElementById('search-input');
 const searchWrapper = document.getElementById('search-wrapper');
@@ -313,14 +353,50 @@ const renderFolderGrid = () => {
   const grid = document.getElementById('folder-grid');
   const hint = document.getElementById('folder-hint');
   if (!grid) return;
+
+  // 先把作品归还主网格，再重建文件夹列表，避免切页/搜索/同步后节点丢失。
+  restoreFolderWorks();
   grid.replaceChildren();
+
   const query = norm(AppState.searchQuery);
   const matches = AppState.bookmarkFolders.filter(folder => {
     if (!query) return true;
     if (norm(folder.name).includes(query)) return true;
     return folder.works.some(id => norm(workTitleOf(id)).includes(query));
   });
-  matches.forEach(folder => grid.appendChild(renderFolderCard(folder)));
+
+  matches.forEach(folder => {
+    const folderCard = renderFolderCard(folder);
+    grid.appendChild(folderCard);
+
+    if (folder.id !== AppState.openFolderId) return;
+
+    const panel = document.createElement('section');
+    panel.className = 'folder-inline-panel';
+    panel.setAttribute('aria-label', folder.name + '中的作品');
+
+    const worksGrid = document.createElement('div');
+    worksGrid.className = 'folder-works-grid';
+    const members = folder.works
+      .map(id => works.find(work => work.id === id))
+      .filter(Boolean);
+
+    members.forEach((work, index) => {
+      work.card.style.setProperty('--folder-item-index', index);
+      work.card.classList.add('folder-item-enter');
+      worksGrid.appendChild(work.card);
+    });
+
+    panel.appendChild(worksGrid);
+    if (!members.length) {
+      const empty = document.createElement('p');
+      empty.className = 'folder-inline-empty';
+      empty.textContent = tr('empty.folderEmpty', '这个文件夹还是空的，去作品页把喜欢的收进来');
+      panel.appendChild(empty);
+    }
+    folderCard.after(panel);
+  });
+
   if (hint) {
     const noneAtAll = AppState.bookmarkFolders.length === 0;
     hint.hidden = !noneAtAll && matches.length > 0;
@@ -347,10 +423,12 @@ const renderGallery = () => {
     const backBtn = document.getElementById('bookmarks-back');
     const newBtn = document.getElementById('folder-new');
     const titleEl = document.getElementById('bookmarks-title');
-    if (backBtn) backBtn.hidden = !folder;
-    if (newBtn) newBtn.hidden = !!folder;
-    if (titleEl) titleEl.textContent = folder ? folder.name : tr('bookmarks.title', '收藏夹');
+    if (backBtn) backBtn.hidden = true;
+    if (newBtn) newBtn.hidden = false;
+    if (titleEl) titleEl.textContent = tr('bookmarks.title', '收藏夹');
     renderFolderGrid();
+  } else {
+    restoreFolderWorks();
   }
 
   const query = norm(AppState.searchQuery);
