@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#171717">
 <title>账号 | 宫水.com</title>
 <meta name="description" content="宫水.com 的账号入口。">
-<link rel="stylesheet" href="./styles/style.css?v=2.8.7">
+<link rel="stylesheet" href="./styles/style.css?v=2.8.16">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>">
 <style>
 .auth-page{width:min(420px,calc(100% - 32px));margin:0 auto;padding:clamp(28px,7vh,72px) 0 60px}
@@ -43,6 +43,10 @@
 }
 .auth-field input:focus{border-color:#f4bd3c;box-shadow:0 0 0 3px rgba(244,189,60,.28)}
 .auth-field input::placeholder{color:#a89b82;font-weight:500}
+.auth-code-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.auth-code-row input{min-width:0}
+.auth-resend{height:42px;padding:0 10px;border:2px solid #211d15;border-radius:3px;background:#e7dcc4;color:#51432e;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer}
+.auth-resend:disabled{opacity:.5;cursor:wait}
 
 .auth-submit{appearance:none;width:100%;height:46px;margin-top:2px;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.6px;cursor:pointer;box-shadow:3px 4px 0 #080808;transition:transform .1s,box-shadow .1s,background .15s}
 .auth-submit:hover{background:#ffd36a}
@@ -90,8 +94,19 @@
 
     <form class="auth-form" id="auth-form" novalidate>
       <div class="auth-field" id="auth-email-field">
-        <label for="auth-email" data-i18n="username">用户名</label>
-        <input type="text" id="auth-email" name="username" placeholder="3-24 位，字母数字下划线" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+        <label for="auth-email" data-i18n="emailOrUsername">邮箱 / 用户名</label>
+        <input type="text" id="auth-email" name="email" placeholder="name@example.com" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      </div>
+      <div class="auth-field" id="auth-username-field" hidden>
+        <label for="auth-username" data-i18n="username">用户名</label>
+        <input type="text" id="auth-username" name="username" placeholder="3-24 位，字母数字下划线" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+      </div>
+      <div class="auth-field" id="auth-code-field" hidden>
+        <label for="auth-code" data-i18n="verificationCode">邮箱验证码</label>
+        <div class="auth-code-row">
+          <input type="text" id="auth-code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="输入 6 位验证码">
+          <button class="auth-resend" type="button" id="auth-resend" data-i18n="resend">重新发送</button>
+        </div>
       </div>
       <div class="auth-field">
         <label for="auth-password" data-i18n="password">密码</label>
@@ -101,7 +116,6 @@
       <button class="auth-submit" type="submit" id="auth-submit">进入</button>
       <div class="auth-extra" id="auth-extra">
         <button class="auth-link" type="button" id="auth-forgot" data-i18n="forgot">忘记密码？</button>
-        <button class="auth-link" type="button" id="auth-resend" hidden data-i18n="resend">重新发送确认邮件</button>
       </div>
     </form>
   </section>
@@ -110,7 +124,7 @@
 <script src="./scripts/vendor/fingerprintjs.min.js?v=3.4.2"></script>
 <script src="./scripts/fingerprint.js?v=1.0.1"></script>
 <script src="./scripts/auth-config.js?v=1.0.1"></script>
-<script src="./scripts/auth.js?v=1.0.3"></script>
+<script src="./scripts/auth.js?v=1.0.4"></script>
 <script src="./scripts/risk.js?v=1.0.2"></script>
 <script>
 (() => {
@@ -123,49 +137,55 @@
   const title = $('auth-title');
   const tabs = $('auth-tabs');
   const emailField = $('auth-email-field');
-  const extra = $('auth-extra');
+  const usernameField = $('auth-username-field');
+  const usernameInput = $('auth-username');
+  const codeField = $('auth-code-field');
+  const codeInput = $('auth-code');
   const forgotBtn = $('auth-forgot');
   const resendBtn = $('auth-resend');
   const langBtn = $('auth-lang');
 
   let mode = 'signin';     // 'signin' | 'signup'
   let recovery = false;    // 从重置密码邮件链接进来
+  let awaitingCode = false;
   let lang = 'zh';
 
   const I18N = {
     zh: {
       backHome: '返回首页　↗', tabSignin: '登录', tabSignup: '注册',
-      username: '用户名', password: '密码',
+      username: '用户名', emailOrUsername: '邮箱 / 用户名', email: '邮箱地址', password: '密码', verificationCode: '邮箱验证码',
       titleSignin: '登录', titleSignup: '注册', titleRecovery: '设置新密码',
-      enter: '进入', create: '创建账号', save: '保存新密码',
+      enter: '登录', create: '发送验证码', verify: '验证并创建账号', save: '保存新密码',
       signingIn: '登录中…', creating: '创建中…', saving: '保存中…',
       forgot: '忘记密码？', resend: '重新发送确认邮件',
       placeholderPwd: '至少 6 位', placeholderPwdSignin: '你的密码',
       highRisk: '这台设备 24 小时内注册了太多账号，这个账号的收藏和偏好同步会被停用。',
-      needConfirm: '注册成功，去收件箱点一下确认链接再来登录。',
+      needConfirm: '验证码已发送到你的邮箱，请输入邮件中的 6 位数字完成注册。',
       resendOk: '确认邮件已重发，去收件箱看看。',
       resetSent: '重置密码的邮件已发送，去查收。',
       pwdUpdated: '密码已改好，正在回主页…',
       signedIn: '成功，正在回主页…',
-      errEmail: '先填用户名', errEmailFormat: '用户名要 3-24 位，只能用字母、数字、下划线和短横线', errPwd: '密码至少要 6 位',
+      errEmail: '请填写邮箱或用户名', errEmailFormat: '请输入有效的邮箱地址', errUsername: '用户名要 3-24 位，只能用字母、数字、下划线和短横线', errCode: '请输入邮件中的 6 位验证码', errPwd: '密码至少要 6 位',
       recoveryOk: '链接已生效，设个新密码吧'
     },
     en: {
       backHome: 'Back to home ↗', tabSignin: 'Sign in', tabSignup: 'Sign up',
-      username: 'Username', password: 'Password',
+      username: 'Username', emailOrUsername: 'Email / username', email: 'Email address', password: 'Password', verificationCode: 'Email code',
       titleSignin: 'Sign in', titleSignup: 'Sign up', titleRecovery: 'Set a new password',
-      enter: 'Enter', create: 'Create account', save: 'Save password',
+      enter: 'Sign in', create: 'Send code', verify: 'Verify & create account', save: 'Save password',
       signingIn: 'Signing in…', creating: 'Creating…', saving: 'Saving…',
       forgot: 'Forgot password?', resend: 'Resend confirmation email',
       placeholderPwd: 'At least 6 characters', placeholderPwdSignin: 'Your password',
       highRisk: 'Too many accounts were created from this device in 24 hours, so bookmark and preference sync is disabled for this account.',
-      needConfirm: 'Account created. Check your email for the confirmation link, then come back to sign in.',
+      needConfirm: 'A 6-digit code has been sent to your email. Enter it to finish creating your account.',
       resendOk: 'Confirmation email sent again — check your inbox.',
       resetSent: 'Password reset email sent — check your inbox.',
       pwdUpdated: 'Password updated. Heading back…',
       signedIn: 'Signed in. Heading back…',
-      errEmail: 'Enter a username first',
-      errEmailFormat: 'Username needs 3-24 characters: letters, numbers, _ or -',
+      errEmail: 'Enter your email or username',
+      errEmailFormat: 'Enter a valid email address',
+      errUsername: 'Username needs 3-24 characters: letters, numbers, _ or -',
+      errCode: 'Enter the 6-digit code from your email',
       errPwd: 'Password needs at least 6 characters',
       recoveryOk: 'Link accepted — set a new password.'
     }
@@ -192,6 +212,7 @@
 
   const submitLabel = () => {
     if (recovery) return t('save');
+    if (mode === 'signup' && awaitingCode) return t('verify');
     return mode === 'signup' ? t('create') : t('enter');
   };
 
@@ -199,6 +220,8 @@
     if (recovery) {
       title.textContent = t('titleRecovery');
       emailField.hidden = true;
+      usernameField.hidden = true;
+      codeField.hidden = true;
       tabs.hidden = true;
       passwordInput.setAttribute('autocomplete', 'new-password');
       passwordInput.placeholder = t('placeholderPwd');
@@ -206,6 +229,11 @@
     } else {
       title.textContent = mode === 'signup' ? t('titleSignup') : t('titleSignin');
       emailField.hidden = false;
+      emailField.querySelector('label').textContent = mode === 'signup' ? t('email') : t('emailOrUsername');
+      emailInput.type = mode === 'signup' ? 'email' : 'text';
+      emailInput.placeholder = mode === 'signup' ? 'name@example.com' : (lang === 'en' ? 'Email or old username' : '邮箱地址或旧版用户名');
+      usernameField.hidden = mode !== 'signup';
+      codeField.hidden = !(mode === 'signup' && awaitingCode);
       tabs.hidden = false;
       passwordInput.setAttribute('autocomplete', mode === 'signup' ? 'new-password' : 'current-password');
       passwordInput.placeholder = mode === 'signup' ? t('placeholderPwd') : t('placeholderPwdSignin');
@@ -222,7 +250,9 @@
         other.classList.toggle('is-active', on);
         other.setAttribute('aria-selected', String(on));
       });
-      resendBtn.hidden = true;
+      awaitingCode = false;
+      codeInput.value = '';
+      resendBtn.disabled = false;
       show('');
       render();
     });
@@ -231,7 +261,7 @@
   forgotBtn.addEventListener('click', async () => {
     const email = emailInput.value.trim();
     if (!email) return show(t('errEmail'));
-    if (!window.siteAuth.usernamePattern.test(email)) return show(t('errEmailFormat'));
+    if (!email.includes('@') && !window.siteAuth.usernamePattern.test(email)) return show(t('errEmailFormat'));
     try {
       await window.siteAuth.requestReset(email);
       show(t('resetSent'), true);
@@ -277,22 +307,38 @@
     const email = emailInput.value.trim();
     const password = passwordInput.value;
     if (!email) return show(t('errEmail'));
-    if (!window.siteAuth.usernamePattern.test(email)) return show(t('errEmailFormat'));
-    if (password.length < 6) return show(t('errPwd'));
+
+    if (mode === 'signin') {
+      if (!email.includes('@') && !window.siteAuth.usernamePattern.test(email)) return show(t('errEmailFormat'));
+      if (password.length < 6) return show(t('errPwd'));
+    } else if (!awaitingCode) {
+      if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return show(t('errEmailFormat'));
+      if (!window.siteAuth.usernamePattern.test(usernameInput.value.trim())) return show(t('errUsername'));
+      if (password.length < 6) return show(t('errPwd'));
+    } else if (!/^\\d{6}$/.test(codeInput.value.trim())) {
+      return show(t('errCode'));
+    }
 
     submit.disabled = true;
-    submit.textContent = mode === 'signup' ? t('creating') : t('signingIn');
+    submit.textContent = mode === 'signup' && awaitingCode ? t('verify') : (mode === 'signup' ? t('creating') : t('signingIn'));
     try {
-      const payload = mode === 'signup'
-        ? await window.siteAuth.signUp({ email, password })
-        : await window.siteAuth.signIn({ email, password });
-      if (payload.needConfirm) {
-        show(t('needConfirm'), true);
-        resendBtn.hidden = false;
-        submit.disabled = false;
-        render();
-        return;
+      let payload;
+      if (mode === 'signup' && awaitingCode) {
+        payload = await window.siteAuth.verifySignupOtp({ email, token: codeInput.value.trim() });
+      } else if (mode === 'signup') {
+        payload = await window.siteAuth.signUp({ email, password, username: usernameInput.value.trim() });
+        if (payload.needConfirm) {
+          awaitingCode = true;
+          show(t('needConfirm'), true);
+          submit.disabled = false;
+          render();
+          codeInput.focus();
+          return;
+        }
+      } else {
+        payload = await window.siteAuth.signIn({ email, password });
       }
+
       // 登记一条风控记录（指纹 + 服务端记的 IP），并让服务端判一次
       if (window.siteRisk) {
         try {
