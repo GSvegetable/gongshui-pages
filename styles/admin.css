@@ -4,7 +4,7 @@
    只改样式与前端渲染；数据仍走 Supabase RPC，鉴权与 RLS 不变。 */
 
 :root{
-  color-scheme: light;
+  color-scheme: only light;
   --bg:#171717;
   --paper:#f4ecd9;
   --paper-2:#eee3c9;
@@ -101,7 +101,7 @@ button{cursor:pointer}
 
 /* ───────── 纸页 ───────── */
 .sheet{
-  color-scheme:light;
+  color-scheme: only light;
   flex:1 0 auto;width:min(1200px,calc(100% - 2 * var(--gutter)));
   margin:clamp(14px,2.6vw,28px) auto clamp(28px,4vw,56px);
   background:var(--paper);color:var(--ink);
@@ -289,7 +289,7 @@ button{cursor:pointer}
 .scrim-center{display:flex;align-items:center;justify-content:center;padding:20px}
 
 .panel{
-  color-scheme:light;
+  color-scheme: only light;
   position:fixed;top:0;right:0;bottom:0;z-index:61;
   display:flex;flex-direction:column;width:min(440px,100%);
   background:var(--paper);color:var(--ink);
@@ -399,7 +399,7 @@ button{cursor:pointer}
 
 /* ───────── 确认弹窗 ───────── */
 .dialog{
-  color-scheme:light;
+  color-scheme: only light;
   width:min(360px,100%);padding:18px 18px 16px;
   background:var(--paper);color:var(--ink);
   border:3px solid var(--hard);box-shadow:8px 8px 0 var(--hard);
