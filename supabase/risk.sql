@@ -111,9 +111,6 @@ create table if not exists private.developer_allowlist (
 alter table private.developer_allowlist enable row level security;
 revoke all on table private.developer_allowlist from public, anon, authenticated;
 
-drop function if exists public.is_high_risk(uuid);
-drop function if exists public.is_developer_whitelisted(uuid);
-
 create or replace function public.is_developer_whitelisted(uid uuid)
 returns boolean
 language sql
@@ -132,7 +129,7 @@ $;
 revoke all on function public.is_developer_whitelisted(uuid) from public, anon, authenticated;
 
 -- 仅判断当前登录账号，避免客户端探测任意用户的风控状态。
-create or replace function public.is_high_risk()
+create or replace function public.is_high_risk(uid uuid)
 returns boolean
 language sql
 stable
@@ -140,14 +137,14 @@ security definer
 set search_path = pg_catalog, public, auth, private
 as $$
   select
-    not public.is_developer_whitelisted(v_uid)
+    not public.is_developer_whitelisted(auth.uid())
     and exists (
       select 1 from public.signup_risk r
        where r.user_id = auth.uid() and r.high_risk
     );
 $$;
-revoke all on function public.is_high_risk() from public, anon;
-grant execute on function public.is_high_risk() to authenticated;
+revoke all on function public.is_high_risk(uuid) from public, anon;
+grant execute on function public.is_high_risk(uuid) to authenticated;
 
 -- 注册之后调一次：数一数 24 小时内同指纹、同 IP 各注册了多少个
 create or replace function public.apply_signup_risk()
@@ -308,18 +305,18 @@ grant execute on function public.my_risk_status() to authenticated;
 drop policy if exists "bm_ins" on public.user_bookmarks;
 create policy "bm_ins" on public.user_bookmarks
   for insert to authenticated
-  with check (auth.uid() = user_id and not public.is_high_risk());
+  with check (auth.uid() = user_id and not public.is_high_risk(auth.uid()));
 
 drop policy if exists "pf_ins" on public.user_preferences;
 create policy "pf_ins" on public.user_preferences
   for insert to authenticated
-  with check (auth.uid() = user_id and not public.is_high_risk());
+  with check (auth.uid() = user_id and not public.is_high_risk(auth.uid()));
 
 drop policy if exists "pf_upd" on public.user_preferences;
 create policy "pf_upd" on public.user_preferences
   for update to authenticated
-  using (auth.uid() = user_id and not public.is_high_risk())
-  with check (auth.uid() = user_id and not public.is_high_risk());
+  using (auth.uid() = user_id and not public.is_high_risk(auth.uid()))
+  with check (auth.uid() = user_id and not public.is_high_risk(auth.uid()));
 
 -- 清理测试数据（想从零开始测的时候跑一次）：
 -- delete from public.signup_risk;
