@@ -9,22 +9,24 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>用户管理 · 宫水.com</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>宫</text></svg>">
-  <link rel="stylesheet" href="./styles/admin.css?v=3.0.4">
+  <link rel="stylesheet" href="./vendor/liquid-glass/liquid-glass.css?v=1.0.0">
+  <link rel="stylesheet" href="./styles/admin.css?v=3.0.5">
   <script src="./scripts/privacy-cleanup.js?v=1.0.0"></script>
+  <script type="module" src="./scripts/admin-liquid-glass.js?v=1.0.0"></script>
 </head>
 <body>
   <div class="console">
+    <main class="sheet">
     <header class="topbar">
-      <a class="brand" href="./index.html" aria-label="返回宫水首页">
+      <a class="brand liquid-glass" href="./index.html" aria-label="返回宫水首页">
         <span class="brand-name">宫水.com <em>管理台</em></span>
       </a>
       <div class="topbar-meta">
-        <span id="admin-email" class="admin-email">正在验证权限</span>
-        <button id="sign-out" class="btn btn-ghost btn-sm" type="button" hidden>退出登录</button>
+        <span id="admin-email" class="admin-email liquid-glass">正在验证权限</span>
+        <button id="sign-out" class="btn btn-ghost btn-sm liquid-glass" type="button" hidden>退出登录</button>
       </div>
     </header>
 
-    <main class="sheet">
       <header class="sheet-head">
         <div class="sheet-title">
           <p class="kicker">宫水.com · 账号登记簿</p>
