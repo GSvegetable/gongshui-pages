@@ -767,10 +767,11 @@ main{--gallery-card-min:300px}
 /* ===== v2.8.6 — 收藏页重做：文件夹模式（文件夹列表 → 文件夹内作品缩略图） ===== */
 .bookmarks-view { padding: 0 0 6px; }
 .bookmarks-view[hidden] { display: none; }
+body.is-bookmarks main { padding-top: 78px; }
 
 .bookmarks-toolbar {
   display: flex; align-items: center; gap: 12px;
-  margin: 0 0 20px; padding-left: 88px;
+  margin: 0 0 10px; padding-left: 88px;
 }
 .bookmarks-toolbar h2 { margin: 0; color: #191711; font-size: 22px; letter-spacing: -.5px; }
 .bookmarks-toolbar h2::after { content: ''; } /* 去掉计数小字 */
@@ -838,15 +839,53 @@ main{--gallery-card-min:300px}
 .folder-hint { padding: 60px 20px; margin: 0; text-align: center; color: #8b7d67; font-size: 13px; font-weight: 700; }
 .folder-hint[hidden] { display: none; }
 
-/* 文件夹内部：作品缩略图网格 */
+/* 收藏夹原位展开：文件夹卡片保留，作品区作为它后面的整行内容出现。 */
 body.folders-root .grid { display: none; }
-body.folder-open .folder-grid,
-body.folder-open .folder-hint { display: none; }
-body.is-bookmarks.folder-open .grid {
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 22px; max-width: none;
+.folder-inline-panel {
+  grid-column: 1 / -1;
+  min-width: 0;
+  padding: 2px 0 10px;
+  animation: folder-panel-in .28s cubic-bezier(.2,.75,.25,1) both;
 }
-body.is-bookmarks.folder-open .preview-card:not(.is-open):not(.is-closing) { position: relative; padding: 8px; }
+.folder-works-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  align-items: start;
+  gap: 18px 20px;
+  padding: 4px 2px 8px;
+}
+.folder-inline-empty {
+  margin: 0;
+  padding: 22px 18px;
+  border: 2px dashed #c8b995;
+  border-radius: 4px;
+  color: #8b7d67;
+  font-size: 12px;
+  font-weight: 700;
+}
+@keyframes folder-panel-in {
+  from { opacity: 0; transform: translateY(-9px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) { position: relative; padding: 8px; }
+body.is-bookmarks .preview-card.folder-item-enter:not(.is-open):not(.is-closing) {
+  animation: folder-work-in .34s cubic-bezier(.2,.75,.25,1) both;
+  animation-delay: calc(var(--folder-item-index, 0) * 55ms);
+}
+@keyframes folder-work-in {
+  from { opacity: 0; transform: translateY(13px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+/* 第一次点作品只向左探出一点；第二次点击交给主页原有 FLIP 展开。 */
+body.is-bookmarks .preview-card.folder-peeked:not(.is-open):not(.is-closing) {
+  z-index: 4;
+  transform: translateX(-10px) translateY(-2px);
+  box-shadow: 12px 11px 0 rgba(0,0,0,.62), 0 22px 42px rgba(0,0,0,.2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .folder-inline-panel, body.is-bookmarks .preview-card.folder-item-enter { animation: none !important; }
+  body.is-bookmarks .preview-card.folder-peeked { transition-duration: .01ms !important; }
+}
 /* 「移出文件夹」按钮默认不出现：只在收藏页打开文件夹时显示在缩略图右上角 */
 .bookmark-remove { display: none; }
 body.is-bookmarks .bookmark-desc { display: none; }
@@ -910,15 +949,17 @@ body.is-bookmarks.folder-open .bookmark-remove:active { transform: translate(2px
 }
 
 @media (max-width: 600px) {
-  .bookmarks-toolbar { padding-left: 64px; gap: 10px; margin-bottom: 20px; }
+  body.is-bookmarks main { padding-top: 70px; }
+  .bookmarks-toolbar { padding-left: 64px; gap: 10px; margin-bottom: 8px; }
   .bookmarks-toolbar h2 { font-size: 19px; }
-  .folder-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 12px; padding-top: 12px; }
+  .folder-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; padding-top: 4px; }
   .folder-card { padding: 16px 10px 12px; }
   .folder-tab { width: 64px; }
   .folder-thumb { width: 100%; max-width: 60px; height: 40px; }
   .folder-actions { opacity: 1; }
   .folder-new { height: 34px; padding: 0 10px; }
-  body.is-bookmarks.folder-open .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .folder-works-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 12px; }
+  body.is-bookmarks .preview-card.folder-peeked:not(.is-open):not(.is-closing) { transform: translateX(-6px) translateY(-2px); }
   .folder-picker { left: 14px; right: 14px; bottom: 14px; width: auto; padding: 16px; }
 }
 
