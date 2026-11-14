@@ -36,6 +36,7 @@
     if (iframe) return iframe;
     iframe = document.createElement('iframe');
     iframe.loading = 'lazy';
+    iframe.referrerPolicy = 'no-referrer';
     iframe.allow = 'fullscreen';
     iframe.setAttribute('title', '版本对比副视图');
     frame.appendChild(iframe);
