@@ -4,13 +4,13 @@
 --  （需要先跑过 supabase/schema.sql；本脚本可重复执行）
 --
 --  规则：只用设备指纹判断同一设备短时间内的重复注册。
---        IP 仅作诊断统计，不单独触发限制，避免误伤共享网络中的正常用户。
+--        IP 仅作诊断统计，不单独触发限制；转发头是否可信取决于上游代理是否清洗，不能作为安全边界。
 --        登录不登记注册记录；每个账号最多保留一条。
 -- =========================================================
 
 -- -------------------------------------------------------------
 -- 1. 风控表：每次注册留一条
---    指纹是客户端算的（设备识别），IP 是服务端从请求头取的（客户端填不了）
+--    指纹由客户端计算；IP 从请求头读取，可能受客户端/代理头影响，仅作诊断，不能用于安全决策。
 -- -------------------------------------------------------------
 create table if not exists public.signup_risk (
   id          bigint generated always as identity primary key,
@@ -36,8 +36,7 @@ revoke insert, update, delete on public.signup_risk from authenticated;
 revoke all on public.signup_risk from anon;
 
 -- -------------------------------------------------------------
--- 2. 策略：本人只能看自己那一条；可以给自己登记一条；
---    不能改、不能删 —— 否则就能把"高风险"这个标记自己洗掉。
+-- 2. 策略：本人只能读取自己的记录；不能直接登记、修改或删除。
 -- -------------------------------------------------------------
 drop policy if exists "risk_read_own"   on public.signup_risk;
 drop policy if exists "risk_insert_own" on public.signup_risk;
@@ -59,7 +58,8 @@ begin
       h->>'x-forwarded-for', h->>'X-Forwarded-For', h->>'cf-connecting-ip', ''), ',', 1), ' ');
   new.high_risk := false;      -- 注册时不能自己标高风险
   return new;
-end $$;
+end $;
+revoke all on function public.signup_risk_fill_ip() from public, anon, authenticated;
 
 drop trigger if exists trg_signup_risk_fill_ip on public.signup_risk;
 create trigger trg_signup_risk_fill_ip before insert on public.signup_risk
@@ -74,7 +74,8 @@ begin
     raise exception 'high_risk 只能由服务端修改';
   end if;
   return new;
-end $$;
+end $;
+revoke all on function public.signup_risk_guard() from public, anon, authenticated;
 
 drop trigger if exists trg_signup_risk_guard on public.signup_risk;
 create trigger trg_signup_risk_guard before update on public.signup_risk
@@ -85,9 +86,10 @@ create trigger trg_signup_risk_guard before update on public.signup_risk
 --    两个阈值（想改严/改松就改这两行）
 -- -------------------------------------------------------------
 create or replace function public.risk_limits() returns jsonb
-language sql immutable as $$
+language sql immutable set search_path = pg_catalog as $
   select jsonb_build_object('fingerprint', 2, 'ip', 5);
-$$;
+$;
+revoke all on function public.risk_limits() from public, anon, authenticated;
 
 --
 -- -------------------------------------------------------------
@@ -142,7 +144,7 @@ grant execute on function public.is_high_risk(uuid) to authenticated;
 
 -- 注册之后调一次：数一数 24 小时内同指纹、同 IP 各注册了多少个
 create or replace function public.apply_signup_risk()
-returns jsonb language plpgsql security definer set search_path = public as $$
+returns jsonb language plpgsql security definer set search_path = pg_catalog, public, auth as $
 declare
   v_uid uuid := auth.uid(); v_fp text; v_ip text;
   v_fp_count integer := 0; v_ip_count integer := 0; v_risk boolean := false;
@@ -206,7 +208,7 @@ returns jsonb
 language sql
 stable
 security definer
-set search_path = public
+set search_path = pg_catalog, public, auth
 as $$
   select jsonb_build_object(
     'high_risk', case
@@ -270,7 +272,7 @@ create policy "pf_update_risk_guard" on public.user_preferences
 --  表：public 下应该有 signup_risk / user_bookmarks / user_preferences 三张，
 --      rowsecurity 全是 true。
 --
---  策略：signup_risk 只有 risk_read_own(SELECT) 和 risk_insert_own(INSERT) 两条，
+--  策略：signup_risk 只有 仅有 risk_read_own(SELECT) 一条，
 --        没有 UPDATE / DELETE；
 --        user_bookmarks 的 bm_insert 策略里带 not is_high_risk()。
 -- =========================================================
