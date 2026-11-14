@@ -4,13 +4,13 @@
 --  （需要先跑过 supabase/schema.sql；本脚本可重复执行）
 --
 --  规则：只用设备指纹判断同一设备短时间内的重复注册。
---        IP 仅作诊断统计，不单独触发限制；转发头是否可信取决于上游代理是否清洗，不能作为安全边界。
+--        新注册不再收集 IP；旧 ip 列仅保留历史记录，IP 不参与风控判定。
 --        登录不登记注册记录；每个账号最多保留一条。
 -- =========================================================
 
 -- -------------------------------------------------------------
 -- 1. 风控表：每次注册留一条
---    指纹由客户端计算；IP 从请求头读取，可能受客户端/代理头影响，仅作诊断，不能用于安全决策。
+--    指纹由客户端计算；ip 列仅为兼容历史记录保留，新登记始终写入 NULL。
 -- -------------------------------------------------------------
 create table if not exists public.signup_risk (
   id          bigint generated always as identity primary key,
@@ -46,19 +46,17 @@ create policy "risk_read_own" on public.signup_risk
 -- 不创建客户端 INSERT 策略：登记只能通过受控的 SECURITY DEFINER RPC。
 
 -- -------------------------------------------------------------
--- 3. IP 由服务端填，高风险标记由服务端管
+-- 3. 注册触发器清空 IP 字段，并保护高风险标记
 -- -------------------------------------------------------------
 create or replace function public.signup_risk_fill_ip() returns trigger
-language plpgsql security definer set search_path = pg_catalog as $
-declare
-  h json;
+language plpgsql security definer set search_path = pg_catalog as $trigger$
 begin
-  h := coalesce(current_setting('request.headers', true)::json, '{}'::json);
-  new.ip := nullif(split_part(coalesce(
-      h->>'x-forwarded-for', h->>'X-Forwarded-For', h->>'cf-connecting-ip', ''), ',', 1), ' ');
-  new.high_risk := false;      -- 注册时不能自己标高风险
+  -- 不再收集 IP；保留旧列兼容历史记录。
+  new.ip := null;
+  new.high_risk := false;
   return new;
-end $;
+end;
+$trigger$;
 revoke all on function public.signup_risk_fill_ip() from public, anon, authenticated;
 
 drop trigger if exists trg_signup_risk_fill_ip on public.signup_risk;
@@ -67,14 +65,15 @@ create trigger trg_signup_risk_fill_ip before insert on public.signup_risk
 
 -- 只有能绕过 RLS 的角色（表所有者 postgres）才能改 high_risk
 create or replace function public.signup_risk_guard() returns trigger
-language plpgsql as $$
+language plpgsql set search_path = pg_catalog as $guard$
 begin
   if new.high_risk is distinct from old.high_risk
      and coalesce((select rolbypassrls from pg_roles where rolname = current_user), false) is not true then
     raise exception 'high_risk 只能由服务端修改';
   end if;
   return new;
-end $;
+end;
+$guard$;
 revoke all on function public.signup_risk_guard() from public, anon, authenticated;
 
 drop trigger if exists trg_signup_risk_guard on public.signup_risk;
@@ -83,12 +82,12 @@ create trigger trg_signup_risk_guard before update on public.signup_risk
 
 -- -------------------------------------------------------------
 -- 4. 判定函数
---    两个阈值（想改严/改松就改这两行）
+--    指纹阈值（想改严/改松就改这一行）
 -- -------------------------------------------------------------
 create or replace function public.risk_limits() returns jsonb
-language sql immutable set search_path = pg_catalog as $
-  select jsonb_build_object('fingerprint', 2, 'ip', 5);
-$;
+language sql immutable set search_path = pg_catalog as $limits$
+  select jsonb_build_object('fingerprint', 2);
+$limits$;
 revoke all on function public.risk_limits() from public, anon, authenticated;
 
 --
@@ -142,41 +141,48 @@ $$;
 revoke all on function public.is_high_risk(uuid) from public, anon;
 grant execute on function public.is_high_risk(uuid) to authenticated;
 
--- 注册之后调一次：数一数 24 小时内同指纹、同 IP 各注册了多少个
+-- 注册之后调一次：统计 24 小时内同一设备指纹的注册次数
 create or replace function public.apply_signup_risk()
-returns jsonb language plpgsql security definer set search_path = pg_catalog, public, auth as $
+returns jsonb language plpgsql security definer
+set search_path = pg_catalog, public, auth as $apply$
 declare
-  v_uid uuid := auth.uid(); v_fp text; v_ip text;
-  v_fp_count integer := 0; v_ip_count integer := 0; v_risk boolean := false;
+  v_uid uuid := auth.uid();
+  v_fp text;
+  v_fp_count integer := 0;
+  v_risk boolean := false;
 begin
   if v_uid is null then raise exception '未登录'; end if;
   if public.is_developer_whitelisted(v_uid) then
     update public.signup_risk set high_risk = false where user_id = v_uid;
     return jsonb_build_object('fingerprint_count',0,'ip_count',0,'high_risk',false,'whitelisted',true);
   end if;
-  select fingerprint, ip into v_fp, v_ip from public.signup_risk where user_id = v_uid order by created_at desc limit 1;
-  if v_fp is null then return jsonb_build_object('fingerprint_count',0,'ip_count',0,'high_risk',false); end if;
+  select fingerprint into v_fp from public.signup_risk
+    where user_id = v_uid order by created_at desc limit 1;
+  if v_fp is null then
+    return jsonb_build_object('fingerprint_count',0,'ip_count',0,'high_risk',false);
+  end if;
   if v_fp <> 'unknown' then
-    select count(*) into v_fp_count from public.signup_risk where fingerprint = v_fp
-      and created_at > now() - interval '24 hours' and not public.is_developer_whitelisted(user_id);
+    select count(*) into v_fp_count from public.signup_risk
+      where fingerprint = v_fp
+        and created_at > now() - interval '24 hours'
+        and not public.is_developer_whitelisted(user_id);
   end if;
-  if v_ip is not null then
-    select count(*) into v_ip_count from public.signup_risk where ip = v_ip
-      and created_at > now() - interval '24 hours' and not public.is_developer_whitelisted(user_id);
-  end if;
-  -- 共享 IP 只统计、不拦截；只有同一设备指纹的重复注册才触发限制。
-  v_risk := v_fp <> 'unknown' and v_fp_count > (select (risk_limits->>'fingerprint')::int from risk_limits());
+  v_risk := v_fp <> 'unknown'
+    and v_fp_count > (select (risk_limits->>'fingerprint')::int from public.risk_limits());
   update public.signup_risk set high_risk = v_risk where user_id = v_uid;
-  return jsonb_build_object('fingerprint_count',v_fp_count,'ip_count',v_ip_count,'high_risk',v_risk);
+  return jsonb_build_object('fingerprint_count',v_fp_count,'ip_count',0,'high_risk',v_risk);
 end;
-$$;
+$apply$;
 
 -- 注册登记与风险判定分开：判定函数绝不重新插入注册记录。
 create or replace function public.register_signup_risk(p_fingerprint text, p_username text)
-returns jsonb language plpgsql security definer set search_path = public as $$
+returns jsonb language plpgsql security definer
+set search_path = pg_catalog, public, auth as $register$
 declare
-  v_uid uuid := auth.uid(); v_fp text; v_ip text;
-  v_fp_count integer := 0; v_ip_count integer := 0; v_risk boolean := false;
+  v_uid uuid := auth.uid();
+  v_fp text;
+  v_fp_count integer := 0;
+  v_risk boolean := false;
 begin
   if v_uid is null then raise exception '未登录'; end if;
   if public.is_developer_whitelisted(v_uid) then
@@ -185,22 +191,22 @@ begin
   end if;
   -- 每个账号只登记一次；重复请求不会覆盖真实指纹，也不会刷新注册时间。
   insert into public.signup_risk (user_id, username, fingerprint)
-  values (v_uid, p_username, coalesce(nullif(p_fingerprint, ''), 'unknown'))
-  on conflict (user_id) do nothing;
-  select fingerprint, ip into v_fp, v_ip from public.signup_risk where user_id = v_uid order by created_at desc limit 1;
+    values (v_uid, p_username, coalesce(nullif(p_fingerprint, ''), 'unknown'))
+    on conflict (user_id) do nothing;
+  select fingerprint into v_fp from public.signup_risk
+    where user_id = v_uid order by created_at desc limit 1;
   if v_fp <> 'unknown' then
-    select count(*) into v_fp_count from public.signup_risk where fingerprint = v_fp
-      and created_at > now() - interval '24 hours' and not public.is_developer_whitelisted(user_id);
+    select count(*) into v_fp_count from public.signup_risk
+      where fingerprint = v_fp
+        and created_at > now() - interval '24 hours'
+        and not public.is_developer_whitelisted(user_id);
   end if;
-  if v_ip is not null then
-    select count(*) into v_ip_count from public.signup_risk where ip = v_ip
-      and created_at > now() - interval '24 hours' and not public.is_developer_whitelisted(user_id);
-  end if;
-  v_risk := v_fp <> 'unknown' and v_fp_count > (select (risk_limits->>'fingerprint')::int from risk_limits());
+  v_risk := v_fp <> 'unknown'
+    and v_fp_count > (select (risk_limits->>'fingerprint')::int from public.risk_limits());
   update public.signup_risk set high_risk = v_risk where user_id = v_uid;
-  return jsonb_build_object('fingerprint_count',v_fp_count,'ip_count',v_ip_count,'high_risk',v_risk);
+  return jsonb_build_object('fingerprint_count',v_fp_count,'ip_count',0,'high_risk',v_risk);
 end;
-$$;
+$register$;
 
 -- 查当前账号的风险状态（刷新页面后用）
 create or replace function public.my_risk_status()
@@ -229,7 +235,7 @@ grant execute on function public.register_signup_risk(text, text) to authenticat
 revoke all on function public.my_risk_status() from public, anon;
 grant execute on function public.my_risk_status() to authenticated;
 
--- 迁移旧规则：清除仅因共享 IP 触发的历史误判，再按设备指纹重新标记。
+-- 迁移旧规则：清除历史高风险标记，再按设备指纹重新标记。
 update public.signup_risk set high_risk = false where high_risk;
 update public.signup_risk r
    set high_risk = true
@@ -272,7 +278,7 @@ create policy "pf_update_risk_guard" on public.user_preferences
 --  表：public 下应该有 signup_risk / user_bookmarks / user_preferences 三张，
 --      rowsecurity 全是 true。
 --
---  策略：signup_risk 只有 仅有 risk_read_own(SELECT) 一条，
+--  策略：signup_risk 只有 risk_read_own(SELECT) 一条，
 --        没有 UPDATE / DELETE；
 --        user_bookmarks 的 bm_insert 策略里带 not is_high_risk()。
 -- =========================================================
