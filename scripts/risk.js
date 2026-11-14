@@ -7,7 +7,8 @@
    但收藏和偏好同步会被停掉（服务端 RLS 真正拦，前端只是提示）。
 
    每次注册都会在 signup_risk 表里留一条：
-     指纹（客户端算）、IP（服务端记录，仅作统计）、用户名、用户 id、时间。
+     指纹（客户端算）、用户名、用户 id、时间。
+   历史记录可能包含 IP；新注册已经停止收集 IP。
 
    真正的判定在数据库里（supabase/risk.sql 的 apply_signup_risk），
    前端调一下就行，判定逻辑不放在浏览器里，免得被人改前端绕过去。
@@ -50,7 +51,7 @@
     get registered() { return state.registered; },
 
     // 注册成功后登记一条风控记录，并让服务端判一次
-    // 走 RPC：用户 id 和 IP 都由服务端取，浏览器碰不到表本身
+    // 走 RPC：用户 ID 由服务端 auth.uid() 绑定；浏览器不能直接写表，IP 不再收集
     async record(userId, username) {
       if (!cloud) return false;
       const token = window.siteAuth.getToken();
