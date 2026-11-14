@@ -9,6 +9,7 @@
 (() => {
   const PDS_PREVIEW = 'https://gsvegetable.github.io/1_pixel-daylight-switch/preview.html';
   const ORBIT_SHOWCASE = 'https://gsvegetable.github.io/2_pixel-dusk/showcase.html?v=1.4.0&composition=full';
+  const PREVIEW_ORIGIN = 'https://gsvegetable.github.io';
 
   const frame = document.getElementById('compare-frame');
   if (!frame) return;
@@ -20,8 +21,8 @@
 
   window.addEventListener('message', event => {
     const el = pdsFrames.get(event.source);
-    if (!el || event.data?.type !== 'pds-preview-ready') return;
-    el.contentWindow?.postMessage({ type: 'pds-set-scene', scene: el.dataset.scene || 'seaside' }, '*');
+    if (event.origin !== PREVIEW_ORIGIN || !el || event.data?.type !== 'pds-preview-ready') return;
+    el.contentWindow?.postMessage({ type: 'pds-set-scene', scene: el.dataset.scene || 'seaside' }, PREVIEW_ORIGIN);
   });
 
   const teardown = () => {
@@ -41,7 +42,7 @@
     if (scope === 'pds') {
       pdsFrames.set(iframe.contentWindow, iframe);
       iframe.addEventListener('load', () => {
-        iframe.contentWindow?.postMessage({ type: 'pds-set-scene', scene: iframe.dataset.scene || 'seaside' }, '*');
+        iframe.contentWindow?.postMessage({ type: 'pds-set-scene', scene: iframe.dataset.scene || 'seaside' }, PREVIEW_ORIGIN);
       });
     }
     return iframe;
@@ -58,7 +59,7 @@
         el.dataset.started = '1';
         el.src = PDS_PREVIEW;
       }
-      el.contentWindow?.postMessage({ type: 'pds-set-scene', scene: version }, '*');
+      el.contentWindow?.postMessage({ type: 'pds-set-scene', scene: version }, PREVIEW_ORIGIN);
     }
   };
 
