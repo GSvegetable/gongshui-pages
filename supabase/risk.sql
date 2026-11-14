@@ -128,7 +128,7 @@ as $
 $;
 revoke all on function public.is_developer_whitelisted(uuid) from public, anon, authenticated;
 
--- 仅判断当前登录账号，避免客户端探测任意用户的风控状态。
+-- uid 参数保留以兼容现有 RLS 策略；函数刻意只判断 auth.uid()，忽略调用者传入的其他 ID。
 create or replace function public.is_high_risk(uid uuid)
 returns boolean
 language sql
