@@ -867,7 +867,15 @@ body.folders-root .grid { display: none; }
   from { opacity: 0; transform: translateY(-9px); }
   to { opacity: 1; transform: translateY(0); }
 }
-body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) { position: relative; padding: 8px; }
+body.is-bookmarks .preview-card:not(.is-open):not(.is-closing) {
+  position: relative;
+  padding: 8px;
+  transition: transform .22s cubic-bezier(.2,.75,.25,1), box-shadow .22s cubic-bezier(.2,.75,.25,1);
+}
+.folder-card.is-expanded {
+  background: #f4bd3c;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.35), 4px 4px 0 rgba(0,0,0,.58);
+}
 body.is-bookmarks .preview-card.folder-item-enter:not(.is-open):not(.is-closing) {
   animation: folder-work-in .34s cubic-bezier(.2,.75,.25,1) both;
   animation-delay: calc(var(--folder-item-index, 0) * 55ms);
