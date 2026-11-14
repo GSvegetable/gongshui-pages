@@ -179,11 +179,11 @@
   };
 
   const hash = async text => {
-    if (window.crypto && crypto.subtle) {
-      const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-      return [...new Uint8Array(bytes)].map(b => b.toString(16).padStart(2, '0')).join('');
+    if (!window.crypto?.subtle || !window.TextEncoder) {
+      throw new Error('当前浏览器不支持安全密码存储，请使用 HTTPS 或更新浏览器');
     }
-    return String(text);   // 老浏览器兜底
+    const bytes = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(bytes)].map(b => b.toString(16).padStart(2, '0')).join('');
   };
 
   const localSignUp = async ({ email, password, username }) => {
