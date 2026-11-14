@@ -98,41 +98,57 @@ $$;
 --
 -- -------------------------------------------------------------
 -- 4a. 开发者白名单
---     仅豁免这三个指定邮箱；不关闭普通用户的设备/IP 风控。
---     白名单注册记录也不计入其他用户的 24 小时阈值。
+--     邮箱名单存放在 private schema，不写入公开仓库，也不经 PostgREST 暴露。
+--     在 Supabase SQL Editor 中单独录入开发者邮箱，见部署说明。
 -- -------------------------------------------------------------
-create or replace function public.is_developer_whitelisted(uid uuid)
+create schema if not exists private;
+revoke all on schema private from public, anon, authenticated;
+
+create table if not exists private.developer_allowlist (
+  email text primary key check (email = lower(btrim(email))),
+  created_at timestamptz not null default now()
+);
+alter table private.developer_allowlist enable row level security;
+revoke all on table private.developer_allowlist from public, anon, authenticated;
+
+drop function if exists public.is_high_risk(uuid);
+drop function if exists public.is_developer_whitelisted(uuid);
+
+create or replace function public.is_developer_whitelisted()
 returns boolean
 language sql
 stable
 security definer
-set search_path = public, auth
+set search_path = pg_catalog, public, auth, private
 as $$
   select exists (
     select 1
       from auth.users u
-     where u.id = uid
-       and lower(coalesce(u.email, '')) in (
-         '3301296046@qq.com',
-         'gsyxyc@outlook.com',
-         'z1211hang@qq.com'
-       )
+      join private.developer_allowlist a
+        on a.email = lower(coalesce(u.email, ''))
+     where u.id = auth.uid()
   );
 $$;
+revoke all on function public.is_developer_whitelisted() from public, anon;
+grant execute on function public.is_developer_whitelisted() to authenticated;
 
-revoke all on function public.is_developer_whitelisted(uuid) from public, anon;
-grant execute on function public.is_developer_whitelisted(uuid) to authenticated;
-
--- 这个账号是不是高风险（给 RLS 策略用）
-create or replace function public.is_high_risk(uid uuid) returns boolean
-language sql stable security definer set search_path = public as $$
+-- 仅判断当前登录账号，避免客户端探测任意用户的风控状态。
+create or replace function public.is_high_risk()
+returns boolean
+language sql
+stable
+security definer
+set search_path = pg_catalog, public, auth, private
+as $$
   select
-    not public.is_developer_whitelisted(uid)
+    not public.is_developer_whitelisted()
     and exists (
       select 1 from public.signup_risk r
-       where r.user_id = uid and r.high_risk
+       where r.user_id = auth.uid() and r.high_risk
     );
 $$;
+revoke all on function public.is_high_risk() from public, anon;
+grant execute on function public.is_high_risk() to authenticated;
 
 -- 注册之后调一次：数一数 24 小时内同指纹、同 IP 各注册了多少个
 create or replace function public.apply_signup_risk()
@@ -154,7 +170,7 @@ begin
     raise exception '未登录';
   end if;
 
-  if public.is_developer_whitelisted(v_uid) then
+  if public.is_developer_whitelisted() then
     update public.signup_risk set high_risk = false where user_id = v_uid;
     return jsonb_build_object(
       'fingerprint_count', 0,
@@ -198,7 +214,7 @@ end;
 $$;
 
 grant execute on function public.apply_signup_risk() to authenticated;
-grant execute on function public.is_high_risk(uuid) to authenticated;
+revoke all on function public.apply_signup_risk() from public, anon;\ngrant execute on function public.apply_signup_risk() to authenticated;
 
 -- -------------------------------------------------------------
 -- 4b. 客户端只调这两个函数，表本身不开放给浏览器
@@ -281,8 +297,8 @@ as $$
   );
 $$;
 
-grant execute on function public.register_signup_risk(text, text) to authenticated;
-grant execute on function public.my_risk_status() to authenticated;
+revoke all on function public.register_signup_risk(text, text) from public, anon;\ngrant execute on function public.register_signup_risk(text, text) to authenticated;
+revoke all on function public.my_risk_status() from public, anon;\ngrant execute on function public.my_risk_status() to authenticated;
 
 -- -------------------------------------------------------------
 -- 5. 高风险账号：收藏和偏好写入被拒（真正的拦截在这里）
@@ -291,7 +307,7 @@ grant execute on function public.my_risk_status() to authenticated;
 drop policy if exists "bm_ins" on public.user_bookmarks;
 create policy "bm_ins" on public.user_bookmarks
   for insert to authenticated
-  with check (auth.uid() = user_id and not public.is_high_risk(auth.uid()));
+  with check (auth.uid() = user_id and not public.is_high_risk());
 
 drop policy if exists "pf_ins" on public.user_preferences;
 create policy "pf_ins" on public.user_preferences
@@ -315,7 +331,7 @@ create policy "pf_upd" on public.user_preferences
 --
 --  策略：signup_risk 只有 risk_read_own(SELECT) 和 risk_insert_own(INSERT) 两条，
 --        没有 UPDATE / DELETE；
---        user_bookmarks 的 bm_insert 策略里带 not is_high_risk(auth.uid())。
+--        user_bookmarks 的 bm_insert 策略里带 not is_high_risk()。
 -- =========================================================
 select tablename, rowsecurity
   from pg_tables
