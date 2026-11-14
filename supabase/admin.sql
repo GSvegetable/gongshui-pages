@@ -1,7 +1,7 @@
 -- =========================================================
 -- 宫水.com 私有管理后台
 -- 在 Supabase → SQL Editor 中完整执行一次。
--- 只允许三个开发者邮箱读取 auth.users 注册数据。
+-- 只允许 private.developer_allowlist 中的开发者读取 auth.users 注册数据。
 -- 不向浏览器暴露 service_role / secret key。
 -- =========================================================
 
@@ -17,7 +17,6 @@ security definer
 set search_path = pg_catalog, public, auth
 as $$
 declare
-  v_email text;
   v_total bigint;
   v_today bigint;
   v_week bigint;
@@ -28,15 +27,7 @@ declare
   v_limit integer := greatest(1, least(coalesce(p_limit, 20), 100));
   v_offset integer := greatest(0, coalesce(p_offset, 0));
 begin
-  select lower(u.email) into v_email
-    from auth.users u
-   where u.id = auth.uid();
-
-  if v_email is null or v_email not in (
-    '3301296046@qq.com',
-    'gsyxyc@outlook.com',
-    'z1211hang@qq.com'
-  ) then
+  if not public.is_developer_whitelisted() then
     raise exception 'ADMIN_ACCESS_DENIED' using errcode = '42501';
   end if;
 
