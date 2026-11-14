@@ -734,7 +734,7 @@ syncSearchUI();
     const previous = gallery.style.gridTemplateColumns;
     gallery.style.gridTemplateColumns = autoColumns;
     const tracks = getComputedStyle(gallery).gridTemplateColumns.trim();
-    const count = tracks ? tracks.split(/\\s+/).length : 1;
+    const count = tracks ? tracks.split(/\s+/).length : 1;
     gallery.style.gridTemplateColumns = previous;
     return Math.max(1, count);
   };
