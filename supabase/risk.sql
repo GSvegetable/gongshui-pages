@@ -117,7 +117,7 @@ language sql
 stable
 security definer
 set search_path = pg_catalog, public, auth, private
-as $
+as $$
   select exists (
     select 1
       from auth.users u
@@ -125,7 +125,7 @@ as $
         on a.email = lower(coalesce(u.email, ''))
      where u.id = uid
   );
-$;
+$$;
 revoke all on function public.is_developer_whitelisted(uuid) from public, anon, authenticated;
 
 -- uid 参数保留以兼容现有 RLS 策略；函数刻意只判断 auth.uid()，忽略调用者传入的其他 ID。
