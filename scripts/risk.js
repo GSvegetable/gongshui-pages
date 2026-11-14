@@ -2,13 +2,12 @@
    注册风控 — v1.0.0
    ---------------------------------------------------------
    目的不是"拦住"批量注册，而是**软限制**：
-   同一台设备（指纹）或同一个 IP 在 24 小时内注册超过 2 个账号，
+   同一设备指纹在 24 小时内注册超过 2 个账号，
    账号照样能注册、能登录、能看作品，
    但收藏和偏好同步会被停掉（服务端 RLS 真正拦，前端只是提示）。
 
    每次注册都会在 signup_risk 表里留一条：
-     指纹（客户端算，存了指纹的机器认得出）、IP（服务端从请求头取，
-     客户端填不了）、用户名、用户 id、时间。
+     指纹（客户端算）、IP（服务端记录，仅作统计）、用户名、用户 id、时间。
 
    真正的判定在数据库里（supabase/risk.sql 的 apply_signup_risk），
    前端调一下就行，判定逻辑不放在浏览器里，免得被人改前端绕过去。
@@ -75,14 +74,13 @@
       }
     },
 
-    // 让服务端判一次：这个账号算不算高风险
+    // 只重新计算已有记录，不新增、不覆盖注册记录
     async evaluate() {
       if (!cloud) return state.counts;
       const token = window.siteAuth.getToken();
       if (!token) return state.counts;
       try {
-        const data = await request('POST', 'rpc/register_signup_risk',
-                                   { p_fingerprint: '', p_username: null }, token);
+        const data = await request('POST', 'rpc/apply_signup_risk', {}, token);
         state.counts = {
           fingerprint: (data && data.fingerprint_count) || 0,
           ip: (data && data.ip_count) || 0
