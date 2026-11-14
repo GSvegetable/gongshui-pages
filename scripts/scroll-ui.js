@@ -1,5 +1,5 @@
 /* =========================================================
-   滚动驱动的顶栏行为 — v2.1.0
+   滚动驱动的顶栏行为 — v2.1.1
    ---------------------------------------------------------
    ① 搜索栏：往下滚时缩成一个 58×58 的方块（只剩放大镜），
       并滑到左侧导航那一列，和左边三个马里奥方块同尺寸、同左缘；
@@ -19,10 +19,10 @@
   const searchWrapper = document.getElementById('search-wrapper');
   const searchInput = document.getElementById('search-input');
   const utility = document.getElementById('top-utility');
-  if (!searchWrapper) return;
+
 
   // 滚过这个距离才算「往下看」，避免页面轻微抖动就触发
-  const THRESHOLD = 40;
+  const THRESHOLD = 16;
   // 往上滚多少像素就把右上角那组按钮还回来
   const UP_REVEAL = 8;
 
@@ -82,7 +82,7 @@
   };
 
   // 点放大镜（或点方块里的任何位置）→ 展开并聚焦
-  searchWrapper.addEventListener('click', event => {
+  searchWrapper?.addEventListener('click', event => {
     if (event.target.closest('#search-clear')) return;
     if (!root.classList.contains('search-collapsed')) return;
     manualExpand = true;
