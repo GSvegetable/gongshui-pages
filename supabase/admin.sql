@@ -1,6 +1,6 @@
 -- =========================================================
 -- 宫水.com 私有管理后台
--- 在 Supabase → SQL Editor 中完整执行一次。
+-- 先执行 supabase/risk.sql，再在 Supabase → SQL Editor 中执行本文件。
 -- 只允许 private.developer_allowlist 中的开发者读取 auth.users 注册数据。
 -- 不向浏览器暴露 service_role / secret key。
 -- =========================================================
