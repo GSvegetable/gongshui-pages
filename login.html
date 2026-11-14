@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#171717">
 <title>账号 | 宫水.com</title>
 <meta name="description" content="宫水.com 的账号入口。">
-<link rel="stylesheet" href="./styles/style.css?v=2.8.16">
+<link rel="stylesheet" href="./styles/style.css?v=2.8.17">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>">
 <style>
 .auth-page{width:min(420px,calc(100% - 32px));margin:0 auto;padding:clamp(28px,7vh,72px) 0 60px}
@@ -309,10 +309,10 @@
       if (!email.includes('@') && !window.siteAuth.usernamePattern.test(email)) return show(t('errEmailFormat'));
       if (password.length < 6) return show(t('errPwd'));
     } else if (!awaitingCode) {
-      if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return show(t('errEmailFormat'));
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return show(t('errEmailFormat'));
       if (!window.siteAuth.usernamePattern.test(usernameInput.value.trim())) return show(t('errUsername'));
       if (password.length < 6) return show(t('errPwd'));
-    } else if (!/^\\d{6}$/.test(codeInput.value.trim())) {
+    } else if (!/^\d{6}$/.test(codeInput.value.trim())) {
       return show(t('errCode'));
     }
 
