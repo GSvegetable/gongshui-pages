@@ -17,6 +17,7 @@
   // 本地偏好 → 远端 jsonb 字段 的对应关系
   const PREF_KEYS = {
     zoom: 'ui-archive-gallery-zoom',
+    layout: 'ui-archive-gallery-layout',
     pdsScene: 'pds-gallery-scene',
     orbitScene: 'pixel-orbit-home-scene-v2',
     // v2.8.6：收藏夹的文件夹结构（JSON 字符串），跟偏好一起跨设备同步
@@ -114,6 +115,9 @@
     if (!prefs) return;
     if (prefs.zoom != null && window.siteGalleryZoom) {
       try { window.siteGalleryZoom.set(Number(prefs.zoom)); } catch (_) {}
+    }
+    if (prefs.layout != null && window.siteGalleryLayout) {
+      try { window.siteGalleryLayout.set(prefs.layout, { persist: true, sync: false }); } catch (_) {}
     }
     if (prefs.pdsScene != null && window.sitePdsScene) {
       try { window.sitePdsScene.set(prefs.pdsScene); } catch (_) {}
