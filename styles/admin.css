@@ -403,3 +403,11 @@ td.empty-cell{height:150px;text-align:center;color:var(--muted);font-size:12.5px
 @media(max-width:1100px){.analytics{grid-template-columns:1.3fr 1fr}.chart-signups{grid-column:1/-1}}
 @media(max-width:700px){.analytics{grid-template-columns:minmax(0,1fr)}.chart-signups{grid-column:auto}.chart-card{padding:18px}.signup-bars{height:112px}}
 @media(max-width:380px){.action-button-row{grid-template-columns:minmax(0,1fr)}.action-delete{grid-column:auto}}
+
+
+/* 图表成为视觉主角，指标区收紧，减少大数字堆叠感 */
+.metrics{margin-bottom:22px}
+.metric{min-height:112px;padding:15px 18px 16px}
+.metric strong{padding-top:12px;font-size:clamp(30px,2.5vw,38px)}
+.metric:first-child strong{font-size:clamp(46px,4.2vw,60px)}
+.metric-note{font-size:9.5px}
