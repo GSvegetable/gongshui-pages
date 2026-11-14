@@ -12,7 +12,7 @@
       document.querySelector(".topbar .brand"),
       document.querySelector(".topbar .admin-email"),
       document.querySelector(".topbar #sign-out")
-    ].filter((element) => element && !element.hidden);
+    ].filter(Boolean);
 
     if (typeof LiquidGlass !== "function" || !scene || !anchors.length) {
       document.documentElement.dataset.liquidGlass = "unavailable";
