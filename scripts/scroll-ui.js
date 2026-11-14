@@ -1,5 +1,5 @@
 /* =========================================================
-   滚动驱动的顶栏行为 — v2.0.0
+   滚动驱动的顶栏行为 — v2.1.0
    ---------------------------------------------------------
    ① 搜索栏：往下滚时缩成一个 58×58 的方块（只剩放大镜），
       并滑到左侧导航那一列，和左边三个马里奥方块同尺寸、同左缘；
@@ -7,9 +7,10 @@
       注意：手动展开之后只要再往下滚，它还是会收起来——
       之前用「钉住」标志导致它一直保持展开，是不对的。
 
-   ② 右上角的两个方块（设置、贡献者）：往下滚时整组向上滑出视口，
+   ② 右上角工具方块：往下滚时整组向上滑出视口，
       不再从屏幕边缘探出半个身子。半截方块挂在边上既挡视线又容易误触，
       整组让开最干净；往上滚一点就还回来。
+   ③ 返回顶部：滚过阈值后从屏幕底部滑入，回到顶部时滑出；点击平滑回顶。
 
    节奏读站点的 --dur / --ease，和卡片、详情面板保持同速。
    ========================================================= */
@@ -40,12 +41,16 @@
     if (collapsed && searchInput && document.activeElement === searchInput) searchInput.blur();
   };
   const setUtility = hidden => root.classList.toggle('top-utility-hidden', hidden);
+  const setBackToTop = visible => root.classList.toggle('back-to-top-visible', visible);
+  const backToTop = document.getElementById('back-to-top');
+  backToTop?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
   const sync = () => {
     const y = window.scrollY;
     const delta = y - lastY;
     lastY = y;
 
+    setBackToTop(y > THRESHOLD);
     if (y <= THRESHOLD) {
       // 回到顶部：顶栏全部回来
       manualExpand = false;
