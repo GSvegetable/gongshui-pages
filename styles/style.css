@@ -653,8 +653,13 @@ html.top-utility-hidden .top-utility-actions{transform:translateY(calc(-100% - 3
 .top-utility-actions .layout-toggle{position:static;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
 .top-utility-actions .layout-toggle:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #000;background:#ffd36a}
 .top-utility-actions .layout-toggle:active{transform:translate(3px,4px);box-shadow:none}
-.top-utility-actions .layout-toggle[aria-pressed="true"]{background:#ffd36a;box-shadow:inset 0 0 0 2px rgba(33,29,21,.16),3px 4px 0 #000}
+.top-utility-actions .layout-toggle.is-tapping{animation:layout-button-tap 180ms ease-out}
+@keyframes layout-button-tap{
+  0%,100%{transform:translate(0,0);box-shadow:3px 4px 0 #000}
+  35%{transform:translate(3px,4px);box-shadow:none}
+}
 .top-utility-actions .layout-toggle svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media(prefers-reduced-motion:reduce){.top-utility-actions .layout-toggle.is-tapping{animation:none}}
 
 .settings-panel{position:absolute;top:calc(100% + 12px);right:0;width:230px;padding:12px 14px 12px;background:#f4ecd9;color:#211d15;border:3px solid #080808;border-radius:3px;box-shadow:5px 6px 0 #000;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 .settings-panel[hidden]{display:none}
