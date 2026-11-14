@@ -284,10 +284,14 @@ td.empty-cell{height:150px;text-align:center;color:var(--muted);font-size:12.5px
   tbody tr.user-row td:nth-child(6){grid-column:3}
   tbody tr.user-row td:nth-child(2)::before,
   tbody tr.user-row td:nth-child(3)::before,
-  tbody tr.user-row td:nth-child(4)::before{display:block;margin-bottom:6px;font:500 9px var(--mono);letter-spacing:.14em;color:var(--dim)}
+  tbody tr.user-row td:nth-child(4)::before,
+  tbody tr.user-row td:nth-child(5)::before,
+  tbody tr.user-row td:nth-child(6)::before{display:block;margin-bottom:6px;font:500 9px var(--mono);letter-spacing:.14em;color:var(--dim)}
   tbody tr.user-row td:nth-child(2)::before{content:'注册'}
   tbody tr.user-row td:nth-child(3)::before{content:'最近登录'}
   tbody tr.user-row td:nth-child(4)::before{content:'收藏'}
+  tbody tr.user-row td:nth-child(5)::before{content:'账号状态'}
+  tbody tr.user-row td:nth-child(6)::before{content:'风控状态'}
   tbody tr.user-row .date-sub{display:block}
   tbody tr.user-row td.row-arrow{position:absolute;top:19px;right:18px;width:auto}
   td.empty-cell{padding:56px 20px!important}
