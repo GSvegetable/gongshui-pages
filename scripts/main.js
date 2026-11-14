@@ -715,7 +715,7 @@ syncSearchUI();
 
 
 /* =========================================================
-   1.6 主页画廊布局切换：自适应 / 两列，直接控制网格并使用 FLIP 动画
+   1.6 主页画廊布局切换：自适应 / 更多一列，直接控制网格并使用 FLIP 动画
    ========================================================= */
 (() => {
   const main = document.querySelector('main');
@@ -728,11 +728,22 @@ syncSearchUI();
   const autoColumns = 'repeat(auto-fill, minmax(min(100%, var(--gallery-card-min, 300px)), 1fr))';
   let mode = 'auto';
 
+  // 临时恢复自适应网格测量当前屏幕本来能容纳的列数。
+  // 手机通常为 1，平板通常为 2，桌面可能为 3 或更多。
+  const getAutoColumnCount = () => {
+    const previous = gallery.style.gridTemplateColumns;
+    gallery.style.gridTemplateColumns = autoColumns;
+    const tracks = getComputedStyle(gallery).gridTemplateColumns.trim();
+    const count = tracks ? tracks.split(/\\s+/).length : 1;
+    gallery.style.gridTemplateColumns = previous;
+    return Math.max(1, count);
+  };
+
   const syncButton = () => {
-    const twoColumns = mode === 'two';
-    button.setAttribute('aria-pressed', String(twoColumns));
-    const label = window.siteI18n?.t(twoColumns ? 'layout.toggle.auto' : 'layout.toggle.two')
-      || (twoColumns ? '切换为自适应布局' : '切换为两列布局');
+    const moreColumns = mode === 'more';
+    button.setAttribute('aria-pressed', String(moreColumns));
+    const label = window.siteI18n?.t(moreColumns ? 'layout.toggle.auto' : 'layout.toggle.two')
+      || (moreColumns ? '切换为自适应布局' : '增加一列布局');
     button.setAttribute('aria-label', label);
     button.title = label;
   };
@@ -747,14 +758,16 @@ syncSearchUI();
   });
 
   const applyColumns = () => {
-    gallery.style.gridTemplateColumns = mode === 'two'
-      ? 'repeat(2, minmax(0, 1fr))'
+    const moreColumns = mode === 'more';
+    const columns = moreColumns ? getAutoColumnCount() + 1 : 0;
+    gallery.style.gridTemplateColumns = moreColumns
+      ? `repeat(${columns}, minmax(0, 1fr))`
       : autoColumns;
-    main.classList.toggle('gallery-layout-two', mode === 'two');
+    main.classList.toggle('gallery-layout-two', moreColumns);
   };
 
   const setLayout = (next, options = {}) => {
-    const normalized = next === 'two' ? 'two' : 'auto';
+    const normalized = next === 'more' || next === 'two' ? 'more' : 'auto';
     if (normalized === mode) { syncButton(); return; }
 
     const cards = [...gallery.querySelectorAll(':scope > .preview-card:not(.hidden)')];
@@ -790,13 +803,16 @@ syncSearchUI();
     }
   };
 
-  try { if (localStorage.getItem(KEY) === 'two') mode = 'two'; } catch (_) {}
+  try {
+    const saved = localStorage.getItem(KEY);
+    if (saved === 'two' || saved === 'more') mode = 'more';
+  } catch (_) {}
   applyColumns();
   syncButton();
   document.addEventListener('site:languagechange', syncButton);
   button.addEventListener('click', () => {
     tapFeedback();
-    setLayout(mode === 'two' ? 'auto' : 'two');
+    setLayout(mode === 'more' ? 'auto' : 'more');
   });
   window.siteGalleryLayout = {
     get: () => mode,
