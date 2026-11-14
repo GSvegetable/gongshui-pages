@@ -55,15 +55,14 @@ button{cursor:pointer}
     radial-gradient(ellipse 150px 34px at 12% 50%,rgba(255,255,255,.76),transparent 78%),
     radial-gradient(ellipse 170px 36px at 76% 50%,rgba(235,190,104,.48),transparent 78%),
     radial-gradient(ellipse 84px 32px at 96% 50%,rgba(255,255,255,.82),transparent 78%),
-    repeating-linear-gradient(90deg,transparent 0 15px,rgba(76,57,26,.12) 16px,transparent 17px),
     linear-gradient(110deg,rgba(255,255,255,.28),transparent 38%,rgba(227,177,83,.18) 72%,transparent);
-  background-repeat:no-repeat, no-repeat, no-repeat, repeat, no-repeat;
+  background-repeat:no-repeat, no-repeat, no-repeat, no-repeat;
   border:0;box-shadow:none;
 }
 .topbar .brand,
 .topbar .admin-email,
 .topbar .btn-ghost{
-  position:relative;z-index:21;
+  position:relative;z-index:81;
   border:1px solid rgba(255,255,255,.94);
   border-radius:999px;
   background:rgba(255,255,255,.035);
