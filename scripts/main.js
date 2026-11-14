@@ -715,7 +715,7 @@ syncSearchUI();
 
 
 /* =========================================================
-   1.6 主页画廊布局切换：自适应 / 两列，使用 FLIP 保持画布连续
+   1.6 主页画廊布局切换：自适应 / 两列，直接控制网格并使用 FLIP 动画
    ========================================================= */
 (() => {
   const main = document.querySelector('main');
@@ -725,6 +725,7 @@ syncSearchUI();
 
   const KEY = 'ui-archive-gallery-layout';
   const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const autoColumns = 'repeat(auto-fill, minmax(min(100%, var(--gallery-card-min, 300px)), 1fr))';
   let mode = 'auto';
 
   const syncButton = () => {
@@ -736,6 +737,22 @@ syncSearchUI();
     button.title = label;
   };
 
+  const tapFeedback = () => {
+    button.classList.remove('is-tapping');
+    void button.offsetWidth;
+    button.classList.add('is-tapping');
+  };
+  button.addEventListener('animationend', event => {
+    if (event.animationName === 'layout-button-tap') button.classList.remove('is-tapping');
+  });
+
+  const applyColumns = () => {
+    gallery.style.gridTemplateColumns = mode === 'two'
+      ? 'repeat(2, minmax(0, 1fr))'
+      : autoColumns;
+    main.classList.toggle('gallery-layout-two', mode === 'two');
+  };
+
   const setLayout = (next, options = {}) => {
     const normalized = next === 'two' ? 'two' : 'auto';
     if (normalized === mode) { syncButton(); return; }
@@ -743,10 +760,11 @@ syncSearchUI();
     const cards = [...gallery.querySelectorAll(':scope > .preview-card:not(.hidden)')];
     const firstRects = new Map(cards.map(card => [card, card.getBoundingClientRect()]));
     mode = normalized;
-    main.classList.toggle('gallery-layout-two', mode === 'two');
+    applyColumns();
     syncButton();
 
     requestAnimationFrame(() => {
+      if (reducedMotion()) return;
       for (const card of cards) {
         const first = firstRects.get(card);
         if (!first || !card.isConnected) continue;
@@ -756,11 +774,11 @@ syncSearchUI();
         const dy = first.top - last.top;
         const sx = first.width / last.width;
         const sy = first.height / last.height;
-        if (reducedMotion() || (!dx && !dy && sx === 1 && sy === 1)) continue;
+        if (!dx && !dy && sx === 1 && sy === 1) continue;
         card.animate([
           { transformOrigin: 'top left', transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})` },
           { transformOrigin: 'top left', transform: 'none' }
-        ], { duration: 560, easing: 'cubic-bezier(.2,.75,.25,1)', fill: 'both' });
+        ], { duration: 520, easing: 'cubic-bezier(.2,.75,.25,1)' });
       }
     });
 
@@ -773,10 +791,13 @@ syncSearchUI();
   };
 
   try { if (localStorage.getItem(KEY) === 'two') mode = 'two'; } catch (_) {}
-  main.classList.toggle('gallery-layout-two', mode === 'two');
+  applyColumns();
   syncButton();
   document.addEventListener('site:languagechange', syncButton);
-  button.addEventListener('click', () => setLayout(mode === 'two' ? 'auto' : 'two'));
+  button.addEventListener('click', () => {
+    tapFeedback();
+    setLayout(mode === 'two' ? 'auto' : 'two');
+  });
   window.siteGalleryLayout = {
     get: () => mode,
     set: (next, options = {}) => setLayout(next, options)
