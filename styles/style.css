@@ -219,6 +219,7 @@ html.search-collapsed .search-status { opacity: 0; }
 /* ---------- 页面基础布局 ---------- */
 main { padding: 94px 24px 48px; }
 .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, var(--gallery-card-min, 300px)), 1fr)); gap: 24px; padding-left:88px; }
+main.gallery-layout-two .grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
 
 /* 卡片：缩略态。尺寸 = 边框3 + 内边距8 + 作品框(边框2) */
 .preview-card {
@@ -645,9 +646,16 @@ html.top-utility-hidden .top-utility-actions{transform:translateY(calc(-100% - 3
 .contributor-list + .lab-links::before,.contributor-list + .lab-links::after{content:none!important;display:none!important}
 
 /* Settings menu */
-.top-utility-actions .settings-toggle{position:static;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:0 12px;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
+.top-utility-actions .settings-toggle{position:static;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
 .top-utility-actions .settings-toggle:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #000;background:#ffd36a}
 .top-utility-actions .settings-toggle:active{transform:translate(3px,4px);box-shadow:none}
+
+.top-utility-actions .layout-toggle{position:static;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
+.top-utility-actions .layout-toggle:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #000;background:#ffd36a}
+.top-utility-actions .layout-toggle:active{transform:translate(3px,4px);box-shadow:none}
+.top-utility-actions .layout-toggle[aria-pressed="true"]{background:#ffd36a;box-shadow:inset 0 0 0 2px rgba(33,29,21,.16),3px 4px 0 #000}
+.top-utility-actions .layout-toggle svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
 .settings-panel{position:absolute;top:calc(100% + 12px);right:0;width:230px;padding:12px 14px 12px;background:#f4ecd9;color:#211d15;border:3px solid #080808;border-radius:3px;box-shadow:5px 6px 0 #000;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 .settings-panel[hidden]{display:none}
 /* 面板开合用站点一贯的干脆时序，和马里奥方块的 0.1s 反馈一致 */
@@ -698,6 +706,8 @@ body.view-closing .top-utility-actions{
 .top-utility-actions .settings-toggle:active{transform:translate(3px,4px);box-shadow:none}
 @media(max-width:600px){
  .top-utility-actions .settings-toggle{width:38px;height:38px;min-width:38px;min-height:38px;padding:0}
+ .top-utility-actions .layout-toggle{width:38px;height:38px;min-width:38px;min-height:38px}
+ .top-utility-actions .layout-toggle svg{width:20px;height:20px}
  .top-utility-actions .settings-toggle svg{width:21px;height:21px}
 }
 
