@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#171717">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>账号 | 宫水.com</title>
 <meta name="description" content="宫水.com 的账号入口。">
 <link rel="stylesheet" href="./styles/style.css?v=2.8.17">
@@ -66,6 +67,10 @@
 .auth-foot{margin-top:22px;text-align:center;color:#827969;font:700 11px/1.8 ui-monospace,SFMono-Regular,Menlo,monospace}
 .auth-foot a{color:#f4bd3c;text-decoration:none}
 .auth-foot a:hover{color:#ffd36a}
+.privacy-note{margin:16px 0 0;padding:12px 13px;border:1px solid rgba(41,35,25,.25);border-radius:3px;background:rgba(245,236,217,.72);color:#5c4b32;font:600 11px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace}
+.privacy-note summary{cursor:pointer;font-weight:900;color:#51432e}
+.privacy-note p{margin:9px 0 0}
+.privacy-note a{color:#8a6a1c;font-weight:900}
 </style>
 </head>
 <body>
@@ -119,6 +124,13 @@
       </div>
     </form>
   </section>
+
+  <details class="privacy-note">
+    <summary>隐私说明 / Privacy notice</summary>
+    <p>为防止批量注册，注册时本站会生成浏览器设备标识，并向账号服务提交该标识；服务端还会从请求头记录注册请求的 IP、账号 ID、用户名和时间。设备标识保存在本机浏览器存储中。登录会话令牌也保存在本机浏览器存储中。收藏与部分界面偏好会同步到 Supabase。</p>
+    <p>To limit abusive sign-ups, registration uses a browser device identifier. The account service also records the request IP, account ID, username and registration time. The device identifier and sign-in refresh token are stored in this browser. Bookmarks and selected interface preferences are synced to Supabase.</p>
+    <p><a href="./privacy.html">查看完整隐私说明 / Read the privacy notice</a></p>
+  </details>
 </main>
 
 <script src="./scripts/vendor/fingerprintjs.min.js?v=3.4.2"></script>

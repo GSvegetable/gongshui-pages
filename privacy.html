@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="theme-color" content="#171717">
+  <title>隐私说明 · 宫水.com</title>
+  <style>
+    :root{color-scheme:dark}
+    *{box-sizing:border-box}
+    body{margin:0;background:#111214;color:#e8e5df;font:15px/1.8 system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{width:min(820px,calc(100% - 36px));margin:0 auto;padding:48px 0 80px}
+    a{color:#f4bd3c}
+    .eyebrow{font:700 11px/1.4 ui-monospace,monospace;letter-spacing:2px;color:#c29a46}
+    h1{font-size:clamp(30px,6vw,46px);line-height:1.15;margin:12px 0 8px}
+    .updated{color:#9b9b9b;font-size:12px}
+    section{margin-top:30px;padding-top:20px;border-top:1px solid #34363a}
+    h2{font-size:19px;margin:0 0 10px}
+    p,li{color:#c8c7c3}
+    ul{padding-left:22px}
+    .notice{padding:14px 16px;border:1px solid #65512b;background:#211d15;border-radius:8px}
+    nav{display:flex;gap:18px;margin-top:32px}
+  </style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">GONGSHUI.COM / PRIVACY</p>
+  <h1>隐私说明</h1>
+  <p class="updated">Privacy notice · 2026-11-14</p>
+  <p>本说明介绍宫水.com 网站账号功能目前处理哪些数据、用途及其保存位置。网站是静态前端，账号认证和云端数据由 Supabase 提供。</p>
+
+  <section>
+    <h2>1. 我们处理的数据</h2>
+    <ul>
+      <li><strong>账号信息：</strong>注册邮箱、用户名、账号 ID、邮箱验证状态、注册时间及最近登录时间。密码由 Supabase Auth 处理；本站前端不会把明文密码写入自己的数据库。</li>
+      <li><strong>设备标识：</strong>注册风控会调用 FingerprintJS，或使用浏览器特征作为备用方案，生成设备标识。特征可能包括浏览器版本、语言、屏幕尺寸、硬件线程数、时区及 Canvas 渲染特征。设备标识保存在浏览器 localStorage 和 IndexedDB，并在注册风控请求中发送到 Supabase。</li>
+      <li><strong>网络信息：</strong>注册风控数据库会从请求头读取注册请求的 IP 地址。IP 用于识别滥用模式和辅助统计；当前规则不单独因共享 IP 限制账号。</li>
+      <li><strong>网站数据：</strong>登录用户的作品收藏和部分界面偏好（例如画廊布局、缩放和场景选择）可同步到 Supabase；未登录时相关数据保存在当前浏览器。</li>
+      <li><strong>会话信息：</strong>为保持登录状态，浏览器 localStorage 会保存 Supabase refresh token。不要在他人可访问的设备上保持登录。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>2. 使用目的</h2>
+    <p>这些数据用于提供注册、登录、账号恢复、跨设备收藏与偏好同步、识别短时间内重复注册，以及保护管理后台。本站不需要设备指纹来展示公开作品；它目前仅用于注册风控。</p>
+  </section>
+
+  <section>
+    <h2>3. 数据访问与第三方服务</h2>
+    <p>账号认证和云端数据由 Supabase 提供。数据库通过行级安全策略限制普通账号访问自己的收藏、偏好和风控记录。管理后台仅向数据库开发者白名单中的账号开放注册概览；后台页面显示邮箱、用户名、注册时间、验证状态、最近登录时间和风险标记。</p>
+    <p>作品预览可能嵌入由 GitHub Pages 托管的其他作品页面。加载这些预览时，浏览器会直接向相应托管域名发出请求，并受相关服务商的隐私政策约束。</p>
+  </section>
+
+  <section>
+    <h2>4. 保存期限与删除</h2>
+    <p>收藏、偏好和风控记录与 Supabase 账号关联；当前数据库表定义了账号删除时级联删除相关记录。仓库目前没有配置风控记录的定期自动清理任务，因此账号仍存在时，风控记录可能持续保留。浏览器中的设备标识和偏好会保留到用户清除该网站的站点数据；退出登录会清除登录会话，但不会自动删除设备指纹。</p>
+    <p>你可以退出登录，并在浏览器的网站设置中清除宫水.com 的站点数据。若需要删除云端账号及关联数据，请联系网站运营者；本页面目前未公布专用隐私联系邮箱，因此不要向公开评论区提交密码或验证码。</p>
+  </section>
+
+  <section>
+    <h2>5. 你需要注意的事项</h2>
+    <div class="notice">
+      <p>设备指纹属于可用于区分浏览器/设备的标识，不等同于真实姓名，但可能构成个人信息或在线标识。请在了解上述处理方式后再注册。若你不希望设备标识用于注册风控，可以不创建账号，仍可浏览公开作品。</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>6. 安全措施与说明</h2>
+    <p>本站使用 HTTPS 托管与传输、Supabase Auth、数据库行级安全策略及受限的管理函数。安全措施不能保证绝对安全；请使用独立密码，并避免在共享设备上保存登录状态。</p>
+    <p>本说明描述的是当前仓库可确认的实现。Supabase 项目实际权限、服务商日志保留期限及托管平台处理方式，还取决于线上配置和各服务商政策。</p>
+  </section>
+
+  <nav><a href="./login.html">返回账号页面</a><a href="./index.html">返回宫水.com</a></nav>
+</main>
+</body>
+</html>
