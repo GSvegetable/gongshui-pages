@@ -1022,3 +1022,21 @@ body.compare-mode .compare-frame .cmp-ring { display:block; }
 }
 .preview-card.is-animating .cmp-ring { display:none !important; }
 body.artwork-only .cmp-ring, body.view-closing .cmp-ring { display:none !important; }
+
+
+/* ---------- 返回顶部：与右上角工具方块同尺寸，滚动时从底部接力入场 ---------- */
+.back-to-top{
+  position:fixed;right:28px;bottom:24px;z-index:120;
+  display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;
+  border:3px solid #080808;border-radius:3px;background:#ffd400;color:#1b2146;
+  box-shadow:3px 4px 0 #000;cursor:pointer;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transform:translateY(calc(100% + 34px));
+  transition:transform var(--dur) var(--ease),opacity var(--dur) var(--ease),visibility 0s linear var(--dur),background .15s;
+}
+.back-to-top svg{width:23px;height:23px;display:block}
+.back-to-top:hover{transform:translateY(0) translate(1px,-2px);background:#ffe04d;box-shadow:2px 2px 0 #000}
+.back-to-top:active{transform:translateY(0) translate(3px,2px);box-shadow:none}
+html.back-to-top-visible .back-to-top{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0);transition:transform var(--dur) var(--ease),opacity var(--dur) var(--ease),visibility 0s,background .15s}
+.back-to-top:focus-visible{outline:2px solid #f4bd3c;outline-offset:4px}
+@media(max-width:600px){.back-to-top{right:14px;bottom:16px}}
