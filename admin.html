@@ -35,6 +35,33 @@
         <article class="metric metric-alert"><span class="metric-label">高风险账号</span><strong id="stat-risk">—</strong><span class="metric-note">风控标记</span></article>
       </section>
 
+
+      <section class="analytics" aria-label="用户数据图表">
+        <article class="chart-card chart-signups">
+          <div class="chart-head"><div><div class="section-kicker">GROWTH · 30 DAYS</div><h2>注册趋势</h2><p>近 30 天每日新增账号</p></div><div class="chart-total"><strong id="signup-total">—</strong><span>新增用户</span></div></div>
+          <div id="signup-bars" class="signup-bars" role="img" aria-label="近 30 天每日注册用户柱状图"><div class="chart-empty">正在读取图表…</div></div>
+          <div class="chart-axis"><span>30 天前</span><span>15 天前</span><span>今天</span></div>
+        </article>
+        <article class="chart-card">
+          <div class="chart-head"><div><div class="section-kicker">ACCOUNT STATUS</div><h2>账号状态</h2><p>当前可登录与封禁中的账号</p></div></div>
+          <div class="donut-layout">
+            <svg class="account-donut" viewBox="0 0 120 120" role="img" aria-label="账号状态环形图">
+              <circle cx="60" cy="60" r="43" fill="none" stroke="#292d3a" stroke-width="12"/>
+              <circle id="account-donut-banned" cx="60" cy="60" r="43" fill="none" stroke="#f08b8f" stroke-width="12" stroke-linecap="butt" transform="rotate(-90 60 60)" stroke-dasharray="0 270.18"/>
+              <text id="account-donut-total" x="60" y="65" text-anchor="middle" fill="#ece7dc" font-family="DM Mono, monospace" font-size="17">—</text>
+            </svg>
+            <div class="chart-legend">
+              <div><i class="legend-dot legend-available"></i><span>可登录</span><strong id="account-available">—</strong></div>
+              <div><i class="legend-dot legend-banned"></i><span>封禁中</span><strong id="account-banned">—</strong></div>
+            </div>
+          </div>
+        </article>
+        <article class="chart-card">
+          <div class="chart-head"><div><div class="section-kicker">RISK OVERVIEW</div><h2>风险账号</h2><p>注册风控标记统计</p></div><strong id="risk-percent" class="risk-percent">—</strong></div>
+          <div class="risk-meter"><span id="risk-fill"></span></div>
+          <div class="risk-summary"><div><span class="risk-indicator"></span><span>高风险</span><strong id="risk-count">—</strong></div><div><span class="risk-indicator normal"></span><span>正常</span><strong id="risk-normal">—</strong></div></div>
+        </article>
+      </section>
       <section class="directory">
         <div class="directory-head"><div><div class="section-kicker">DIRECTORY</div><h2>全部用户</h2></div><div id="result-count" class="result-count">等待数据</div></div>
         <div class="toolbar">
@@ -43,7 +70,7 @@
         </div>
         <div class="table-scroll">
           <table>
-            <thead><tr><th>用户</th><th>注册时间</th><th>最近登录</th><th>收藏</th><th>账号状态</th><th>风控</th><th aria-label="详情"></th></tr></thead>
+            <thead><tr><th>用户</th><th>注册时间</th><th>最近登录</th><th>收藏</th><th>邮箱验证</th><th>风控</th><th aria-label="详情"></th></tr></thead>
             <tbody id="users-body"><tr><td colspan="7" class="empty-cell">正在读取用户数据…</td></tr></tbody>
           </table>
         </div>
@@ -62,6 +89,6 @@
 
   <script src="./scripts/auth-config.js?v=1.0.1"></script>
   <script src="./scripts/auth.js?v=1.0.5"></script>
-  <script src="./scripts/admin.js?v=2.0.0"></script>
+  <script src="./scripts/admin.js?v=2.2.0"></script>
 </body>
 </html>
