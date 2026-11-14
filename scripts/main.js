@@ -253,6 +253,19 @@ const renderFolderCard = folder => {
   name.textContent = folder.name;
   card.appendChild(name);
 
+  const remove = document.createElement('button');
+  remove.type = 'button';
+  remove.className = 'folder-delete';
+  remove.textContent = '×';
+  remove.setAttribute('aria-label', tr('folders.delete', '删除文件夹') + '：' + folder.name);
+  remove.title = tr('folders.delete', '删除文件夹');
+  remove.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    deleteFolder(folder.id);
+  });
+  card.appendChild(remove);
+
   card.addEventListener('click', event => {
     if (event.target.closest('.folder-name-input')) return;
     openFolder(folder.id);
