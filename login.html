@@ -159,7 +159,7 @@
       signingIn: '登录中…', creating: '创建中…', saving: '保存中…',
       forgot: '忘记密码？', resend: '重新发送确认邮件',
       placeholderPwd: '至少 6 位', placeholderPwdSignin: '你的密码',
-      highRisk: '这台设备 24 小时内注册了太多账号，这个账号的收藏和偏好同步会被停用。',
+      highRisk: '这台设备在 24 小时内注册了多个账号，这个账号的收藏和偏好同步暂时受限。',
       needConfirm: '验证码已发送到你的邮箱，请输入邮件中的 6 位数字完成注册。',
       resendOk: '确认邮件已重发，去收件箱看看。',
       resetSent: '重置密码的邮件已发送，去查收。',
@@ -176,7 +176,7 @@
       signingIn: 'Signing in…', creating: 'Creating…', saving: 'Saving…',
       forgot: 'Forgot password?', resend: 'Resend confirmation email',
       placeholderPwd: 'At least 6 characters', placeholderPwdSignin: 'Your password',
-      highRisk: 'Too many accounts were created from this device in 24 hours, so bookmark and preference sync is disabled for this account.',
+      highRisk: 'Multiple accounts were created from this device within 24 hours, so bookmark and preference sync is temporarily limited.',
       needConfirm: 'A 6-digit code has been sent to your email. Enter it to finish creating your account.',
       resendOk: 'Confirmation email sent again — check your inbox.',
       resetSent: 'Password reset email sent — check your inbox.',
@@ -336,8 +336,8 @@
         payload = await window.siteAuth.signIn({ email, password });
       }
 
-      // 登记一条风控记录（指纹 + 服务端记的 IP），并让服务端判一次
-      if (window.siteRisk) {
+      // 只有新账号注册完成后才登记风控；普通登录绝不能增加注册计数。
+      if (mode === 'signup' && window.siteRisk) {
         try {
           await window.siteRisk.record(payload.userId, payload.username);
           await window.siteRisk.evaluate();
