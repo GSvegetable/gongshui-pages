@@ -2,6 +2,7 @@
    Keep all three scenes mounted so switching never waits for a fresh iframe navigation.
    v1.3.10：只让"正在显示"的版本渲染，其余两个通知 showcase 收起内部 iframe，不再抢主线程。 */
 (() => {
+  const PREVIEW_ORIGIN = 'https://gsvegetable.github.io';
   const card = document.getElementById('pixel-orbit-card');
   const panel = document.getElementById('orbit-detail-panel');
   const originalFrame = card?.querySelector('.preview-mount iframe[data-composition-frame]');
@@ -49,11 +50,11 @@
   // 不显示的版本会收起内部 iframe 停止渲染；显示时恢复。
   const sendActive = scene => {
     const frame = frames.get(scene);
-    frame?.contentWindow?.postMessage({ type: 'pixel-orbit-active', active: scene === activeScene }, '*');
+    frame?.contentWindow?.postMessage({ type: 'pixel-orbit-active', active: scene === activeScene }, PREVIEW_ORIGIN);
   };
 
   window.addEventListener('message', event => {
-    if (!event.data || event.data.type !== 'pixel-orbit-ready') return;
+    if (event.origin !== PREVIEW_ORIGIN || !event.data || event.data.type !== 'pixel-orbit-ready') return;
     const scene = frameScenes.get(event.source);
     if (!scene) return;
     ready.add(scene);
@@ -102,7 +103,7 @@
       // Register the WindowProxy only after the iframe is attached to the document.
       // A detached iframe may not yet expose the same contentWindow used by message events.
       if (frame.contentWindow) frameScenes.set(frame.contentWindow, scene);
-      frame.contentWindow?.postMessage({ type: 'pixel-orbit-ping' }, '*');
+      frame.contentWindow?.postMessage({ type: 'pixel-orbit-ping' }, PREVIEW_ORIGIN);
     };
     frame.addEventListener('load', ping);
     stack.appendChild(frame);
