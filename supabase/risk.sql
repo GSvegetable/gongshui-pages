@@ -29,9 +29,10 @@ create unique index if not exists signup_risk_one_row_per_user_idx on public.sig
 
 alter table public.signup_risk enable row level security;
 
--- 权限：登录用户只能读自己的那一条、只能给自己登记一条；匿名一律不给。
--- 这一句别漏——漏了客户端插不进去，会报 42501 permission denied。
-grant select, insert on public.signup_risk to authenticated;
+-- 权限：客户端只能读取自己的记录，不能直接插入、更新或删除。
+-- 新记录必须经过 register_signup_risk()，由数据库函数绑定 auth.uid() 并执行登记。
+grant select on public.signup_risk to authenticated;
+revoke insert, update, delete on public.signup_risk from authenticated;
 revoke all on public.signup_risk from anon;
 
 -- -------------------------------------------------------------
@@ -41,10 +42,9 @@ revoke all on public.signup_risk from anon;
 drop policy if exists "risk_read_own"   on public.signup_risk;
 drop policy if exists "risk_insert_own" on public.signup_risk;
 
-create policy "risk_read_own"   on public.signup_risk
+create policy "risk_read_own" on public.signup_risk
   for select to authenticated using (auth.uid() = user_id);
-create policy "risk_insert_own" on public.signup_risk
-  for insert to authenticated with check (auth.uid() = user_id);
+-- 不创建客户端 INSERT 策略：登记只能通过受控的 SECURITY DEFINER RPC。
 
 -- -------------------------------------------------------------
 -- 3. IP 由服务端填，高风险标记由服务端管
