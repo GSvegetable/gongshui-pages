@@ -77,8 +77,8 @@ button{cursor:pointer}
     0 7px 18px rgba(33,29,21,.13),
     0 1px 3px rgba(33,29,21,.10);
   text-shadow:none;
-  -webkit-backdrop-filter:blur(0px) saturate(1.55);
-  backdrop-filter:blur(0px) saturate(1.55);
+  /* Keep backdrop-filter owned by the Liquid Glass library.
+     Overriding it here with blur(0px) silently disabled the SVG refraction. */
 }
 .topbar .brand::before,
 .topbar .admin-email::before,
