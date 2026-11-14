@@ -107,7 +107,7 @@ language sql
 stable
 security definer
 set search_path = public, auth
-as $
+as $$
   select exists (
     select 1
       from auth.users u
@@ -118,21 +118,21 @@ as $
          'z1211hang@qq.com'
        )
   );
-$;
+$$;
 
 revoke all on function public.is_developer_whitelisted(uuid) from public, anon;
 grant execute on function public.is_developer_whitelisted(uuid) to authenticated;
 
 -- 这个账号是不是高风险（给 RLS 策略用）
 create or replace function public.is_high_risk(uid uuid) returns boolean
-language sql stable security definer set search_path = public as $
+language sql stable security definer set search_path = public as $$
   select
     not public.is_developer_whitelisted(uid)
     and exists (
       select 1 from public.signup_risk r
        where r.user_id = uid and r.high_risk
     );
-$;
+$$;
 
 -- 注册之后调一次：数一数 24 小时内同指纹、同 IP 各注册了多少个
 create or replace function public.apply_signup_risk()
