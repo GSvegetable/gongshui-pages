@@ -47,16 +47,14 @@ button{cursor:pointer}
 .console{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
 .sheet{position:relative}
 .topbar{
-  position:sticky;top:0;z-index:20;flex:0 0 auto;
+  position:sticky;top:0;z-index:82;flex:0 0 auto;
   display:flex;align-items:center;justify-content:space-between;gap:12px;
   min-height:48px;padding:0 var(--gutter) 6px;
   background-color:rgba(244,236,217,.16);
   background-image:
     radial-gradient(ellipse 150px 34px at 12% 50%,rgba(255,255,255,.76),transparent 78%),
-    radial-gradient(ellipse 170px 36px at 76% 50%,rgba(235,190,104,.48),transparent 78%),
-    radial-gradient(ellipse 84px 32px at 96% 50%,rgba(255,255,255,.82),transparent 78%),
-    linear-gradient(110deg,rgba(255,255,255,.28),transparent 38%,rgba(227,177,83,.18) 72%,transparent);
-  background-repeat:no-repeat, no-repeat, no-repeat, no-repeat;
+    radial-gradient(ellipse 84px 32px at 96% 50%,rgba(255,255,255,.82),transparent 78%);
+  background-repeat:no-repeat, no-repeat;
   border:0;box-shadow:none;
 }
 .topbar .brand,
