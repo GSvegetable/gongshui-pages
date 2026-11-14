@@ -242,19 +242,22 @@ update public.signup_risk r
 -- 5. 高风险账号：收藏和偏好写入被拒（真正的拦截在这里）
 --    读、删自己的数据不受影响。
 -- -------------------------------------------------------------
-drop policy if exists "bm_ins" on public.user_bookmarks;
-create policy "bm_ins" on public.user_bookmarks
-  for insert to authenticated
+-- 注意：PostgreSQL 的 PERMISSIVE 策略彼此是 OR 关系。
+-- schema.sql 中已有的“本人可写”策略不能被另一条普通策略收紧，
+-- 因此这里必须使用 RESTRICTIVE 策略，与原有本人权限做 AND。
+drop policy if exists "bm_risk_guard" on public.user_bookmarks;
+create policy "bm_risk_guard" on public.user_bookmarks
+  as restrictive for insert to authenticated
   with check (auth.uid() = user_id and not public.is_high_risk(auth.uid()));
 
-drop policy if exists "pf_ins" on public.user_preferences;
-create policy "pf_ins" on public.user_preferences
-  for insert to authenticated
+drop policy if exists "pf_insert_risk_guard" on public.user_preferences;
+create policy "pf_insert_risk_guard" on public.user_preferences
+  as restrictive for insert to authenticated
   with check (auth.uid() = user_id and not public.is_high_risk(auth.uid()));
 
-drop policy if exists "pf_upd" on public.user_preferences;
-create policy "pf_upd" on public.user_preferences
-  for update to authenticated
+drop policy if exists "pf_update_risk_guard" on public.user_preferences;
+create policy "pf_update_risk_guard" on public.user_preferences
+  as restrictive for update to authenticated
   using (auth.uid() = user_id and not public.is_high_risk(auth.uid()))
   with check (auth.uid() = user_id and not public.is_high_risk(auth.uid()));
 
