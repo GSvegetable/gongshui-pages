@@ -60,7 +60,7 @@ Deno.serve(async (req: Request) => {
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
     if (!url || !serviceKey || !anonKey) throw new Error("Auth service configuration missing");
 
-    // HMAC avoids storing raw usernames or reversible plain hashes in the throttle table.
+    // HMAC avoids storing raw usernames, emails, or reversible plain hashes in the throttle table.
     const subjectHash = await hmacHex(serviceKey, "password-login:" + name.toLowerCase());
     const throttleRes = await fetch(url + "/rest/v1/rpc/consume_username_login_rate_limit", {
       method: "POST",
