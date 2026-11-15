@@ -82,7 +82,7 @@
     try { payload = await res.json(); } catch (_) {}
 
     if (!res.ok) {
-      const message = payload && (payload.msg || payload.message || payload.error_description);
+      const message = payload && (payload.msg || payload.message || payload.error_description || payload.error);
       const error = new Error(translate(message) || ('请求失败（' + res.status + '）'));
       error.status = res.status;
       error.raw = payload;
@@ -104,6 +104,10 @@
     if (text.includes('failed to fetch')) return '连不上账号服务，检查一下网络';
     if (text.includes('error sending')) return '邮件暂时发不出去，等一会儿再试';
     if (text.includes('otp_expired') || text.includes('invalid or has expired')) return '这个链接已经过期了，重新发一封吧';
+    if (text.includes('access_denied') || text.includes('user denied')) return '你取消了第三方授权，没有登录。可以重新选择 Google 或 GitHub。';
+    if (text.includes('provider is not enabled') || text.includes('provider_disabled')) return '这个第三方登录方式尚未在账号服务中启用，请稍后再试。';
+    if (text.includes('redirect_uri_mismatch') || text.includes('redirect url')) return '第三方登录回调地址配置不匹配，请检查 OAuth 应用的回调地址。';
+    if (text.includes('invalid_client') || text.includes('bad_verification_code')) return '第三方应用凭据无效，请检查 OAuth 应用配置。';
     return String(message);
   };
 
@@ -168,8 +172,14 @@
 
     const verifier = randomUrlSafe(64);
     const challenge = await createCodeChallenge(verifier);
-    const redirectTo = new URL('./login.html', location.href).href;
-    const flow = { verifier, intent: intent === 'signup' ? 'signup' : 'signin', startedAt: Date.now(), redirectTo };
+    // 固定回到站点根目录的登录页，避免从首页、子目录或带查询参数的入口
+    // 发起登录时产生不同的回调路径。
+    const redirectUrl = new URL('/login.html', location.origin);
+    if (redirectUrl.protocol !== 'https:' && redirectUrl.hostname !== 'localhost' && redirectUrl.hostname !== '127.0.0.1') {
+      throw new Error('第三方登录必须通过 HTTPS 访问');
+    }
+    const redirectTo = redirectUrl.href;
+    const flow = { verifier, intent: intent === 'signup' ? 'signup' : 'signin', provider, startedAt: Date.now(), redirectTo };
     try {
       sessionStorage.setItem(OAUTH_FLOW_KEY, JSON.stringify(flow));
     } catch (_) {
@@ -294,8 +304,8 @@
     const query = new URLSearchParams(location.search);
 
     // OAuth 回调先处理授权码；授权码在交换前立即从地址栏清除。
-    const oauthCode = query.get('code');
-    const oauthError = query.get('error_description') || query.get('error');
+    const oauthCode = query.get('code') || hashParams.get('code');
+    const oauthError = query.get('error_description') || query.get('error') || hashParams.get('error_description') || hashParams.get('error');
     if (oauthError) {
       cleanUrl();
       try { sessionStorage.removeItem(OAUTH_FLOW_KEY); } catch (_) {}
@@ -311,8 +321,13 @@
         redirect.error = '登录验证信息已失效，请重新发起登录';
         return null;
       }
-      const expectedRedirect = new URL(flow.redirectTo || '');
-      if (expectedRedirect.origin !== location.origin || expectedRedirect.pathname !== location.pathname) {
+      if (!Number.isFinite(Number(flow.startedAt)) || Date.now() - Number(flow.startedAt) > 10 * 60 * 1000) {
+        redirect.error = '登录请求已超时，请重新选择登录方式';
+        return null;
+      }
+      let expectedRedirect;
+      try { expectedRedirect = new URL(flow.redirectTo || ''); } catch (_) { expectedRedirect = null; }
+      if (!expectedRedirect || expectedRedirect.origin !== location.origin || expectedRedirect.pathname !== location.pathname || location.pathname !== '/login.html') {
         redirect.error = '登录返回地址不匹配，请重新发起登录';
         return null;
       }
@@ -408,6 +423,9 @@
       } catch (error) {
         if (!redirect.error) redirect.error = error && error.message ? error.message : '登录失败，请重试';
       }
+      // 用户主动取消授权或 OAuth 回调失败时，留在登录页显示错误；
+      // 不要因为浏览器里恰好有旧会话，就立即跳回首页吞掉错误提示。
+      if (redirect.error) return null;
       const saved = readSession();
       if (!saved) return null;
       return refresh();
