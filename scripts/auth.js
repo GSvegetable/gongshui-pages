@@ -275,7 +275,7 @@
 
   const cleanUrl = () => {
     const url = new URL(location.href);
-    ['token', 'token_hash', 'access_token', 'refresh_token', 'type', 'error', 'error_description', 'code']
+    ['token', 'token_hash', 'access_token', 'refresh_token', 'provider_token', 'provider_refresh_token', 'type', 'error', 'error_description', 'code', 'state']
       .forEach(key => url.searchParams.delete(key));
     url.hash = '';
     history.replaceState(null, '', url.pathname + (url.search || ''));
@@ -302,6 +302,11 @@
       try { sessionStorage.removeItem(OAUTH_FLOW_KEY); } catch (_) {}
       if (!flow || !flow.verifier) {
         redirect.error = '登录验证信息已失效，请重新发起登录';
+        return null;
+      }
+      const expectedRedirect = new URL(flow.redirectTo || '');
+      if (expectedRedirect.origin !== location.origin || expectedRedirect.pathname !== location.pathname) {
+        redirect.error = '登录返回地址不匹配，请重新发起登录';
         return null;
       }
       try {
