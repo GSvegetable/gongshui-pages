@@ -150,12 +150,7 @@
     </form>
   </section>
 
-  <details class="privacy-note">
-    <summary>隐私说明 / Privacy notice</summary>
-    <p>为防止短时间内批量注册，只有注册流程需要登记风控时，本站才生成一个随机浏览器令牌。原始令牌只保存在本浏览器 localStorage，发送给账号服务的是 SHA-256 摘要；本站不读取 Canvas、屏幕、硬件或语言等浏览器特征，清除本站点数据即可重置；更新后的页面会自动清理旧版本保存的指纹副本。服务端记录账号 ID、用户名和时间；新注册不收集 IP，风控记录在 24 小时后自动清理。登录会话令牌也保存在本机浏览器存储中。收藏与部分界面偏好会同步到 Supabase。</p>
-    <p>To limit abusive sign-ups, registration uses a browser device identifier. The account service records account ID, username and registration time. Legacy risk records may contain IP addresses, but new registrations no longer collect IPs. The device identifier and sign-in refresh token are stored in this browser. Bookmarks and selected interface preferences are synced to Supabase.</p>
-    <p><a href="./privacy.html">查看完整隐私说明 / Read the privacy notice</a></p>
-  </details>
+  <p class="privacy-note"><a href="./privacy.html" data-i18n="privacyLink">隐私政策与数据处理说明 ↗</a></p>
 </main>
 
 <script src="./scripts/fingerprint.js?v=1.1.0"></script>
@@ -194,7 +189,8 @@
     zh: {
       backHome: '返回首页　↗', tabSignin: '登录', tabSignup: '注册',
       continueGoogle: '使用 Google 继续', continueGithub: '使用 GitHub 继续', orEmail: '或使用邮箱',
-      socialAccountNote: '已有宫水账号？请继续使用原登录方式。第三方登录不会自动迁移旧账号的收藏和偏好。',
+      socialAccountNote: '首次使用 Google 或 GitHub 时，系统会自动创建账号；再次使用同一身份则直接登录。第三方身份不会自动合并到旧账号。',
+      privacyLink: '隐私政策与数据处理说明 ↗',
       socialPrivacyNote: '第三方登录仅用于身份验证，不申请访问 GitHub 仓库或 Google Drive 等额外数据。',
       username: '用户名', emailOrUsername: '邮箱 / 用户名', email: '邮箱地址', password: '密码', verificationCode: '邮箱验证码',
       titleSignin: '登录', titleSignup: '注册', titleRecovery: '设置新密码',
@@ -214,7 +210,8 @@
     en: {
       backHome: 'Back to home ↗', tabSignin: 'Sign in', tabSignup: 'Sign up',
       continueGoogle: 'Continue with Google', continueGithub: 'Continue with GitHub', orEmail: 'OR USE EMAIL',
-      socialAccountNote: 'Already have a Gongshui account? Keep using your existing sign-in. If a provider identity is not linked to an existing account, first-time social sign-in creates a new account; legacy account data is never merged automatically.',
+      socialAccountNote: 'Your first sign-in with Google or GitHub automatically creates an account. Subsequent sign-ins with the same identity will sign you in. Provider identities are never silently merged with legacy accounts.',
+      privacyLink: 'Privacy Policy and Data Processing ↗',
       socialPrivacyNote: 'Social sign-in is only for authentication. It does not request access to GitHub repositories or Google Drive.',
       username: 'Username', emailOrUsername: 'Email / username', email: 'Email address', password: 'Password', verificationCode: 'Email code',
       titleSignin: 'Sign in', titleSignup: 'Sign up', titleRecovery: 'Set a new password',
@@ -333,6 +330,11 @@
     }
     resendBtn.disabled = false;
   });
+
+  const resetSocialButtons = () => { googleBtn.disabled = false; githubBtn.disabled = false; };
+  // OAuth 页面可能被浏览器保存在 BFCache；取消授权返回时必须恢复按钮状态。
+  window.addEventListener('pageshow', resetSocialButtons);
+  window.addEventListener('pagehide', () => { resetSocialButtons(); });
 
   const startSocialLogin = async provider => {
     show('');
