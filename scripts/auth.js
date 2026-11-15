@@ -123,7 +123,7 @@
     if (text.includes('username already taken') || text.includes('duplicate key value')) return '这个用户名已被使用，请换一个。';
     if (text.includes('invalid login credentials')) return '用户名或密码不对';
     if (text.includes('email not confirmed')) return '这个账号还没完成验证';
-    if (text.includes('password should be at least')) return '密码至少要 6 位';
+    if (text.includes('password should be at least')) return '新密码至少需要 12 位';
     if (text.includes('unable to validate email')) return '用户名格式不对';
     if (text.includes('rate limit') || text.includes('too many')) return '试太频繁了，等一会儿再来';
     if (text.includes('failed to fetch')) return '连不上账号服务，检查一下网络';
