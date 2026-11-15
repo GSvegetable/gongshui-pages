@@ -322,7 +322,7 @@
   forgotBtn.addEventListener('click', async () => {
     const email = emailInput.value.trim();
     if (!email) return show(t('errEmail'));
-    if (!email.includes('@') && !window.siteAuth.usernamePattern.test(email)) return show(t('errEmailFormat'));
+    if (!email.includes('@')) return show(t('errEmailFormat'));
     try {
       await window.siteAuth.requestReset(email);
       show(t('resetSent'), true);
