@@ -68,8 +68,15 @@ Deno.serve(async (req: Request) => {
         ban_duration: `${seconds}s`,
       });
       if (error) return json({ error: error.message }, 400, origin);
-      console.info("admin_user_banned", { actor: authData.user.id, target: userId, durationSeconds: seconds });
-      return json({ ok: true, action: "ban" }, 200, origin);
+      const { data: revokedSessions, error: revokeError } = await admin.rpc("revoke_user_sessions", {
+        p_user_id: userId,
+      });
+      if (revokeError) {
+        console.error("admin_user_session_revocation_failed", { actor: authData.user.id, target: userId, error: revokeError.message });
+        return json({ error: "Account banned, but session revocation needs administrator attention." }, 500, origin);
+      }
+      console.info("admin_user_banned", { actor: authData.user.id, target: userId, durationSeconds: seconds, revokedSessions });
+      return json({ ok: true, action: "ban", revokedSessions }, 200, origin);
     }
 
     if (action === "unban") {
@@ -80,10 +87,17 @@ Deno.serve(async (req: Request) => {
     }
 
     if (action === "delete") {
+      const { data: revokedSessions, error: revokeError } = await admin.rpc("revoke_user_sessions", {
+        p_user_id: userId,
+      });
+      if (revokeError) {
+        console.error("admin_user_session_revocation_failed", { actor: authData.user.id, target: userId, error: revokeError.message });
+        return json({ error: "Session revocation failed; account deletion was not attempted." }, 500, origin);
+      }
       const { error } = await admin.auth.admin.deleteUser(userId, false);
       if (error) return json({ error: error.message }, 400, origin);
-      console.warn("admin_user_deleted", { actor: authData.user.id, target: userId });
-      return json({ ok: true, action: "delete" }, 200, origin);
+      console.warn("admin_user_deleted", { actor: authData.user.id, target: userId, revokedSessions });
+      return json({ ok: true, action: "delete", revokedSessions }, 200, origin);
     }
 
     return json({ error: "Unsupported action" }, 400, origin);
