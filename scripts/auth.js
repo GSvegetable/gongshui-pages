@@ -25,6 +25,13 @@
   const mode = cloud ? 'cloud' : 'unavailable';
 
   const SESSION_KEY = 'site-auth-session';
+  // Remove credentials created by the retired browser-only demo auth mode.
+  try {
+    localStorage.removeItem('site-auth-local-users');
+    const legacySession = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (legacySession && legacySession.refreshToken === 'local') localStorage.removeItem(SESSION_KEY);
+  } catch (_) {}
+
 
   // ---------- 用户名 ----------
   // 界面上的身份是「用户名」；Supabase 底层要的是邮箱，
