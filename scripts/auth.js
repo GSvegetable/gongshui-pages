@@ -282,6 +282,8 @@
       const me = await api('/user', { method: 'GET', token: session.accessToken });
       const mail = (me && me.email) || saved.email;
       user = { id: (me && me.id) || saved.id, email: mail, username: toUsername(mail, me && me.user_metadata), avatarUrl: (me && me.user_metadata && (me.user_metadata.avatar_url || me.user_metadata.picture)) || '' };
+      session.id = user.id;
+      storeSession(session);
       notify();
       return user;
     } catch (_) {
