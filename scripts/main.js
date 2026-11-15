@@ -168,10 +168,10 @@ const closeFolder = () => {
    语言切换后，搜索状态、空状态、放大按钮这些动态文案要跟着换，
    否则英文态里会残留中文。
    ========================================================= */
-const siteLang = () => (document.documentElement.lang === 'en' ? 'en' : 'zh');
+const siteLang = () => (document.documentElement.lang === 'en' ? 'en' : document.documentElement.lang === 'ja' ? 'ja' : 'zh');
 const tr = (key, fallback, vars) => {
   // 中文就是页面上的原文，只有切到英文才查字典
-  if (siteLang() !== 'en') return fallback;
+  if (siteLang() === 'zh') return fallback;
   const i18n = window.siteI18n;
   if (i18n && typeof i18n.t === 'function') {
     const value = i18n.t(key, vars);
