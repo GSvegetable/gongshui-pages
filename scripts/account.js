@@ -174,14 +174,14 @@
       entry.replaceChildren(makeAvatar(user));
       // 头像入口保持为纯方形图标，不在顶栏重复显示用户名。
       entry.classList.add('is-signed-in');
-      entry.title = document.documentElement.lang === 'en' ? 'Open account options' : '查看账号选项';
-      entry.setAttribute('aria-label', (document.documentElement.lang === 'en' ? 'Signed in as ' : '当前登录账号：') + name);
+      entry.title = document.documentElement.lang === 'en' ? 'Open account options' : document.documentElement.lang === 'ja' ? 'アカウント設定を開く' : '查看账号选项';
+      entry.setAttribute('aria-label', (document.documentElement.lang === 'en' ? 'Signed in as ' : document.documentElement.lang === 'ja' ? 'ログイン中：' : '当前登录账号：') + name);
     } else {
       closeDialog();
       entry.textContent = idleLabel;
       entry.classList.remove('is-signed-in');
       entry.title = '';
-      entry.setAttribute('aria-label', document.documentElement.lang === 'en' ? 'Sign in / Sign up' : '登录 / 注册');
+      entry.setAttribute('aria-label', document.documentElement.lang === 'en' ? 'Sign in / Sign up' : document.documentElement.lang === 'ja' ? 'ログイン / 新規登録' : '登录 / 注册');
     }
   };
 
