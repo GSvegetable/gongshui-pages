@@ -82,6 +82,9 @@
       else localStorage.removeItem(ACCOUNT_TOKENS_KEY);
     } catch (_) {}
   };
+  const clearAccountTokens = () => {
+    try { localStorage.removeItem(ACCOUNT_TOKENS_KEY); } catch (_) {}
+  };
 
   /* ---------- 云端：Supabase REST ---------- */
 
@@ -316,6 +319,7 @@
     const accountId = (session && session.id) || (user && user.id);
     try { await api('/logout', { token: session && session.accessToken }); } catch (_) {}
     if (accountId) removeAccountToken(accountId);
+    clearAccountTokens();
     storeSession(null);
     user = null;
     notify();
@@ -449,7 +453,7 @@
   const verifySignupOtp = payload => cloud ? cloudVerifySignupOtp(payload) : Promise.reject(new Error('账号服务尚未配置，暂时不能验证邮箱。请稍后再试。'));
   const signIn = payload => cloud ? cloudSignIn(payload) : Promise.reject(new Error('账号服务尚未配置，暂时不能注册或登录。请稍后再试。'));
   const signInWithOAuth = (provider, intent) => cloudOAuthSignIn(provider, intent);
-  const signOut = () => cloud ? cloudSignOut() : (storeSession(null), user = null, notify(), Promise.resolve());
+  const signOut = () => cloud ? cloudSignOut() : (clearAccountTokens(), storeSession(null), user = null, notify(), Promise.resolve());
 
   // Multiple page modules call restore during startup; serialize it to avoid
   // concurrent refresh-token rotation and accidental session invalidation.
