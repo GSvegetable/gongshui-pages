@@ -34,7 +34,10 @@ create trigger on_auth_user_created_username after insert on auth.users
 for each row execute function private.handle_new_auth_user_username();
 
 insert into private.account_usernames(username_key, username, user_id)
-values ('gsyxyc', 'gsyxyc', '51925792-dddf-490a-aca9-e9ed5a1556bb')
+select 'gsyxyc', 'gsyxyc', id
+from auth.users
+where raw_user_meta_data->>'username' = 'gsyxyc'
+  and raw_user_meta_data->>'user_name' = 'GSvegetable'
 on conflict (username_key) do update set username = excluded.username, user_id = excluded.user_id;
 
 create or replace function public.list_my_usernames()
