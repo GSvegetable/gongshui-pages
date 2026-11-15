@@ -232,7 +232,14 @@
       notify();
       return user;
     } catch (error) {
-      if ([400, 401, 403].includes(error && error.status)) removeAccountToken(userId);
+      if ([400, 401, 403].includes(error && error.status)) {
+        removeAccountToken(userId);
+        if (session && session.id === userId) {
+          storeSession(null);
+          user = null;
+          notify();
+        }
+      }
       throw error;
     }
   };
