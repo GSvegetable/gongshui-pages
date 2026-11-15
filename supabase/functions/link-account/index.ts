@@ -5,7 +5,7 @@ Deno.serve(async(req:Request)=>{
  if(req.method==="OPTIONS") return new Response("ok",{headers:cors});
  if(req.method!=="POST") return json({error:"Method not allowed"},405);
  try{
-  const callerToken=(req.headers.get("Authorization")||"").replace(/^Bearer\\s+/i,"");
+  const callerToken=(req.headers.get("Authorization")||"").replace(/^Bearer\s+/i,"");
   if(!callerToken) return json({error:"请先登录"},401);
   const {identifier,password}=await req.json();
   const login=String(identifier||"").trim(), pass=String(password||"");
