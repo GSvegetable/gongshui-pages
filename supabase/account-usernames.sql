@@ -33,6 +33,10 @@ drop trigger if exists on_auth_user_created_username on auth.users;
 create trigger on_auth_user_created_username after insert on auth.users
 for each row execute function private.handle_new_auth_user_username();
 
+insert into private.account_usernames(username_key, username, user_id)
+values ('gsyxyc', 'gsyxyc', '51925792-dddf-490a-aca9-e9ed5a1556bb')
+on conflict (username_key) do update set username = excluded.username, user_id = excluded.user_id;
+
 create or replace function public.list_my_usernames()
 returns table(username text, created_at timestamptz)
 language sql security definer set search_path = ''
