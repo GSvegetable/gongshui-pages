@@ -33,6 +33,16 @@
 .auth-tab:hover{background:#f0e7d3;color:#211d15}
 .auth-tab.is-active{background:#f4bd3c;color:#211d15}
 
+.auth-social{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:16px 16px 0}
+.auth-social[hidden],.auth-divider[hidden],.auth-social-note[hidden]{display:none}
+.auth-social-btn{display:flex;align-items:center;justify-content:center;gap:9px;min-width:0;height:42px;padding:0 9px;border:2px solid #211d15;border-radius:3px;background:#fffdf7;color:#211d15;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer;transition:background .15s,transform .1s}
+.auth-social-btn:hover{background:#f4bd3c}
+.auth-social-btn:active{transform:translateY(1px)}
+.auth-social-btn:disabled{opacity:.55;cursor:wait}
+.auth-social-btn svg{width:17px;height:17px;flex:0 0 auto}
+.auth-divider{display:flex;align-items:center;gap:10px;padding:15px 16px 0;color:#8a7a60;font:700 9px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:1px}
+.auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:rgba(41,35,25,.2)}
+.auth-social-note{margin:10px 16px 0;color:#76684f;font:600 9px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center}
 .auth-form{padding:18px 16px 16px;display:grid;gap:14px}
 .auth-field{display:grid;gap:7px}
 .auth-field[hidden]{display:none}
@@ -98,6 +108,20 @@
       <button class="auth-tab" type="button" role="tab" id="tab-signup" aria-selected="false" data-mode="signup" data-i18n="tabSignup">注册</button>
     </div>
 
+    <div class="auth-social" id="auth-social" aria-label="第三方登录">
+      <button class="auth-social-btn" id="auth-google" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.23c0-.72-.06-1.42-.19-2.1H12v3.98h5.38a4.6 4.6 0 0 1-2 3.02v2.48h3.23c1.89-1.74 2.99-4.3 2.99-7.38Z"/><path fill="#34A853" d="M12 22c2.7 0 4.97-.9 6.62-2.4l-3.23-2.48c-.9.6-2.05.96-3.39.96-2.6 0-4.8-1.75-5.59-4.1H3.08v2.56A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.41 13.98A6 6 0 0 1 6.1 12c0-.69.12-1.36.32-1.98V7.46H3.08A10 10 0 0 0 2 12c0 1.62.39 3.15 1.08 4.54l3.33-2.56Z"/><path fill="#EA4335" d="M12 5.92c1.47 0 2.79.5 3.83 1.5l2.87-2.87C16.96 2.96 14.7 2 12 2a10 10 0 0 0-8.92 5.46l3.34 2.56c.79-2.35 2.99-4.1 5.58-4.1Z"/></svg>
+        <span data-i18n="continueGoogle">使用 Google 继续</span>
+      </button>
+      <button class="auth-social-btn" id="auth-github" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.1c-3.1.67-3.76-1.32-3.76-1.32-.5-1.28-1.23-1.62-1.23-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.7 1.15 1.7 1.15.99 1.69 2.6 1.2 3.23.92.1-.72.39-1.2.7-1.48-2.48-.28-5.09-1.24-5.09-5.52 0-1.22.44-2.21 1.15-2.99-.12-.28-.5-1.42.11-2.95 0 0 .94-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.44 3.05-1.14 3.05-1.14.61 1.53.23 2.67.11 2.95.72.78 1.15 1.77 1.15 2.99 0 4.29-2.61 5.23-5.1 5.51.4.35.75 1.03.75 2.08v3.08c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z"/></svg>
+        <span data-i18n="continueGithub">使用 GitHub 继续</span>
+      </button>
+    </div>
+    <div class="auth-divider" id="auth-divider"><span data-i18n="orEmail">或使用邮箱</span></div>
+    <p class="auth-social-note" id="auth-social-note" data-i18n="socialAccountNote">已有宫水账号？请继续使用原登录方式。若第三方身份尚未关联现有账号，首次使用时会自动创建新账号；旧版用户名账号不会擅自合并收藏和偏好。</p>
+    <p class="auth-social-note" id="auth-social-privacy" data-i18n="socialPrivacyNote">第三方登录仅用于身份验证，不申请访问 GitHub 仓库或 Google Drive 等额外数据。</p>
+
     <form class="auth-form" id="auth-form" novalidate>
       <div class="auth-field" id="auth-email-field">
         <label for="auth-email" data-i18n="emailOrUsername">邮箱 / 用户名</label>
@@ -126,17 +150,12 @@
     </form>
   </section>
 
-  <details class="privacy-note">
-    <summary>隐私说明 / Privacy notice</summary>
-    <p>为防止短时间内批量注册，只有注册流程需要登记风控时，本站才生成一个随机浏览器令牌。原始令牌只保存在本浏览器 localStorage，发送给账号服务的是 SHA-256 摘要；本站不读取 Canvas、屏幕、硬件或语言等浏览器特征，清除本站点数据即可重置；更新后的页面会自动清理旧版本保存的指纹副本。服务端记录账号 ID、用户名和时间；新注册不收集 IP，风控记录在 24 小时后自动清理。登录会话令牌也保存在本机浏览器存储中。收藏与部分界面偏好会同步到 Supabase。</p>
-    <p>To limit abusive sign-ups, registration uses a browser device identifier. The account service records account ID, username and registration time. Legacy risk records may contain IP addresses, but new registrations no longer collect IPs. The device identifier and sign-in refresh token are stored in this browser. Bookmarks and selected interface preferences are synced to Supabase.</p>
-    <p><a href="./privacy.html">查看完整隐私说明 / Read the privacy notice</a></p>
-  </details>
+  <p class="privacy-note"><a href="./privacy.html" data-i18n="privacyLink">隐私政策与数据处理说明 ↗</a></p>
 </main>
 
 <script src="./scripts/fingerprint.js?v=1.1.0"></script>
 <script src="./scripts/auth-config.js?v=1.0.1"></script>
-<script src="./scripts/auth.js?v=1.0.5"></script>
+<script src="./scripts/auth.js?v=1.0.8"></script>
 <script src="./scripts/risk.js?v=1.0.4"></script>
 <script>
 (() => {
@@ -156,6 +175,10 @@
   const forgotBtn = $('auth-forgot');
   const resendBtn = $('auth-resend');
   const langBtn = $('auth-lang');
+  const socialBox = $('auth-social');
+  const socialDivider = $('auth-divider');
+  const googleBtn = $('auth-google');
+  const githubBtn = $('auth-github');
 
   let mode = 'signin';     // 'signin' | 'signup'
   let recovery = false;    // 从重置密码邮件链接进来
@@ -165,6 +188,10 @@
   const I18N = {
     zh: {
       backHome: '返回首页　↗', tabSignin: '登录', tabSignup: '注册',
+      continueGoogle: '使用 Google 继续', continueGithub: '使用 GitHub 继续', orEmail: '或使用邮箱',
+      socialAccountNote: '首次使用 Google 或 GitHub 时，系统会自动创建账号；再次使用同一身份则直接登录。第三方身份不会自动合并到旧账号。',
+      privacyLink: '隐私政策与数据处理说明 ↗',
+      socialPrivacyNote: '第三方登录仅用于身份验证，不申请访问 GitHub 仓库或 Google Drive 等额外数据。',
       username: '用户名', emailOrUsername: '邮箱 / 用户名', email: '邮箱地址', password: '密码', verificationCode: '邮箱验证码',
       titleSignin: '登录', titleSignup: '注册', titleRecovery: '设置新密码',
       enter: '登录', create: '发送验证码', verify: '验证并创建账号', save: '保存新密码',
@@ -182,6 +209,10 @@
     },
     en: {
       backHome: 'Back to home ↗', tabSignin: 'Sign in', tabSignup: 'Sign up',
+      continueGoogle: 'Continue with Google', continueGithub: 'Continue with GitHub', orEmail: 'OR USE EMAIL',
+      socialAccountNote: 'Your first sign-in with Google or GitHub automatically creates an account. Subsequent sign-ins with the same identity will sign you in. Provider identities are never silently merged with legacy accounts.',
+      privacyLink: 'Privacy Policy and Data Processing ↗',
+      socialPrivacyNote: 'Social sign-in is only for authentication. It does not request access to GitHub repositories or Google Drive.',
       username: 'Username', emailOrUsername: 'Email / username', email: 'Email address', password: 'Password', verificationCode: 'Email code',
       titleSignin: 'Sign in', titleSignup: 'Sign up', titleRecovery: 'Set a new password',
       enter: 'Sign in', create: 'Send code', verify: 'Verify & create account', save: 'Save password',
@@ -235,6 +266,10 @@
       usernameField.hidden = true;
       codeField.hidden = true;
       tabs.hidden = true;
+      socialBox.hidden = true;
+      socialDivider.hidden = true;
+      $('auth-social-note').hidden = true;
+      $('auth-social-privacy').hidden = true;
       passwordInput.setAttribute('autocomplete', 'new-password');
       passwordInput.placeholder = t('placeholderPwd');
       forgotBtn.hidden = true;
@@ -247,6 +282,10 @@
       usernameField.hidden = mode !== 'signup';
       codeField.hidden = !(mode === 'signup' && awaitingCode);
       tabs.hidden = false;
+      socialBox.hidden = false;
+      socialDivider.hidden = false;
+      $('auth-social-note').hidden = false;
+      $('auth-social-privacy').hidden = false;
       passwordInput.setAttribute('autocomplete', mode === 'signup' ? 'new-password' : 'current-password');
       passwordInput.placeholder = mode === 'signup' ? t('placeholderPwd') : t('placeholderPwdSignin');
       forgotBtn.hidden = mode === 'signup';
@@ -291,6 +330,26 @@
     }
     resendBtn.disabled = false;
   });
+
+  const resetSocialButtons = () => { googleBtn.disabled = false; githubBtn.disabled = false; };
+  // OAuth 页面可能被浏览器保存在 BFCache；取消授权返回时必须恢复按钮状态。
+  window.addEventListener('pageshow', resetSocialButtons);
+  window.addEventListener('pagehide', () => { resetSocialButtons(); });
+
+  const startSocialLogin = async provider => {
+    show('');
+    googleBtn.disabled = true;
+    githubBtn.disabled = true;
+    try {
+      await window.siteAuth.signInWithOAuth(provider, mode === 'signup' ? 'signup' : 'signin');
+    } catch (error) {
+      show(error && error.message ? error.message : '第三方登录暂时不可用，请稍后再试');
+      googleBtn.disabled = false;
+      githubBtn.disabled = false;
+    }
+  };
+  googleBtn.addEventListener('click', () => startSocialLogin('google'));
+  githubBtn.addEventListener('click', () => startSocialLogin('github'));
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -371,7 +430,19 @@
   });
 
   // 页面加载：先接住邮件链接里带回来的令牌
-  window.siteAuth.restore().then(account => {
+  window.siteAuth.restore().then(async account => {
+    const oauth = window.siteAuth.redirect || {};
+    if (oauth.error) show(oauth.error, false);
+    if (account && oauth.isNewUser && window.siteRisk) {
+      try {
+        await window.siteRisk.record(account.id, account.username);
+        await window.siteRisk.evaluate();
+        if (window.siteRisk.highRisk) {
+          show(t('highRisk'), false);
+          return;
+        }
+      } catch (_) {}
+    }
     let kind = window.siteAuth.redirect && window.siteAuth.redirect.type;
     if (!kind) {
       try { kind = sessionStorage.getItem('site-auth-redirect'); } catch (_) {}

@@ -4,75 +4,128 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta name="theme-color" content="#171717">
-  <title>隐私说明 · 宫水.com</title>
+  <meta name="theme-color" content="#111214">
+  <meta name="description" content="宫水.com 隐私政策，说明账号信息、设备标识、第三方身份验证及网站数据的处理方式。">
+  <title>隐私政策 · 宫水.com</title>
   <style>
-    :root{color-scheme:dark}
+    :root{color-scheme:dark;--bg:#101114;--panel:#17191d;--line:#30333a;--text:#f0eee9;--muted:#a7a8ad;--accent:#e8b94f}
     *{box-sizing:border-box}
-    body{margin:0;background:#111214;color:#e8e5df;font:15px/1.8 system-ui,-apple-system,"Segoe UI",sans-serif}
-    main{width:min(820px,calc(100% - 36px));margin:0 auto;padding:48px 0 80px}
-    a{color:#f4bd3c}
-    .eyebrow{font:700 11px/1.4 ui-monospace,monospace;letter-spacing:2px;color:#c29a46}
-    h1{font-size:clamp(30px,6vw,46px);line-height:1.15;margin:12px 0 8px}
-    .updated{color:#9b9b9b;font-size:12px}
-    section{margin-top:30px;padding-top:20px;border-top:1px solid #34363a}
-    h2{font-size:19px;margin:0 0 10px}
-    p,li{color:#c8c7c3}
-    ul{padding-left:22px}
-    .notice{padding:14px 16px;border:1px solid #65512b;background:#211d15;border-radius:8px}
-    nav{display:flex;gap:18px;margin-top:32px}
+    body{margin:0;background:var(--bg);color:var(--text);font:15px/1.85 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+    main{width:min(860px,calc(100% - 40px));margin:0 auto;padding:54px 0 88px}
+    a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+    .brand{display:flex;align-items:center;justify-content:space-between;padding-bottom:22px;border-bottom:1px solid var(--line);font-size:12px;letter-spacing:.14em;color:var(--muted)}
+    .brand a{letter-spacing:0}
+    .eyebrow{margin:44px 0 10px;color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.2em}
+    h1{margin:0;font-size:clamp(34px,7vw,52px);line-height:1.16;letter-spacing:-.045em}
+    .intro{max-width:720px;margin:20px 0 12px;color:#c4c5c9;font-size:16px}
+    .meta{color:var(--muted);font-size:12px}
+    .toc{display:flex;flex-wrap:wrap;gap:9px;margin:28px 0 42px}
+    .toc a{padding:7px 11px;border:1px solid var(--line);border-radius:6px;color:#d8d7d2;font-size:12px}
+    section{padding:26px 0;border-top:1px solid var(--line);scroll-margin-top:24px}
+    h2{margin:0 0 14px;font-size:19px;letter-spacing:-.02em}
+    h3{margin:20px 0 7px;font-size:14px}
+    p,li{color:#c4c5c9}
+    p{margin:9px 0}
+    ul{padding-left:22px;margin:10px 0}
+    li{padding:3px 0}
+    strong{color:#efeee9}
+    .callout{margin:18px 0;padding:16px 18px;border:1px solid #5b4a2b;border-radius:8px;background:#1c1a16;color:#d6d0c2}
+    .callout p{margin:0}
+    footer{display:flex;gap:20px;flex-wrap:wrap;margin-top:38px;padding-top:22px;border-top:1px solid var(--line);font-size:13px}
+    @media(max-width:560px){main{padding-top:30px}.toc{gap:7px}.toc a{font-size:11px}}
   </style>
-<script src="./scripts/privacy-cleanup.js?v=1.0.0"></script>
+  <script src="./scripts/privacy-cleanup.js?v=1.0.0"></script>
 </head>
 <body>
 <main>
-  <p class="eyebrow">GONGSHUI.COM / PRIVACY</p>
-  <h1>隐私说明</h1>
-  <p class="updated">Privacy notice · 2026-11-14</p>
-  <p>本说明介绍宫水.com 网站账号功能目前处理哪些数据、用途及其保存位置。网站是静态前端，账号认证和云端数据由 Supabase 提供。</p>
+  <nav class="brand"><span>GONGSHUI.COM</span><a href="./login.html">账号与登录 ↗</a></nav>
+  <p class="eyebrow">LEGAL / PRIVACY</p>
+  <h1>隐私政策</h1>
+  <p class="intro">本政策说明宫水.com 在提供网站浏览、账号注册与登录、收藏及偏好同步服务时，如何收集、使用、存储和保护相关信息。</p>
+  <p class="meta">生效日期：2026 年 11 月 15 日 · 适用范围：宫水.com 网站及其账号功能</p>
+  <nav class="toc" aria-label="目录">
+    <a href="#scope">适用范围</a><a href="#data">处理的信息</a><a href="#purpose">处理目的</a><a href="#providers">第三方服务</a><a href="#retention">保存与删除</a><a href="#security">安全措施</a><a href="#rights">用户选择</a><a href="#changes">政策更新</a>
+  </nav>
 
-  <section>
-    <h2>1. 我们处理的数据</h2>
+  <section id="scope">
+    <h2>01 · 适用范围与服务架构</h2>
+    <p>宫水.com 是以静态网页为主体的个人作品展示网站。账号认证及云端数据存储由 Supabase 提供。本文所称“本站”或“我们”，指宫水.com 网站运营方；“服务商”指为网站提供托管、认证、数据库或身份验证能力的第三方服务提供方。</p>
+    <p>本政策仅适用于本站可控制或配置的数据处理活动。访问外部作品、第三方网站或服务时，相关服务商可能依据其自身政策独立处理信息。</p>
+  </section>
+
+  <section id="data">
+    <h2>02 · 处理的信息类别</h2>
+    <h3>2.1 账号与身份信息</h3>
+    <p>使用邮箱注册或登录时，Supabase Auth 处理账号邮箱、密码验证材料、账号唯一标识、邮箱验证状态、创建时间及最近登录时间。密码验证由认证服务执行，本站不会将用户输入的明文密码写入本站自有业务表。</p>
+    <p>使用 Google 或 GitHub 登录时，认证服务会接收完成身份验证所需的提供方身份信息。本站使用认证结果建立本站账号，并可能读取提供方返回的基本资料，例如邮箱、显示名称、用户名及头像地址。本站不请求访问 GitHub 仓库、Google Drive 等与登录无关的资源权限，也不会将提供方访问令牌作为本站业务数据保存。</p>
+
+    <h3>2.2 注册安全信息</h3>
+    <p>为识别短时间内的异常重复注册，注册流程可能生成随机浏览器标识。原始随机值保存在当前浏览器 localStorage，提交至 Supabase 的为其 SHA-256 摘要。本站不通过 Canvas、屏幕尺寸、硬件线程数、语言或时区等浏览器特征构建设备指纹。公开浏览作品不会触发该标识生成。</p>
+    <p>注册风控记录包含账号 ID、用户名及登记时间，用于计算 24 小时风险窗口。自 2026 年 11 月 14 日起，新注册流程不再主动收集或保存 IP 地址；历史风控记录可能仍包含此前产生的 IP 信息。IP 地址不会单独触发本站当前的账号限制。</p>
+
+    <h3>2.3 网站内容与偏好</h3>
+    <p>登录用户的作品收藏、收藏夹结构及部分界面偏好（例如布局、缩放和场景选择）可同步至 Supabase。未登录时，相关数据可能仅保存在当前浏览器的本地存储中。</p>
+
+    <h3>2.4 登录会话与技术信息</h3>
+    <p>为维持登录状态，浏览器本地存储会保存 Supabase 会话所需的刷新令牌。本站托管平台及认证服务商也可能依据其运行机制处理访问日志、网络请求信息和安全诊断数据；具体范围及保存期限以相应服务商的政策和配置为准。</p>
+  </section>
+
+  <section id="purpose">
+    <h2>03 · 信息处理目的</h2>
     <ul>
-      <li><strong>账号信息：</strong>注册邮箱、用户名、账号 ID、邮箱验证状态、注册时间及最近登录时间。密码由 Supabase Auth 处理；本站前端不会把明文密码写入自己的数据库。</li>
-      <li><strong>设备标识：</strong>只有注册流程需要登记风控时，本站才生成一个随机浏览器令牌。原始随机令牌只保存在浏览器 localStorage，发送到 Supabase 的是其 SHA-256 摘要。本站不读取 Canvas、屏幕、硬件线程数、语言或时区等浏览器特征，也不使用 IndexedDB 保存设备标识。清除本站点数据即可重置该标识；更新后的页面还会自动清理旧版本保存的 localStorage 和 IndexedDB 指纹副本。公开作品浏览不会触发设备标识生成。</li>
-      <li><strong>网络信息：</strong>历史风控记录可能包含注册请求的 IP 地址；从 2026-11-14 起，新注册不再收集或保存 IP。历史 IP 记录目前仍保留，IP 从未单独触发账号限制，也不参与当前风控判定。</li>
-      <li><strong>网站数据：</strong>登录用户的作品收藏和部分界面偏好（例如画廊布局、缩放和场景选择）可同步到 Supabase；未登录时相关数据保存在当前浏览器。</li>
-      <li><strong>会话信息：</strong>为保持登录状态，浏览器 localStorage 会保存 Supabase refresh token。不要在他人可访问的设备上保持登录。</li>
+      <li>创建、验证、维护及恢复用户账号；</li>
+      <li>识别 Google、GitHub 等第三方身份，并完成本站登录；</li>
+      <li>同步用户收藏、收藏夹和已选择的网站偏好；</li>
+      <li>识别短时间内异常重复注册，保护账号服务及管理功能；</li>
+      <li>维护网站运行、安全性及服务稳定性。</li>
     </ul>
+    <p>本站不会将注册安全标识用于跨站广告画像，也不会出售用户账号资料。</p>
   </section>
 
-  <section>
-    <h2>2. 使用目的</h2>
-    <p>这些数据用于提供注册、登录、账号恢复、跨设备收藏与偏好同步、识别短时间内重复注册，以及保护管理后台。随机设备标识不用于展示公开作品；它仅用于注册风控。</p>
+  <section id="providers">
+    <h2>04 · 第三方服务与信息共享</h2>
+    <p>本站使用 Supabase 提供身份认证及数据库服务。第三方登录由用户主动选择的 Google 或 GitHub 提供身份验证。用户跳转至相应服务商页面后，其登录、授权及数据处理活动同时受该服务商隐私政策约束。</p>
+    <p>本站仅接收完成登录及账号展示所需的基本身份资料，不以第三方登录为由申请访问用户的云盘、代码仓库或其他无关内容。本站不会将用户资料出售给广告商；除提供服务所必需的服务商处理、用户主动授权或法律要求外，不主动向无关第三方披露账号资料。</p>
+    <p>部分作品预览可能加载 GitHub Pages 等外部托管内容。加载时，浏览器会直接向相应域名发出网络请求，该请求受相关服务商的政策约束。</p>
   </section>
 
-  <section>
-    <h2>3. 数据访问与第三方服务</h2>
-    <p>账号认证和云端数据由 Supabase 提供。数据库通过行级安全策略限制普通账号访问自己的收藏、偏好和风控记录。管理后台仅向数据库开发者白名单中的账号开放注册概览；后台页面显示邮箱、用户名、注册时间、验证状态、最近登录时间和风险标记。</p>
-    <p>作品预览可能嵌入由 GitHub Pages 托管的其他作品页面。加载这些预览时，浏览器会直接向相应托管域名发出请求，并受相关服务商的隐私政策约束。</p>
+  <section id="retention">
+    <h2>05 · 保存期限与删除机制</h2>
+    <ul>
+      <li><strong>注册风控记录：</strong>用于 24 小时风险窗口，数据库定期清理超过 24 小时的记录，通常最迟约 24 小时 5 分钟完成清理。</li>
+      <li><strong>浏览器随机标识：</strong>保留在当前浏览器，直至用户清除本站点数据或手动清理相关存储；退出登录不会自动删除该标识。</li>
+      <li><strong>收藏与偏好：</strong>云端数据与账号关联，按账号服务的保存状态保留；账号删除时，相关业务记录按数据库关联规则处理。</li>
+      <li><strong>会话令牌：</strong>退出登录时由本站清除本地会话；用户也可通过浏览器站点数据设置清除。</li>
+      <li><strong>历史网络信息：</strong>历史风控记录可能包含 IP 地址，相关记录按既有风控数据清理机制处理。</li>
+    </ul>
+    <p>如需删除账号及云端关联数据，请通过本站公开渠道联系运营者。本站目前未设置专用隐私联系邮箱。请勿通过公开评论或普通消息提交密码、验证码、刷新令牌等认证凭据。</p>
   </section>
 
-  <section>
-    <h2>4. 保存期限与删除</h2>
-    <p>收藏、偏好和风控记录与 Supabase 账号关联；账号删除时，相关收藏、偏好和风控记录会由数据库级联删除。风控记录只用于 24 小时风险窗口，数据库每 5 分钟清理一次超过 24 小时的记录（最迟约 24 小时 5 分钟删除）。浏览器中的随机设备令牌会保留到用户清除本站点数据；退出登录会清除登录会话，但不会自动删除该令牌；清除本站点数据即可重置本地令牌。服务端只保存令牌的 SHA-256 摘要。</p>
-    <p>你可以退出登录，并在浏览器的网站设置中清除宫水.com 的站点数据。若需要删除云端账号及关联数据，请联系网站运营者；本页面目前未公布专用隐私联系邮箱，因此不要向公开评论区提交密码或验证码。</p>
+  <section id="security">
+    <h2>06 · 安全措施与责任边界</h2>
+    <p>本站通过 HTTPS、Supabase Auth、数据库行级安全策略及受限的管理数据库函数保护账号和业务数据。本站遵循必要性原则，不在前端部署 service_role 或其他服务端特权密钥。</p>
+    <div class="callout"><p>互联网服务无法承诺绝对安全。由于当前网站采用浏览器端会话机制，能够访问用户设备或利用浏览器脚本漏洞的第三方仍可能对本地会话造成风险。建议使用独立且强度足够的密码，不在公共或他人设备上保持登录，并及时更新浏览器。</p></div>
+    <p>本政策描述的是本站代码及当前已知配置所体现的数据处理方式。服务商自身的日志、基础设施安全措施及数据保留规则，仍以服务商公布的文件和实际配置为准。</p>
   </section>
 
-  <section>
-    <h2>5. 你需要注意的事项</h2>
-    <div class="notice">
-      <p>随机设备标识可用于识别同一浏览器安装环境的重复注册，不等同于真实姓名，但仍可能构成在线标识或个人信息。请在了解上述处理方式后再注册。若你不希望设备标识用于注册风控，可以不创建账号，仍可浏览公开作品。</p>
-    </div>
+  <section id="rights">
+    <h2>07 · 用户的选择与控制</h2>
+    <ul>
+      <li>用户可以选择不注册账号，继续浏览公开作品；</li>
+      <li>用户可以选择邮箱、Google 或 GitHub 作为登录方式；</li>
+      <li>用户可以在账号设置中退出登录，并在浏览器设置中清除本站点数据；</li>
+      <li>用户可通过相应第三方账号的安全设置管理或撤销对本站的授权；</li>
+      <li>用户可请求查询或删除与本站账号关联的数据，本站将在可用的管理渠道内处理。</li>
+    </ul>
+    <p>第三方身份不会被本站静默合并到既有账号。若需将第三方身份关联到已有账号，应先通过既有账号完成身份验证，并使用明确的账号绑定流程。</p>
   </section>
 
-  <section>
-    <h2>6. 安全措施与说明</h2>
-    <p>本站使用 HTTPS 托管与传输、Supabase Auth、数据库行级安全策略及受限的管理函数。安全措施不能保证绝对安全；请使用独立密码，并避免在共享设备上保存登录状态。</p>
-    <p>本说明描述的是当前仓库可确认的实现。Supabase 项目实际权限、服务商日志保留期限及托管平台处理方式，还取决于线上配置和各服务商政策。</p>
+  <section id="changes">
+    <h2>08 · 政策更新</h2>
+    <p>当网站功能、数据处理方式或适用要求发生变化时，本站可能更新本政策。更新后的版本将在本页面公布，并同步调整生效日期。建议用户在使用账号功能前查看本页面的最新内容。</p>
   </section>
 
-  <nav><a href="./login.html">返回账号页面</a><a href="./index.html">返回宫水.com</a></nav>
+  <footer><a href="./login.html">返回账号页面</a><a href="./index.html">返回宫水.com</a></footer>
 </main>
 </body>
 </html>

@@ -1,7 +1,6 @@
 /* =========================================================
-   顶栏账号入口 — v1.1.0
-   未登录：进入登录页。
-   已登录：打开账号弹窗；退出必须经过二次确认。
+   顶栏账号入口 — v1.2.0
+   未登录显示登录入口；已登录显示头像、账号名称及账号管理弹窗。
    ========================================================= */
 (() => {
   const entry = document.getElementById('account-entry');
@@ -9,14 +8,44 @@
 
   const idleLabel = entry.textContent.trim();
   let dialog = null;
+  const style = document.createElement('style');
+  style.textContent = `
+    .account-entry.is-signed-in{display:inline-flex;align-items:center;gap:8px;max-width:220px;vertical-align:middle}
+    .account-avatar{width:27px;height:27px;flex:0 0 27px;display:inline-grid;place-items:center;overflow:hidden;border:1px solid rgba(244,189,60,.65);border-radius:50%;background:#29251d;color:#f4bd3c;font:700 11px/1 system-ui,sans-serif}
+    .account-avatar img{width:100%;height:100%;display:block;object-fit:cover}
+    .account-entry-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .account-modal-profile{display:flex;align-items:center;gap:14px;margin:4px 0 18px}
+    .account-modal-profile .account-avatar{width:52px;height:52px;flex-basis:52px;font-size:16px}
+    .account-modal-profile strong{min-width:0;overflow-wrap:anywhere}
+  `;
+  document.head.appendChild(style);
 
   const copy = () => document.documentElement.lang === 'en'
     ? { title:'Account', signed:'Signed in as', logout:'Sign out', cancel:'Cancel',
         confirmTitle:'Sign out?', confirmText:'Are you sure you want to sign out of this account?',
-        close:'Close', done:'You have signed out.' }
+        close:'Close' }
     : { title:'我的账号', signed:'当前登录账号', logout:'退出登录', cancel:'取消',
         confirmTitle:'确认退出登录？', confirmText:'退出后，这台设备将不再同步此账号的收藏和偏好。',
-        close:'关闭', done:'已退出登录。' };
+        close:'关闭' };
+
+  const makeAvatar = (user, large = false) => {
+    const avatar = document.createElement('span');
+    avatar.className = 'account-avatar';
+    avatar.setAttribute('aria-hidden', 'true');
+    const label = String(user.username || user.email || 'U').trim();
+    const fallback = label.slice(0, 1).toUpperCase() || 'U';
+    if (user.avatarUrl && /^https:\/\//i.test(user.avatarUrl)) {
+      const img = document.createElement('img');
+      img.src = user.avatarUrl;
+      img.alt = '';
+      img.referrerPolicy = 'no-referrer';
+      img.addEventListener('error', () => { avatar.textContent = fallback; }, { once:true });
+      avatar.appendChild(img);
+    } else {
+      avatar.textContent = fallback;
+    }
+    return avatar;
+  };
 
   const closeDialog = () => {
     if (!dialog) return;
@@ -27,7 +56,6 @@
   const openDialog = user => {
     if (dialog) return;
     const t = copy();
-    const name = user.username || user.email || 'Account';
     dialog = document.createElement('div');
     dialog.className = 'account-modal-backdrop';
     dialog.innerHTML = `
@@ -38,14 +66,18 @@
         </header>
         <div class="account-modal-body">
           <span class="account-modal-label">${t.signed}</span>
-          <strong class="account-modal-username"></strong>
+          <div class="account-modal-profile"></div>
           <div class="account-modal-actions">
             <button class="account-modal-logout" type="button">${t.logout}</button>
             <button class="account-modal-cancel" type="button">${t.cancel}</button>
           </div>
         </div>
       </section>`;
-    dialog.querySelector('.account-modal-username').textContent = name;
+    const profile = dialog.querySelector('.account-modal-profile');
+    profile.appendChild(makeAvatar(user, true));
+    const name = document.createElement('strong');
+    name.textContent = user.username || user.email || 'Account';
+    profile.appendChild(name);
     document.body.appendChild(dialog);
     const dismiss = () => closeDialog();
     dialog.querySelector('.account-modal-close').addEventListener('click', dismiss);
@@ -84,10 +116,14 @@
   const render = user => {
     if (user && (user.username || user.email)) {
       const name = user.username || user.email;
-      entry.textContent = name;
+      entry.replaceChildren(makeAvatar(user));
+      const label = document.createElement('span');
+      label.className = 'account-entry-name';
+      label.textContent = name;
+      entry.appendChild(label);
       entry.classList.add('is-signed-in');
       entry.title = document.documentElement.lang === 'en' ? 'Open account options' : '查看账号选项';
-      entry.setAttribute('aria-label', (document.documentElement.lang === 'en' ? 'Account: ' : '我的账号：') + name);
+      entry.setAttribute('aria-label', (document.documentElement.lang === 'en' ? 'Signed in as ' : '当前登录账号：') + name);
     } else {
       closeDialog();
       entry.textContent = idleLabel;
