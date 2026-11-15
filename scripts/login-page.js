@@ -19,6 +19,7 @@
   const socialDivider = $('auth-divider');
   const googleBtn = $('auth-google');
   const githubBtn = $('auth-github');
+  const minPasswordLength = window.siteAuth.minimumPasswordLength || 12;
 
   let mode = 'signin';     // 'signin' | 'signup'
   let recovery = false;    // 从重置密码邮件链接进来
@@ -35,14 +36,14 @@
       enter: '登录', create: '发送验证码', verify: '验证并创建账号', save: '保存新密码',
       signingIn: '登录中…', creating: '创建中…', saving: '保存中…',
       forgot: '忘记密码？', resend: '重新发送确认邮件',
-      placeholderPwd: '至少 6 位', placeholderPwdSignin: '你的密码',
+      placeholderPwd: '至少 12 位', placeholderPwdSignin: '你的密码',
       highRisk: '这台设备在 24 小时内注册了多个账号，这个账号的收藏和偏好同步暂时受限。',
       needConfirm: '验证码已发送到你的邮箱，请输入邮件中的 6 位数字完成注册。',
       resendOk: '确认邮件已重发，去收件箱看看。',
       resetSent: '重置密码的邮件已发送，去查收。',
       pwdUpdated: '密码已改好，正在回主页…',
       signedIn: '成功，正在回主页…',
-      errEmail: '请填写邮箱或用户名', errEmailFormat: '请输入有效的邮箱地址', errUsername: '用户名要 4–9 位，只能用字母、数字、下划线和短横线', errCode: '请输入邮件中的 6 位验证码', errPwd: '密码至少要 6 位',
+      errEmail: '请填写邮箱或用户名', errEmailFormat: '请输入有效的邮箱地址', errUsername: '用户名要 4–9 位，只能用字母、数字、下划线和短横线', errCode: '请输入邮件中的 6 位验证码', errPwdSignin: '密码至少要 6 位', errPwd: '新密码至少需要 12 位',
       recoveryOk: '链接已生效，设个新密码吧',
       oauthNoRedirect: '登录跳转没有完成，请检查网络或稍后重试。按钮已恢复，可以重新选择登录方式。'
     },
@@ -55,7 +56,7 @@
       enter: 'Sign in', create: 'Send code', verify: 'Verify & create account', save: 'Save password',
       signingIn: 'Signing in…', creating: 'Creating…', saving: 'Saving…',
       forgot: 'Forgot password?', resend: 'Resend confirmation email',
-      placeholderPwd: 'At least 6 characters', placeholderPwdSignin: 'Your password',
+      placeholderPwd: 'At least 12 characters', placeholderPwdSignin: 'Your password',
       highRisk: 'Multiple accounts were created from this device within 24 hours, so bookmark and preference sync is temporarily limited.',
       needConfirm: 'A 6-digit code has been sent to your email. Enter it to finish creating your account.',
       resendOk: 'Confirmation email sent again — check your inbox.',
@@ -66,7 +67,7 @@
       errEmailFormat: 'Enter a valid email address',
       errUsername: 'Username needs 4–9 characters: letters, numbers, _ or -',
       errCode: 'Enter the 6-digit code from your email',
-      errPwd: 'Password needs at least 6 characters',
+      errPwdSignin: 'Password needs at least 6 characters', errPwd: 'New passwords need at least 12 characters',
       recoveryOk: 'Link accepted — set a new password.',
       oauthNoRedirect: 'The sign-in page did not open. Check your connection and try again; the buttons are ready to use.'
     },
@@ -79,7 +80,7 @@
       enter: 'ログイン', create: '確認コードを送信', verify: '確認して登録', save: '保存',
       signingIn: 'ログイン中…', creating: '登録中…', saving: '保存中…',
       forgot: 'パスワードを忘れた場合', resend: '確認メールを再送',
-      placeholderPwd: '6文字以上', placeholderPwdSignin: 'パスワードを入力',
+      placeholderPwd: '12文字以上', placeholderPwdSignin: 'パスワードを入力',
       highRisk: 'この端末で短時間に複数の登録が行われたため、同期が一時的に制限されています。',
       needConfirm: 'メールに6桁の確認コードを送信しました。入力して登録を完了してください。',
       resendOk: '確認メールを再送しました。受信箱をご確認ください。',
@@ -87,7 +88,7 @@
       pwdUpdated: 'パスワードを更新しました。ホームに戻ります…',
       signedIn: 'ログインしました。ホームに戻ります…',
       errEmail: 'メールアドレスまたはユーザー名を入力してください', errEmailFormat: '有効なメールアドレスを入力してください',
-      errUsername: 'ユーザー名は4〜9文字です。英字・数字・_・- が使えます', errCode: 'メールに届いた6桁のコードを入力してください', errPwd: 'パスワードは6文字以上です',
+      errUsername: 'ユーザー名は4〜9文字です。英字・数字・_・- が使えます', errCode: 'メールに届いた6桁のコードを入力してください', errPwdSignin: 'パスワードは6文字以上です', errPwd: '新しいパスワードは12文字以上にしてください',
       recoveryOk: 'リンクを確認しました。新しいパスワードを設定してください。',
       oauthNoRedirect: 'ログイン画面へ移動できませんでした。通信を確認して再試行してください。'
     }
@@ -225,7 +226,7 @@
 
     if (recovery) {
       const password = passwordInput.value;
-      if (password.length < 6) return show(t('errPwd'));
+      if (password.length < minPasswordLength) return show(t('errPwd'));
       submit.disabled = true;
       submit.textContent = t('saving');
       try {
@@ -246,11 +247,11 @@
 
     if (mode === 'signin') {
       if (!email.includes('@') && !window.siteAuth.usernamePattern.test(email)) return show(t('errEmailFormat'));
-      if (password.length < 6) return show(t('errPwd'));
+      if (password.length < 6) return show(t('errPwdSignin'));
     } else if (!awaitingCode) {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return show(t('errEmailFormat'));
       if (!window.siteAuth.usernamePattern.test(usernameInput.value.trim())) return show(t('errUsername'));
-      if (password.length < 6) return show(t('errPwd'));
+      if (password.length < minPasswordLength) return show(t('errPwd'));
     } else if (!/^\d{6}$/.test(codeInput.value.trim())) {
       return show(t('errCode'));
     }

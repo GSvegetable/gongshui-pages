@@ -30,6 +30,7 @@
   // 界面上的身份是「用户名」；Supabase 底层要的是邮箱，
   // 这里做一次转换。用户直接填完整邮箱的也照样认（兼容老账号）。
   const USERNAME_RE = /^[a-zA-Z0-9][a-zA-Z0-9_-]{3,8}$/;
+  const MIN_PASSWORD_LENGTH = 12;
 
   const toEmail = input => {
     const value = String(input || '').trim();
@@ -122,7 +123,7 @@
     if (text.includes('username already taken') || text.includes('duplicate key value')) return '这个用户名已被使用，请换一个。';
     if (text.includes('invalid login credentials')) return '用户名或密码不对';
     if (text.includes('email not confirmed')) return '这个账号还没完成验证';
-    if (text.includes('password should be at least')) return '密码至少要 6 位';
+    if (text.includes('password should be at least')) return '新密码至少需要 12 位';
     if (text.includes('unable to validate email')) return '用户名格式不对';
     if (text.includes('rate limit') || text.includes('too many')) return '试太频繁了，等一会儿再来';
     if (text.includes('failed to fetch')) return '连不上账号服务，检查一下网络';
@@ -136,6 +137,7 @@
   };
 
   const cloudSignUp = async ({ email, password, username }) => {
+    if (String(password || '').length < MIN_PASSWORD_LENGTH) throw new Error('新密码至少需要 12 位');
     const mail = toEmail(email);
     const cleanUsername = String(username || toUsername(mail)).trim();
     const data = await api('/signup', { body: { email: mail, password, data: { username: cleanUsername } } });
@@ -451,6 +453,7 @@
 
   // 拿着邮件链接换来的会话，把新密码写回去
   const updatePassword = async password => {
+    if (String(password || '').length < MIN_PASSWORD_LENGTH) throw new Error('新密码至少需要 12 位');
     const token = session && session.accessToken;
     if (!token) throw new Error('会话过期了，请重新点一次邮件链接');
     await api('/user', { method: 'PUT', token, body: { password } });
@@ -496,6 +499,7 @@
     signOut,
     getUser: () => user,
     usernamePattern: USERNAME_RE,
+    minimumPasswordLength: MIN_PASSWORD_LENGTH,
     listUsernames,
     addUsername,
     updateUsername,
