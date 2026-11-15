@@ -193,7 +193,7 @@
       storeSession(session);
       const me = await api('/user', { method: 'GET', token: session.accessToken });
       const mail = (me && me.email) || saved.email;
-      user = { id: (me && me.id) || saved.id, email: mail, username: toUsername(mail, me && me.user_metadata) };
+      user = { id: (me && me.id) || saved.id, email: mail, username: toUsername(mail, me && me.user_metadata), avatarUrl: (me && me.user_metadata && (me.user_metadata.avatar_url || me.user_metadata.picture)) || '' };
       notify();
       return user;
     } catch (_) {
@@ -317,7 +317,7 @@
         const accountEmail = data.user.email || '';
         const metadata = data.user.user_metadata || {};
         const username = toUsername(accountEmail, metadata) || ('user_' + String(data.user.id).slice(0, 8));
-        const account = { id: data.user.id, email: accountEmail, username };
+        const account = { id: data.user.id, email: accountEmail, username, avatarUrl: metadata.avatar_url || metadata.picture || '' };
         storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email: accountEmail, id: account.id, username });
         user = account;
         notify();
@@ -351,7 +351,7 @@
 
       const me = await api('/user', { method: 'GET', token: accessToken });
       storeSession({ accessToken, refreshToken, email: me.email, id: me.id, username: toUsername(me.email) });
-      user = { id: me.id, email: me.email, username: toUsername(me.email, me.user_metadata) };
+      user = { id: me.id, email: me.email, username: toUsername(me.email, me.user_metadata), avatarUrl: (me.user_metadata && (me.user_metadata.avatar_url || me.user_metadata.picture)) || '' };
       redirect.type = type || 'signup';
       redirect.user = user;
       // 落地页和账号页可能不是同一个页面，把类型记下来传过去
