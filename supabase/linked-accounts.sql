@@ -1,4 +1,5 @@
 -- Account profiles and linked account groups.
+create schema if not exists private;
 -- Every auth user receives a random 11-digit public ID at creation.
 create table if not exists private.account_profiles (
   user_id uuid primary key references auth.users(id) on delete cascade,
