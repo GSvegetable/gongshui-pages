@@ -1227,3 +1227,10 @@ body.is-bookmarks .bookmarks-toolbar .folder-new {
 .top-utility-actions .settings-toggle .settings-icon {
   stroke-width:2;
 }
+
+
+/* v2.11.0 — square account avatar and refreshed account dialog */
+.account-modal-backdrop{z-index:700}
+.account-modal{border-radius:10px;box-shadow:0 22px 70px rgba(0,0,0,.28)}
+.account-modal-kicker{display:none!important}
+.account-avatar{border-radius:0!important}
