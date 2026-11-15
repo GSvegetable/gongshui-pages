@@ -550,6 +550,7 @@
     document.documentElement.lang = language === 'en' ? 'en' : language === 'ja' ? 'ja' : 'zh-CN';
     button.textContent = language === 'en' ? '中文' : language === 'ja' ? 'EN' : '日本語';
     apply(language);
+    if (language !== 'zh') document.dispatchEvent(new CustomEvent('site:languagechange', { detail: { language } }));
   })();
   </script>
 </body>
