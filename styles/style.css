@@ -1140,3 +1140,60 @@ body.is-bookmarks .bookmarks-toolbar .folder-new {
 .account-modal-confirm-title { margin:0; font-size:16px; font-weight:900; }
 .account-modal-confirm-text { margin:9px 0 0; color:#74664f; font-size:12px; line-height:1.7; }
 @media(prefers-reduced-motion:reduce){.account-modal{animation:none}}
+
+
+/* v2.9.6 — 顶栏账号入口：未登录显示 Sign in，登录后只显示方形头像 */
+.top-utility-actions > .account-entry {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+  min-height:44px;
+  padding:0 12px;
+  border:3px solid #080808;
+  border-radius:3px;
+  background:#f4bd3c;
+  color:#211d15;
+  font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+  text-decoration:none;
+  white-space:nowrap;
+  box-shadow:3px 4px 0 #000;
+  cursor:pointer;
+  transition:transform .1s,box-shadow .1s,background .15s;
+}
+.top-utility-actions > .account-entry:hover { background:#ffd36a; }
+.top-utility-actions > .account-entry:active { transform:translate(3px,4px);box-shadow:none; }
+.top-utility-actions > .account-entry.is-signed-in {
+  width:44px;
+  height:44px;
+  min-width:44px;
+  min-height:44px;
+  padding:0;
+  overflow:hidden;
+  background:#efe6d2;
+}
+.top-utility-actions > .account-entry.is-signed-in .account-avatar {
+  display:grid;
+  width:100%;
+  height:100%;
+  flex:1 1 auto;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  font-size:14px;
+}
+.top-utility-actions > .account-entry.is-signed-in .account-avatar img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.top-utility-actions > .account-entry .account-entry-name { display:none; }
+@media (max-width:700px) {
+  .top-utility-actions > .account-entry.is-signed-in {
+    width:38px;height:38px;min-width:38px;min-height:38px;
+  }
+  .top-utility-actions > .account-entry:not(.is-signed-in) {
+    min-height:38px;padding:0 9px;border-width:2px;
+    box-shadow:2px 3px 0 #000;
+  }
+}
