@@ -542,7 +542,7 @@
       try { localStorage.setItem('site-language', language); } catch (_) {}
       apply(language);
       document.documentElement.lang = language === 'en' ? 'en' : language === 'ja' ? 'ja' : 'zh-CN';
-      button.textContent = language === 'en' ? '中文' : language === 'ja' ? 'EN' : '日本語';
+      button.textContent = language === 'zh' ? 'EN' : language === 'en' ? '日本語' : '中文';
       button.setAttribute('aria-label', language === 'ja' ? '言語を切り替え' : language === 'en' ? 'Switch language' : '切换语言');
       // 动态文案（搜索状态 / 空状态 / 放大按钮）由 main.js 重新渲染
       document.dispatchEvent(new CustomEvent('site:languagechange', { detail: { language } }));
