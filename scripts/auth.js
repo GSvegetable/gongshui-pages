@@ -184,7 +184,11 @@
     location.assign(authorize.toString());
   };
 
-  const refresh = async () => {
+  // Refresh tokens are single-use/rotating. All callers must share one in-flight request.
+  let refreshPromise = null;
+  const refresh = () => {
+    if (refreshPromise) return refreshPromise;
+    const current = (async () => {
     const saved = readSession();
     if (!saved || !saved.refreshToken) return null;
     try {
@@ -202,6 +206,9 @@
       notify();
       return null;
     }
+    })();
+    refreshPromise = current;
+    return current.finally(() => { if (refreshPromise === current) refreshPromise = null; });
   };
 
   const cloudSignOut = async () => {
@@ -388,19 +395,25 @@
   const signInWithOAuth = (provider, intent) => cloudOAuthSignIn(provider, intent);
   const signOut = () => cloud ? cloudSignOut() : (storeSession(null), user = null, notify(), Promise.resolve());
 
-  const restore = async () => {
-    if (!cloud) return localRestore();
-    // 邮件链接里带回来的令牌优先处理
-    try {
-      const result = await handleUrl();
-      if (result && (result.user || result.id)) return result.user || result;
-    } catch (error) {
-      if (!redirect.error) redirect.error = error && error.message ? error.message : '登录失败，请重试';
-    }
-    const saved = readSession();
-    if (!saved) return null;
-    // 用 refresh_token 换新 access_token，再取一次用户信息
-    return refresh();
+  // Multiple page modules call restore during startup; serialize it to avoid
+  // concurrent refresh-token rotation and accidental session invalidation.
+  let restorePromise = null;
+  const restore = () => {
+    if (restorePromise) return restorePromise;
+    const current = (async () => {
+      if (!cloud) return localRestore();
+      try {
+        const result = await handleUrl();
+        if (result && (result.user || result.id)) return result.user || result;
+      } catch (error) {
+        if (!redirect.error) redirect.error = error && error.message ? error.message : '登录失败，请重试';
+      }
+      const saved = readSession();
+      if (!saved) return null;
+      return refresh();
+    })();
+    restorePromise = current;
+    return current.finally(() => { if (restorePromise === current) restorePromise = null; });
   };
 
   window.siteAuth = {
