@@ -55,6 +55,7 @@
       if (value) localStorage.setItem(SESSION_KEY, JSON.stringify({
         refreshToken: value.refreshToken, email: value.email, id: value.id
       }));
+      if (value.id && value.refreshToken && value.refreshToken !== 'local') saveAccountToken(value.id, value.refreshToken);
       else localStorage.removeItem(SESSION_KEY);
     } catch (_) {}
   };
