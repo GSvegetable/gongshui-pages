@@ -1212,3 +1212,9 @@ body.is-bookmarks .bookmarks-toolbar .folder-new {
 @media (max-width:700px) {
   .top-utility-actions > .account-note { right:46px;max-width:190px; }
 }
+
+/* v2.9.7 — 顶栏顺序为布局、设置、账号；Sign in 字重与图标线条协调 */
+.top-utility-actions > .account-entry:not(.is-signed-in) {
+  font-weight:600;
+  letter-spacing:.15px;
+}
