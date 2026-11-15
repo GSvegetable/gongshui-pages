@@ -147,7 +147,7 @@
   const base64Url = bytes => {
     let binary = '';
     bytes.forEach(byte => { binary += String.fromCharCode(byte); });
-    return btoa(binary).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/g, '');
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
   };
   const randomUrlSafe = size => {
     const bytes = new Uint8Array(size);
