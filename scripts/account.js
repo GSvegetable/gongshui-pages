@@ -117,9 +117,6 @@
     if (user && (user.username || user.email)) {
       const name = user.username || user.email;
       entry.replaceChildren(makeAvatar(user));
-      const label = document.createElement('span');
-      label.className = 'account-entry-name';
-      label.textContent = name;
       // 头像入口保持为纯方形图标，不在顶栏重复显示用户名。
       entry.classList.add('is-signed-in');
       entry.title = document.documentElement.lang === 'en' ? 'Open account options' : '查看账号选项';
