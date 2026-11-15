@@ -22,10 +22,9 @@
 (() => {
   const config = window.SITE_AUTH || {};
   const cloud = !!(config.url && config.anonKey);
-  const mode = cloud ? 'cloud' : 'local';
+  const mode = cloud ? 'cloud' : 'unavailable';
 
   const SESSION_KEY = 'site-auth-session';
-  const LOCAL_USERS_KEY = 'site-auth-local-users';
 
   // ---------- 用户名 ----------
   // 界面上的身份是「用户名」；Supabase 底层要的是邮箱，
@@ -304,58 +303,6 @@
     notify();
   };
 
-  /* ---------- 本地：只存在这台设备上的演示模式 ---------- */
-
-  const localUsers = () => {
-    try { return JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '{}'); } catch (_) { return {}; }
-  };
-  const saveLocalUsers = map => {
-    try { localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(map)); } catch (_) {}
-  };
-
-  const hash = async text => {
-    if (!window.crypto?.subtle || !window.TextEncoder) {
-      throw new Error('当前浏览器不支持安全密码存储，请使用 HTTPS 或更新浏览器');
-    }
-    const bytes = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-    return [...new Uint8Array(bytes)].map(b => b.toString(16).padStart(2, '0')).join('');
-  };
-
-  const localSignUp = async ({ email, password, username }) => {
-    const map = localUsers();
-    const key = email.trim().toLowerCase();
-    if (map[key]) throw new Error('这个用户名已经被注册过了');
-    map[key] = await hash(password);
-    saveLocalUsers(map);
-    storeSession({ accessToken: 'local', refreshToken: 'local', email: key, id: 'local:' + key, username: key });
-    user = { id: 'local:' + key, email: key, username: String(username || key).trim() };
-    notify();
-    return { email: key, username: user.username, needConfirm: false };
-  };
-
-  const localSignIn = async ({ email, password }) => {
-    const map = localUsers();
-    const key = email.trim().toLowerCase();
-    if (!map[key]) throw new Error('用户名或密码不对');
-    if (map[key] !== await hash(password)) throw new Error('用户名或密码不对');
-    storeSession({ accessToken: 'local', refreshToken: 'local', email: key, id: 'local:' + key, username: key });
-    user = { id: 'local:' + key, email: key, username: key };
-    notify();
-    return { email: key, username: key, needConfirm: false };
-  };
-
-  const localRestore = () => {
-    const saved = readSession();
-    if (!saved) return null;
-    const map = localUsers();
-    const key = String(saved.email || '').toLowerCase();
-    if (!map[key]) return null;
-    user = { id: 'local:' + key, email: key, username: key };
-    storeSession({ accessToken: 'local', refreshToken: 'local', email: key, id: 'local:' + key, username: key });
-    notify();
-    return user;
-  };
-
   /* ---------- 对外的接口 ---------- */
 
   /* ---------- 邮件链接回来的令牌 ---------- */
@@ -480,9 +427,9 @@
     await api('/user', { method: 'PUT', token, body: { password } });
   };
 
-  const signUp = payload => cloud ? cloudSignUp(payload) : localSignUp(payload);
+  const signUp = payload => cloud ? cloudSignUp(payload) : Promise.reject(new Error('账号服务尚未配置，暂时不能注册或登录。请稍后再试。'));
   const verifySignupOtp = payload => cloud ? cloudVerifySignupOtp(payload) : Promise.reject(new Error('本地模式不支持邮箱验证码'));
-  const signIn = payload => cloud ? cloudSignIn(payload) : localSignIn(payload);
+  const signIn = payload => cloud ? cloudSignIn(payload) : Promise.reject(new Error('账号服务尚未配置，暂时不能注册或登录。请稍后再试。'));
   const signInWithOAuth = (provider, intent) => cloudOAuthSignIn(provider, intent);
   const signOut = () => cloud ? cloudSignOut() : (storeSession(null), user = null, notify(), Promise.resolve());
 
@@ -492,7 +439,7 @@
   const restore = () => {
     if (restorePromise) return restorePromise;
     const current = (async () => {
-      if (!cloud) return localRestore();
+      if (!cloud) return null;
       try {
         const result = await handleUrl();
         if (result && (result.user || result.id)) return result.user || result;
