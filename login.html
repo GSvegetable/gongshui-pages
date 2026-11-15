@@ -120,6 +120,7 @@
     </div>
     <div class="auth-divider" id="auth-divider"><span data-i18n="orEmail">或使用邮箱</span></div>
     <p class="auth-social-note" id="auth-social-note" data-i18n="socialAccountNote">已有宫水账号？请继续使用原登录方式。第三方登录不会自动迁移旧账号的收藏和偏好。</p>
+    <p class="auth-social-note" id="auth-social-privacy" data-i18n="socialPrivacyNote">第三方登录仅用于身份验证，不申请访问 GitHub 仓库或 Google Drive 等额外数据。</p>
 
     <form class="auth-form" id="auth-form" novalidate>
       <div class="auth-field" id="auth-email-field">
@@ -194,6 +195,7 @@
       backHome: '返回首页　↗', tabSignin: '登录', tabSignup: '注册',
       continueGoogle: '使用 Google 继续', continueGithub: '使用 GitHub 继续', orEmail: '或使用邮箱',
       socialAccountNote: '已有宫水账号？请继续使用原登录方式。第三方登录不会自动迁移旧账号的收藏和偏好。',
+      socialPrivacyNote: '第三方登录仅用于身份验证，不申请访问 GitHub 仓库或 Google Drive 等额外数据。',
       username: '用户名', emailOrUsername: '邮箱 / 用户名', email: '邮箱地址', password: '密码', verificationCode: '邮箱验证码',
       titleSignin: '登录', titleSignup: '注册', titleRecovery: '设置新密码',
       enter: '登录', create: '发送验证码', verify: '验证并创建账号', save: '保存新密码',
@@ -213,6 +215,7 @@
       backHome: 'Back to home ↗', tabSignin: 'Sign in', tabSignup: 'Sign up',
       continueGoogle: 'Continue with Google', continueGithub: 'Continue with GitHub', orEmail: 'OR USE EMAIL',
       socialAccountNote: 'Already have a Gongshui account? Keep using your existing sign-in. Social sign-in does not migrate old bookmarks or preferences.',
+      socialPrivacyNote: 'Social sign-in is only for authentication. It does not request access to GitHub repositories or Google Drive.',
       username: 'Username', emailOrUsername: 'Email / username', email: 'Email address', password: 'Password', verificationCode: 'Email code',
       titleSignin: 'Sign in', titleSignup: 'Sign up', titleRecovery: 'Set a new password',
       enter: 'Sign in', create: 'Send code', verify: 'Verify & create account', save: 'Save password',
@@ -269,6 +272,7 @@
       socialBox.hidden = true;
       socialDivider.hidden = true;
       $('auth-social-note').hidden = true;
+      $('auth-social-privacy').hidden = true;
       passwordInput.setAttribute('autocomplete', 'new-password');
       passwordInput.placeholder = t('placeholderPwd');
       forgotBtn.hidden = true;
@@ -284,6 +288,7 @@
       socialBox.hidden = false;
       socialDivider.hidden = false;
       $('auth-social-note').hidden = false;
+      $('auth-social-privacy').hidden = false;
       passwordInput.setAttribute('autocomplete', mode === 'signup' ? 'new-password' : 'current-password');
       passwordInput.placeholder = mode === 'signup' ? t('placeholderPwd') : t('placeholderPwdSignin');
       forgotBtn.hidden = mode === 'signup';
