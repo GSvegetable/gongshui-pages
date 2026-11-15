@@ -11,7 +11,7 @@
 
    云端模式走 Supabase 的 REST 接口（不用 SDK，省掉几十 KB）：
      POST {url}/auth/v1/signup
-     POST {url}/auth/v1/token?grant_type=password
+     POST {url}/functions/v1/username-login（邮箱和用户名统一限流）
      POST {url}/auth/v1/token?grant_type=refresh_token
      POST {url}/auth/v1/logout
      GET  {url}/auth/v1/user
