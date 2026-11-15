@@ -39,7 +39,7 @@
     return value.toLowerCase() + '@' + (config.emailDomain || 'gongshui.com');
   };
 
-  const toUsername = (email, metadata) => (metadata && metadata.username) || String(email || '').split('@')[0] || '';
+  const toUsername = (email, metadata) => (metadata && (metadata.username || metadata.user_name || metadata.preferred_username)) || String(email || '').split('@')[0] || '';
 
   let session = null;          // { accessToken, refreshToken, email }
   let user = null;             // { id, email }  id 就是 auth.uid()，RLS 策略靠它匹配
@@ -140,6 +140,48 @@
     user = account;
     notify();
     return { email: mail, username: account.username, userId: account.id, needConfirm: false };
+  };
+
+  /* ---------- 第三方登录：OAuth 2.0 Authorization Code + PKCE ---------- */
+  const OAUTH_FLOW_KEY = 'site-auth-oauth-flow';
+  const base64Url = bytes => {
+    let binary = '';
+    bytes.forEach(byte => { binary += String.fromCharCode(byte); });
+    return btoa(binary).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/g, '');
+  };
+  const randomUrlSafe = size => {
+    const bytes = new Uint8Array(size);
+    window.crypto.getRandomValues(bytes);
+    return base64Url(bytes);
+  };
+  const createCodeChallenge = async verifier => {
+    const digest = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+    return base64Url(new Uint8Array(digest));
+  };
+  const cloudOAuthSignIn = async (provider, intent) => {
+    if (!cloud) throw new Error('账号服务尚未配置，暂时不能使用第三方登录');
+    provider = String(provider || '').toLowerCase();
+    if (!['google', 'github'].includes(provider)) throw new Error('暂不支持这个登录方式');
+    if (!window.crypto || !window.crypto.subtle || !window.crypto.getRandomValues) {
+      throw new Error('当前浏览器无法启动安全登录，请使用最新版浏览器并通过 HTTPS 访问');
+    }
+
+    const verifier = randomUrlSafe(64);
+    const challenge = await createCodeChallenge(verifier);
+    const redirectTo = new URL('./login.html', location.href).href;
+    const flow = { verifier, intent: intent === 'signup' ? 'signup' : 'signin', startedAt: Date.now(), redirectTo };
+    try {
+      sessionStorage.setItem(OAUTH_FLOW_KEY, JSON.stringify(flow));
+    } catch (_) {
+      throw new Error('浏览器未允许临时会话存储，无法安全完成第三方登录');
+    }
+
+    const authorize = new URL(config.url + '/auth/v1/authorize');
+    authorize.searchParams.set('provider', provider);
+    authorize.searchParams.set('redirect_to', redirectTo);
+    authorize.searchParams.set('code_challenge', challenge);
+    authorize.searchParams.set('code_challenge_method', 's256');
+    location.assign(authorize.toString());
   };
 
   const refresh = async () => {
@@ -244,6 +286,48 @@
     const hashParams = new URLSearchParams(location.hash.replace(/^#/, ''));
     const query = new URLSearchParams(location.search);
 
+    // OAuth 回调先处理授权码；授权码在交换前立即从地址栏清除。
+    const oauthCode = query.get('code');
+    const oauthError = query.get('error_description') || query.get('error');
+    if (oauthError) {
+      cleanUrl();
+      try { sessionStorage.removeItem(OAUTH_FLOW_KEY); } catch (_) {}
+      redirect.error = translate(oauthError) || '第三方登录未完成，请重试';
+      return null;
+    }
+    if (oauthCode) {
+      cleanUrl();
+      let flow = null;
+      try { flow = JSON.parse(sessionStorage.getItem(OAUTH_FLOW_KEY) || 'null'); } catch (_) {}
+      try { sessionStorage.removeItem(OAUTH_FLOW_KEY); } catch (_) {}
+      if (!flow || !flow.verifier) {
+        redirect.error = '登录验证信息已失效，请重新发起登录';
+        return null;
+      }
+      try {
+        const data = await api('/token?grant_type=pkce', { body: { auth_code: oauthCode, code_verifier: flow.verifier } });
+        if (!data.access_token || !data.refresh_token || !data.user || !data.user.id) {
+          throw new Error('账号服务没有返回完整的登录会话');
+        }
+        const accountEmail = data.user.email || '';
+        const metadata = data.user.user_metadata || {};
+        const username = toUsername(accountEmail, metadata) || ('user_' + String(data.user.id).slice(0, 8));
+        const account = { id: data.user.id, email: accountEmail, username };
+        storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email: accountEmail, id: account.id, username });
+        user = account;
+        notify();
+        const createdAt = Date.parse(data.user.created_at || '');
+        redirect.type = 'oauth';
+        redirect.user = account;
+        redirect.intent = flow.intent === 'signup' ? 'signup' : 'signin';
+        redirect.isNewUser = Number.isFinite(createdAt) && createdAt >= Number(flow.startedAt || 0) - 120000 && createdAt <= Date.now() + 120000;
+        return account;
+      } catch (error) {
+        redirect.error = error && error.message ? error.message : '第三方登录失败，请重新尝试';
+        throw error;
+      }
+    }
+
     let type = hashParams.get('type') || query.get('type');
     let accessToken = hashParams.get('access_token');
     let refreshToken = hashParams.get('refresh_token');
@@ -296,6 +380,7 @@
   const signUp = payload => cloud ? cloudSignUp(payload) : localSignUp(payload);
   const verifySignupOtp = payload => cloud ? cloudVerifySignupOtp(payload) : Promise.reject(new Error('本地模式不支持邮箱验证码'));
   const signIn = payload => cloud ? cloudSignIn(payload) : localSignIn(payload);
+  const signInWithOAuth = (provider, intent) => cloudOAuthSignIn(provider, intent);
   const signOut = () => cloud ? cloudSignOut() : (storeSession(null), user = null, notify(), Promise.resolve());
 
   const restore = async () => {
@@ -303,8 +388,10 @@
     // 邮件链接里带回来的令牌优先处理
     try {
       const result = await handleUrl();
-      if (result && result.user) return result.user;
-    } catch (_) {}
+      if (result && (result.user || result.id)) return result.user || result;
+    } catch (error) {
+      if (!redirect.error) redirect.error = error && error.message ? error.message : '登录失败，请重试';
+    }
     const saved = readSession();
     if (!saved) return null;
     // 用 refresh_token 换新 access_token，再取一次用户信息
@@ -317,6 +404,7 @@
     signUp,
     verifySignupOtp,
     signIn,
+    signInWithOAuth,
     signOut,
     getUser: () => user,
     usernamePattern: USERNAME_RE,
