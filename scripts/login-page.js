@@ -247,11 +247,11 @@
 
     if (mode === 'signin') {
       if (!email.includes('@') && !window.siteAuth.usernamePattern.test(email)) return show(t('errEmailFormat'));
-      if (password.length < minPasswordLength) return show(t('errPwd'));
+      if (password.length < 6) return show(t('errPwd'));
     } else if (!awaitingCode) {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return show(t('errEmailFormat'));
       if (!window.siteAuth.usernamePattern.test(usernameInput.value.trim())) return show(t('errUsername'));
-      if (password.length < 6) return show(t('errPwd'));
+      if (password.length < minPasswordLength) return show(t('errPwd'));
     } else if (!/^\d{6}$/.test(codeInput.value.trim())) {
       return show(t('errCode'));
     }
