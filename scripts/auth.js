@@ -2,7 +2,7 @@
    站点账号客户端 — v1.0.0
    ---------------------------------------------------------
    一层薄封装，页面上只认这几个方法：
-     siteAuth.mode        'cloud' | 'local'
+     siteAuth.mode        'cloud' | 'unavailable'
      siteAuth.signUp({email, password})
      siteAuth.signIn({email, password})
      siteAuth.signOut()
@@ -428,7 +428,7 @@
   };
 
   const signUp = payload => cloud ? cloudSignUp(payload) : Promise.reject(new Error('账号服务尚未配置，暂时不能注册或登录。请稍后再试。'));
-  const verifySignupOtp = payload => cloud ? cloudVerifySignupOtp(payload) : Promise.reject(new Error('本地模式不支持邮箱验证码'));
+  const verifySignupOtp = payload => cloud ? cloudVerifySignupOtp(payload) : Promise.reject(new Error('账号服务尚未配置，暂时不能验证邮箱。请稍后再试。'));
   const signIn = payload => cloud ? cloudSignIn(payload) : Promise.reject(new Error('账号服务尚未配置，暂时不能注册或登录。请稍后再试。'));
   const signInWithOAuth = (provider, intent) => cloudOAuthSignIn(provider, intent);
   const signOut = () => cloud ? cloudSignOut() : (storeSession(null), user = null, notify(), Promise.resolve());
