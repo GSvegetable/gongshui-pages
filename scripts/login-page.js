@@ -43,7 +43,7 @@
       resetSent: '重置密码的邮件已发送，去查收。',
       pwdUpdated: '密码已改好，正在回主页…',
       signedIn: '成功，正在回主页…',
-      errEmail: '请填写邮箱或用户名', errEmailFormat: '请输入有效的邮箱地址', errUsername: '用户名要 4–9 位，只能用字母、数字、下划线和短横线', errCode: '请输入邮件中的 6 位验证码', errPwd: '新密码至少需要 12 位',
+      errEmail: '请填写邮箱或用户名', errEmailFormat: '请输入有效的邮箱地址', errUsername: '用户名要 4–9 位，只能用字母、数字、下划线和短横线', errCode: '请输入邮件中的 6 位验证码', errPwdSignin: '密码至少要 6 位', errPwd: '新密码至少需要 12 位',
       recoveryOk: '链接已生效，设个新密码吧',
       oauthNoRedirect: '登录跳转没有完成，请检查网络或稍后重试。按钮已恢复，可以重新选择登录方式。'
     },
@@ -67,7 +67,7 @@
       errEmailFormat: 'Enter a valid email address',
       errUsername: 'Username needs 4–9 characters: letters, numbers, _ or -',
       errCode: 'Enter the 6-digit code from your email',
-      errPwd: 'New passwords need at least 12 characters',
+      errPwdSignin: 'Password needs at least 6 characters', errPwd: 'New passwords need at least 12 characters',
       recoveryOk: 'Link accepted — set a new password.',
       oauthNoRedirect: 'The sign-in page did not open. Check your connection and try again; the buttons are ready to use.'
     },
@@ -88,7 +88,7 @@
       pwdUpdated: 'パスワードを更新しました。ホームに戻ります…',
       signedIn: 'ログインしました。ホームに戻ります…',
       errEmail: 'メールアドレスまたはユーザー名を入力してください', errEmailFormat: '有効なメールアドレスを入力してください',
-      errUsername: 'ユーザー名は4〜9文字です。英字・数字・_・- が使えます', errCode: 'メールに届いた6桁のコードを入力してください', errPwd: '新しいパスワードは12文字以上にしてください',
+      errUsername: 'ユーザー名は4〜9文字です。英字・数字・_・- が使えます', errCode: 'メールに届いた6桁のコードを入力してください', errPwdSignin: 'パスワードは6文字以上です', errPwd: '新しいパスワードは12文字以上にしてください',
       recoveryOk: 'リンクを確認しました。新しいパスワードを設定してください。',
       oauthNoRedirect: 'ログイン画面へ移動できませんでした。通信を確認して再試行してください。'
     }
@@ -247,7 +247,7 @@
 
     if (mode === 'signin') {
       if (!email.includes('@') && !window.siteAuth.usernamePattern.test(email)) return show(t('errEmailFormat'));
-      if (password.length < 6) return show(t('errPwd'));
+      if (password.length < 6) return show(t('errPwdSignin'));
     } else if (!awaitingCode) {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return show(t('errEmailFormat'));
       if (!window.siteAuth.usernamePattern.test(usernameInput.value.trim())) return show(t('errUsername'));
