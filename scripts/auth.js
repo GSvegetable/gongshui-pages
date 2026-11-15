@@ -96,6 +96,7 @@
     if (!message) return '';
     const text = String(message).toLowerCase();
     if (text.includes('user already registered')) return '这个邮箱已注册，或已有尚未完成验证的账号。请尝试登录，或重新发送确认邮件。';
+    if (text.includes('username already taken') || text.includes('duplicate key value')) return '这个用户名已被使用，请换一个。';
     if (text.includes('invalid login credentials')) return '用户名或密码不对';
     if (text.includes('email not confirmed')) return '这个账号还没完成验证';
     if (text.includes('password should be at least')) return '密码至少要 6 位';
