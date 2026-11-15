@@ -199,7 +199,9 @@
     note.hidden = !risk;
     if (risk) note.textContent = document.documentElement.lang === 'en'
       ? 'Bookmark and preference sync is disabled for this account.'
-      : '这个账号的收藏和偏好同步已停用（同一设备注册过多）';
+      : document.documentElement.lang === 'ja'
+        ? 'このアカウントではブックマークと設定の同期が一時停止されています。'
+        : '这个账号的收藏和偏好同步已停用（同一设备注册过多）';
   };
 
   window.siteAuth.onChange(render);
