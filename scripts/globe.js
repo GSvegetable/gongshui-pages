@@ -53,7 +53,7 @@
   /* 国家名：英文态用系统自带的国家名，中文态用内置表 */
   const countryLabel = code => {
     const i18n = window.siteI18n;
-    const lang = i18n && i18n.lang === 'en' ? 'en' : 'zh-CN';
+    const lang = i18n && i18n.lang === 'ja' ? 'ja-JP' : i18n && i18n.lang === 'en' ? 'en' : 'zh-CN';
     const info = COUNTRIES[code];
     try {
       const name = new Intl.DisplayNames([lang], { type: 'region' }).of(code);
@@ -150,7 +150,7 @@
   /* 取词：跟着站点的中英切换走（英文走 index.html 的 siteI18n，中文回退写在调用处） */
   const tr = (key, fallback, vars) => {
     const i18n = window.siteI18n;
-    const isEn = i18n && i18n.lang === 'en';
+    const isEn = i18n && i18n.lang !== 'zh';
     let value = fallback;
     if (isEn && i18n && typeof i18n.t === 'function') {
       const en = i18n.t(key, vars);

@@ -7,7 +7,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>账号 | 宫水.com</title>
 <meta name="description" content="宫水.com 的账号入口。">
-<link rel="stylesheet" href="./styles/style.css?v=2.8.17">
+<link rel="stylesheet" href="./styles/style.css?v=2.10.0">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>">
 <style>
 .auth-page{width:min(420px,calc(100% - 32px));margin:0 auto;padding:clamp(28px,7vh,72px) 0 60px}
@@ -34,7 +34,7 @@
 .auth-tab.is-active{background:#f4bd3c;color:#211d15}
 
 .auth-social{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:16px 16px 0}
-.auth-social[hidden],.auth-divider[hidden],.auth-social-note[hidden]{display:none}
+.auth-social[hidden],.auth-divider[hidden]{display:none}
 .auth-social-btn{display:flex;align-items:center;justify-content:center;gap:9px;min-width:0;height:42px;padding:0 9px;border:2px solid #211d15;border-radius:3px;background:#fffdf7;color:#211d15;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer;transition:background .15s,transform .1s}
 .auth-social-btn:hover{background:#f4bd3c}
 .auth-social-btn:active{transform:translateY(1px)}
@@ -42,7 +42,6 @@
 .auth-social-btn svg{width:17px;height:17px;flex:0 0 auto}
 .auth-divider{display:flex;align-items:center;gap:10px;padding:15px 16px 0;color:#8a7a60;font:700 9px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:1px}
 .auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:rgba(41,35,25,.2)}
-.auth-social-note{margin:10px 16px 0;color:#76684f;font:600 9px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center}
 .auth-form{padding:18px 16px 16px;display:grid;gap:14px}
 .auth-field{display:grid;gap:7px}
 .auth-field[hidden]{display:none}
@@ -119,8 +118,6 @@
       </button>
     </div>
     <div class="auth-divider" id="auth-divider"><span data-i18n="orEmail">或使用邮箱</span></div>
-    <p class="auth-social-note" id="auth-social-note" data-i18n="socialAccountNote">已有宫水账号？请继续使用原登录方式。若第三方身份尚未关联现有账号，首次使用时会自动创建新账号；旧版用户名账号不会擅自合并收藏和偏好。</p>
-    <p class="auth-social-note" id="auth-social-privacy" data-i18n="socialPrivacyNote">第三方登录仅用于身份验证，不申请访问 GitHub 仓库或 Google Drive 等额外数据。</p>
 
     <form class="auth-form" id="auth-form" novalidate>
       <div class="auth-field" id="auth-email-field">
@@ -129,7 +126,7 @@
       </div>
       <div class="auth-field" id="auth-username-field" hidden>
         <label for="auth-username" data-i18n="username">用户名</label>
-        <input type="text" id="auth-username" name="username" placeholder="3-24 位，字母数字下划线" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <input type="text" id="auth-username" name="username" placeholder="4–9 位用户名" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
       </div>
       <div class="auth-field" id="auth-code-field" hidden>
         <label for="auth-code" data-i18n="verificationCode">邮箱验证码</label>
@@ -155,7 +152,7 @@
 
 <script src="./scripts/fingerprint.js?v=1.1.0"></script>
 <script src="./scripts/auth-config.js?v=1.0.1"></script>
-<script src="./scripts/auth.js?v=1.0.9"></script>
+<script src="./scripts/auth.js?v=1.1.0"></script>
 <script src="./scripts/risk.js?v=1.0.4"></script>
 <script>
 (() => {
@@ -183,15 +180,13 @@
   let mode = 'signin';     // 'signin' | 'signup'
   let recovery = false;    // 从重置密码邮件链接进来
   let awaitingCode = false;
-  let lang = 'zh';
+  let lang = (() => { try { const saved = localStorage.getItem('site-language'); return ['zh','en','ja'].includes(saved) ? saved : 'zh'; } catch (_) { return 'zh'; } })();
 
   const I18N = {
     zh: {
       backHome: '返回首页　↗', tabSignin: '登录', tabSignup: '注册',
       continueGoogle: '使用 Google 继续', continueGithub: '使用 GitHub 继续', orEmail: '或使用邮箱',
-      socialAccountNote: '首次使用 Google 或 GitHub 时，系统会自动创建账号；再次使用同一身份则直接登录。第三方身份不会自动合并到旧账号。',
       privacyLink: '隐私政策与数据处理说明 ↗',
-      socialPrivacyNote: '第三方登录仅用于身份验证，不申请访问 GitHub 仓库或 Google Drive 等额外数据。',
       username: '用户名', emailOrUsername: '邮箱 / 用户名', email: '邮箱地址', password: '密码', verificationCode: '邮箱验证码',
       titleSignin: '登录', titleSignup: '注册', titleRecovery: '设置新密码',
       enter: '登录', create: '发送验证码', verify: '验证并创建账号', save: '保存新密码',
@@ -204,16 +199,14 @@
       resetSent: '重置密码的邮件已发送，去查收。',
       pwdUpdated: '密码已改好，正在回主页…',
       signedIn: '成功，正在回主页…',
-      errEmail: '请填写邮箱或用户名', errEmailFormat: '请输入有效的邮箱地址', errUsername: '用户名要 3-24 位，只能用字母、数字、下划线和短横线', errCode: '请输入邮件中的 6 位验证码', errPwd: '密码至少要 6 位',
+      errEmail: '请填写邮箱或用户名', errEmailFormat: '请输入有效的邮箱地址', errUsername: '用户名要 4–9 位，只能用字母、数字、下划线和短横线', errCode: '请输入邮件中的 6 位验证码', errPwd: '密码至少要 6 位',
       recoveryOk: '链接已生效，设个新密码吧',
       oauthNoRedirect: '登录跳转没有完成，请检查网络或稍后重试。按钮已恢复，可以重新选择登录方式。'
     },
     en: {
       backHome: 'Back to home ↗', tabSignin: 'Sign in', tabSignup: 'Sign up',
       continueGoogle: 'Continue with Google', continueGithub: 'Continue with GitHub', orEmail: 'OR USE EMAIL',
-      socialAccountNote: 'Your first sign-in with Google or GitHub automatically creates an account. Subsequent sign-ins with the same identity will sign you in. Provider identities are never silently merged with legacy accounts.',
       privacyLink: 'Privacy Policy and Data Processing ↗',
-      socialPrivacyNote: 'Social sign-in is only for authentication. It does not request access to GitHub repositories or Google Drive.',
       username: 'Username', emailOrUsername: 'Email / username', email: 'Email address', password: 'Password', verificationCode: 'Email code',
       titleSignin: 'Sign in', titleSignup: 'Sign up', titleRecovery: 'Set a new password',
       enter: 'Sign in', create: 'Send code', verify: 'Verify & create account', save: 'Save password',
@@ -228,11 +221,32 @@
       signedIn: 'Signed in. Heading back…',
       errEmail: 'Enter your email or username',
       errEmailFormat: 'Enter a valid email address',
-      errUsername: 'Username needs 3-24 characters: letters, numbers, _ or -',
+      errUsername: 'Username needs 4–9 characters: letters, numbers, _ or -',
       errCode: 'Enter the 6-digit code from your email',
       errPwd: 'Password needs at least 6 characters',
       recoveryOk: 'Link accepted — set a new password.',
       oauthNoRedirect: 'The sign-in page did not open. Check your connection and try again; the buttons are ready to use.'
+    },
+    ja: {
+      backHome: 'ホームへ戻る ↗', tabSignin: 'ログイン', tabSignup: '新規登録',
+      continueGoogle: 'Google で続行', continueGithub: 'GitHub で続行', orEmail: 'またはメールアドレス',
+      privacyLink: 'プライバシーポリシー ↗',
+      username: 'ユーザー名', emailOrUsername: 'メール / ユーザー名', email: 'メールアドレス', password: 'パスワード', verificationCode: '確認コード',
+      titleSignin: 'ログイン', titleSignup: '新規登録', titleRecovery: '新しいパスワード',
+      enter: 'ログイン', create: '確認コードを送信', verify: '確認して登録', save: '保存',
+      signingIn: 'ログイン中…', creating: '登録中…', saving: '保存中…',
+      forgot: 'パスワードを忘れた場合', resend: '確認メールを再送',
+      placeholderPwd: '6文字以上', placeholderPwdSignin: 'パスワードを入力',
+      highRisk: 'この端末で短時間に複数の登録が行われたため、同期が一時的に制限されています。',
+      needConfirm: 'メールに6桁の確認コードを送信しました。入力して登録を完了してください。',
+      resendOk: '確認メールを再送しました。受信箱をご確認ください。',
+      resetSent: 'パスワード再設定メールを送信しました。',
+      pwdUpdated: 'パスワードを更新しました。ホームに戻ります…',
+      signedIn: 'ログインしました。ホームに戻ります…',
+      errEmail: 'メールアドレスまたはユーザー名を入力してください', errEmailFormat: '有効なメールアドレスを入力してください',
+      errUsername: 'ユーザー名は4〜9文字です。英字・数字・_・- が使えます', errCode: 'メールに届いた6桁のコードを入力してください', errPwd: 'パスワードは6文字以上です',
+      recoveryOk: 'リンクを確認しました。新しいパスワードを設定してください。',
+      oauthNoRedirect: 'ログイン画面へ移動できませんでした。通信を確認して再試行してください。'
     }
   };
 
@@ -245,15 +259,16 @@
   };
 
   const applyLang = () => {
-    document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+    document.documentElement.lang = lang === 'en' ? 'en' : lang === 'ja' ? 'ja' : 'zh-CN';
+    try { localStorage.setItem('site-language', lang); } catch (_) {}
     document.querySelectorAll('[data-i18n]').forEach(node => {
       node.textContent = t(node.dataset.i18n);
     });
-    langBtn.textContent = lang === 'en' ? '中' : 'EN';
+    langBtn.textContent = lang === 'zh' ? 'EN' : lang === 'en' ? '日本語' : '中文';
     render();
   };
 
-  langBtn.addEventListener('click', () => { lang = lang === 'en' ? 'zh' : 'en'; applyLang(); });
+  langBtn.addEventListener('click', () => { lang = lang === 'zh' ? 'en' : lang === 'en' ? 'ja' : 'zh'; applyLang(); });
 
   const submitLabel = () => {
     if (recovery) return t('save');
@@ -270,8 +285,6 @@
       tabs.hidden = true;
       socialBox.hidden = true;
       socialDivider.hidden = true;
-      $('auth-social-note').hidden = true;
-      $('auth-social-privacy').hidden = true;
       passwordInput.setAttribute('autocomplete', 'new-password');
       passwordInput.placeholder = t('placeholderPwd');
       forgotBtn.hidden = true;
@@ -280,14 +293,12 @@
       emailField.hidden = false;
       emailField.querySelector('label').textContent = mode === 'signup' ? t('email') : t('emailOrUsername');
       emailInput.type = mode === 'signup' ? 'email' : 'text';
-      emailInput.placeholder = mode === 'signup' ? 'name@example.com' : (lang === 'en' ? 'Email or old username' : '邮箱地址或旧版用户名');
+      emailInput.placeholder = mode === 'signup' ? 'name@example.com' : (lang === 'en' ? 'Email or username' : lang === 'ja' ? 'メールアドレスまたはユーザー名' : '邮箱地址或用户名');
       usernameField.hidden = mode !== 'signup';
       codeField.hidden = !(mode === 'signup' && awaitingCode);
       tabs.hidden = false;
       socialBox.hidden = false;
       socialDivider.hidden = false;
-      $('auth-social-note').hidden = false;
-      $('auth-social-privacy').hidden = false;
       passwordInput.setAttribute('autocomplete', mode === 'signup' ? 'new-password' : 'current-password');
       passwordInput.placeholder = mode === 'signup' ? t('placeholderPwd') : t('placeholderPwdSignin');
       forgotBtn.hidden = mode === 'signup';
@@ -311,7 +322,7 @@
   forgotBtn.addEventListener('click', async () => {
     const email = emailInput.value.trim();
     if (!email) return show(t('errEmail'));
-    if (!email.includes('@') && !window.siteAuth.usernamePattern.test(email)) return show(t('errEmailFormat'));
+    if (!email.includes('@')) return show(t('errEmailFormat'));
     try {
       await window.siteAuth.requestReset(email);
       show(t('resetSent'), true);

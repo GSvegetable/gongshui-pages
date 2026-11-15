@@ -30,7 +30,7 @@
   // ---------- 用户名 ----------
   // 界面上的身份是「用户名」；Supabase 底层要的是邮箱，
   // 这里做一次转换。用户直接填完整邮箱的也照样认（兼容老账号）。
-  const USERNAME_RE = /^[a-zA-Z0-9][a-zA-Z0-9_-]{2,23}$/;
+  const USERNAME_RE = /^[a-zA-Z0-9][a-zA-Z0-9_-]{3,8}$/;
 
   const toEmail = input => {
     const value = String(input || '').trim();
@@ -96,6 +96,7 @@
     if (!message) return '';
     const text = String(message).toLowerCase();
     if (text.includes('user already registered')) return '这个邮箱已注册，或已有尚未完成验证的账号。请尝试登录，或重新发送确认邮件。';
+    if (text.includes('username already taken') || text.includes('duplicate key value')) return '这个用户名已被使用，请换一个。';
     if (text.includes('invalid login credentials')) return '用户名或密码不对';
     if (text.includes('email not confirmed')) return '这个账号还没完成验证';
     if (text.includes('password should be at least')) return '密码至少要 6 位';
@@ -137,14 +138,46 @@
   };
 
   const cloudSignIn = async ({ email, password }) => {
-    const mail = toEmail(email);
-    const data = await api('/token?grant_type=password', { body: { email: mail, password } });
+    const identifier = String(email || '').trim();
+    let data;
+    if (identifier.includes('@')) {
+      const mail = toEmail(identifier);
+      data = await api('/token?grant_type=password', { body: { email: mail, password } });
+    } else {
+      const response = await fetch(config.url + '/functions/v1/username-login', {
+        method: 'POST',
+        headers: { apikey: config.anonKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: identifier, password })
+      });
+      let payload = {};
+      try { payload = await response.json(); } catch (_) {}
+      if (!response.ok) throw new Error(translate(payload.error) || '用户名或密码不正确');
+      data = payload;
+    }
+    const mail = data.user && data.user.email || identifier;
     const account = { id: data.user && data.user.id, email: mail, username: toUsername(mail, data.user && data.user.user_metadata) };
     storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email: mail, id: account.id, username: account.username });
     user = account;
     notify();
     return { email: mail, username: account.username, userId: account.id, needConfirm: false };
   };
+
+  const rpc = async (name, body = {}) => {
+    const token = session && session.accessToken;
+    if (!token || token === 'local') throw new Error('请先登录');
+    const response = await fetch(config.url + '/rest/v1/rpc/' + encodeURIComponent(name), {
+      method: 'POST',
+      headers: { apikey: config.anonKey, Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    let payload = null;
+    try { payload = await response.json(); } catch (_) {}
+    if (!response.ok) throw new Error(translate(payload && (payload.message || payload.details || payload.hint)) || '操作失败，请稍后再试');
+    return payload;
+  };
+
+  const listUsernames = async () => rpc('list_my_usernames');
+  const addUsername = async username => rpc('add_my_username', { p_username: String(username || '').trim() });
 
   /* ---------- 第三方登录：OAuth 2.0 Authorization Code + PKCE ---------- */
   const OAUTH_FLOW_KEY = 'site-auth-oauth-flow';
@@ -444,6 +477,8 @@
     signOut,
     getUser: () => user,
     usernamePattern: USERNAME_RE,
+    listUsernames,
+    addUsername,
     toEmail,
     getToken: () => (session && session.accessToken) || '',
     redirect,

@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#171717" />
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="./styles/style.css?v=2.9.8" />
+  <link rel="stylesheet" href="./styles/style.css?v=2.10.0" />
   <link rel="stylesheet" href="./styles/orbit-art.css?v=1.2.2" />
   <link rel="stylesheet" href="./styles/globe.css?v=2.8.9" />
 <script src="./scripts/privacy-cleanup.js?v=1.0.0"></script>
@@ -221,17 +221,17 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <div class="site-version" aria-label="网站版本">v2.9.8</div>
-  <script src="./scripts/globe.js?v=2.8.9"></script>
-  <script src="./scripts/main.js?v=2.9.8"></script>
+  <div class="site-version" aria-label="网站版本">v2.10.0</div>
+  <script src="./scripts/globe.js?v=2.9.0"></script>
+  <script src="./scripts/main.js?v=2.10.0"></script>
   <script src="./scripts/nav-history.js?v=1.0.0"></script>
   <script src="./scripts/compare.js?v=1.3.2"></script>
   <script src="./scripts/orbit-versions.js?v=1.3.12"></script>
   <script src="./scripts/scroll-ui.js?v=2.1.1"></script>
   <!-- 账号：配置 → 客户端 → 顶栏入口 → 数据同步，顺序不能换（sync 依赖 auth） -->
   <script src="./scripts/auth-config.js?v=1.0.1"></script>
-  <script src="./scripts/auth.js?v=1.0.9"></script>
-  <script src="./scripts/account.js?v=1.3.0"></script>
+  <script src="./scripts/auth.js?v=1.1.0"></script>
+  <script src="./scripts/account.js?v=1.4.0"></script>
   <script src="./scripts/sync.js?v=1.1.0"></script>
   <script src="./scripts/risk.js?v=1.0.3"></script>
   <script>
@@ -382,6 +382,48 @@
       'site.version': 'Site version'
     };
 
+    const japanese = {
+      'nav.contributors':'クリエイター・貢献者',
+      'nav.settings':'設定','layout.toggle.two':'2列レイアウトに切り替え','layout.toggle.auto':'自動レイアウトに切り替え',
+      'nav.language':'言語を切り替え','account.entry':'ログイン / 新規登録','account.signout':'ログアウト',
+      'settings.title':'設定','mario.home':'ホーム','mario.compass':'コンパス','mario.bookmarks':'ブックマーク',
+      'search.placeholder':'作品を検索…','search.label':'作品を検索','empty.title':'該当する作品はありません',
+      'search.found':'{n}件の作品が見つかりました','search.none':'一致する作品が見つかりません',
+      'empty.noWorks':'まだ作品がありません','empty.noMatch':'一致する作品が見つかりません',
+      'empty.bookmarkEmpty':'まだブックマークした作品はありません','empty.bookmarkNoMatch':'このフォルダーに一致する作品はありません',
+      'empty.folderEmpty':'フォルダーは空です。作品をブックマークして追加してください。','empty.folderNoMatch':'一致するフォルダーはありません',
+      'bookmarks.title':'ブックマーク','folders.new':'新しいフォルダー','folders.back':'フォルダー一覧に戻る',
+      'folders.rename':'フォルダー名を変更','folders.delete':'フォルダーを削除','folders.count':'{n}件の作品',
+      'folders.empty':'フォルダーはまだありません。「新しいフォルダー」から整理を始めましょう。',
+      'folders.picker.title':'フォルダーに保存','folders.picker.new':'新しいフォルダー名','folders.picker.add':'追加',
+      'folders.picker.close':'閉じる','folders.remove':'フォルダーから削除','bookmark.remove':'削除',
+      'card.daylight':'Pixel Daylight Switch','card.orbit':'Pixel Orbit',
+      'card.daylight.aria':'Pixel Daylight Switch の詳細を開く','card.orbit.aria':'Pixel Orbit の詳細を開く',
+      'tag.pixel':'ピクセルアート','detail.daylight':'Pixel Daylight Switch','detail.orbit':'Pixel Orbit',
+      'detail.daylight.description':'屈折するガラススイッチの中に広がる小さなピクセルの世界。スイッチを動かすと、昼から夕暮れ、夜へと自然に移り変わります。海辺の灯台は操作できるシーンのひとつです。',
+      'detail.orbit.description':'時間とともに変化する小さなピクセル世界。リングをドラッグしたり時刻を調整したりして、朝から真夜中まで空や太陽、月、雲、家の明かりの変化を楽しめます。',
+      'project.link':'GitHub プロジェクトを見る','gallery.scenes':'シーン','gallery.versions':'ビジュアルバージョン',
+      'compare.title':'シーン比較','compare.hint':'フレームをタップして、シーン選択を適用する表示を選びます。作品自体はそのまま操作できます。',
+      'compare.selected':'選択中','compare.selectMain':'メイン表示を選択','compare.selectSub':'比較表示を選択','compare.toggle':'バージョン比較',
+      'contributors.title':'クリエイター・貢献者','compass.view.title':'コンパス','compass.view.note':'地球を展開しています…',
+      'globe.view.title':'貢献者の地球','globe.loading':'地球を展開しています…','globe.night':'夜景','globe.day':'昼景',
+      'globe.cta':'＋ 自分の旗を追加','globe.cta.title':'GitHub から投稿すると、あなたの旗を立てます',
+      'globe.search.placeholder':'作者を検索…','globe.stats':'{countries}か国の{count}人の作者',
+      'globe.empty':'まだ貢献者はいません。最初の旗を立てましょう','globe.nowebgl':'この端末は WebGL に対応していません。リストを表示します。',
+      'globe.error':'地球を読み込めませんでした：{msg}','globe.network':'ネットワークエラー','globe.retry':'再試行','globe.close':'閉じる',
+      'globe.work':'作品を見る · {title}','embed.title':'ページに埋め込む',
+      'embed.note':'下のコードをコピーすると、作品をページに表示できます。スタイルは専用コンテナ内に収まり、ページのレイアウトには影響しません。',
+      'embed.note.daylight':'作品はこのスクリプトの上に表示されます。data-scene を countryside / japanese-street / apartment / seaside / mountain-cabin に変更すると別のシーンを表示できます。',
+      'embed.note.orbit':'data-scene で countryside、planet、world を選択し、data-composition で art（ホーム表示用の切り抜き）または full（リング全体）を選択します。',
+      'embed.copy':'コピー','embed.copied':'コピーしました','explore.title':'もっと見る',
+      'orbit.version.planet':'惑星','orbit.version.countryside':'田園','orbit.version.world':'リングワールド',
+      'orbit.note.planet':'球体地形 · 昼夜の軌道','orbit.note.countryside':'田舎の家 · 昼夜の移り変わり','orbit.note.world':'168 px · 昼夜ダイヤル',
+      'scene.countryside':'田舎の家','scene.japanese-street':'日本の街並み','scene.apartment':'モダンなアパート',
+      'scene.seaside':'海辺の灯台','scene.mountain-cabin':'山小屋',
+      'action.bookmark':'作品をブックマーク','action.expand':'作品エリアを拡大','action.restore':'作品の詳細に戻る',
+      'action.close':'作品の詳細を閉じる','site.version':'サイトバージョン'
+    };
+
     // [字符串 key, 目标选择器, 属性名(留空表示改文本)]
     const targets = [
       ['nav.settings', '#settings-toggle', 'aria-label'],
@@ -448,7 +490,7 @@
       'mountain-cabin': 'scene.mountain-cabin'
     };
 
-    let language = 'zh';
+    let language = (() => { try { const saved = localStorage.getItem('site-language'); return ['zh','en','ja'].includes(saved) ? saved : 'zh'; } catch (_) { return 'zh'; } })();
     const original = new Map();
 
     const remember = (key, el, attr) => {
@@ -458,8 +500,9 @@
     const put = (key, el, attr, lang) => {
       if (!el || !strings[key]) return;
       const zh = remember(key, el, attr);
-      if (attr) el.setAttribute(attr, lang === 'en' ? strings[key] : zh);
-      else el.textContent = lang === 'en' ? strings[key] : zh;
+      const translated = lang === 'en' ? strings[key] : lang === 'ja' ? (japanese[key] || strings[key]) : zh;
+      if (attr) el.setAttribute(attr, translated);
+      else el.textContent = translated;
     };
 
     const apply = lang => {
@@ -483,7 +526,7 @@
     window.siteI18n = {
       get lang() { return language; },
       t(key, vars) {
-        let value = strings[key];
+        let value = language === 'ja' ? (japanese[key] || strings[key]) : strings[key];
         if (value == null) return null;
         if (vars) {
           Object.keys(vars).forEach(name => {
@@ -495,14 +538,19 @@
     };
 
     button.addEventListener('click', () => {
-      language = language === 'zh' ? 'en' : 'zh';
+      language = language === 'zh' ? 'en' : language === 'en' ? 'ja' : 'zh';
+      try { localStorage.setItem('site-language', language); } catch (_) {}
       apply(language);
-      document.documentElement.lang = language === 'en' ? 'en' : 'zh-CN';
-      button.textContent = language === 'en' ? '中文' : 'EN';
-      button.setAttribute('aria-label', language === 'en' ? '切换语言' : 'Switch language');
+      document.documentElement.lang = language === 'en' ? 'en' : language === 'ja' ? 'ja' : 'zh-CN';
+      button.textContent = language === 'zh' ? 'EN' : language === 'en' ? '日本語' : '中文';
+      button.setAttribute('aria-label', language === 'ja' ? '言語を切り替え' : language === 'en' ? 'Switch language' : '切换语言');
       // 动态文案（搜索状态 / 空状态 / 放大按钮）由 main.js 重新渲染
       document.dispatchEvent(new CustomEvent('site:languagechange', { detail: { language } }));
     });
+    document.documentElement.lang = language === 'en' ? 'en' : language === 'ja' ? 'ja' : 'zh-CN';
+    button.textContent = language === 'zh' ? 'EN' : language === 'en' ? '日本語' : '中文';
+    apply(language);
+    if (language !== 'zh') document.dispatchEvent(new CustomEvent('site:languagechange', { detail: { language } }));
   })();
   </script>
 </body>
