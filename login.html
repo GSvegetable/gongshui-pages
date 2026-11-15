@@ -155,7 +155,7 @@
 
 <script src="./scripts/fingerprint.js?v=1.1.0"></script>
 <script src="./scripts/auth-config.js?v=1.0.1"></script>
-<script src="./scripts/auth.js?v=1.0.8"></script>
+<script src="./scripts/auth.js?v=1.0.9"></script>
 <script src="./scripts/risk.js?v=1.0.4"></script>
 <script>
 (() => {
@@ -205,7 +205,8 @@
       pwdUpdated: '密码已改好，正在回主页…',
       signedIn: '成功，正在回主页…',
       errEmail: '请填写邮箱或用户名', errEmailFormat: '请输入有效的邮箱地址', errUsername: '用户名要 3-24 位，只能用字母、数字、下划线和短横线', errCode: '请输入邮件中的 6 位验证码', errPwd: '密码至少要 6 位',
-      recoveryOk: '链接已生效，设个新密码吧'
+      recoveryOk: '链接已生效，设个新密码吧',
+      oauthNoRedirect: '登录跳转没有完成，请检查网络或稍后重试。按钮已恢复，可以重新选择登录方式。'
     },
     en: {
       backHome: 'Back to home ↗', tabSignin: 'Sign in', tabSignup: 'Sign up',
@@ -230,7 +231,8 @@
       errUsername: 'Username needs 3-24 characters: letters, numbers, _ or -',
       errCode: 'Enter the 6-digit code from your email',
       errPwd: 'Password needs at least 6 characters',
-      recoveryOk: 'Link accepted — set a new password.'
+      recoveryOk: 'Link accepted — set a new password.',
+      oauthNoRedirect: '登录跳转没有完成，请检查网络或稍后重试。按钮已恢复，可以重新选择登录方式。'
     }
   };
 
@@ -331,21 +333,33 @@
     resendBtn.disabled = false;
   });
 
-  const resetSocialButtons = () => { googleBtn.disabled = false; githubBtn.disabled = false; };
+  let socialWatchdog = null;
+  const resetSocialButtons = () => {
+    if (socialWatchdog) { clearTimeout(socialWatchdog); socialWatchdog = null; }
+    googleBtn.disabled = false;
+    githubBtn.disabled = false;
+  };
   // OAuth 页面可能被浏览器保存在 BFCache；取消授权返回时必须恢复按钮状态。
   window.addEventListener('pageshow', resetSocialButtons);
   window.addEventListener('pagehide', () => { resetSocialButtons(); });
 
   const startSocialLogin = async provider => {
     show('');
+    const startedAtUrl = location.href;
     googleBtn.disabled = true;
     githubBtn.disabled = true;
     try {
       await window.siteAuth.signInWithOAuth(provider, mode === 'signup' ? 'signup' : 'signin');
+      // 如果浏览器拦截跳转、网络异常或授权地址没有真正打开，不能让按钮永久禁用。
+      socialWatchdog = setTimeout(() => {
+        if (location.href === startedAtUrl && document.visibilityState === 'visible') {
+          resetSocialButtons();
+          show(t('oauthNoRedirect'), false);
+        }
+      }, 15000);
     } catch (error) {
+      resetSocialButtons();
       show(error && error.message ? error.message : '第三方登录暂时不可用，请稍后再试');
-      googleBtn.disabled = false;
-      githubBtn.disabled = false;
     }
   };
   googleBtn.addEventListener('click', () => startSocialLogin('google'));
