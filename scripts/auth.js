@@ -72,6 +72,19 @@
     const map = readAccountTokens(); map[id] = token;
     try { localStorage.setItem(ACCOUNT_TOKENS_KEY, JSON.stringify(map)); } catch (_) {}
   };
+  const removeAccountToken = id => {
+    if (!id) return;
+    const map = readAccountTokens();
+    if (!Object.prototype.hasOwnProperty.call(map, id)) return;
+    delete map[id];
+    try {
+      if (Object.keys(map).length) localStorage.setItem(ACCOUNT_TOKENS_KEY, JSON.stringify(map));
+      else localStorage.removeItem(ACCOUNT_TOKENS_KEY);
+    } catch (_) {}
+  };
+  const clearAccountTokens = () => {
+    try { localStorage.removeItem(ACCOUNT_TOKENS_KEY); } catch (_) {}
+  };
 
   /* ---------- 云端：Supabase REST ---------- */
 
@@ -208,15 +221,27 @@
   const switchAccount = async userId => {
     const refreshToken = readAccountTokens()[userId];
     if (!refreshToken) throw new Error('这台设备没有保存该账号的登录凭据，请先用该账号登录一次');
-    const data = await api('/token?grant_type=refresh_token', { body: { refresh_token: refreshToken } });
-    const mail = data.user?.email || '';
-    const id = data.user?.id || userId;
-    session = { accessToken: data.access_token, refreshToken: data.refresh_token, email: mail, id };
-    storeSession(session);
-    const me = await api('/user', { method: 'GET', token: session.accessToken });
-    user = { id, email: me.email || mail, username: toUsername(me.email || mail, me.user_metadata), avatarUrl: me.user_metadata?.avatar_url || me.user_metadata?.picture || '' };
-    notify();
-    return user;
+    try {
+      const data = await api('/token?grant_type=refresh_token', { body: { refresh_token: refreshToken } });
+      const mail = data.user?.email || '';
+      const id = data.user?.id || userId;
+      session = { accessToken: data.access_token, refreshToken: data.refresh_token, email: mail, id };
+      storeSession(session);
+      const me = await api('/user', { method: 'GET', token: session.accessToken });
+      user = { id, email: me.email || mail, username: toUsername(me.email || mail, me.user_metadata), avatarUrl: me.user_metadata?.avatar_url || me.user_metadata?.picture || '' };
+      notify();
+      return user;
+    } catch (error) {
+      if ([400, 401, 403].includes(error && error.status)) {
+        removeAccountToken(userId);
+        if (session && session.id === userId) {
+          storeSession(null);
+          user = null;
+          notify();
+        }
+      }
+      throw error;
+    }
   };
 
   /* ---------- 第三方登录：OAuth 2.0 Authorization Code + PKCE ---------- */
@@ -285,7 +310,8 @@
       storeSession(session);
       notify();
       return user;
-    } catch (_) {
+    } catch (error) {
+      if (saved.id && [400, 401, 403].includes(error && error.status)) removeAccountToken(saved.id);
       storeSession(null);
       user = null;
       notify();
@@ -297,7 +323,10 @@
   };
 
   const cloudSignOut = async () => {
+    const accountId = (session && session.id) || (user && user.id);
     try { await api('/logout', { token: session && session.accessToken }); } catch (_) {}
+    if (accountId) removeAccountToken(accountId);
+    clearAccountTokens();
     storeSession(null);
     user = null;
     notify();
@@ -431,7 +460,7 @@
   const verifySignupOtp = payload => cloud ? cloudVerifySignupOtp(payload) : Promise.reject(new Error('账号服务尚未配置，暂时不能验证邮箱。请稍后再试。'));
   const signIn = payload => cloud ? cloudSignIn(payload) : Promise.reject(new Error('账号服务尚未配置，暂时不能注册或登录。请稍后再试。'));
   const signInWithOAuth = (provider, intent) => cloudOAuthSignIn(provider, intent);
-  const signOut = () => cloud ? cloudSignOut() : (storeSession(null), user = null, notify(), Promise.resolve());
+  const signOut = () => cloud ? cloudSignOut() : (clearAccountTokens(), storeSession(null), user = null, notify(), Promise.resolve());
 
   // Multiple page modules call restore during startup; serialize it to avoid
   // concurrent refresh-token rotation and accidental session invalidation.
