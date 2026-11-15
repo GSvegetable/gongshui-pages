@@ -16,7 +16,7 @@ as $$
 declare v_id varchar(11);
 begin
   loop
-    v_id := translate(substr(encode(gen_random_bytes(16), 'hex'), 1, 11), 'abcdef', '456789');
+    v_id := translate(substr(replace(gen_random_uuid()::text, '-', ''), 1, 11), 'abcdef', '456789');
     exit when not exists (select 1 from private.account_profiles where public_id = v_id);
   end loop;
   return v_id;
