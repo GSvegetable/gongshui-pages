@@ -53,7 +53,7 @@
     session = value;
     try {
       if (value) localStorage.setItem(SESSION_KEY, JSON.stringify({
-        refreshToken: value.refreshToken, email: value.email
+        refreshToken: value.refreshToken, email: value.email, id: value.id
       }));
       else localStorage.removeItem(SESSION_KEY);
     } catch (_) {}
@@ -61,6 +61,13 @@
 
   const readSession = () => {
     try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch (_) { return null; }
+  };
+  const ACCOUNT_TOKENS_KEY = 'site-linked-account-tokens';
+  const readAccountTokens = () => { try { return JSON.parse(localStorage.getItem(ACCOUNT_TOKENS_KEY) || '{}'); } catch (_) { return {}; } };
+  const saveAccountToken = (id, token) => {
+    if (!id || !token) return;
+    const map = readAccountTokens(); map[id] = token;
+    try { localStorage.setItem(ACCOUNT_TOKENS_KEY, JSON.stringify(map)); } catch (_) {}
   };
 
   /* ---------- 云端：Supabase REST ---------- */
@@ -178,6 +185,36 @@
 
   const listUsernames = async () => rpc('list_my_usernames');
   const addUsername = async username => rpc('add_my_username', { p_username: String(username || '').trim() });
+  const updateUsername = async (oldUsername, newUsername) => rpc('update_my_username', {
+    p_old_username: String(oldUsername || '').trim(), p_new_username: String(newUsername || '').trim()
+  });
+  const listLinkedAccounts = async () => rpc('list_my_linked_accounts');
+  const linkAccount = async ({ identifier, password }) => {
+    if (!cloud || !session?.accessToken) throw new Error('请先登录');
+    const response = await fetch(config.url + '/functions/v1/link-account', {
+      method: 'POST',
+      headers: { apikey: config.anonKey, Authorization: 'Bearer ' + session.accessToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier, password })
+    });
+    let payload = {};
+    try { payload = await response.json(); } catch (_) {}
+    if (!response.ok) throw new Error(translate(payload.error) || payload.error || '添加账号失败');
+    saveAccountToken(payload.user?.id, payload.refresh_token);
+    return payload.user;
+  };
+  const switchAccount = async userId => {
+    const refreshToken = readAccountTokens()[userId];
+    if (!refreshToken) throw new Error('这台设备没有保存该账号的登录凭据，请先用该账号登录一次');
+    const data = await api('/token?grant_type=refresh_token', { body: { refresh_token: refreshToken } });
+    const mail = data.user?.email || '';
+    const id = data.user?.id || userId;
+    session = { accessToken: data.access_token, refreshToken: data.refresh_token, email: mail, id };
+    storeSession(session);
+    const me = await api('/user', { method: 'GET', token: session.accessToken });
+    user = { id, email: me.email || mail, username: toUsername(me.email || mail, me.user_metadata), avatarUrl: me.user_metadata?.avatar_url || me.user_metadata?.picture || '' };
+    notify();
+    return user;
+  };
 
   /* ---------- 第三方登录：OAuth 2.0 Authorization Code + PKCE ---------- */
   const OAUTH_FLOW_KEY = 'site-auth-oauth-flow';
@@ -236,7 +273,7 @@
     if (!saved || !saved.refreshToken) return null;
     try {
       const data = await api('/token?grant_type=refresh_token', { body: { refresh_token: saved.refreshToken } });
-      session = { accessToken: data.access_token, refreshToken: data.refresh_token, email: saved.email };
+      session = { accessToken: data.access_token, refreshToken: data.refresh_token, email: saved.email, id: saved.id };
       storeSession(session);
       const me = await api('/user', { method: 'GET', token: session.accessToken });
       const mail = (me && me.email) || saved.email;
@@ -479,6 +516,10 @@
     usernamePattern: USERNAME_RE,
     listUsernames,
     addUsername,
+    updateUsername,
+    listLinkedAccounts,
+    linkAccount,
+    switchAccount,
     toEmail,
     getToken: () => (session && session.accessToken) || '',
     redirect,
