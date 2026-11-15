@@ -143,8 +143,21 @@
     return String(message);
   };
 
+  const checkPasswordPolicy = async password => {
+    const response = await fetch(config.url + '/functions/v1/password-policy', {
+      method: 'POST',
+      headers: { apikey: config.anonKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+    let payload = {};
+    try { payload = await response.json(); } catch (_) {}
+    if (!response.ok) throw new Error(translate(payload.error) || '暂时无法完成密码安全检查，请稍后再试');
+    return payload;
+  };
+
   const cloudSignUp = async ({ email, password, username }) => {
     if (String(password || '').length < MIN_PASSWORD_LENGTH) throw new Error('新密码至少需要 12 位');
+    await checkPasswordPolicy(password);
     const mail = toEmail(email);
     const cleanUsername = String(username || toUsername(mail)).trim();
     const data = await api('/signup', { body: { email: mail, password, data: { username: cleanUsername } } });
@@ -455,6 +468,7 @@
   // 拿着邮件链接换来的会话，把新密码写回去
   const updatePassword = async password => {
     if (String(password || '').length < MIN_PASSWORD_LENGTH) throw new Error('新密码至少需要 12 位');
+    await checkPasswordPolicy(password);
     const token = session && session.accessToken;
     if (!token) throw new Error('会话过期了，请重新点一次邮件链接');
     await api('/user', { method: 'PUT', token, body: { password } });
