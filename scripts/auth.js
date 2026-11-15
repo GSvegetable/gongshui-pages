@@ -11,7 +11,7 @@
 
    云端模式走 Supabase 的 REST 接口（不用 SDK，省掉几十 KB）：
      POST {url}/auth/v1/signup
-     POST {url}/auth/v1/token?grant_type=password
+     POST {url}/functions/v1/username-login（邮箱和用户名统一限流）
      POST {url}/auth/v1/token?grant_type=refresh_token
      POST {url}/auth/v1/logout
      GET  {url}/auth/v1/user
@@ -171,22 +171,16 @@
 
   const cloudSignIn = async ({ email, password }) => {
     const identifier = String(email || '').trim();
-    let data;
-    if (identifier.includes('@')) {
-      const mail = toEmail(identifier);
-      data = await api('/token?grant_type=password', { body: { email: mail, password } });
-    } else {
-      const response = await fetch(config.url + '/functions/v1/username-login', {
-        method: 'POST',
-        headers: { apikey: config.anonKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: identifier, password })
-      });
-      let payload = {};
-      try { payload = await response.json(); } catch (_) {}
-      if (!response.ok) throw new Error(translate(payload.error) || '用户名或密码不正确');
-      data = payload;
-    }
-    const mail = data.user && data.user.email || identifier;
+    const response = await fetch(config.url + '/functions/v1/username-login', {
+      method: 'POST',
+      headers: { apikey: config.anonKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: identifier, password })
+    });
+    let payload = {};
+    try { payload = await response.json(); } catch (_) {}
+    if (!response.ok) throw new Error(translate(payload.error) || '用户名或密码不正确');
+    const data = payload;
+    const mail = data.user && data.user.email || (identifier.includes('@') ? identifier : toEmail(identifier));
     const account = { id: data.user && data.user.id, email: mail, username: toUsername(mail, data.user && data.user.user_metadata) };
     storeSession({ accessToken: data.access_token, refreshToken: data.refresh_token, email: mail, id: account.id, username: account.username });
     user = account;

@@ -49,7 +49,9 @@ Deno.serve(async (req: Request) => {
 
     const name = String(body.username || "").trim();
     const pass = String(body.password || "");
-    if (!/^[A-Za-z0-9][A-Za-z0-9_-]{3,8}$/.test(name) || !pass || pass.length > 1024) {
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(name);
+    const isUsername = /^[A-Za-z0-9][A-Za-z0-9_-]{3,8}$/.test(name);
+    if ((!isEmail && !isUsername) || name.length > 320 || !pass || pass.length > 1024) {
       return json({ error: "用户名或密码不正确" }, 400);
     }
 
@@ -58,7 +60,8 @@ Deno.serve(async (req: Request) => {
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
     if (!url || !serviceKey || !anonKey) throw new Error("Auth service configuration missing");
 
-    const subjectHash = await hmacHex(serviceKey, "username-login:" + name.toLowerCase());
+    // HMAC avoids storing raw usernames, emails, or reversible plain hashes in the throttle table.
+    const subjectHash = await hmacHex(serviceKey, "password-login:" + name.toLowerCase());
     const throttleRes = await fetch(url + "/rest/v1/rpc/consume_username_login_rate_limit", {
       method: "POST",
       headers: {
@@ -75,18 +78,23 @@ Deno.serve(async (req: Request) => {
       return json({ error: "尝试次数过多，请 15 分钟后再试" }, 429, { "Retry-After": String(retry) });
     }
 
-    const lookup = await fetch(url + "/rest/v1/rpc/resolve_username_email", {
-      method: "POST",
-      headers: {
-        apikey: serviceKey,
-        Authorization: "Bearer " + serviceKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ p_username: name }),
-    });
-    if (!lookup.ok) throw new Error("Username lookup failed");
-    const accountEmail = await lookup.json();
+    let accountEmail: string | null = isEmail ? name : null;
+    if (!isEmail) {
+      const lookup = await fetch(url + "/rest/v1/rpc/resolve_username_email", {
+        method: "POST",
+        headers: {
+          apikey: serviceKey,
+          Authorization: "Bearer " + serviceKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ p_username: name }),
+      });
+      if (!lookup.ok) throw new Error("Username lookup failed");
+      accountEmail = await lookup.json();
+    }
 
+    // Always execute the same password-auth request, even for unknown usernames,
+    // so the response path does not immediately reveal whether a username exists.
     const authEmail = typeof accountEmail === "string" && accountEmail
       ? accountEmail
       : crypto.randomUUID() + "@example.com";
