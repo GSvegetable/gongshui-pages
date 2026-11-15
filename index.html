@@ -548,7 +548,7 @@
       document.dispatchEvent(new CustomEvent('site:languagechange', { detail: { language } }));
     });
     document.documentElement.lang = language === 'en' ? 'en' : language === 'ja' ? 'ja' : 'zh-CN';
-    button.textContent = language === 'en' ? '中文' : language === 'ja' ? 'EN' : '日本語';
+    button.textContent = language === 'zh' ? 'EN' : language === 'en' ? '日本語' : '中文';
     apply(language);
     if (language !== 'zh') document.dispatchEvent(new CustomEvent('site:languagechange', { detail: { language } }));
   })();
