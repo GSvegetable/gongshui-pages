@@ -1218,3 +1218,12 @@ body.is-bookmarks .bookmarks-toolbar .folder-new {
   font-weight:600;
   letter-spacing:.15px;
 }
+
+/* v2.9.8 — language/globe icon and stronger Sign in lettering */
+.top-utility-actions > .account-entry:not(.is-signed-in) {
+  font-weight:800;
+  letter-spacing:.1px;
+}
+.top-utility-actions .settings-toggle .settings-icon {
+  stroke-width:2;
+}
