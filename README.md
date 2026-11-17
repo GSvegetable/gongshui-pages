@@ -64,7 +64,7 @@
 
 ```html
 <script
-  src="https://gsvegetable.github.io/1_pixel-daylight-switch/embed.js"
+  src="https://gsvegetable.github.io/gongshui-open-source/pixel-daylight-switch/embed.js"
   data-scene="seaside"
 ></script>
 ```
