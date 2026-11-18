@@ -97,9 +97,7 @@ gongshui-pages/
 
 详细说明请参阅 [隐私政策](privacy.html)。
 
-## 更新记录
-
-[![快速迭代 · X @gsyxyc](readme-banner.svg)](readme-links.html)
+[![快速迭代 · X @gsyxyc](readme-banner.svg)](https://x.com/gsyxyc)
 
 ## 许可证
 
