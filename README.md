@@ -30,7 +30,6 @@ gongshui-pages/
 ├── privacy.html                                # 隐私政策页面。
 ├── banner.png                                  # README 顶部使用的项目横幅图片。
 ├── scene-gallery.png                           # 像素昼夜开关的多场景预览图，点击可直接打开对应作品的放大详情。
-├── readme-directory002.svg                         # README 中用于打开像素昼夜开关体验页的动态入口图。
 ├── readme-banner.svg                           # README 底部使用的社交媒体与更新提示横幅。
 ├── README.md                                   # 简体中文项目说明文档。
 ├── README.en.md                                # 英文项目说明文档。
