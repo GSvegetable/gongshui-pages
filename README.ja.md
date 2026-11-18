@@ -27,6 +27,8 @@ gongshui-pages/
 ├── admin.html
 ├── privacy.html
 ├── banner.png
+├── readme-banner.svg
+├── readme-links.html
 ├── README.md
 ├── README.en.md
 ├── README.ja.md
@@ -97,7 +99,7 @@ gongshui-pages/
 
 ## 更新履歴
 
-バージョンごとの変更は [CHANGELOG.md](CHANGELOG.md) を参照してください。
+[![快速迭代 · X @gsyxyc](readme-banner.svg)](readme-links.html)
 
 ## ライセンス
 
