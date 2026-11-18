@@ -21,7 +21,7 @@
 
 </details>
 
-[![Gongshui.com — a space for showcasing projects and web interaction experiments](readme-about-v2.svg)](#project-preview)
+[![Click to view the project directory](readme-directory002.svg)](#project-preview)
 
 ## Project Structure
 
@@ -33,7 +33,7 @@ gongshui-pages/
 ├── privacy.html                                # Privacy policy page.
 ├── banner.png                                  # Project banner displayed at the top of the README.
 ├── scene-gallery.png                           # Multi-scene preview image for Pixel Daylight Switch; clicking opens its expanded detail view.
-├── readme-about-v2.svg                         # SVG graphic introducing the project's purpose and identity.
+├── readme-directory002.svg                         # SVG graphic introducing the project's purpose and identity.
 ├── readme-banner.svg                           # Social and update banner displayed near the bottom of the README.
 ├── README.md                                   # —
 ├── README.en.md                                # —
