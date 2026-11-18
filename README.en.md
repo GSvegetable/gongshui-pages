@@ -16,9 +16,9 @@
 
 Gongshui.com is a space for showcasing personal projects and web interaction experiments.
 
-## Project Structure
+[Click here to visit the website](https://xn--3bts89a.com/)
 
-The main files and directories below match the repository.
+## Project Structure
 
 ```text
 gongshui-pages/
