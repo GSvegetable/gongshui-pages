@@ -85,8 +85,6 @@ gongshui-pages/
     └── migrations/
 ```
 
-## 技術スタック
-
 ![Tech Stack](assets/badges/tech-stack.svg)
 
 
