@@ -98,7 +98,7 @@ gongshui-pages/
 
 ユーザー情報はサイトサービスの提供にのみ使用し、法令に従って適切に保護します。
 
-詳細は[プライバシーポリシー](privacy.html)をご覧ください。
+詳細は[プライバシーポリシー](privacy.html)、[フロントエンド認証ロジックのソースコード](https://github.com/GSvegetable/gongshui-pages/tree/main/scripts)、および[サーバー側・データベースの実装](https://github.com/GSvegetable/gongshui-pages/tree/main/supabase)をご覧ください。
 
 [![快速迭代 · X @gsyxyc](readme-banner.svg)](https://x.com/gsyxyc)
 
