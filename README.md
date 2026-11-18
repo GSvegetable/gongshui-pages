@@ -18,15 +18,6 @@
 
 ---
 
-<details open>
-<summary>像素昼夜开关 · 点击可收起或展开预览</summary>
-
-<a href="https://xn--3bts89a.com/?work=pixel-daylight-switch" target="_blank" rel="noopener noreferrer"><img src="scene-gallery.png" alt="五组动态像素世界场景预览" /></a>
-
-</details>
-
-[![点击体验像素昼夜开关](readme-directory002.svg)](https://xn--3bts89a.com/?work=pixel-daylight-switch)
-
 <a id="project-structure"></a>
 
 ## 项目结构
