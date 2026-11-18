@@ -1,5 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="40" viewBox="0 0 1000 40" role="img" aria-label="HTML5 · CSS3 · JavaScript · Supabase · PostgreSQL · Vercel · GitHub">
+  <defs>
+    <radialGradient id="blueGlow">
+      <stop offset="0" stop-color="#8DBBFF" stop-opacity=".22"/>
+      <stop offset=".48" stop-color="#A9CEFF" stop-opacity=".10"/>
+      <stop offset="1" stop-color="#C7DDFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softBlur" x="-80%" y="-180%" width="260%" height="460%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+  </defs>
   <rect width="1000" height="40" rx="8" fill="#F3F4F6"/>
+  <g filter="url(#softBlur)">
+    <ellipse cx="116" cy="9" rx="82" ry="15" fill="url(#blueGlow)"/>
+    <ellipse cx="342" cy="31" rx="104" ry="13" fill="url(#blueGlow)"/>
+    <ellipse cx="585" cy="8" rx="91" ry="14" fill="url(#blueGlow)"/>
+    <ellipse cx="824" cy="29" rx="112" ry="15" fill="url(#blueGlow)"/>
+    <ellipse cx="964" cy="12" rx="54" ry="13" fill="url(#blueGlow)"/>
+  </g>
   <path d="M142.8 8V32 M285.6 8V32 M428.4 8V32 M571.2 8V32 M714 8V32 M856.8 8V32" stroke="#D1D5DB" stroke-width="1"/>
   <g fill="#374151" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="600" text-anchor="middle">
     <text x="71" y="25">HTML5</text>
