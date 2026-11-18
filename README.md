@@ -18,14 +18,14 @@
 
 ---
 
-<details>
-<summary>像素昼夜开关</summary>
+<details open>
+<summary>像素昼夜开关 · 点击可收起或展开预览</summary>
 
 <a href="https://xn--3bts89a.com/?work=pixel-daylight-switch" target="_blank" rel="noopener noreferrer"><img src="scene-gallery.png" alt="五组动态像素世界场景预览" /></a>
 
 </details>
 
-[![点击查看项目目录](readme-directory002.svg)](#project-structure)
+[![点击体验像素昼夜开关](readme-directory002.svg)](https://xn--3bts89a.com/?work=pixel-daylight-switch)
 
 <a id="project-structure"></a>
 
@@ -39,7 +39,7 @@ gongshui-pages/
 ├── privacy.html                                # 隐私政策页面。
 ├── banner.png                                  # README 顶部使用的项目横幅图片。
 ├── scene-gallery.png                           # 像素昼夜开关的多场景预览图，点击可直接打开对应作品的放大详情。
-├── readme-directory002.svg                         # README 中展示项目定位与简介的 SVG 图。
+├── readme-directory002.svg                         # README 中用于打开像素昼夜开关体验页的动态入口图。
 ├── readme-banner.svg                           # README 底部使用的社交媒体与更新提示横幅。
 ├── README.md                                   # 简体中文项目说明文档。
 ├── README.en.md                                # 英文项目说明文档。
