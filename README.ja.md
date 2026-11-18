@@ -97,9 +97,7 @@ gongshui-pages/
 
 詳細は[プライバシーポリシー](privacy.html)をご覧ください。
 
-## 更新履歴
-
-[![快速迭代 · X @gsyxyc](readme-banner.svg)](readme-links.html)
+[![快速迭代 · X @gsyxyc](readme-banner.svg)](https://x.com/gsyxyc)
 
 ## ライセンス
 
