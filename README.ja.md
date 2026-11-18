@@ -85,21 +85,11 @@ gongshui-pages/
     └── migrations/
 ```
 
-## 主な特徴
-
-- **投稿者地球**：インタラクティブな地球で投稿者の分布を表示。
-- **Web インタラクション実験**：独自のビジュアルと操作性を持つ作品を紹介。
-- **作品比較**：異なる作品やバージョンを並べて比較。
-
 ## 技術スタック
 
-[![HTML5](assets/badges/html5.svg)](https://developer.mozilla.org/docs/Web/HTML)
-[![CSS3](assets/badges/css3.svg)](https://developer.mozilla.org/docs/Web/CSS)
-[![JavaScript](assets/badges/javascript.svg)](https://developer.mozilla.org/docs/Web/JavaScript)
-[![Supabase](assets/badges/supabase.svg)](https://supabase.com/)
-[![PostgreSQL](assets/badges/postgresql.svg)](https://www.postgresql.org/)
-[![Vercel](assets/badges/vercel.svg)](https://vercel.com/)
-[![GitHub](assets/badges/github.svg)](https://github.com/)
+![Tech Stack](assets/badges/tech-stack.svg)
+
+
 
 ## アカウントとプライバシー
 
