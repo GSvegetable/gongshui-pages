@@ -27,6 +27,8 @@ gongshui-pages/
 ├── admin.html
 ├── privacy.html
 ├── banner.png
+├── readme-banner.svg
+├── readme-links.html
 ├── README.md
 ├── README.en.md
 ├── README.ja.md
@@ -97,7 +99,7 @@ See our [Privacy Policy](privacy.html) for details.
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for release updates.
+[![Rapidly evolving · X @gsyxyc](readme-banner.svg)](readme-links.html)
 
 ## License
 
