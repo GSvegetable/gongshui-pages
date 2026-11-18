@@ -98,7 +98,7 @@ gongshui-pages/
 
 用户信息仅用于提供网站服务，并依法采取安全措施予以保护。
 
-详情请参阅 [隐私政策](privacy.html)。
+详情请参阅 [隐私政策](privacy.html)，或 [查看源码](https://github.com/GSvegetable/gongshui-pages/tree/main/scripts)（前端认证逻辑）及 [服务端与数据库实现](https://github.com/GSvegetable/gongshui-pages/tree/main/supabase)。
 
 [![快速迭代 · X @gsyxyc](readme-banner.svg)](https://x.com/gsyxyc)
 
