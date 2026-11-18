@@ -63,15 +63,15 @@ gongshui-pages/
 ├── assets/
 │   ├── earth/
 │   └── flags/
-│
+
 ├── data/
 │   ├── contributors.json
 │   └── ne_110m_admin_0_countries.geojson
-│
+
 ├── auth/
 │   ├── confirm.html
 │   └── confirm/index.html
-│
+
 └── supabase/
     ├── schema.sql
     ├── account-usernames.sql
@@ -96,3 +96,7 @@ gongshui-pages/
 ## 更新记录
 
 版本变更见 [CHANGELOG.md](CHANGELOG.md)。
+
+## 许可证
+
+本项目采用 [MIT License](LICENSE) 开源协议。
