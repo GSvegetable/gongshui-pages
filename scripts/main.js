@@ -810,7 +810,7 @@ syncSearchUI();
 
 
 /* =========================================================
-   1.6 主页画廊布局切换：按屏幕宽度自适应，按钮始终增加一列
+   1.6 主页画廊布局切换：平板固定三列起步，手动切换增加一列
    ========================================================= */
 (() => {
   const main = document.querySelector('main');
@@ -824,14 +824,24 @@ syncSearchUI();
   let mode = 'auto';
   let resizeFrame = 0;
   let lastMeasuredWidth = -1;
+  let lastViewportWidth = -1;
+  let lastViewportHeight = -1;
 
-  // 只测量网格真正可放卡片的内容宽度，不用设备型号或屏幕方向猜列数。
   const getGridContentWidth = () => {
     const style = getComputedStyle(gallery);
     const rect = gallery.getBoundingClientRect();
     return Math.max(1, rect.width
       - (parseFloat(style.paddingLeft) || 0)
       - (parseFloat(style.paddingRight) || 0));
+  };
+
+  // 平板不再依赖 1024px 断点：Android/iPad 等触控设备在横屏时
+  // 视口宽度往往超过 1024px，仍应保留平板布局规则。
+  const isLargeTouchDevice = () => {
+    const touch = (navigator.maxTouchPoints || 0) > 0
+      || !!window.matchMedia?.('(pointer: coarse)').matches;
+    const shortSide = Math.min(window.innerWidth || 0, window.innerHeight || 0);
+    return touch && shortSide >= 600;
   };
 
   const getDefaultColumnCount = () => {
@@ -844,7 +854,8 @@ syncSearchUI();
     const minCardWidth = (viewport <= 600 ? 200 : viewport <= 1024 ? 190 : 280) * zoomScale;
     const measured = Math.max(1, Math.floor((usableWidth + gap) / (minCardWidth + gap)));
 
-    // 手机至少两列；平板窗口至少三列。桌面完全按内容宽度自然计算。
+    // 大屏触控平板（包括 iQOO Pad 2 横屏）统一默认三列，切换后四列。
+    if (isLargeTouchDevice()) return 3;
     if (viewport <= 600) return Math.max(2, measured);
     if (viewport <= 1024) return Math.max(3, measured);
     return measured;
@@ -868,7 +879,6 @@ syncSearchUI();
     if (event.animationName === 'layout-button-tap') button.classList.remove('is-tapping');
   });
 
-  // 列数只通过 --gallery-columns 写入，CSS 不再另外猜测或覆盖列数。
   const applyColumns = () => {
     const baseColumns = getDefaultColumnCount();
     const columns = mode === 'more' ? baseColumns + 1 : baseColumns;
@@ -876,6 +886,8 @@ syncSearchUI();
     button.dataset.columns = String(columns);
     button.dataset.defaultColumns = String(baseColumns);
     lastMeasuredWidth = gallery.getBoundingClientRect().width;
+    lastViewportWidth = window.innerWidth || 0;
+    lastViewportHeight = window.innerHeight || 0;
   };
 
   const setLayout = (next, options = {}) => {
@@ -923,13 +935,18 @@ syncSearchUI();
   syncButton();
   document.addEventListener('site:languagechange', syncButton);
 
-  // ResizeObserver 同时覆盖分屏、侧栏/容器宽度变化；window resize 作为兼容回退。
+  // 不只比较网格宽度：固定 max-width 容器在断点变化时宽度可能不变，
+  // 但视口方向/尺寸已经改变，必须重新评估设备类型与列数。
   const scheduleResize = () => {
     if (resizeFrame) cancelAnimationFrame(resizeFrame);
     resizeFrame = requestAnimationFrame(() => {
       resizeFrame = 0;
       const width = gallery.getBoundingClientRect().width;
-      if (Math.abs(width - lastMeasuredWidth) < 1) return;
+      const viewportWidth = window.innerWidth || 0;
+      const viewportHeight = window.innerHeight || 0;
+      if (Math.abs(width - lastMeasuredWidth) < 1
+          && viewportWidth === lastViewportWidth
+          && viewportHeight === lastViewportHeight) return;
       applyColumns();
     });
   };
@@ -940,6 +957,7 @@ syncSearchUI();
   }
   window.addEventListener('resize', scheduleResize, { passive: true });
   window.visualViewport?.addEventListener('resize', scheduleResize, { passive: true });
+  window.addEventListener('orientationchange', scheduleResize, { passive: true });
 
   button.addEventListener('click', () => {
     tapFeedback();
