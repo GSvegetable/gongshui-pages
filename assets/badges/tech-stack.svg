@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="56" viewBox="0 0 1000 56" role="img" aria-label="HTML5 CSS3 JavaScript Supabase PostgreSQL Vercel GitHub">
+  <defs>
+    <linearGradient id="spectrum" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#F16529"/>
+      <stop offset="17%" stop-color="#2563EB"/>
+      <stop offset="34%" stop-color="#EAB308"/>
+      <stop offset="51%" stop-color="#10B981"/>
+      <stop offset="68%" stop-color="#4169E1"/>
+      <stop offset="84%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="998" height="54" rx="12" fill="url(#spectrum)"/>
+  <g fill="none" stroke="#fff" stroke-opacity=".32">
+    <path d="M143 10v36M285 10v36M427 10v36M569 10v36M711 10v36M853 10v36"/>
+  </g>
+  <g fill="#fff" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="650">
+    <g transform="translate(18 13)">
+      <path d="M2 0h24l-2.5 26L14 30 4.5 26z" fill="#fff" opacity=".96"/>
+      <text x="14" y="21" text-anchor="middle" fill="#D94B1B" font-size="13" font-weight="800">5</text>
+      <text x="39" y="20">HTML5</text>
+    </g>
+    <g transform="translate(160 13)">
+      <path d="M2 0h24l-2.5 26L14 30 4.5 26z" fill="#fff" opacity=".96"/>
+      <text x="14" y="21" text-anchor="middle" fill="#2563EB" font-size="13" font-weight="800">3</text>
+      <text x="39" y="20">CSS3</text>
+    </g>
+    <g transform="translate(302 13)">
+      <rect x="1" y="1" width="28" height="28" rx="4" fill="#fff" opacity=".96"/>
+      <text x="15" y="21" text-anchor="middle" fill="#9A6700" font-size="13" font-weight="800">JS</text>
+      <text x="39" y="20">JavaScript</text>
+    </g>
+    <g transform="translate(444 13)">
+      <path d="M3 4 13 0l-5 15 10-4-6 19L2 19zM19 0l8 4-7 15-8 4z" fill="#fff"/>
+      <text x="39" y="20">Supabase</text>
+    </g>
+    <g transform="translate(586 13)">
+      <path d="M14 0C5 0 1 6 1 14c0 7 4 12 10 14v-5c-4 1-5-2-5-2-1-2-2-2-2-2-2-1 0-1 0-1 2 0 3 2 3 2 2 3 5 2 6 1 0-2 1-3 2-4-5-1-10-2-10-9 0-2 1-4 2-5-1-2 0-5 0-5 3 0 5 2 5 2 4-1 8-1 12 0 0 0 2-2 5-2 0 0 1 3 0 5 2 2 2 4 2 5 0 7-5 8-10 9 1 1 2 3 2 5v6c6-2 10-7 10-14C27 6 23 0 14 0z" fill="#fff" transform="translate(0 0) scale(.95)"/>
+      <text x="39" y="20">PostgreSQL</text>
+    </g>
+    <g transform="translate(728 13)">
+      <path d="M15 0 30 28H0z" fill="#fff"/>
+      <text x="15" y="21" text-anchor="middle" fill="#334155" font-size="11" font-weight="800">V</text>
+      <text x="39" y="20">Vercel</text>
+    </g>
+    <g transform="translate(870 13)">
+      <circle cx="15" cy="15" r="14" fill="#fff"/>
+      <path d="M10 8c-2 1-3 4-2 7l-2 3 4-1c3 2 7 2 10 0l4 1-2-3c1-3 0-6-2-7-3-2-7-2-10 0z" fill="#5B21B6"/>
+      <text x="39" y="20">GitHub</text>
+    </g>
+  </g>
+</svg>
