@@ -9,6 +9,19 @@
 
 ## 项目预览
 
+<details>
+<summary>像素昼夜开关</summary>
+
+[![五组动态像素世界场景预览](scene-gallery.png)](https://xn--3bts89a.com/)
+
+</details>
+
+![Tech Stack](assets/badges/tech-stack.svg)
+
+[![宫水.com 一个展示作品与网页交互实验的在线空间](readme-about-v2.svg)](https://xn--3bts89a.com/)
+
+## 项目预览
+
 [![五组动态像素世界场景预览](scene-gallery.png)](https://xn--3bts89a.com/)
 
 [![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
@@ -17,7 +30,6 @@
 [![Version](https://img.shields.io/badge/version-v2.12.9-2563EB?style=flat-square)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-181717?style=flat-square)](https://xn--3bts89a.com/)
 
-[![宫水.com 一个展示作品与网页交互实验的在线空间](readme-about-v2.svg)](https://xn--3bts89a.com/)
 
 
 ## 项目结构
@@ -90,7 +102,6 @@ gongshui-pages/
     └── migrations/
 ```
 
-![Tech Stack](assets/badges/tech-stack.svg)
 
 
 ## 账号与隐私
