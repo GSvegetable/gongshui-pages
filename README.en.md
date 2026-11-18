@@ -98,7 +98,7 @@ gongshui-pages/
 
 User information is used solely to provide the website’s services and is protected in accordance with applicable requirements.
 
-See our [Privacy Policy](privacy.html) for details.
+See our [Privacy Policy](privacy.html), or [view the source](https://github.com/GSvegetable/gongshui-pages/tree/main/scripts) for frontend authentication logic and the [server-side and database implementation](https://github.com/GSvegetable/gongshui-pages/tree/main/supabase).
 
 [![Rapidly evolving · X @gsyxyc](readme-banner.svg)](https://x.com/gsyxyc)
 
