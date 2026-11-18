@@ -8,6 +8,8 @@
 
 <div align="center">
 
+<img src="assets/badges/tech-stack.svg" alt="Tech stack" width="100%" />
+
 [![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-2563EB?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-D94841?style=flat-square)](README.ja.md)
