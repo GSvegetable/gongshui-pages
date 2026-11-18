@@ -1,13 +1,12 @@
 <div align="center">
 
-[<img src="file_000000005c4881f58deb22c9cc022ee8.png" alt="Gongshui.com — pixel art banner" width="100%" />](https://xn--3bts89a.com/)
+[<img src="file_000000005c4881f58deb22c9cc022ee8.png" alt="Gongshui.com" width="100%" />](https://xn--3bts89a.com/)
 
 [![简体中文](https://img.shields.io/badge/lang-简体中文-9CA3AF?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-16A34A?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-9CA3AF?style=flat-square)](README.ja.md)
 [![Version](https://img.shields.io/badge/version-v2.12.9-2563EB?style=flat-square)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-181717?style=flat-square)](https://xn--3bts89a.com/)
-[![Stack](https://img.shields.io/badge/stack-HTML%20%2F%20CSS%20%2F%20JavaScript-F97316?style=flat-square)](#tech-stack)
 
 </div>
 
@@ -15,102 +14,102 @@
 
 ## Overview
 
-Gongshui.com is a personal web portfolio and interaction lab featuring project showcases, favorites, account services, a pixel-art contributor globe, and multilingual interfaces.
+Gongshui.com is a space for showcasing personal projects and web interaction experiments.
 
 ## Project Structure
 
-The tree below highlights the main files. Related assets are grouped by purpose.
+The main files and directories below match the repository.
 
 ```text
 gongshui-pages/
-├── index.html                 # Homepage and project showcase
-├── login.html                 # Sign-in, registration, and account verification
-├── admin.html                 # Admin dashboard
-├── privacy.html               # Privacy policy
-├── file_000000005c4881f58deb22c9cc022ee8.png                 # README cover image
-├── README.md                  # Chinese documentation
-├── README.en.md               # English documentation
-├── README.ja.md               # Japanese documentation
-├── CHANGELOG.md               # Release history
-├── CNAME                      # Custom domain
-├── vercel.json                # Response headers and security policies
+├── index.html
+├── login.html
+├── admin.html
+├── privacy.html
+├── file_000000005c4881f58deb22c9cc022ee8.png
+├── README.md
+├── README.en.md
+├── README.ja.md
+├── CHANGELOG.md
+├── CNAME
+├── vercel.json
 │
 ├── styles/
-│   ├── style.css              # Main site styles
-│   ├── admin.css              # Admin dashboard styles
-│   ├── globe.css              # Globe view styles
-│   └── orbit-art.css          # Orbit visual styles
+│   ├── style.css
+│   ├── admin.css
+│   ├── globe.css
+│   └── orbit-art.css
 │
 ├── scripts/
-│   ├── main.js                # Homepage logic, project discovery, and favorites
-│   ├── home-page.js           # Homepage settings and interactions
-│   ├── auth.js                # Supabase authentication client
-│   ├── auth-config.js         # Authentication service configuration
-│   ├── account.js             # Account menu, profile, and linked accounts
-│   ├── login-page.js          # Sign-in and registration logic
-│   ├── admin.js               # Admin dashboard logic
-│   ├── admin-liquid-glass.js  # Admin dashboard visual interactions
-│   ├── globe.js               # Contributor globe rendering and interaction
-│   ├── compare.js             # Project comparison
-│   ├── nav-history.js         # Navigation history
-│   ├── scroll-ui.js           # Scroll-related interface behavior
-│   ├── orbit-versions.js      # Orbit version handling
-│   ├── sync.js                # User data synchronization
-│   ├── risk.js                # Sign-up and sign-in risk controls
-│   ├── fingerprint.js         # Device identification helpers
-│   ├── privacy-cleanup.js     # Local privacy data cleanup
+│   ├── main.js
+│   ├── home-page.js
+│   ├── auth.js
+│   ├── auth-config.js
+│   ├── auth-landing.js
+│   ├── account.js
+│   ├── login-page.js
+│   ├── admin.js
+│   ├── admin-liquid-glass.js
+│   ├── globe.js
+│   ├── compare.js
+│   ├── nav-history.js
+│   ├── scroll-ui.js
+│   ├── orbit-versions.js
+│   ├── sync.js
+│   ├── risk.js
+│   ├── fingerprint.js
+│   ├── privacy-cleanup.js
 │   └── vendor/
-│       └── globe.gl.min.js    # Globe visualization library
+│       └── globe.gl.min.js
 │
 ├── assets/
-│   ├── earth/                 # Globe textures and backgrounds
-│   └── flags/                 # Country and region flag SVGs
+│   ├── earth/
+│   └── flags/
 │
 ├── data/
-│   ├── contributors.json      # Contributor and location data
-│   └── ne_110m_admin_0_countries.geojson # Country boundary data
+│   ├── contributors.json
+│   └── ne_110m_admin_0_countries.geojson
 │
 ├── auth/
-│   ├── confirm.html           # Email confirmation entry
-│   └── confirm/index.html    # Email confirmation page
+│   ├── confirm.html
+│   └── confirm/index.html
 │
 └── supabase/
-    ├── schema.sql             # Core tables and RLS structure
-    ├── account-usernames.sql  # Username-related database schema
-    ├── linked-accounts.sql    # Linked-account database schema
-    ├── admin.sql              # Admin database schema
-    ├── risk.sql               # Risk-control database schema
-    ├── security-audit.sql     # Security audit SQL
-    ├── functions/             # Edge Functions for sign-in, account linking, password policy, and admin actions
-    └── migrations/            # Database and policy change history
+    ├── schema.sql
+    ├── account-usernames.sql
+    ├── linked-accounts.sql
+    ├── admin.sql
+    ├── risk.sql
+    ├── security-audit.sql
+    ├── functions/
+    └── migrations/
 ```
 
-## Features
+## Highlights
 
-- **Project showcase:** Browse web projects and interaction experiments.
-- **Favorites:** Save projects and synchronize user data.
-- **Accounts:** Sign in with email, username, Google, or GitHub.
-- **Localization:** Chinese, English, and Japanese interfaces.
-- **Contributor globe:** Explore contributor locations and flags on an interactive globe.
-- **Admin dashboard:** Manage users and related data.
+- **Contributor globe:** Explore contributor locations through an interactive globe.
+- **Web experiments:** Discover original projects with distinct visual styles and interactions.
+- **Project comparison:** Compare different projects and versions side by side.
 
 ## Tech Stack
 
-| Area | Technology |
-| --- | --- |
-| Front end | HTML, CSS, JavaScript |
-| Authentication and database | Supabase Auth, PostgreSQL, Row Level Security |
-| Server-side functions | Supabase Edge Functions |
-| Version control | Git, GitHub |
-| Deployment configuration | Vercel |
+<div align="center">
 
-## Accounts and Security
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/docs/Web/CSS)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=222)](https://developer.mozilla.org/docs/Web/JavaScript)
+[![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/)
 
-Authentication is handled by Supabase Auth. Database access is governed by Row Level Security (RLS), while selected sign-in, account-linking, and administrative operations run through Supabase Edge Functions. See the SQL files and functions under `supabase/` for implementation details.
+</div>
 
-## Development
+## Privacy
 
-Commit code changes to GitHub. Deployment is handled by the hosting service connected to the repository. The `vercel.json` file defines response headers and security policies.
+We respect every user's privacy. Account information is used only to provide the website's services and is protected with appropriate measures. We do not disclose it publicly or share it with unrelated third parties, except where necessary to operate the service, authorized by the user, or required by law.
+
+See our [Privacy Policy](privacy.html) for details.
 
 ## Changelog
 
