@@ -83,8 +83,6 @@ gongshui-pages/
     └── migrations/
 ```
 
-## 技术栈
-
 ![Tech Stack](assets/badges/tech-stack.svg)
 
 
