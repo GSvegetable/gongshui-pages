@@ -1,13 +1,12 @@
 <div align="center">
 
-[<img src="file_000000005c4881f58deb22c9cc022ee8.png" alt="宫水.com — pixel art banner" width="100%" />](https://xn--3bts89a.com/)
+[<img src="file_000000005c4881f58deb22c9cc022ee8.png" alt="宫水.com" width="100%" />](https://xn--3bts89a.com/)
 
 [![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
-[![English](https://img.shields.io/badge/lang-English-16A34A?style=flat-square)](README.en.md)
+[![English](https://img.shields.io/badge/lang-English-9CA3AF?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-9CA3AF?style=flat-square)](README.ja.md)
 [![Version](https://img.shields.io/badge/version-v2.12.9-2563EB?style=flat-square)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-181717?style=flat-square)](https://xn--3bts89a.com/)
-[![Stack](https://img.shields.io/badge/stack-HTML%20%2F%20CSS%20%2F%20JavaScript-F97316?style=flat-square)](#技术栈)
 
 </div>
 
@@ -15,101 +14,102 @@
 
 ## 项目简介
 
-宫水.com 是一个个人网页作品集与交互实验项目，包含作品展示、收藏、账号系统、像素风地球投稿者展示及多语言界面。
+宫水.com 是一个展示个人作品与网页交互实验的在线空间。
 
 ## 项目结构
 
-以下列出项目主要文件。资源目录中的同类文件按用途合并说明。
+以下为项目主要文件与目录，均对应仓库中的实际路径。
 
 ```text
 gongshui-pages/
-├── index.html                 # 网站首页与作品展示入口
-├── login.html                 # 登录、注册与账号验证页面
-├── admin.html                 # 管理后台页面
-├── privacy.html               # 隐私政策页面
-├── file_000000005c4881f58deb22c9cc022ee8.png                 # README 顶部封面图
-├── README.md                  # 中文项目说明
-├── README.ja.md               # 日文项目说明
-├── CHANGELOG.md               # 版本更新记录
-├── CNAME                      # 自定义域名配置
-├── vercel.json                # 部署响应头与安全策略配置
+├── index.html
+├── login.html
+├── admin.html
+├── privacy.html
+├── file_000000005c4881f58deb22c9cc022ee8.png
+├── README.md
+├── README.en.md
+├── README.ja.md
+├── CHANGELOG.md
+├── CNAME
+├── vercel.json
 │
 ├── styles/
-│   ├── style.css              # 网站主要界面样式
-│   ├── admin.css              # 管理后台样式
-│   ├── globe.css              # 地球视图样式
-│   └── orbit-art.css          # Orbit 作品视觉样式
+│   ├── style.css
+│   ├── admin.css
+│   ├── globe.css
+│   └── orbit-art.css
 │
 ├── scripts/
-│   ├── main.js                # 首页核心逻辑、作品发现与收藏状态
-│   ├── home-page.js           # 首页设置面板及页面交互
-│   ├── auth.js                # Supabase 账号认证客户端
-│   ├── auth-config.js         # 认证服务配置入口
-│   ├── account.js             # 账号菜单、资料与关联账号管理
-│   ├── login-page.js          # 登录注册页面逻辑
-│   ├── admin.js               # 管理后台业务逻辑
-│   ├── admin-liquid-glass.js  # 管理后台视觉交互
-│   ├── globe.js               # 投稿者地球渲染与交互
-│   ├── compare.js              # 作品对比功能
-│   ├── nav-history.js         # 页面导航历史管理
-│   ├── scroll-ui.js           # 滚动相关界面交互
-│   ├── orbit-versions.js      # Orbit 版本相关逻辑
-│   ├── sync.js                # 用户数据同步
-│   ├── risk.js                # 注册与登录风险控制
-│   ├── fingerprint.js         # 设备标识辅助逻辑
-│   ├── privacy-cleanup.js     # 本地隐私数据清理
+│   ├── main.js
+│   ├── home-page.js
+│   ├── auth.js
+│   ├── auth-config.js
+│   ├── auth-landing.js
+│   ├── account.js
+│   ├── login-page.js
+│   ├── admin.js
+│   ├── admin-liquid-glass.js
+│   ├── globe.js
+│   ├── compare.js
+│   ├── nav-history.js
+│   ├── scroll-ui.js
+│   ├── orbit-versions.js
+│   ├── sync.js
+│   ├── risk.js
+│   ├── fingerprint.js
+│   ├── privacy-cleanup.js
 │   └── vendor/
-│       └── globe.gl.min.js    # 地球可视化依赖库
+│       └── globe.gl.min.js
 │
 ├── assets/
-│   ├── earth/                 # 地球纹理与背景图片
-│   └── flags/                 # 国家与地区 SVG 旗帜
+│   ├── earth/
+│   └── flags/
 │
 ├── data/
-│   ├── contributors.json      # 投稿者及地理位置数据
-│   └── ne_110m_admin_0_countries.geojson # 国家边界数据
+│   ├── contributors.json
+│   └── ne_110m_admin_0_countries.geojson
 │
 ├── auth/
-│   ├── confirm.html           # 邮箱确认入口
-│   └── confirm/index.html     # 邮箱确认落地页
+│   ├── confirm.html
+│   └── confirm/index.html
 │
 └── supabase/
-    ├── schema.sql             # 核心数据表与 RLS 结构
-    ├── account-usernames.sql  # 用户名相关数据库结构
-    ├── linked-accounts.sql    # 关联账号数据库结构
-    ├── admin.sql              # 管理功能数据库结构
-    ├── risk.sql               # 风险控制数据库结构
-    ├── security-audit.sql     # 安全检查 SQL
-    ├── functions/             # Edge Functions：用户名登录、账号关联、密码策略及管理操作
-    └── migrations/            # 数据库结构与策略变更记录
+    ├── schema.sql
+    ├── account-usernames.sql
+    ├── linked-accounts.sql
+    ├── admin.sql
+    ├── risk.sql
+    ├── security-audit.sql
+    ├── functions/
+    └── migrations/
 ```
 
 ## 核心功能
 
-- **作品展示**：浏览网页作品与交互实验。
-- **收藏**：收藏作品，并同步用户数据。
-- **账号系统**：邮箱、用户名、Google 与 GitHub 登录。
-- **多语言**：中文、英文、日文界面。
-- **投稿者地球**：在地球视图中展示投稿者位置与旗帜。
-- **管理后台**：管理用户及相关数据。
+- **投稿者地球**：以交互式地球呈现投稿者分布与地区信息。
+- **网页交互实验**：探索具有独立视觉风格与交互方式的原创作品。
+- **作品对比**：并列比较不同作品与版本。
 
 ## 技术栈
 
-| 部分 | 技术 |
-| --- | --- |
-| 前端 | HTML、CSS、JavaScript |
-| 认证与数据库 | Supabase Auth、PostgreSQL、Row Level Security |
-| 服务端功能 | Supabase Edge Functions |
-| 版本管理 | Git、GitHub |
-| 部署配置 | Vercel |
+<div align="center">
 
-## 账号与安全
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/docs/Web/CSS)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=222)](https://developer.mozilla.org/docs/Web/JavaScript)
+[![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/)
 
-账号认证由 Supabase Auth 提供；用户数据通过数据库权限策略（RLS）控制，部分登录、账号关联及管理操作由 Supabase Edge Functions 处理。具体策略以 `supabase/` 下的 SQL 和函数代码为准。
+</div>
 
-## 开发与发布
+## 账号与隐私
 
-修改代码后提交到 GitHub。部署行为由仓库关联的托管平台及其配置决定；`vercel.json` 用于配置响应头与安全策略。
+我们重视每位用户的隐私。注册信息和账号数据仅用于提供网站服务，并采取必要措施加以保护；除服务运行所必需、用户主动授权或法律要求外，不会随意公开或向无关第三方披露。
+
+详细说明请参阅 [隐私政策](privacy.html)。
 
 ## 更新记录
 
