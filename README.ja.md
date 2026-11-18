@@ -1,13 +1,12 @@
 <div align="center">
 
-[<img src="file_000000005c4881f58deb22c9cc022ee8.png" alt="宫水.com — pixel art banner" width="100%" />](https://xn--3bts89a.com/)
+[<img src="file_000000005c4881f58deb22c9cc022ee8.png" alt="宮水.com" width="100%" />](https://xn--3bts89a.com/)
 
 [![简体中文](https://img.shields.io/badge/lang-简体中文-9CA3AF?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-9CA3AF?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-16A34A?style=flat-square)](README.ja.md)
 [![Version](https://img.shields.io/badge/version-v2.12.9-2563EB?style=flat-square)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-181717?style=flat-square)](https://xn--3bts89a.com/)
-[![Stack](https://img.shields.io/badge/stack-HTML%20%2F%20CSS%20%2F%20JavaScript-F97316?style=flat-square)](#技術スタック)
 
 </div>
 
@@ -15,101 +14,102 @@
 
 ## プロジェクト概要
 
-宫水.com は、Web 作品のポートフォリオとインタラクション実験のプロジェクトです。作品展示、お気に入り、アカウント機能、ドット絵の投稿者地球、多言語 UI を備えています。
+宮水.com は、個人作品と Web インタラクションの実験を紹介するサイトです。
 
 ## プロジェクト構成
 
-主要ファイルを掲載しています。同じ用途のリソースはまとめて説明しています。
+以下はリポジトリ内の実際の主要ファイルとディレクトリです。
 
 ```text
 gongshui-pages/
-├── index.html                 # トップページと作品一覧
-├── login.html                 # ログイン・登録・認証ページ
-├── admin.html                 # 管理画面
-├── privacy.html               # プライバシーポリシー
-├── file_000000005c4881f58deb22c9cc022ee8.png                 # README のカバー画像
-├── README.md                  # 中国語 README
-├── README.ja.md               # 日本語 README
-├── CHANGELOG.md               # バージョン変更履歴
-├── CNAME                      # カスタムドメイン設定
-├── vercel.json                # レスポンスヘッダーとセキュリティ設定
+├── index.html
+├── login.html
+├── admin.html
+├── privacy.html
+├── file_000000005c4881f58deb22c9cc022ee8.png
+├── README.md
+├── README.en.md
+├── README.ja.md
+├── CHANGELOG.md
+├── CNAME
+├── vercel.json
 │
 ├── styles/
-│   ├── style.css              # サイト共通スタイル
-│   ├── admin.css              # 管理画面のスタイル
-│   ├── globe.css              # 地球ビューのスタイル
-│   └── orbit-art.css          # Orbit のビジュアルスタイル
+│   ├── style.css
+│   ├── admin.css
+│   ├── globe.css
+│   └── orbit-art.css
 │
 ├── scripts/
-│   ├── main.js                # トップページの中核処理・作品検出・お気に入り
-│   ├── home-page.js           # 設定パネルとページ操作
-│   ├── auth.js                # Supabase 認証クライアント
-│   ├── auth-config.js         # 認証サービス設定
-│   ├── account.js             # アカウントメニュー・プロフィール・連携
-│   ├── login-page.js          # ログイン・登録画面の処理
-│   ├── admin.js               # 管理画面の処理
-│   ├── admin-liquid-glass.js  # 管理画面のビジュアル操作
-│   ├── globe.js               # 投稿者地球の描画と操作
-│   ├── compare.js              # 作品比較機能
-│   ├── nav-history.js         # ページ移動履歴
-│   ├── scroll-ui.js           # スクロール関連 UI
-│   ├── orbit-versions.js      # Orbit のバージョン関連処理
-│   ├── sync.js                # ユーザーデータ同期
-│   ├── risk.js                # 登録・ログインのリスク制御
-│   ├── fingerprint.js         # 端末識別の補助処理
-│   ├── privacy-cleanup.js     # ローカルのプライバシーデータ整理
+│   ├── main.js
+│   ├── home-page.js
+│   ├── auth.js
+│   ├── auth-config.js
+│   ├── auth-landing.js
+│   ├── account.js
+│   ├── login-page.js
+│   ├── admin.js
+│   ├── admin-liquid-glass.js
+│   ├── globe.js
+│   ├── compare.js
+│   ├── nav-history.js
+│   ├── scroll-ui.js
+│   ├── orbit-versions.js
+│   ├── sync.js
+│   ├── risk.js
+│   ├── fingerprint.js
+│   ├── privacy-cleanup.js
 │   └── vendor/
-│       └── globe.gl.min.js    # 地球可視化ライブラリ
+│       └── globe.gl.min.js
 │
 ├── assets/
-│   ├── earth/                 # 地球テクスチャと背景画像
-│   └── flags/                 # 国・地域の SVG 旗
+│   ├── earth/
+│   └── flags/
 │
 ├── data/
-│   ├── contributors.json      # 投稿者と位置情報
-│   └── ne_110m_admin_0_countries.geojson # 国境データ
+│   ├── contributors.json
+│   └── ne_110m_admin_0_countries.geojson
 │
 ├── auth/
-│   ├── confirm.html           # メール確認の入口
-│   └── confirm/index.html     # メール確認ページ
+│   ├── confirm.html
+│   └── confirm/index.html
 │
 └── supabase/
-    ├── schema.sql             # 基本テーブルと RLS 構成
-    ├── account-usernames.sql  # ユーザー名関連の DB 構成
-    ├── linked-accounts.sql    # アカウント連携用 DB 構成
-    ├── admin.sql              # 管理機能用 DB 構成
-    ├── risk.sql               # リスク制御用 DB 構成
-    ├── security-audit.sql     # セキュリティ確認 SQL
-    ├── functions/             # Edge Functions：ユーザー名ログイン、連携、パスワード方針、管理操作
-    └── migrations/            # DB 構造・ポリシーの変更履歴
+    ├── schema.sql
+    ├── account-usernames.sql
+    ├── linked-accounts.sql
+    ├── admin.sql
+    ├── risk.sql
+    ├── security-audit.sql
+    ├── functions/
+    └── migrations/
 ```
 
-## 主な機能
+## 主な特徴
 
-- **作品展示**：Web 作品とインタラクション実験を閲覧。
-- **お気に入り**：作品を保存し、ユーザーデータを同期。
-- **アカウント**：メールアドレス、ユーザー名、Google、GitHub でログイン。
-- **多言語 UI**：中国語・英語・日本語。
-- **投稿者地球**：地球ビューに投稿者の位置と旗を表示。
-- **管理画面**：ユーザーと関連データを管理。
+- **投稿者地球**：インタラクティブな地球で投稿者の分布を表示。
+- **Web インタラクション実験**：独自のビジュアルと操作性を持つ作品を紹介。
+- **作品比較**：異なる作品やバージョンを並べて比較。
 
 ## 技術スタック
 
-| 分野 | 技術 |
-| --- | --- |
-| フロントエンド | HTML、CSS、JavaScript |
-| 認証・データベース | Supabase Auth、PostgreSQL、Row Level Security |
-| サーバー機能 | Supabase Edge Functions |
-| バージョン管理 | Git、GitHub |
-| デプロイ設定 | Vercel |
+<div align="center">
 
-## アカウントとセキュリティ
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/docs/Web/CSS)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=222)](https://developer.mozilla.org/docs/Web/JavaScript)
+[![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/)
 
-認証には Supabase Auth を使用します。ユーザーデータはデータベースの RLS で制御し、一部のログイン・アカウント連携・管理操作は Supabase Edge Functions で処理します。詳細は `supabase/` 内の SQL と関数を参照してください。
+</div>
 
-## 開発と公開
+## アカウントとプライバシー
 
-コードを変更したら GitHub にコミットします。デプロイ方法はリポジトリに接続されたホスティングサービスとその設定に従います。`vercel.json` はレスポンスヘッダーとセキュリティ設定を管理します。
+ユーザーのプライバシーを大切にしています。登録情報とアカウントデータはサイトのサービス提供のためにのみ使用し、適切な対策を講じて保護します。サービス運営上必要な場合、ユーザーの許可がある場合、または法令に基づく場合を除き、無関係な第三者に公開・提供することはありません。
+
+詳細は[プライバシーポリシー](privacy.html)をご覧ください。
 
 ## 更新履歴
 
