@@ -109,7 +109,6 @@ gongshui-pages/
 │   └── vitrio/
 │       ├── LICENSE
 │       └── vitrio.umd.js
-└── README assets and changelog are grouped separately from runtime code.
 ```
 
 ## Privacy
