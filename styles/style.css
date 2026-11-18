@@ -218,8 +218,7 @@ html.search-collapsed .search-status { opacity: 0; }
 
 /* ---------- 页面基础布局 ---------- */
 main { min-height: calc(100vh + 420px); padding: 94px 24px 180px; }
-.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, var(--gallery-card-min, 300px)), 1fr)); gap: 24px; padding-left:88px; }
-main.gallery-layout-two .grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.grid { display:grid; grid-template-columns:repeat(var(--gallery-columns, 1), minmax(0,1fr)); gap:24px; padding-left:88px; }
 
 /* 卡片：缩略态。尺寸 = 边框3 + 内边距8 + 作品框(边框2) */
 .preview-card {
@@ -537,7 +536,7 @@ body.view-closing .work-detail.is-active {
   .search-status { font-size: 10px; }
 
   main { min-height: calc(100vh + 420px); padding:80px 14px 180px; }
-  .grid { grid-template-columns:minmax(0,1fr); padding-left:64px; }
+  .grid { padding-left:64px; }
 
   .preview-actions { top: 14px; right: 14px; gap: 8px; }
   .action-btn { width: 40px; height: 40px; border-width: 2px; }

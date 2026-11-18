@@ -823,20 +823,28 @@ syncSearchUI();
   const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   let mode = 'auto';
   let resizeFrame = 0;
+  let lastMeasuredWidth = -1;
 
-  // 先读取网格真正可用的宽度（扣除左侧导航留白），再按设备宽度区间
-  // 设定卡片目标宽度。手机至少 2 列，平板至少 3 列，其余设备按宽度自然增长。
-  const getDefaultColumnCount = () => {
+  // 只测量网格真正可放卡片的内容宽度，不用设备型号或屏幕方向猜列数。
+  const getGridContentWidth = () => {
     const style = getComputedStyle(gallery);
-    const usableWidth = Math.max(1, gallery.clientWidth
+    const rect = gallery.getBoundingClientRect();
+    return Math.max(1, rect.width
       - (parseFloat(style.paddingLeft) || 0)
       - (parseFloat(style.paddingRight) || 0));
+  };
+
+  const getDefaultColumnCount = () => {
+    const style = getComputedStyle(gallery);
+    const usableWidth = getGridContentWidth();
     const gap = parseFloat(style.columnGap) || GAP_FALLBACK;
-    const viewport = window.innerWidth;
+    const viewport = document.documentElement.clientWidth || window.innerWidth;
     const currentCardMin = parseFloat(getComputedStyle(main).getPropertyValue('--gallery-card-min')) || 300;
     const zoomScale = Math.max(0.5, Math.min(1.87, currentCardMin / 300));
     const minCardWidth = (viewport <= 600 ? 200 : viewport <= 1024 ? 190 : 280) * zoomScale;
     const measured = Math.max(1, Math.floor((usableWidth + gap) / (minCardWidth + gap)));
+
+    // 手机至少两列；平板窗口至少三列。桌面完全按内容宽度自然计算。
     if (viewport <= 600) return Math.max(2, measured);
     if (viewport <= 1024) return Math.max(3, measured);
     return measured;
@@ -860,13 +868,14 @@ syncSearchUI();
     if (event.animationName === 'layout-button-tap') button.classList.remove('is-tapping');
   });
 
+  // 列数只通过 --gallery-columns 写入，CSS 不再另外猜测或覆盖列数。
   const applyColumns = () => {
     const baseColumns = getDefaultColumnCount();
     const columns = mode === 'more' ? baseColumns + 1 : baseColumns;
-    gallery.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
-    main.classList.toggle('gallery-layout-two', mode === 'more');
+    gallery.style.setProperty('--gallery-columns', String(columns));
     button.dataset.columns = String(columns);
     button.dataset.defaultColumns = String(baseColumns);
+    lastMeasuredWidth = gallery.getBoundingClientRect().width;
   };
 
   const setLayout = (next, options = {}) => {
@@ -914,14 +923,21 @@ syncSearchUI();
   syncButton();
   document.addEventListener('site:languagechange', syncButton);
 
-  // 屏幕旋转、窗口缩放或侧栏尺寸变化时，默认列数和“+1”列数都重新计算。
+  // ResizeObserver 同时覆盖分屏、侧栏/容器宽度变化；window resize 作为兼容回退。
   const scheduleResize = () => {
     if (resizeFrame) cancelAnimationFrame(resizeFrame);
     resizeFrame = requestAnimationFrame(() => {
       resizeFrame = 0;
+      const width = gallery.getBoundingClientRect().width;
+      if (Math.abs(width - lastMeasuredWidth) < 1) return;
       applyColumns();
     });
   };
+  if ('ResizeObserver' in window) {
+    const galleryObserver = new ResizeObserver(scheduleResize);
+    galleryObserver.observe(gallery);
+    galleryObserver.observe(main);
+  }
   window.addEventListener('resize', scheduleResize, { passive: true });
   window.visualViewport?.addEventListener('resize', scheduleResize, { passive: true });
 
