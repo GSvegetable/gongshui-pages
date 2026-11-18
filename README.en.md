@@ -98,3 +98,7 @@ See our [Privacy Policy](privacy.html) for details.
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for release updates.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
