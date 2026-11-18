@@ -1305,6 +1305,8 @@ syncSearchUI();
     if (current) current.card.classList.remove('is-animating');
   };
 
+  let deepLinkExpandRequested = false;
+
   /* ---------- 展开 ---------- */
   const openWork = work => {
     if (mode !== 'closed') return;
@@ -1339,6 +1341,10 @@ syncSearchUI();
       mode = 'open';
       closeBtn.focus({ preventScroll: true });
       settle();
+      if (deepLinkExpandRequested) {
+        deepLinkExpandRequested = false;
+        requestAnimationFrame(() => toggleExpand());
+      }
     });
   };
 
@@ -1473,6 +1479,16 @@ syncSearchUI();
 
   closeBtn.addEventListener('click', closeWork);
   expandBtn.addEventListener('click', toggleExpand);
+
+  // 外部链接可直接定位到指定作品，并在新页面中打开其放大展示状态。
+  const deepLinkParams = new URLSearchParams(window.location.search);
+  const deepLinkWorkId = deepLinkParams.get('work');
+  const deepLinkView = deepLinkParams.get('view');
+  const deepLinkWork = works.find(work => work.id === deepLinkWorkId);
+  if (deepLinkWork) {
+    deepLinkExpandRequested = deepLinkView === 'expanded';
+    openWork(deepLinkWork);
+  }
 
   /* ---------- 版本对比：开关 / 选中 / 换版本路由 ---------- */
   compareToggle?.addEventListener('click', () => setCompareOn(!compareOn));
