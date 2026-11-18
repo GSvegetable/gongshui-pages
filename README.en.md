@@ -21,7 +21,9 @@
 
 </details>
 
-[![Click to view the project directory](readme-directory002.svg)](#project-preview)
+[![Click to view the project directory](readme-directory002.svg)](#project-structure)
+
+<a id="project-structure"></a>
 
 ## Project Structure
 
@@ -95,9 +97,6 @@ gongshui-pages/
     └── migrations/                             # Database schema changes and migration history.
 ```
 
-### Technology Stack
-
-![Tech Stack](assets/badges/tech-stack.svg)
 
 ## Privacy
 
