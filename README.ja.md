@@ -21,7 +21,9 @@
 
 </details>
 
-[![クリックしてプロジェクト一覧を見る](readme-directory002.svg)](#project-preview)
+[![クリックしてプロジェクト一覧を見る](readme-directory002.svg)](#project-structure)
+
+<a id="project-structure"></a>
 
 ## プロジェクト構成
 
@@ -95,9 +97,6 @@ gongshui-pages/
     └── migrations/                             # データベース変更・マイグレーション履歴。
 ```
 
-### 技術スタック
-
-![Tech Stack](assets/badges/tech-stack.svg)
 
 ## アカウントとプライバシー
 
