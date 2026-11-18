@@ -2,103 +2,102 @@
 
 [<img src="banner.png" alt="宮水.com" width="100%" />](https://xn--3bts89a.com/)
 
-
 </div>
 
 ---
 
 ## プロジェクトプレビュー
 
-<details>
-<summary>ピクセル昼夜スイッチ</summary>
-
-[![5つのアニメーション付きピクセルワールドのシーンプレビュー](scene-gallery.png)](https://xn--3bts89a.com/)
-
-</details>
-
-![Tech Stack](assets/badges/tech-stack.svg)
-
-[![宮水.com — 個人作品と Web インタラクション実験を紹介するオンライン空間](readme-about-v2.svg)](https://xn--3bts89a.com/)
-
 [![简体中文](https://img.shields.io/badge/lang-简体中文-9CA3AF?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-9CA3AF?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-16A34A?style=flat-square)](README.ja.md)
-[![Version](https://img.shields.io/badge/version-v2.12.9-2563EB?style=flat-square)](CHANGELOG.md)
-[![Platform](https://img.shields.io/badge/platform-Web-181717?style=flat-square)](https://xn--3bts89a.com/)
+[![Version](https://img.shields.io/badge/version-v2.12.9-6B7280?style=flat-square)](CHANGELOG.md)
+[![Platform](https://img.shields.io/badge/platform-Web-6B7280?style=flat-square)](https://xn--3bts89a.com/)
 
+<details>
+<summary>ピクセル昼夜スイッチ</summary>
 
+<a href="https://xn--3bts89a.com/?work=pixel-daylight-switch&view=expanded" target="_blank" rel="noopener noreferrer"><img src="scene-gallery.png" alt="5つのアニメーション付きピクセルワールドのシーンプレビュー" /></a>
+
+</details>
+
+[![宮水.com — 個人作品と Web インタラクション実験を紹介するオンライン空間](readme-about-v2.svg)](https://xn--3bts89a.com/)
 
 ## プロジェクト構成
 
 ```text
 gongshui-pages/
-├── index.html
-├── login.html
-├── admin.html
-├── privacy.html
-├── banner.png
-├── scene-gallery.png
-├── readme-about-v2.svg
-├── readme-banner.svg
-├── README.md
-├── README.en.md
-├── README.ja.md
-├── CHANGELOG.md
-├── CNAME
-├── vercel.json
+├── index.html                                  # サイトのエントリーポイント。作品一覧、作品カード、詳細パネルなどを含みます。
+├── login.html                                  # アカウントのログイン・登録ページ。
+├── admin.html                                  # サイト管理用ダッシュボード。
+├── privacy.html                                # プライバシーポリシー。
+├── banner.png                                  # README の上部に表示するプロジェクトバナー。
+├── scene-gallery.png                           # Pixel Daylight Switch の複数シーンのプレビュー画像。クリックすると作品の拡大詳細を直接開きます。
+├── readme-about-v2.svg                         # プロジェクトの概要とコンセプトを紹介する SVG。
+├── readme-banner.svg                           # README の下部に表示する SNS・更新案内バナー。
+├── README.md                                   # —
+├── README.en.md                                # —
+├── README.ja.md                                # —
+├── CHANGELOG.md                                # バージョンごとの変更履歴。
+├── CNAME                                       # GitHub Pages のカスタムドメイン設定ファイル。
+├── vercel.json                                 # Vercel のデプロイ・ルーティング設定。
 │
-├── styles/
-│   ├── style.css
-│   ├── admin.css
-│   ├── globe.css
-│   └── orbit-art.css
+├── styles/                                     # 各ページ・コンポーネントのスタイルシート。
+│   ├── style.css                               # ホームページと共通 UI のメインスタイル。
+│   ├── admin.css                               # 管理画面専用のスタイル。
+│   ├── globe.css                               # 地球・コンパス画面のスタイル。
+│   └── orbit-art.css                           # Pixel Orbit の作品表示領域のスタイル。
 │
-├── scripts/
-│   ├── main.js
-│   ├── home-page.js
-│   ├── auth.js
-│   ├── auth-config.js
-│   ├── auth-landing.js
-│   ├── account.js
-│   ├── login-page.js
-│   ├── admin.js
-│   ├── admin-liquid-glass.js
-│   ├── globe.js
-│   ├── compare.js
-│   ├── nav-history.js
-│   ├── scroll-ui.js
-│   ├── orbit-versions.js
-│   ├── sync.js
-│   ├── risk.js
-│   ├── fingerprint.js
-│   ├── privacy-cleanup.js
-│   └── vendor/
-│       └── globe.gl.min.js
+├── scripts/                                    # ページ操作・アプリ機能を実装する JavaScript モジュール。
+│   ├── main.js                                 # 作品カード、詳細表示、拡大表示などの中核ロジック。
+│   ├── home-page.js                            # ホーム画面のナビゲーション、検索、UI 動作。
+│   ├── auth.js                                 # ユーザー認証とログイン処理。
+│   ├── auth-config.js                          # 認証サービスのクライアント設定。
+│   ├── auth-landing.js                         # 認証関連ランディングページの処理。
+│   ├── account.js                              # アカウント情報・状態に関するフロントエンド処理。
+│   ├── login-page.js                           # ログイン・登録ページの操作処理。
+│   ├── admin.js                                # 管理画面の機能・操作処理。
+│   ├── admin-liquid-glass.js                   # 管理画面のリキッドグラス表現。
+│   ├── globe.js                                # 地球ビュー、場所、コントリビューター関連の操作。
+│   ├── compare.js                              # 作品のバージョン・表示比較機能。
+│   ├── nav-history.js                          # サイト内ビューのナビゲーションと履歴状態管理。
+│   ├── scroll-ui.js                            # スクロール関連の UI 動作と制御。
+│   ├── orbit-versions.js                       # Pixel Orbit のバージョン切り替え処理。
+│   ├── sync.js                                 # ユーザー設定とアカウントデータの同期処理。
+│   ├── risk.js                                 # リスク検知とセキュリティ検証処理。
+│   ├── fingerprint.js                          # ブラウザー環境の識別機能。
+│   ├── privacy-cleanup.js                      # プライバシー関連のクリーンアップとローカルデータ処理。
+│   └── vendor/                                 # サードパーティ製・圧縮済み依存スクリプト。
+│       └── globe.gl.min.js                     # 地球の 3D 可視化に使用する globe.gl ライブラリ。
 │
-├── assets/
-│   ├── earth/
-│   └── flags/
+├── assets/                                     # 画像・アイコンなどの静的アセット。
+│   ├── earth/                                  # 地球ビューで使用するテクスチャ・地図データ。
+│   ├── flags/                                  # 国・地域の旗画像。
+│   └── badges/                                 # README のバッジと技術スタック画像。
+│       └── tech-stack.svg                      # 使用技術を示す控えめなモノクロ SVG。
 │
-├── data/
-│   ├── contributors.json
-│   └── ne_110m_admin_0_countries.geojson
+├── data/                                       # サイトで使用する構造化データ。
+│   ├── contributors.json                       # コントリビューター情報と関連メタデータ。
+│   └── ne_110m_admin_0_countries.geojson       # 地球ビューで使用する国・地域の境界データ。
 │
-├── auth/
-│   ├── confirm.html
-│   └── confirm/index.html
+├── auth/                                       # 認証コールバック・確認ページ。
+│   ├── confirm.html                            # アカウント認証・確認ページ。
+│   └── confirm/index.html                      # ディレクトリ形式でアクセスするアカウント確認ページ。
 │
-└── supabase/
-    ├── schema.sql
-    ├── account-usernames.sql
-    ├── linked-accounts.sql
-    ├── admin.sql
-    ├── risk.sql
-    ├── security-audit.sql
-    ├── functions/
-    └── migrations/
+└── supabase/                                   # Supabase のデータベース定義・関数・マイグレーション。
+    ├── schema.sql                              # データベースの基本スキーマ。
+    ├── account-usernames.sql                   # アカウントユーザー名関連の定義。
+    ├── linked-accounts.sql                     # 連携アカウント機能の定義。
+    ├── admin.sql                               # 管理機能向けデータベース定義。
+    ├── risk.sql                                # リスク制御関連のデータベース定義。
+    ├── security-audit.sql                      # セキュリティ監査関連のデータベース定義。
+    ├── functions/                              # Supabase Edge Functions などのサーバー関数。
+    └── migrations/                             # データベース変更・マイグレーション履歴。
 ```
 
+### 技術スタック
 
+![Tech Stack](assets/badges/tech-stack.svg)
 
 ## アカウントとプライバシー
 
