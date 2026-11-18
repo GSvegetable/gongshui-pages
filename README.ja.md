@@ -6,7 +6,7 @@
 
 ---
 
-## プロジェクトプレビュー
+<a id="project-preview"></a>
 
 [![简体中文](https://img.shields.io/badge/lang-简体中文-9CA3AF?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-9CA3AF?style=flat-square)](README.en.md)
@@ -17,11 +17,11 @@
 <details>
 <summary>ピクセル昼夜スイッチ</summary>
 
-<a href="https://xn--3bts89a.com/?work=pixel-daylight-switch&view=expanded" target="_blank" rel="noopener noreferrer"><img src="scene-gallery.png" alt="5つのアニメーション付きピクセルワールドのシーンプレビュー" /></a>
+<a href="https://xn--3bts89a.com/?work=pixel-daylight-switch" target="_blank" rel="noopener noreferrer"><img src="scene-gallery.png" alt="5つのアニメーション付きピクセルワールドのシーンプレビュー" /></a>
 
 </details>
 
-[![宮水.com — 個人作品と Web インタラクション実験を紹介するオンライン空間](readme-about-v2.svg)](https://xn--3bts89a.com/)
+[![宮水.com — 個人作品と Web インタラクション実験を紹介するオンライン空間](readme-about-v2.svg)](#project-preview)
 
 ## プロジェクト構成
 
