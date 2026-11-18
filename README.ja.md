@@ -12,11 +12,7 @@
 
 ---
 
-## プロジェクト概要
-
-宮水.com は、個人作品と Web インタラクションの実験を紹介するサイトです。
-
-[こちらをクリックしてウェブサイトへ](https://xn--3bts89a.com/)
+[![宮水.com — 個人作品と Web インタラクション実験を紹介するオンライン空間](readme-about-v2.svg)](https://xn--3bts89a.com/)
 
 ## プロジェクト構成
 
@@ -27,6 +23,7 @@ gongshui-pages/
 ├── admin.html
 ├── privacy.html
 ├── banner.png
+├── readme-about-v2.svg
 ├── readme-banner.svg
 ├── README.md
 ├── README.en.md
@@ -87,7 +84,6 @@ gongshui-pages/
 ```
 
 ![Tech Stack](assets/badges/tech-stack.svg)
-
 
 
 ## アカウントとプライバシー
