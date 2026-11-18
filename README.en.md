@@ -4,15 +4,19 @@
 
 </div>
 
----
-
 <a id="project-preview"></a>
 
-[![简体中文](https://img.shields.io/badge/lang-简体中文-9CA3AF?style=flat-square)](README.md)
-[![English](https://img.shields.io/badge/lang-English-16A34A?style=flat-square)](README.en.md)
-[![日本語](https://img.shields.io/badge/lang-日本語-9CA3AF?style=flat-square)](README.ja.md)
-[![Version](https://img.shields.io/badge/version-v2.12.9-6B7280?style=flat-square)](CHANGELOG.md)
-[![Platform](https://img.shields.io/badge/platform-Web-6B7280?style=flat-square)](https://xn--3bts89a.com/)
+<div align="center">
+
+[![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
+[![English](https://img.shields.io/badge/lang-English-2563EB?style=flat-square)](README.en.md)
+[![日本語](https://img.shields.io/badge/lang-日本語-D94841?style=flat-square)](README.ja.md)
+[![Version](https://img.shields.io/badge/version-v2.12.9-7C3AED?style=flat-square)](CHANGELOG.md)
+[![Platform](https://img.shields.io/badge/platform-Web-0D9488?style=flat-square)](https://xn--3bts89a.com/)
+
+</div>
+
+---
 
 <details>
 <summary>Pixel Daylight Switch</summary>
