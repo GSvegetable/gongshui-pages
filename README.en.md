@@ -18,14 +18,14 @@
 
 ---
 
-<details>
-<summary>Pixel Daylight Switch</summary>
+<details open>
+<summary>Pixel Daylight Switch · Click to collapse or expand the preview</summary>
 
 <a href="https://xn--3bts89a.com/?work=pixel-daylight-switch" target="_blank" rel="noopener noreferrer"><img src="scene-gallery.png" alt="Preview of five animated pixel-world scenes" /></a>
 
 </details>
 
-[![Click to view the project directory](readme-directory002.svg)](#project-structure)
+[![Click to experience Pixel Daylight Switch](readme-directory002.svg)](https://xn--3bts89a.com/?work=pixel-daylight-switch)
 
 <a id="project-structure"></a>
 
