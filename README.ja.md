@@ -114,12 +114,11 @@ gongshui-pages/
 
 ## アカウントとプライバシー
 
-ユーザー情報はサイトサービスの提供にのみ使用し、法令に従って適切に保護します。
-
-詳細は[プライバシーポリシー](privacy.html)、[フロントエンド認証ロジックのソースコード](https://github.com/GSvegetable/gongshui-pages/tree/main/scripts)、および[サーバー側・データベースの実装](https://github.com/GSvegetable/gongshui-pages/tree/main/supabase)をご覧ください。
+ユーザー情報はサイトサービスの提供にのみ使用し、セキュリティ対策を講じて保護します。
+詳細は[プライバシーポリシー](privacy.html)、[ソースコード](https://github.com/GSvegetable/gongshui-pages/tree/main/scripts)、[サーバー側・データベースの実装](https://github.com/GSvegetable/gongshui-pages/tree/main/supabase)をご覧ください。
+下の画像をクリックすると X アカウントを確認できます。
 
 [![快速迭代 · X @gsyxyc](assets/readme/readme-banner.svg)](https://x.com/gsyxyc)
-
 ## ライセンス
 
 このプロジェクトは [MIT License](LICENSE) のもとで公開されています。

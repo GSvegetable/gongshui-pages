@@ -113,12 +113,11 @@ gongshui-pages/
 
 ## Privacy
 
-User information is used solely to provide the website’s services and is protected in accordance with applicable requirements.
-
-See our [Privacy Policy](privacy.html), or [view the source](https://github.com/GSvegetable/gongshui-pages/tree/main/scripts) for frontend authentication logic and the [server-side and database implementation](https://github.com/GSvegetable/gongshui-pages/tree/main/supabase).
+User information is used only to provide website services and is protected by security measures.
+See the [Privacy Policy](privacy.html), [source code](https://github.com/GSvegetable/gongshui-pages/tree/main/scripts), and [server-side and database implementation](https://github.com/GSvegetable/gongshui-pages/tree/main/supabase).
+Click the image below to visit the X account.
 
 [![Rapidly evolving · X @gsyxyc](assets/readme/readme-banner.svg)](https://x.com/gsyxyc)
-
 ## License
 
 This project is licensed under the [MIT License](LICENSE).

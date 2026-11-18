@@ -113,12 +113,11 @@ gongshui-pages/
 
 ## 账号与隐私
 
-用户信息仅用于提供网站服务，并依法采取安全措施予以保护。
-
-详情请参阅 [隐私政策](privacy.html)，或 [查看源码](https://github.com/GSvegetable/gongshui-pages/tree/main/scripts)（前端认证逻辑）及 [服务端与数据库实现](https://github.com/GSvegetable/gongshui-pages/tree/main/supabase)。
+用户信息仅用于提供网站服务，采取安全措施予以保护。
+详情请参阅 [隐私政策](privacy.html)、[查看源码](https://github.com/GSvegetable/gongshui-pages/tree/main/scripts)、[服务端与数据库实现](https://github.com/GSvegetable/gongshui-pages/tree/main/supabase)。
+点击下方图片查看 X 账号
 
 [![快速迭代 · X @gsyxyc](assets/readme/readme-banner.svg)](https://x.com/gsyxyc)
-
 ## 许可证
 
 本项目采用 [MIT License](LICENSE) 开源协议。
