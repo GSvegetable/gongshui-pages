@@ -18,8 +18,6 @@
 
 ## 项目结构
 
-以下为项目主要文件与目录，均对应仓库中的实际路径。
-
 ```text
 gongshui-pages/
 ├── index.html
@@ -85,21 +83,11 @@ gongshui-pages/
     └── migrations/
 ```
 
-## 核心功能
-
-- **投稿者地球**：以交互式地球呈现投稿者分布与地区信息。
-- **网页交互实验**：探索具有独立视觉风格与交互方式的原创作品。
-- **作品对比**：并列比较不同作品与版本。
-
 ## 技术栈
 
-[![HTML5](assets/badges/html5.svg)](https://developer.mozilla.org/docs/Web/HTML)
-[![CSS3](assets/badges/css3.svg)](https://developer.mozilla.org/docs/Web/CSS)
-[![JavaScript](assets/badges/javascript.svg)](https://developer.mozilla.org/docs/Web/JavaScript)
-[![Supabase](assets/badges/supabase.svg)](https://supabase.com/)
-[![PostgreSQL](assets/badges/postgresql.svg)](https://www.postgresql.org/)
-[![Vercel](assets/badges/vercel.svg)](https://vercel.com/)
-[![GitHub](assets/badges/github.svg)](https://github.com/)
+![Tech Stack](assets/badges/tech-stack.svg)
+
+
 
 ## 账号与隐私
 
