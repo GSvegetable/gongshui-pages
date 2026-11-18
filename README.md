@@ -28,7 +28,6 @@ gongshui-pages/
 ├── privacy.html
 ├── banner.png
 ├── readme-banner.svg
-├── readme-links.html
 ├── README.md
 ├── README.en.md
 ├── README.ja.md
