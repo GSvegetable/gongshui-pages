@@ -18,15 +18,6 @@
 
 ---
 
-<details open>
-<summary>ピクセル昼夜スイッチ · クリックでプレビューを折りたたみ／展開</summary>
-
-<a href="https://xn--3bts89a.com/?work=pixel-daylight-switch" target="_blank" rel="noopener noreferrer"><img src="scene-gallery.png" alt="5つのアニメーション付きピクセルワールドのシーンプレビュー" /></a>
-
-</details>
-
-[![Pixel Daylight Switch を体験](readme-directory002.svg)](https://xn--3bts89a.com/?work=pixel-daylight-switch)
-
 <a id="project-structure"></a>
 
 ## プロジェクト構成
