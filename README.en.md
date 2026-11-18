@@ -2,17 +2,23 @@
 
 [<img src="banner.png" alt="Gongshui.com" width="100%" />](https://xn--3bts89a.com/)
 
+
+</div>
+
+---
+
+## Project Preview
+
+[![Preview of five animated pixel-world scenes](scene-gallery.png)](https://xn--3bts89a.com/)
+
 [![简体中文](https://img.shields.io/badge/lang-简体中文-9CA3AF?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-16A34A?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-9CA3AF?style=flat-square)](README.ja.md)
 [![Version](https://img.shields.io/badge/version-v2.12.9-2563EB?style=flat-square)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-181717?style=flat-square)](https://xn--3bts89a.com/)
 
-</div>
-
----
-
 [![Gongshui.com — a space for showcasing projects and web interaction experiments](readme-about-v2.svg)](https://xn--3bts89a.com/)
+
 
 ## Project Structure
 
@@ -23,6 +29,7 @@ gongshui-pages/
 ├── admin.html
 ├── privacy.html
 ├── banner.png
+├── scene-gallery.png
 ├── readme-about-v2.svg
 ├── readme-banner.svg
 ├── README.md
