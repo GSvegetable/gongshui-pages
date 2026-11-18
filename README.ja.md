@@ -98,3 +98,7 @@ gongshui-pages/
 ## 更新履歴
 
 バージョンごとの変更は [CHANGELOG.md](CHANGELOG.md) を参照してください。
+
+## ライセンス
+
+このプロジェクトは [MIT License](LICENSE) のもとで公開されています。
