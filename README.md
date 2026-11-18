@@ -21,7 +21,9 @@
 
 </details>
 
-[![点击查看项目目录](readme-directory002.svg)](#project-preview)
+[![点击查看项目目录](readme-directory002.svg)](#project-structure)
+
+<a id="project-structure"></a>
 
 ## 项目结构
 
@@ -95,9 +97,6 @@ gongshui-pages/
     └── migrations/                             # 存放数据库结构变更与迁移记录。
 ```
 
-### 技术栈
-
-![技术栈](assets/badges/tech-stack.svg)
 
 ## 账号与隐私
 
