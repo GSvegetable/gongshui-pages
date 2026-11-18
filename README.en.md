@@ -20,10 +20,6 @@
 
 [![Gongshui.com — a space for showcasing projects and web interaction experiments](readme-about-v2.svg)](https://xn--3bts89a.com/)
 
-## Project Preview
-
-[![Preview of five animated pixel-world scenes](scene-gallery.png)](https://xn--3bts89a.com/)
-
 [![简体中文](https://img.shields.io/badge/lang-简体中文-9CA3AF?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-16A34A?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-9CA3AF?style=flat-square)](README.ja.md)
