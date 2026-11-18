@@ -51,8 +51,8 @@
     const strings = {
       'nav.contributors': 'Contributors',
       'nav.settings': 'Settings',
-      'layout.toggle.two': 'Switch to two-column layout',
-      'layout.toggle.auto': 'Switch to adaptive layout',
+      'layout.toggle.two': 'Add one column',
+      'layout.toggle.auto': 'Restore default columns',
       'nav.language': 'Switch language',
       'account.entry': 'Sign in / Sign up',
       'account.signout': 'Sign out',
@@ -147,7 +147,7 @@
 
     const japanese = {
       'nav.contributors':'クリエイター・貢献者',
-      'nav.settings':'設定','layout.toggle.two':'2列レイアウトに切り替え','layout.toggle.auto':'自動レイアウトに切り替え',
+      'nav.settings':'設定','layout.toggle.two':'列を1つ増やす','layout.toggle.auto':'既定の列数に戻す',
       'nav.language':'言語を切り替え','account.entry':'ログイン / 新規登録','account.signout':'ログアウト',
       'settings.title':'設定','mario.home':'ホーム','mario.compass':'コンパス','mario.bookmarks':'ブックマーク',
       'search.placeholder':'作品を検索…','search.label':'作品を検索','empty.title':'該当する作品はありません',

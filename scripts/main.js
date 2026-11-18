@@ -810,7 +810,7 @@ syncSearchUI();
 
 
 /* =========================================================
-   1.6 主页画廊布局切换：自适应 / 更多一列，直接控制网格并使用 FLIP 动画
+   1.6 主页画廊布局切换：按屏幕宽度自适应，按钮始终增加一列
    ========================================================= */
 (() => {
   const main = document.querySelector('main');
@@ -819,26 +819,33 @@ syncSearchUI();
   if (!main || !gallery || !button) return;
 
   const KEY = 'ui-archive-gallery-layout';
+  const GAP_FALLBACK = 24;
   const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const autoColumns = 'repeat(auto-fill, minmax(min(100%, var(--gallery-card-min, 300px)), 1fr))';
   let mode = 'auto';
+  let resizeFrame = 0;
 
-  // 临时恢复自适应网格测量当前屏幕本来能容纳的列数。
-  // 手机通常为 1，平板通常为 2，桌面可能为 3 或更多。
-  const getAutoColumnCount = () => {
-    const previous = gallery.style.gridTemplateColumns;
-    gallery.style.gridTemplateColumns = autoColumns;
-    const tracks = getComputedStyle(gallery).gridTemplateColumns.trim();
-    const count = tracks ? tracks.split(/\s+/).length : 1;
-    gallery.style.gridTemplateColumns = previous;
-    return Math.max(1, count);
+  // 先读取网格真正可用的宽度（扣除左侧导航留白），再按设备宽度区间
+  // 设定卡片目标宽度。手机至少 2 列，平板至少 3 列，其余设备按宽度自然增长。
+  const getDefaultColumnCount = () => {
+    const style = getComputedStyle(gallery);
+    const usableWidth = Math.max(1, gallery.clientWidth
+      - (parseFloat(style.paddingLeft) || 0)
+      - (parseFloat(style.paddingRight) || 0));
+    const gap = parseFloat(style.columnGap) || GAP_FALLBACK;
+    const viewport = window.innerWidth;
+    const zoomScale = Math.max(0.5, Math.min(1.87, cardMin / 300));
+    const minCardWidth = (viewport <= 600 ? 200 : viewport <= 1024 ? 190 : 280) * zoomScale;
+    const measured = Math.max(1, Math.floor((usableWidth + gap) / (minCardWidth + gap)));
+    if (viewport <= 600) return Math.max(2, measured);
+    if (viewport <= 1024) return Math.max(3, measured);
+    return measured;
   };
 
   const syncButton = () => {
     const moreColumns = mode === 'more';
     button.setAttribute('aria-pressed', String(moreColumns));
     const label = window.siteI18n?.t(moreColumns ? 'layout.toggle.auto' : 'layout.toggle.two')
-      || (moreColumns ? '切换为自适应布局' : '增加一列布局');
+      || (moreColumns ? '恢复默认排列' : '增加一列布局');
     button.setAttribute('aria-label', label);
     button.title = label;
   };
@@ -853,17 +860,17 @@ syncSearchUI();
   });
 
   const applyColumns = () => {
-    const moreColumns = mode === 'more';
-    const columns = moreColumns ? getAutoColumnCount() + 1 : 0;
-    gallery.style.gridTemplateColumns = moreColumns
-      ? `repeat(${columns}, minmax(0, 1fr))`
-      : autoColumns;
-    main.classList.toggle('gallery-layout-two', moreColumns);
+    const baseColumns = getDefaultColumnCount();
+    const columns = mode === 'more' ? baseColumns + 1 : baseColumns;
+    gallery.style.gridTemplateColumns = `repeat(${columns}, minmax(0, 1fr))`;
+    main.classList.toggle('gallery-layout-two', mode === 'more');
+    button.dataset.columns = String(columns);
+    button.dataset.defaultColumns = String(baseColumns);
   };
 
   const setLayout = (next, options = {}) => {
     const normalized = next === 'more' || next === 'two' ? 'more' : 'auto';
-    if (normalized === mode) { syncButton(); return; }
+    if (normalized === mode) { applyColumns(); syncButton(); return; }
 
     const cards = [...gallery.querySelectorAll(':scope > .preview-card:not(.hidden)')];
     const firstRects = new Map(cards.map(card => [card, card.getBoundingClientRect()]));
@@ -905,17 +912,28 @@ syncSearchUI();
   applyColumns();
   syncButton();
   document.addEventListener('site:languagechange', syncButton);
+
+  // 屏幕旋转、窗口缩放或侧栏尺寸变化时，默认列数和“+1”列数都重新计算。
+  const scheduleResize = () => {
+    if (resizeFrame) cancelAnimationFrame(resizeFrame);
+    resizeFrame = requestAnimationFrame(() => {
+      resizeFrame = 0;
+      applyColumns();
+    });
+  };
+  window.addEventListener('resize', scheduleResize, { passive: true });
+  window.visualViewport?.addEventListener('resize', scheduleResize, { passive: true });
+
   button.addEventListener('click', () => {
     tapFeedback();
     setLayout(mode === 'more' ? 'auto' : 'more');
   });
   window.siteGalleryLayout = {
     get: () => mode,
-    set: (next, options = {}) => setLayout(next, options)
+    set: (next, options = {}) => setLayout(next, options),
+    refresh: scheduleResize
   };
 })();
-
-
 /* =========================================================
    2. 万能作品展示框架 (Work Controller)
    ---------------------------------------------------------
