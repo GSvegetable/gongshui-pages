@@ -18,14 +18,14 @@
 
 ---
 
-<details>
-<summary>ピクセル昼夜スイッチ</summary>
+<details open>
+<summary>ピクセル昼夜スイッチ · クリックでプレビューを折りたたみ／展開</summary>
 
 <a href="https://xn--3bts89a.com/?work=pixel-daylight-switch" target="_blank" rel="noopener noreferrer"><img src="scene-gallery.png" alt="5つのアニメーション付きピクセルワールドのシーンプレビュー" /></a>
 
 </details>
 
-[![クリックしてプロジェクト一覧を見る](readme-directory002.svg)](#project-structure)
+[![Pixel Daylight Switch を体験](readme-directory002.svg)](https://xn--3bts89a.com/?work=pixel-daylight-switch)
 
 <a id="project-structure"></a>
 
@@ -39,7 +39,7 @@ gongshui-pages/
 ├── privacy.html                                # プライバシーポリシー。
 ├── banner.png                                  # README の上部に表示するプロジェクトバナー。
 ├── scene-gallery.png                           # Pixel Daylight Switch の複数シーンのプレビュー画像。クリックすると作品の拡大詳細を直接開きます。
-├── readme-directory002.svg                         # プロジェクトの概要とコンセプトを紹介する SVG。
+├── readme-directory002.svg                         # Pixel Daylight Switch の体験ページへ移動するアニメーション付きリンク画像。
 ├── readme-banner.svg                           # README の下部に表示する SNS・更新案内バナー。
 ├── README.md                                   # —
 ├── README.en.md                                # —
