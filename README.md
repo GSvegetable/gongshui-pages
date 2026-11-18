@@ -1,6 +1,6 @@
 <div align="center">
 
-[<img src="file_000000005c4881f58deb22c9cc022ee8.png" alt="宫水.com" width="100%" />](https://xn--3bts89a.com/)
+[<img src="banner.png" alt="宫水.com" width="100%" />](https://xn--3bts89a.com/)
 
 [![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-9CA3AF?style=flat-square)](README.en.md)
@@ -26,7 +26,7 @@ gongshui-pages/
 ├── login.html
 ├── admin.html
 ├── privacy.html
-├── file_000000005c4881f58deb22c9cc022ee8.png
+├── banner.png
 ├── README.md
 ├── README.en.md
 ├── README.ja.md
