@@ -1,6 +1,6 @@
 <div align="center">
 
-[<img src="banner.png" alt="宫水.com — pixel art banner" width="100%" />](https://xn--3bts89a.com/)
+[<img src="file_000000005c4881f58deb22c9cc022ee8.png" alt="宫水.com — pixel art banner" width="100%" />](https://xn--3bts89a.com/)
 
 [![简体中文](https://img.shields.io/badge/lang-简体中文-9CA3AF?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-9CA3AF?style=flat-square)](README.en.md)
@@ -27,7 +27,7 @@ gongshui-pages/
 ├── login.html                 # ログイン・登録・認証ページ
 ├── admin.html                 # 管理画面
 ├── privacy.html               # プライバシーポリシー
-├── banner.png                 # README のカバー画像
+├── file_000000005c4881f58deb22c9cc022ee8.png                 # README のカバー画像
 ├── README.md                  # 中国語 README
 ├── README.ja.md               # 日本語 README
 ├── CHANGELOG.md               # バージョン変更履歴
