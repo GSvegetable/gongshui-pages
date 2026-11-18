@@ -6,7 +6,7 @@
 
 ---
 
-## Project Preview
+<a id="project-preview"></a>
 
 [![简体中文](https://img.shields.io/badge/lang-简体中文-9CA3AF?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-16A34A?style=flat-square)](README.en.md)
@@ -17,11 +17,11 @@
 <details>
 <summary>Pixel Daylight Switch</summary>
 
-<a href="https://xn--3bts89a.com/?work=pixel-daylight-switch&view=expanded" target="_blank" rel="noopener noreferrer"><img src="scene-gallery.png" alt="Preview of five animated pixel-world scenes" /></a>
+<a href="https://xn--3bts89a.com/?work=pixel-daylight-switch" target="_blank" rel="noopener noreferrer"><img src="scene-gallery.png" alt="Preview of five animated pixel-world scenes" /></a>
 
 </details>
 
-[![Gongshui.com — a space for showcasing projects and web interaction experiments](readme-about-v2.svg)](https://xn--3bts89a.com/)
+[![Gongshui.com — a space for showcasing projects and web interaction experiments](readme-about-v2.svg)](#project-preview)
 
 ## Project Structure
 
