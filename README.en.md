@@ -97,9 +97,7 @@ We respect every user's privacy. Account information is used only to provide the
 
 See our [Privacy Policy](privacy.html) for details.
 
-## Changelog
-
-[![Rapidly evolving · X @gsyxyc](readme-banner.svg)](readme-links.html)
+[![Rapidly evolving · X @gsyxyc](readme-banner.svg)](https://x.com/gsyxyc)
 
 ## License
 
