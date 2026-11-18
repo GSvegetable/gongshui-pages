@@ -1,19 +1,12 @@
 <div align="center">
 
-<img src="file_000000005c4881f58deb22c9cc022ee8.png" alt="宫水.com — pixel art banner" width="100%" />
+[<img src="banner.png" alt="宫水.com — pixel art banner" width="100%" />](https://xn--3bts89a.com/)
 
-[简体中文](README.md) · [日本語](README.ja.md)
-
-**个人作品 · 交互实验 · 数字体验**
-
-以简洁、克制的方式呈现网页作品、视觉实验与可复用组件。
-
-[访问网站](https://xn--3bts89a.com/) · [GitHub 仓库](https://github.com/GSvegetable/gongshui-pages)
-
+[![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
+[![日本語](https://img.shields.io/badge/lang-日本語-9CA3AF?style=flat-square)](README.ja.md)
 [![Version](https://img.shields.io/badge/version-v2.12.8-2563EB?style=flat-square)](https://github.com/GSvegetable/gongshui-pages)
 [![Platform](https://img.shields.io/badge/platform-GitHub%20Pages-181717?style=flat-square&logo=github)](https://pages.github.com/)
 [![Stack](https://img.shields.io/badge/stack-HTML%20%2F%20CSS%20%2F%20JavaScript-F97316?style=flat-square)](https://github.com/GSvegetable/gongshui-pages)
-[![Languages](https://img.shields.io/badge/languages-中文%20%2F%20日本語-0F766E)](README.ja.md)
 
 </div>
 

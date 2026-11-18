@@ -1,19 +1,16 @@
 <div align="center">
 
-<img src="file_000000005c4881f58deb22c9cc022ee8.png" alt="宫水.com — pixel art banner" width="100%" />
+[<img src="banner.png" alt="宫水.com — pixel art banner" width="100%" />](https://xn--3bts89a.com/)
 
-[简体中文](README.md) · [日本語](README.ja.md)
-
-**個人制作 · インタラクション実験 · デジタル体験**
-
-Web 作品、ビジュアル実験、再利用可能な UI コンポーネントを紹介する個人プロジェクトです。
-
-[ウェブサイト](https://xn--3bts89a.com/) · [GitHub リポジトリ](https://github.com/GSvegetable/gongshui-pages)
+[![简体中文](https://img.shields.io/badge/lang-简体中文-9CA3AF?style=flat-square)](README.md)
+[![日本語](https://img.shields.io/badge/lang-日本語-16A34A?style=flat-square)](README.ja.md)
+[![Version](https://img.shields.io/badge/version-v2.12.8-2563EB?style=flat-square)](https://github.com/GSvegetable/gongshui-pages)
+[![Platform](https://img.shields.io/badge/platform-GitHub%20Pages-181717?style=flat-square&logo=github)](https://pages.github.com/)
+[![Stack](https://img.shields.io/badge/stack-HTML%20%2F%20CSS%20%2F%20JavaScript-F97316?style=flat-square)](https://github.com/GSvegetable/gongshui-pages)
 
 </div>
 
 ---
-
 
 ## プロジェクト概要
 
