@@ -2,17 +2,23 @@
 
 [<img src="banner.png" alt="宫水.com" width="100%" />](https://xn--3bts89a.com/)
 
+
+</div>
+
+---
+
+## 项目预览
+
+[![五组动态像素世界场景预览](scene-gallery.png)](https://xn--3bts89a.com/)
+
 [![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-9CA3AF?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-9CA3AF?style=flat-square)](README.ja.md)
 [![Version](https://img.shields.io/badge/version-v2.12.9-2563EB?style=flat-square)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-181717?style=flat-square)](https://xn--3bts89a.com/)
 
-</div>
-
----
-
 [![宫水.com 一个展示作品与网页交互实验的在线空间](readme-about-v2.svg)](https://xn--3bts89a.com/)
+
 
 ## 项目结构
 
@@ -23,6 +29,7 @@ gongshui-pages/
 ├── admin.html
 ├── privacy.html
 ├── banner.png
+├── scene-gallery.png
 ├── readme-about-v2.svg
 ├── readme-banner.svg
 ├── README.md
