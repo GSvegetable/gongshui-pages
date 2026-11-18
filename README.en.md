@@ -96,7 +96,7 @@ gongshui-pages/
 
 ## Privacy
 
-We respect every user's privacy. Account information is used only to provide the website's services and is protected with appropriate measures. We do not disclose it publicly or share it with unrelated third parties, except where necessary to operate the service, authorized by the user, or required by law.
+User information is used solely to provide the website’s services and is protected in accordance with applicable requirements.
 
 See our [Privacy Policy](privacy.html) for details.
 
