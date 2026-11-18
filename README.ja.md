@@ -21,7 +21,7 @@
 
 </details>
 
-[![宮水.com — 個人作品と Web インタラクション実験を紹介するオンライン空間](readme-about-v2.svg)](#project-preview)
+[![クリックしてプロジェクト一覧を見る](readme-directory002.svg)](#project-preview)
 
 ## プロジェクト構成
 
@@ -33,7 +33,7 @@ gongshui-pages/
 ├── privacy.html                                # プライバシーポリシー。
 ├── banner.png                                  # README の上部に表示するプロジェクトバナー。
 ├── scene-gallery.png                           # Pixel Daylight Switch の複数シーンのプレビュー画像。クリックすると作品の拡大詳細を直接開きます。
-├── readme-about-v2.svg                         # プロジェクトの概要とコンセプトを紹介する SVG。
+├── readme-directory002.svg                         # プロジェクトの概要とコンセプトを紹介する SVG。
 ├── readme-banner.svg                           # README の下部に表示する SNS・更新案内バナー。
 ├── README.md                                   # —
 ├── README.en.md                                # —
