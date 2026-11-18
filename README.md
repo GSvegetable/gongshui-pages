@@ -93,17 +93,13 @@ gongshui-pages/
 
 ## 技术栈
 
-<div align="center">
-
-[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/docs/Web/HTML)
-[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/docs/Web/CSS)
-[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=222)](https://developer.mozilla.org/docs/Web/JavaScript)
-[![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/)
-
-</div>
+[![HTML5](assets/badges/html5.svg)](https://developer.mozilla.org/docs/Web/HTML)
+[![CSS3](assets/badges/css3.svg)](https://developer.mozilla.org/docs/Web/CSS)
+[![JavaScript](assets/badges/javascript.svg)](https://developer.mozilla.org/docs/Web/JavaScript)
+[![Supabase](assets/badges/supabase.svg)](https://supabase.com/)
+[![PostgreSQL](assets/badges/postgresql.svg)](https://www.postgresql.org/)
+[![Vercel](assets/badges/vercel.svg)](https://vercel.com/)
+[![GitHub](assets/badges/github.svg)](https://github.com/)
 
 ## 账号与隐私
 
