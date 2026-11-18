@@ -12,11 +12,7 @@
 
 ---
 
-## Overview
-
-Gongshui.com is a space for showcasing personal projects and web interaction experiments.
-
-[Click here to visit the website](https://xn--3bts89a.com/)
+[![Gongshui.com — a space for showcasing projects and web interaction experiments](readme-about-v2.svg)](https://xn--3bts89a.com/)
 
 ## Project Structure
 
@@ -27,6 +23,7 @@ gongshui-pages/
 ├── admin.html
 ├── privacy.html
 ├── banner.png
+├── readme-about-v2.svg
 ├── readme-banner.svg
 ├── README.md
 ├── README.en.md
@@ -87,7 +84,6 @@ gongshui-pages/
 ```
 
 ![Tech Stack](assets/badges/tech-stack.svg)
-
 
 
 ## Privacy
