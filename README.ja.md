@@ -9,6 +9,19 @@
 
 ## プロジェクトプレビュー
 
+<details>
+<summary>ピクセル昼夜スイッチ</summary>
+
+[![5つのアニメーション付きピクセルワールドのシーンプレビュー](scene-gallery.png)](https://xn--3bts89a.com/)
+
+</details>
+
+![Tech Stack](assets/badges/tech-stack.svg)
+
+[![宮水.com — 個人作品と Web インタラクション実験を紹介するオンライン空間](readme-about-v2.svg)](https://xn--3bts89a.com/)
+
+## プロジェクトプレビュー
+
 [![5つのアニメーション付きピクセルワールドのシーンプレビュー](scene-gallery.png)](https://xn--3bts89a.com/)
 
 [![简体中文](https://img.shields.io/badge/lang-简体中文-9CA3AF?style=flat-square)](README.md)
@@ -17,7 +30,6 @@
 [![Version](https://img.shields.io/badge/version-v2.12.9-2563EB?style=flat-square)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-181717?style=flat-square)](https://xn--3bts89a.com/)
 
-[![宮水.com — 個人作品と Web インタラクション実験を紹介するオンライン空間](readme-about-v2.svg)](https://xn--3bts89a.com/)
 
 
 ## プロジェクト構成
@@ -90,7 +102,6 @@ gongshui-pages/
     └── migrations/
 ```
 
-![Tech Stack](assets/badges/tech-stack.svg)
 
 
 ## アカウントとプライバシー
