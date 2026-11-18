@@ -30,7 +30,6 @@ gongshui-pages/
 ├── privacy.html                                # プライバシーポリシー。
 ├── banner.png                                  # README の上部に表示するプロジェクトバナー。
 ├── scene-gallery.png                           # Pixel Daylight Switch の複数シーンのプレビュー画像。クリックすると作品の拡大詳細を直接開きます。
-├── readme-directory002.svg                         # Pixel Daylight Switch の体験ページへ移動するアニメーション付きリンク画像。
 ├── readme-banner.svg                           # README の下部に表示する SNS・更新案内バナー。
 ├── README.md                                   # —
 ├── README.en.md                                # —
