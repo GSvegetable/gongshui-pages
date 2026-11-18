@@ -12,11 +12,7 @@
 
 ---
 
-## 项目简介
-
-宫水.com 是一个展示个人作品与网页交互实验的在线空间。
-
-[点击这里进入网页](https://xn--3bts89a.com/)
+[![宫水.com 一个展示作品与网页交互实验的在线空间](readme-about-v2.svg)](https://xn--3bts89a.com/)
 
 ## 项目结构
 
@@ -27,6 +23,7 @@ gongshui-pages/
 ├── admin.html
 ├── privacy.html
 ├── banner.png
+├── readme-about-v2.svg
 ├── readme-banner.svg
 ├── README.md
 ├── README.en.md
@@ -87,7 +84,6 @@ gongshui-pages/
 ```
 
 ![Tech Stack](assets/badges/tech-stack.svg)
-
 
 
 ## 账号与隐私
