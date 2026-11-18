@@ -20,10 +20,6 @@
 
 [![宫水.com 一个展示作品与网页交互实验的在线空间](readme-about-v2.svg)](https://xn--3bts89a.com/)
 
-## 项目预览
-
-[![五组动态像素世界场景预览](scene-gallery.png)](https://xn--3bts89a.com/)
-
 [![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-9CA3AF?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-9CA3AF?style=flat-square)](README.ja.md)
