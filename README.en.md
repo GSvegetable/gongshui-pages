@@ -9,6 +9,19 @@
 
 ## Project Preview
 
+<details>
+<summary>Pixel Daylight Switch</summary>
+
+[![Preview of five animated pixel-world scenes](scene-gallery.png)](https://xn--3bts89a.com/)
+
+</details>
+
+![Tech Stack](assets/badges/tech-stack.svg)
+
+[![Gongshui.com — a space for showcasing projects and web interaction experiments](readme-about-v2.svg)](https://xn--3bts89a.com/)
+
+## Project Preview
+
 [![Preview of five animated pixel-world scenes](scene-gallery.png)](https://xn--3bts89a.com/)
 
 [![简体中文](https://img.shields.io/badge/lang-简体中文-9CA3AF?style=flat-square)](README.md)
@@ -17,7 +30,6 @@
 [![Version](https://img.shields.io/badge/version-v2.12.9-2563EB?style=flat-square)](CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-181717?style=flat-square)](https://xn--3bts89a.com/)
 
-[![Gongshui.com — a space for showcasing projects and web interaction experiments](readme-about-v2.svg)](https://xn--3bts89a.com/)
 
 
 ## Project Structure
@@ -90,7 +102,6 @@ gongshui-pages/
     └── migrations/
 ```
 
-![Tech Stack](assets/badges/tech-stack.svg)
 
 
 ## Privacy
