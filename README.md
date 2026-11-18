@@ -27,6 +27,8 @@ gongshui-pages/
 ├── admin.html
 ├── privacy.html
 ├── banner.png
+├── readme-banner.svg
+├── readme-links.html
 ├── README.md
 ├── README.en.md
 ├── README.ja.md
@@ -97,7 +99,7 @@ gongshui-pages/
 
 ## 更新记录
 
-版本变更见 [CHANGELOG.md](CHANGELOG.md)。
+[![快速迭代 · X @gsyxyc](readme-banner.svg)](readme-links.html)
 
 ## 许可证
 
