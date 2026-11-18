@@ -85,21 +85,11 @@ gongshui-pages/
     └── migrations/
 ```
 
-## Highlights
-
-- **Contributor globe:** Explore contributor locations through an interactive globe.
-- **Web experiments:** Discover original projects with distinct visual styles and interactions.
-- **Project comparison:** Compare different projects and versions side by side.
-
 ## Tech Stack
 
-[![HTML5](assets/badges/html5.svg)](https://developer.mozilla.org/docs/Web/HTML)
-[![CSS3](assets/badges/css3.svg)](https://developer.mozilla.org/docs/Web/CSS)
-[![JavaScript](assets/badges/javascript.svg)](https://developer.mozilla.org/docs/Web/JavaScript)
-[![Supabase](assets/badges/supabase.svg)](https://supabase.com/)
-[![PostgreSQL](assets/badges/postgresql.svg)](https://www.postgresql.org/)
-[![Vercel](assets/badges/vercel.svg)](https://vercel.com/)
-[![GitHub](assets/badges/github.svg)](https://github.com/)
+![Tech Stack](assets/badges/tech-stack.svg)
+
+
 
 ## Privacy
 
