@@ -63,7 +63,7 @@ body.is-bookmarks .bookmark-intro {
   background:
     radial-gradient(ellipse at 50% 42%,rgba(185,203,220,.16),transparent 42%),
     linear-gradient(180deg,#0a0e13 0%,#111820 48%,#070a0e 100%);
-  touch-action:pan-y;
+  touch-action:none;
 }
 .bookmark-world {
   position:absolute; inset:0; transform-style:preserve-3d;
