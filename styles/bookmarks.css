@@ -35,7 +35,8 @@ body.is-bookmarks main { padding-top: 62px; }
   font:700 10px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;
   letter-spacing:2.1px;
 }
-.bookmark-eyebrow span { font-size:15px; color:#f4bd3c; }
+.bookmark-eyebrow > span:last-child { font-size:15px; color:#f4bd3c; }
+.bookmark-eyebrow-text { font:inherit; color:inherit; }
 .bookmark-intro h1 {
   margin:0; color:#f5f0e5;
   font-size:clamp(28px,4vw,43px); line-height:1.2;
