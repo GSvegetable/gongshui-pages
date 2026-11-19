@@ -297,6 +297,18 @@ const renderFolderCard = folder => {
   name.textContent = folder.name;
   card.appendChild(name);
 
+  const meta = document.createElement('span');
+  meta.className = 'folder-meta';
+  const count = folder.works.length;
+  meta.textContent = count + (siteLang() === 'en' ? (count === 1 ? ' work' : ' works') : siteLang() === 'ja' ? ' 件の作品' : ' 件作品');
+  card.appendChild(meta);
+
+  const openMark = document.createElement('span');
+  openMark.className = 'folder-open-mark';
+  openMark.setAttribute('aria-hidden', 'true');
+  openMark.textContent = '↗';
+  card.appendChild(openMark);
+
   const remove = document.createElement('button');
   remove.type = 'button';
   remove.className = 'folder-delete';
@@ -378,6 +390,14 @@ const renderFolderGrid = () => {
     const panel = document.createElement('section');
     panel.className = 'folder-inline-panel';
     panel.setAttribute('aria-label', folder.name + '中的作品');
+    const panelHead = document.createElement('div');
+    panelHead.className = 'folder-panel-heading';
+    const panelLabel = document.createElement('span');
+    panelLabel.textContent = tr('bookmarks.title', '收藏夹') + ' / ' + folder.name;
+    const panelCount = document.createElement('span');
+    panelCount.textContent = folder.works.length + (siteLang() === 'en' ? ' SAVED' : ' 件作品');
+    panelHead.append(panelLabel, panelCount);
+    panel.appendChild(panelHead);
 
     const worksGrid = document.createElement('div');
     worksGrid.className = 'folder-works-grid';
@@ -429,7 +449,13 @@ const renderGallery = () => {
     const titleEl = document.getElementById('bookmarks-title');
     if (backBtn) backBtn.hidden = true;
     if (newBtn) newBtn.hidden = false;
-    if (titleEl) titleEl.textContent = tr('bookmarks.title', '收藏夹');
+    if (titleEl) titleEl.textContent = folder ? folder.name : tr('bookmarks.title', '收藏夹');
+    if (backBtn) backBtn.hidden = !folder;
+    if (newBtn) newBtn.hidden = !!folder;
+    const workCount = document.getElementById('bookmark-work-count');
+    const folderCount = document.getElementById('bookmark-folder-count');
+    if (workCount) workCount.textContent = String(AppState.bookmarks.length);
+    if (folderCount) folderCount.textContent = String(AppState.bookmarkFolders.length);
     renderFolderGrid();
   } else {
     restoreFolderWorks();
