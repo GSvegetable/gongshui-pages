@@ -98,7 +98,7 @@
   function setCamera() {
     root.style.transform = 'translate3d(0,0,' + state.cameraZ + 'px) rotateY(' + state.yaw + 'deg)';
     $('bookmark-world-position').textContent = 'SECTOR ' + String(Math.floor(state.cameraZ / state.segmentDepth) + 1).padStart(3, '0');
-    const progress = $('bookmark-world-progress')?.querySelector('span');
+    const progress = $('bookmark-world-progress');
     if (progress) progress.style.width = (12 + (state.cameraZ / state.segmentDepth % 8) * 10) + '%';
   }
   function appendSegments() {
