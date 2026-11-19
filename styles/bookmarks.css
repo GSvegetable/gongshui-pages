@@ -369,3 +369,40 @@ body.is-bookmarks .bookmark-world-empty {
   body.is-bookmarks .world-turn,
   body.is-bookmarks .world-forward { transition: none !important; }
 }
+
+
+/* v2.12.18 — intentionally empty archive screen */
+body.is-bookmarks {
+  background: #000 !important;
+}
+body.is-bookmarks #top-bar,
+body.is-bookmarks #top-utility,
+body.is-bookmarks #settings-panel,
+body.is-bookmarks #mario-nav,
+body.is-bookmarks .site-version,
+body.is-bookmarks main > :not(#bookmarks-view),
+body.is-bookmarks .detail-content,
+body.is-bookmarks .work-detail,
+body.is-bookmarks .preview-actions,
+body.is-bookmarks .work-extras {
+  display: none !important;
+}
+body.is-bookmarks main,
+body.is-bookmarks .bookmarks-view {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #000 !important;
+}
+body.is-bookmarks .bookmarks-view {
+  z-index: 1001 !important;
+}
+body.is-bookmarks .bookmarks-view > * {
+  display: none !important;
+}
