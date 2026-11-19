@@ -1233,3 +1233,47 @@ body.is-bookmarks .bookmarks-toolbar .folder-new {
 .account-modal{border-radius:10px;box-shadow:0 22px 70px rgba(0,0,0,.28)}
 .account-modal-kicker{display:none!important}
 .account-avatar{border-radius:0!important}
+
+
+/* v2.12.19 — blank handoff canvas for the future bookmarks page */
+body.is-bookmarks {
+  overflow: hidden !important;
+  background: #000 !important;
+}
+body.is-bookmarks #mario-nav,
+body.is-bookmarks #top-bar,
+body.is-bookmarks #top-utility,
+body.is-bookmarks #settings-panel,
+body.is-bookmarks .site-version,
+body.is-bookmarks .detail-content,
+body.is-bookmarks .work-detail,
+body.is-bookmarks .preview-actions,
+body.is-bookmarks .work-extras {
+  display: none !important;
+}
+body.is-bookmarks main {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1000 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #000 !important;
+}
+body.is-bookmarks main > :not(#bookmarks-view) {
+  display: none !important;
+}
+body.is-bookmarks #bookmarks-view {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #000 !important;
+}
