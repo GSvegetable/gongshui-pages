@@ -246,3 +246,5 @@ body.is-bookmarks .preview-card.folder-item-enter:not(.is-open):not(.is-closing)
   .folder-card,.folder-thumb,.folder-open-mark { transition:none!important; }
   .folder-inline-panel,.folder-item-enter { animation:none!important; }
 }
+
+@media(hover:none) { .folder-delete { opacity:1; } }
