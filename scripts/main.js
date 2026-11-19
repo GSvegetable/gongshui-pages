@@ -457,6 +457,20 @@ const renderGallery = () => {
     if (workCount) workCount.textContent = String(AppState.bookmarks.length);
     if (folderCount) folderCount.textContent = String(AppState.bookmarkFolders.length);
     renderFolderGrid();
+    // 收藏展厅使用同一份真实收藏数据；仅在收藏视图启用，不影响首页与指南针。
+    window.siteBookmarkWorldData = {
+      visible: true,
+      folders: AppState.bookmarkFolders.map(folder => ({ id: folder.id, name: folder.name, works: [...folder.works] })),
+      bookmarks: [...AppState.bookmarks],
+      works: works.map(work => ({
+        id: work.id,
+        title: work.card.querySelector('.card-title')?.textContent || work.id,
+        english: work.card.dataset.en || '',
+        previewSrc: work.card.querySelector('iframe')?.getAttribute('src') || '',
+        detailId: work.card.dataset.detail || ''
+      }))
+    };
+    window.siteBookmarkWorld?.render(window.siteBookmarkWorldData);
   } else {
     restoreFolderWorks();
   }
