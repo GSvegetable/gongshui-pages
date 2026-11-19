@@ -150,18 +150,6 @@ const deleteFolder = (folderId) => {
   renderGallery();
 };
 
-const openFolder = (folderId) => {
-  if (!folderById(folderId)) return;
-  // 再点当前文件夹即收起；点另一个文件夹则原地切换。
-  AppState.openFolderId = AppState.openFolderId === folderId ? null : folderId;
-  renderGallery();
-};
-
-const closeFolder = () => {
-  AppState.openFolderId = null;
-  renderGallery();
-};
-
 /* =========================================================
    0.5 站点文案取词：中文回退写在调用处，英文走 index.html 的 siteI18n
    ---------------------------------------------------------
@@ -191,44 +179,6 @@ const galleryCards = works.map(work => work.card);
 const emptyState = document.getElementById('empty-state');
 const galleryGrid = document.querySelector('main > .grid');
 
-// 收藏页使用原作品卡片节点：只搬动 DOM，不克隆卡片，主页的 FLIP 展开逻辑和事件监听因此完整保留。
-const restoreFolderWorks = () => {
-  if (!galleryGrid || !emptyState) return;
-  works.forEach(work => {
-    work.card.classList.remove('folder-peeked', 'folder-item-enter');
-    work.card.style.removeProperty('--folder-item-index');
-    galleryGrid.insertBefore(work.card, emptyState);
-  });
-};
-
-// 收藏页作品采用两次点击：第一次轻轻探出，第二次交给原有 openWork / FLIP。
-works.forEach(work => {
-  const card = work.card;
-  card.addEventListener('click', event => {
-    const folder = folderById(AppState.openFolderId);
-    if (AppState.currentTab !== 'bookmarks' || !folder || !folder.works.includes(work.id)) return;
-    if (event.target.closest('.preview-mount, button, a, input, select, textarea, [role="button"]')) return;
-    if (!card.classList.contains('folder-peeked')) {
-      card.classList.add('folder-peeked');
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    } else {
-      card.classList.remove('folder-peeked');
-    }
-  }, true);
-  card.addEventListener('keydown', event => {
-    const folder = folderById(AppState.openFolderId);
-    if (AppState.currentTab !== 'bookmarks' || !folder || !folder.works.includes(work.id)) return;
-    if (event.target !== card || !['Enter', ' '].includes(event.key)) return;
-    if (!card.classList.contains('folder-peeked')) {
-      card.classList.add('folder-peeked');
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    } else {
-      card.classList.remove('folder-peeked');
-    }
-  }, true);
-});
 const emptyDesc = document.getElementById('empty-desc');
 const searchInput = document.getElementById('search-input');
 const searchWrapper = document.getElementById('search-wrapper');
@@ -265,243 +215,33 @@ const searchDescOf = card => {
   return panel?.querySelector('.detail-description')?.textContent || '';
 };
 
-const renderFolderCard = folder => {
-  const card = document.createElement('div');
-  card.className = 'folder-card';
-  if (AppState.openFolderId === folder.id) card.classList.add('is-expanded');
-  card.tabIndex = 0;
-  card.dataset.folderId = folder.id;
-  card.setAttribute('role', 'button');
-  card.setAttribute('aria-label', folder.name);
-  card.setAttribute('aria-expanded', String(AppState.openFolderId === folder.id));
-
-  const thumbs = document.createElement('span');
-  thumbs.className = 'folder-thumbs';
-  const ids = folder.works.slice(0, 3);
-  if (!ids.length) {
-    const empty = document.createElement('span');
-    empty.className = 'folder-thumb is-empty';
-    thumbs.appendChild(empty);
-  } else {
-    ids.forEach(id => {
-      const thumb = document.createElement('span');
-      thumb.className = 'folder-thumb';
-      thumb.dataset.work = id;
-      thumbs.appendChild(thumb);
-    });
-  }
-  card.appendChild(thumbs);
-
-  const name = document.createElement('span');
-  name.className = 'folder-name';
-  name.textContent = folder.name;
-  card.appendChild(name);
-
-  const meta = document.createElement('span');
-  meta.className = 'folder-meta';
-  const count = folder.works.length;
-  meta.textContent = count + (siteLang() === 'en' ? (count === 1 ? ' work' : ' works') : siteLang() === 'ja' ? ' 件の作品' : ' 件作品');
-  card.appendChild(meta);
-
-  const openMark = document.createElement('span');
-  openMark.className = 'folder-open-mark';
-  openMark.setAttribute('aria-hidden', 'true');
-  openMark.textContent = '↗';
-  card.appendChild(openMark);
-
-  const remove = document.createElement('button');
-  remove.type = 'button';
-  remove.className = 'folder-delete';
-  remove.textContent = '×';
-  remove.setAttribute('aria-label', tr('folders.delete', '删除文件夹') + '：' + folder.name);
-  remove.title = tr('folders.delete', '删除文件夹');
-  remove.addEventListener('click', event => {
-    event.preventDefault();
-    event.stopPropagation();
-    deleteFolder(folder.id);
-  });
-  card.appendChild(remove);
-
-  card.addEventListener('click', event => {
-    if (event.target.closest('.folder-name-input')) return;
-    openFolder(folder.id);
-  });
-  card.addEventListener('keydown', event => {
-    if (event.key !== 'Enter' && event.key !== ' ') return;
-    if (event.target.closest('.folder-name-input')) return;
-    event.preventDefault();
-    openFolder(folder.id);
-  });
-  return card;
-};
-
-const startFolderRename = (folder, card) => {
-  const nameEl = card.querySelector('.folder-name');
-  if (!nameEl) return;
-  const input = document.createElement('input');
-  input.className = 'folder-name-input';
-  input.type = 'text';
-  input.maxLength = 24;
-  input.value = folder.name;
-  input.setAttribute('aria-label', tr('folders.rename', '重命名文件夹'));
-  nameEl.replaceWith(input);
-  input.focus();
-  input.select();
-  let done = false;
-  const commit = save => {
-    if (done) return;
-    done = true;
-    const value = input.value.trim();
-    if (save && value) {
-      renameFolder(folder.id, value);
-    } else {
-      renderGallery();
-    }
-  };
-  input.addEventListener('keydown', event => {
-    if (event.key === 'Enter') { event.preventDefault(); commit(true); }
-    else if (event.key === 'Escape') { event.preventDefault(); commit(false); }
-  });
-  input.addEventListener('blur', () => commit(true));
-};
-
-const renderFolderGrid = () => {
-  const grid = document.getElementById('folder-grid');
-  const hint = document.getElementById('folder-hint');
-  if (!grid) return;
-
-  // 先把作品归还主网格，再重建文件夹列表，避免切页/搜索/同步后节点丢失。
-  restoreFolderWorks();
-  grid.replaceChildren();
-
-  const query = norm(AppState.searchQuery);
-  const matches = AppState.bookmarkFolders.filter(folder => {
-    if (!query) return true;
-    if (norm(folder.name).includes(query)) return true;
-    return folder.works.some(id => norm(workTitleOf(id)).includes(query));
-  });
-
-  matches.forEach(folder => {
-    const folderCard = renderFolderCard(folder);
-    grid.appendChild(folderCard);
-
-    if (folder.id !== AppState.openFolderId) return;
-
-    const panel = document.createElement('section');
-    panel.className = 'folder-inline-panel';
-    panel.setAttribute('aria-label', folder.name + '中的作品');
-    const panelHead = document.createElement('div');
-    panelHead.className = 'folder-panel-heading';
-    const panelLabel = document.createElement('span');
-    panelLabel.textContent = tr('bookmarks.title', '收藏夹') + ' / ' + folder.name;
-    const panelCount = document.createElement('span');
-    panelCount.textContent = folder.works.length + (siteLang() === 'en' ? ' SAVED' : ' 件作品');
-    panelHead.append(panelLabel, panelCount);
-    panel.appendChild(panelHead);
-
-    const worksGrid = document.createElement('div');
-    worksGrid.className = 'folder-works-grid';
-    const members = folder.works
-      .map(id => works.find(work => work.id === id))
-      .filter(Boolean);
-
-    members.forEach((work, index) => {
-      work.card.style.setProperty('--folder-item-index', index);
-      work.card.classList.add('folder-item-enter');
-      worksGrid.appendChild(work.card);
-    });
-
-    panel.appendChild(worksGrid);
-    if (!members.length) {
-      const empty = document.createElement('p');
-      empty.className = 'folder-inline-empty';
-      empty.textContent = tr('empty.folderEmpty', '这个文件夹还是空的，去作品页把喜欢的收进来');
-      panel.appendChild(empty);
-    }
-    folderCard.after(panel);
-  });
-
-  if (hint) {
-    const noneAtAll = AppState.bookmarkFolders.length === 0;
-    hint.hidden = !noneAtAll && matches.length > 0;
-    hint.textContent = noneAtAll
-      ? tr('folders.empty', '还没有文件夹，点右上角「新建文件夹」开始整理收藏')
-      : tr('empty.folderNoMatch', '没有匹配的文件夹');
-  }
-};
-
 const renderGallery = () => {
   const inBookmarks = AppState.currentTab === 'bookmarks';
   document.body.classList.toggle('is-bookmarks', inBookmarks);
 
-  let folder = inBookmarks && AppState.openFolderId ? folderById(AppState.openFolderId) : null;
-  if (inBookmarks && AppState.openFolderId && !folder) AppState.openFolderId = null;
-  if (!inBookmarks) folder = null;
-
-  document.body.classList.toggle('folders-root', inBookmarks && !folder);
-  document.body.classList.toggle('folder-open', inBookmarks && !!folder);
-
   const bookmarksView = document.getElementById('bookmarks-view');
   if (bookmarksView) bookmarksView.hidden = !inBookmarks;
+
   if (inBookmarks) {
-    const backBtn = document.getElementById('bookmarks-back');
-    const newBtn = document.getElementById('folder-new');
-    const titleEl = document.getElementById('bookmarks-title');
-    if (backBtn) backBtn.hidden = true;
-    if (newBtn) newBtn.hidden = false;
-    if (titleEl) titleEl.textContent = folder ? folder.name : tr('bookmarks.title', '收藏夹');
-    if (backBtn) backBtn.hidden = !folder;
-    if (newBtn) newBtn.hidden = !!folder;
-    const workCount = document.getElementById('bookmark-work-count');
-    const folderCount = document.getElementById('bookmark-folder-count');
-    if (workCount) workCount.textContent = String(AppState.bookmarks.length);
-    if (folderCount) folderCount.textContent = String(AppState.bookmarkFolders.length);
-    renderFolderGrid();
-    // 收藏展厅使用同一份真实收藏数据；仅在收藏视图启用，不影响首页与指南针。
-    window.siteBookmarkWorldData = {
-      visible: true,
-      folders: AppState.bookmarkFolders.map(folder => ({ id: folder.id, name: folder.name, works: [...folder.works] })),
-      bookmarks: [...AppState.bookmarks],
-      works: works.map(work => ({
-        id: work.id,
-        title: work.card.querySelector('.card-title')?.textContent || work.id,
-        english: work.card.dataset.en || '',
-        previewSrc: work.card.querySelector('iframe')?.getAttribute('src') || '',
-        detailId: work.card.dataset.detail || ''
-      }))
-    };
-    window.siteBookmarkWorld?.render(window.siteBookmarkWorldData);
-  } else {
-    restoreFolderWorks();
+    galleryCards.forEach(card => card.classList.add('hidden'));
+    emptyState.classList.remove('visible');
+    return;
   }
 
   const query = norm(AppState.searchQuery);
   let visibleWorks = 0;
   galleryCards.forEach(item => {
-    const id = item.dataset.id;
     const searchMatch = query
       ? (fuzzyMatch(searchTextOf(item), query) || norm(searchDescOf(item)).includes(query))
       : true;
-    let show;
-    if (!inBookmarks) show = searchMatch;
-    else if (folder) show = folder.works.includes(id) && searchMatch;
-    else show = false; // 文件夹列表页不显示作品卡片
-    item.classList.toggle('hidden', !show);
-    if (show) visibleWorks++;
+    item.classList.toggle('hidden', !searchMatch);
+    if (searchMatch) visibleWorks++;
   });
 
-  if (inBookmarks && !folder) {
-    emptyState.classList.remove('visible');
-    return;
-  }
   if (!visibleWorks) {
-    emptyDesc.textContent = inBookmarks
-      ? (query
-          ? tr('empty.bookmarkNoMatch', '文件夹中没有找到匹配的作品')
-          : tr('empty.folderEmpty', '这个文件夹还是空的，去作品页把喜欢的收进来'))
-      : (query
-          ? tr('empty.noMatch', '没有找到匹配的作品')
-          : tr('empty.noWorks', '还没有添加作品'));
+    emptyDesc.textContent = query
+      ? tr('empty.noMatch', '没有找到匹配的作品')
+      : tr('empty.noWorks', '还没有添加作品');
     emptyState.classList.add('visible');
   } else {
     emptyState.classList.remove('visible');
@@ -624,18 +364,6 @@ syncSearchUI();
    0.7 收藏夹 UI：工具栏 / 新建 / 返回 / 「收藏到文件夹」弹层
    ========================================================= */
 (() => {
-  const backBtn = document.getElementById('bookmarks-back');
-  const newBtn = document.getElementById('folder-new');
-  if (backBtn) backBtn.addEventListener('click', () => closeFolder());
-  if (newBtn) {
-    newBtn.addEventListener('click', () => {
-      const folder = createFolder(tr('folders.new', '新建文件夹'));
-      renderGallery();
-      const card = document.querySelector('.folder-card[data-folder-id="' + folder.id + '"]');
-      if (card) startFolderRename(folder, card);
-    });
-  }
-
   // 云端偏好 / 其他设备把文件夹结构同步回来
   document.addEventListener('site:folders', () => {
     loadFolders();
