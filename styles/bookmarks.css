@@ -211,3 +211,161 @@ body.is-bookmarks .bookmark-intro {
 @media(prefers-reduced-motion:reduce) {
   .bookmark-world,.bw-artwork,.bookmark-world-progress span { transition:none !important; }
 }
+
+
+/* ── Full-screen archive mode: the corridor IS the page ── */
+body.is-bookmarks {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+  background: #070a0e !important;
+}
+body.is-bookmarks main {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1000 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #070a0e !important;
+}
+body.is-bookmarks #mario-nav,
+body.is-bookmarks #top-utility,
+body.is-bookmarks #settings-panel,
+body.is-bookmarks .site-version,
+body.is-bookmarks .bookmark-intro,
+body.is-bookmarks .bookmarks-toolbar,
+body.is-bookmarks .bookmark-world-hud,
+body.is-bookmarks .bookmark-world-reticle,
+body.is-bookmarks .bookmark-world-hint,
+body.is-bookmarks .bookmark-world-progress,
+body.is-bookmarks #bookmark-world-filters,
+body.is-bookmarks .folder-grid,
+body.is-bookmarks .folder-hint {
+  display: none !important;
+}
+body.is-bookmarks .bookmarks-view {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1001 !important;
+  display: block;
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  color: #fff;
+  background: #070a0e;
+}
+body.is-bookmarks .bookmark-world-shell {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: #070a0e !important;
+}
+body.is-bookmarks .bookmark-world-viewport {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  perspective: 1250px;
+  perspective-origin: 50% 50%;
+}
+body.is-bookmarks .bookmark-world-controls {
+  position: absolute !important;
+  z-index: 30 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: max(22px, env(safe-area-inset-bottom)) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 0 !important;
+  padding: 0 18px !important;
+  border: 0 !important;
+  background: transparent !important;
+  pointer-events: none !important;
+}
+body.is-bookmarks .bookmark-world-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(18px, 4vw, 42px) !important;
+  pointer-events: auto !important;
+}
+body.is-bookmarks .world-turn,
+body.is-bookmarks .world-forward {
+  display: grid !important;
+  place-items: center !important;
+  width: 54px !important;
+  min-width: 54px !important;
+  height: 54px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255,255,255,.54) !important;
+  border-radius: 50% !important;
+  background: rgba(8,13,19,.28) !important;
+  color: rgba(255,255,255,.92) !important;
+  box-shadow: 0 4px 28px rgba(0,0,0,.18), inset 0 0 18px rgba(255,255,255,.035) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font: 300 25px/1 ui-sans-serif,system-ui,sans-serif !important;
+  transition: transform .2s, background .2s, border-color .2s !important;
+  -webkit-tap-highlight-color: transparent;
+}
+body.is-bookmarks .world-forward {
+  width: 66px !important;
+  min-width: 66px !important;
+  height: 66px !important;
+  border-color: rgba(255,255,255,.9) !important;
+  background: rgba(245,248,250,.94) !important;
+  color: #111820 !important;
+  font-size: 29px !important;
+}
+body.is-bookmarks .world-forward span { display: none !important; }
+body.is-bookmarks .world-forward b { font: inherit !important; }
+body.is-bookmarks .world-turn:active,
+body.is-bookmarks .world-forward:active { transform: scale(.91) !important; }
+body.is-bookmarks .world-turn:focus-visible,
+body.is-bookmarks .world-forward:focus-visible {
+  outline: 2px solid #fff !important;
+  outline-offset: 5px !important;
+}
+body.is-bookmarks .bookmark-world-guide {
+  bottom: 0 !important;
+  height: 38% !important;
+  opacity: .9;
+}
+body.is-bookmarks .bookmark-world-empty {
+  top: 46% !important;
+  color: #f4f7fa;
+}
+@media(max-width:650px) {
+  body.is-bookmarks .bookmark-world-controls {
+    bottom: max(18px, env(safe-area-inset-bottom)) !important;
+  }
+  body.is-bookmarks .bookmark-world-actions { gap: 22px !important; }
+  body.is-bookmarks .world-turn {
+    width: 48px !important; min-width: 48px !important; height: 48px !important;
+  }
+  body.is-bookmarks .world-forward {
+    width: 60px !important; min-width: 60px !important; height: 60px !important;
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  body.is-bookmarks .world-turn,
+  body.is-bookmarks .world-forward { transition: none !important; }
+}
