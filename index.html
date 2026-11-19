@@ -8,8 +8,7 @@
   <meta name="theme-color" content="#171717" />
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="./styles/style.css?v=2.12.13" />
-  <link rel="stylesheet" href="./styles/bookmarks.css?v=2.2.0" />
+  <link rel="stylesheet" href="./styles/style.css?v=2.12.19" />
   <link rel="stylesheet" href="./styles/orbit-art.css?v=1.2.2" />
   <link rel="stylesheet" href="./styles/globe.css?v=2.8.9" />
 <script src="./scripts/privacy-cleanup.js?v=1.0.0"></script>
@@ -66,53 +65,7 @@
         <p class="compass-view-note">地球正在展开…</p>
       </div>
     </section>
-    <div class="bookmarks-view" id="bookmarks-view" hidden>
-      <section class="bookmark-intro" aria-label="收藏空间">
-        <div class="bookmark-intro-copy">
-          <p class="bookmark-eyebrow"><span class="bookmark-eyebrow-text">YOUR COLLECTION / IMMERSIVE ARCHIVE</span><span aria-hidden="true">✳</span></p>
-          <h1 id="bookmark-intro-title"><span class="bookmark-title-main">沿着光，</span><em class="bookmark-title-accent">进入你的收藏宇宙。</em></h1>
-          <p class="bookmark-intro-note">向前探索。每一件收藏，都是这条漫长路径上的一处坐标。</p>
-        </div>
-        <div class="bookmark-summary" aria-label="收藏统计">
-          <div><strong id="bookmark-work-count">0</strong><span>收藏作品</span></div>
-          <i></i>
-          <div><strong id="bookmark-folder-count">0</strong><span>收藏空间</span></div>
-        </div>
-      </section>
-      <div class="bookmarks-toolbar">
-        <button class="bookmarks-back" id="bookmarks-back" type="button" aria-label="返回收藏空间" hidden>←</button>
-        <h2 id="bookmarks-title">COLLECTION / 01</h2>
-        <button class="folder-new" id="folder-new" type="button"><span class="folder-new-plus" aria-hidden="true">＋</span><span id="folder-new-label">新建收藏空间</span></button>
-      </div>
-      <section class="bookmark-world-shell" id="bookmark-world-shell" aria-label="3D 收藏展厅">
-        <div class="bookmark-world-viewport" id="bookmark-world-viewport">
-          <div class="bookmark-world" id="bookmark-world" aria-live="polite"></div>
-          <div class="bookmark-world-vignette" aria-hidden="true"></div>
-          <div class="bookmark-world-reticle" aria-hidden="true"><span></span></div>
-          <div class="bookmark-world-guide" aria-hidden="true"><i></i></div>
-          <div class="bookmark-world-hud">
-            <div class="bookmark-world-hud-top"><span>G / ARCHIVE</span><span id="bookmark-world-position">SECTOR 001</span></div>
-            <div class="bookmark-world-hud-bottom"><span id="bookmark-world-current">向前，发现你的收藏</span><span id="bookmark-world-count">0 OBJECTS</span></div>
-          </div>
-          <div class="bookmark-world-empty" id="bookmark-world-empty" hidden>
-            <span class="bookmark-world-empty-mark">＋</span>
-            <strong>这里还没有收藏</strong>
-            <p>回到作品页面，收藏第一件喜欢的作品。它会出现在这座展厅里。</p>
-          </div>
-        </div>
-        <div class="bookmark-world-controls">
-          <div class="bookmark-world-hint"><span class="hint-key">↑</span><span>点击 / 上滑 向前推进</span><span class="hint-separator">·</span><span>左右滑动 急转弯</span></div>
-          <div class="bookmark-world-actions">
-            <button type="button" class="world-turn" id="bookmark-world-left" aria-label="向左转">↶</button>
-            <button type="button" class="world-forward" id="bookmark-world-forward"><span>向前探索</span><b>↑</b></button>
-            <button type="button" class="world-turn" id="bookmark-world-right" aria-label="向右转">↷</button>
-          </div>
-          <div class="bookmark-world-progress"><span id="bookmark-world-progress"></span></div>
-        </div>
-      </section>
-      <div class="folder-grid" id="folder-grid" hidden></div>
-      <p class="folder-hint" id="folder-hint" hidden></p>
-    </div>
+    <div id="bookmarks-view" hidden aria-label="收藏页面空白区域"></div>
     <div class="grid">
       <!-- 作品 1 -->
       <article class="preview-card" id="lighthouse-card" data-id="pixel-daylight-switch" data-tags="像素风" data-en="Pixel Daylight Switch" data-detail="detail-panel" tabindex="0" aria-label="打开像素昼夜开关作品详情">
@@ -259,10 +212,9 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
     </button>
   </div>
-  <div class="site-version" aria-label="网站版本">v2.12.18</div>
+  <div class="site-version" aria-label="网站版本">v2.12.19</div>
   <script src="./scripts/globe.js?v=2.9.0"></script>
-  <script src="./scripts/main.js?v=2.12.17"></script>
-  <script src="./scripts/bookmark-world.js?v=1.0.1"></script>
+  <script src="./scripts/main.js?v=2.12.19"></script>
   <script src="./scripts/nav-history.js?v=1.0.0"></script>
   <script src="./scripts/compare.js?v=1.3.2"></script>
   <script src="./scripts/orbit-versions.js?v=1.3.12"></script>
