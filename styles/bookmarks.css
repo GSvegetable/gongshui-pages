@@ -115,7 +115,7 @@ body.is-bookmarks .bookmark-intro {
 }
 .bw-artwork:hover { box-shadow:0 26px 65px rgba(15,28,40,.34),0 0 0 9px rgba(255,255,255,.48); transform:translateY(-50%) translateZ(15px) scale(1.025); }
 .bw-artwork--left { left:8%; }
-.bw-artwork--right { right:8%; }
+.bw-artwork--right { left:8%; right:auto; }
 .bw-artwork-image {
   position:relative; height:174px; overflow:hidden; background:
     radial-gradient(circle at 72% 30%,rgba(255,255,255,.95),transparent 14%),
