@@ -142,6 +142,10 @@
       'action.expand': 'Expand artwork area',
       'action.restore': 'Return to work details',
       'action.close': 'Close work details',
+      'bookmarks.eyebrow': 'YOUR PERSONAL COLLECTION',
+      'bookmarks.title.main': 'Keep what you love,',
+      'bookmarks.title.accent': 'close at hand.',
+      'bookmarks.note': 'Keep the work you love close. Create folders and organise the things you want to revisit.',
       'site.version': 'Site version'
     };
 
@@ -184,7 +188,12 @@
       'scene.countryside':'田舎の家','scene.japanese-street':'日本の街並み','scene.apartment':'モダンなアパート',
       'scene.seaside':'海辺の灯台','scene.mountain-cabin':'山小屋',
       'action.bookmark':'作品をブックマーク','action.expand':'作品エリアを拡大','action.restore':'作品の詳細に戻る',
-      'action.close':'作品の詳細を閉じる','site.version':'サイトバージョン'
+      'action.close':'作品の詳細を閉じる',
+      'bookmarks.eyebrow':'YOUR PERSONAL COLLECTION',
+      'bookmarks.title.main':'好きな作品を、',
+      'bookmarks.title.accent':'ここに大切に。',
+      'bookmarks.note':'また見たい作品をここに残しましょう。フォルダーを作って、自分らしく整理できます。',
+      'site.version':'サイトバージョン'
     };
 
     // [字符串 key, 目标选择器, 属性名(留空表示改文本)]
@@ -198,6 +207,10 @@
       ['mario.home', '#nav-home', 'aria-label'],
       ['mario.compass', '.mario-block.block-brick', 'aria-label'],
       ['mario.bookmarks', '#nav-bookmark', 'aria-label'],
+      ['bookmarks.eyebrow', '.bookmark-eyebrow-text'],
+      ['bookmarks.title.main', '.bookmark-title-main'],
+      ['bookmarks.title.accent', '.bookmark-title-accent'],
+      ['bookmarks.note', '.bookmark-intro-note'],
       ['folders.new', '#folder-new-label'],
       ['folders.back', '#bookmarks-back', 'aria-label'],
       ['folders.empty', '#folder-hint'],
