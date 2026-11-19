@@ -77,7 +77,7 @@ body.is-bookmarks .bookmark-intro {
   transform-style:preserve-3d; transform:translate3d(0,0,var(--segment-z));
 }
 .bw-wall {
-  position:absolute; top:50%; width:1120px; height:620px; margin-top:-310px;
+  position:absolute; top:50%; width:1120px; height:620px; margin-top:0;
   overflow:hidden; transform-style:preserve-3d;
   background:
     linear-gradient(90deg,rgba(18,28,39,.08),rgba(255,255,255,.96) 12%,#f7f8f8 83%,rgba(203,214,224,.8)),
