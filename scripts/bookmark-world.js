@@ -98,12 +98,12 @@
   function setCamera() {
     root.style.transform = 'translate3d(0,0,' + state.cameraZ + 'px) rotateY(' + state.yaw + 'deg)';
     $('bookmark-world-position').textContent = 'SECTOR ' + String(Math.floor(state.cameraZ / state.segmentDepth) + 1).padStart(3, '0');
-    const progress = $('bookmark-world-progress');
+    const progress = $('bookmark-world-progress')?.querySelector('span');
     if (progress) progress.style.width = (12 + (state.cameraZ / state.segmentDepth % 8) * 10) + '%';
   }
   function appendSegments() {
     const entries = visibleEntries();
-    const needed = Math.max(8, Math.ceil(entries.length / 2) + 5);
+    const needed = Math.max(8, Math.ceil(entries.length / 2) + 5, Math.floor(state.cameraZ / state.segmentDepth) + 8);
     while (state.segmentCount < needed) {
       root.appendChild(makeSegment(state.segmentCount, entries));
       state.segmentCount++;
@@ -128,7 +128,6 @@
     $('bookmark-work-count').textContent = String(data.bookmarks.length);
     $('bookmark-folder-count').textContent = String(data.folders.length);
     $('bookmark-world-current').textContent = entries.length ? '沿着中央光轨，寻找下一件作品' : '等待第一件收藏进入展厅';
-    $('bookmark-world-title');
     setCamera();
     renderFolderFilters();
   }
