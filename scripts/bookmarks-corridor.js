@@ -1,5 +1,5 @@
 /* =========================================================
-   收藏长廊（收藏页） — v1.2.0
+   收藏长廊（收藏页） — v1.3.0
    ---------------------------------------------------------
    一根金色的引导线，穿过一座巨大的宫殿长廊。
    两侧是高耸的墙，收藏的作品挂在每个拐角正对你的那面墙上。
@@ -24,15 +24,16 @@
      0. 常量
      --------------------------------------------------------- */
   const HW = 6;               // 长廊半宽（整条走廊宽 12）
-  const WALL_H = 12.2;        // 墙体止于檐口，天花板进入视野
-  const CEILING_H = 12.38;    // 室内顶棚高度
+  const EAVE_H = 10.8;         // 檐口高度：柱顶与屋面交接
+  const RIDGE_H = 14.15;       // 屋脊高度：形成真实双坡屋顶
+  const WALL_H = EAVE_H;       // 墙体止于檐口，不穿过屋面
   const EYE = 2.1;            // 视线高度
   const VIEW_D = 13;          // 停下来看作品时，离正对的那面墙的距离
   const CELL = 38;            // 路线网格的格子边长（一段直路至少这么长）
   const FILLET = 3.2;         // 拐角处镜头走的圆角半径
   const FOG_K = 0.0185;       // 雾的浓度
   const PILLAR_GAP = 12;      // 柱子间距
-  const LAN_H = 9.15;         // 灯笼悬挂在梁架下方
+  const LAN_H = 8.55;         // 宫灯悬于檐下梁架之间
   const LAN_R2 = 58;          // 灯笼光照半径²
   const FOG = [22, 15, 12];
 
@@ -471,7 +472,7 @@
     guide.forEach(p => { guideByLeg[p.leg].push(p); });
     const arcs = prims.filter(p => p.kind === 1).map(p => [p.s0, p.s0 + p.len]);
 
-    return { M, slots, segs, lanterns, frames, prims, guide, guideByLeg, arcs, S, stopS, gate, Q };
+    return { M, slots, segs, lanterns, frames, prims, guide, guideByLeg, arcs, S, stopS, gate, Q, dirs: plan.dirs };
   }
 
   /* ---------------------------------------------------------
@@ -757,32 +758,44 @@
       const hTop = cy - f * (WALL_H - EYE) / u, hBot = cy + f * EYE / u;
       y0 = Math.max(0, Math.ceil(hTop)); y1 = Math.min(ih - 1, Math.floor(hBot));
 
-      // 宫殿藻井式平顶：水平面投影，梁枋与金线随透视收束到消失点。
+      // 双坡屋面内侧：檐口落在柱顶，屋脊抬高；沿廊道方向投影檩条，横向投影椽子。
+      const roofLeg = clamp(cam.leg, 1, world.M);
+      const roofDir = [[1,0],[0,1],[-1,0],[0,-1]][world.dirs[roofLeg - 1]];
+      const roofN = [-roofDir[1], roofDir[0]];
+      const roofOrigin = world.Q[roofLeg - 1];
       for (let y = 0; y < y0 && y < ih; y++) {
-        const dCeil = cy - (y + 0.5);
-        if (dCeil > 0.5) {
-          const zc = f * (CEILING_H - EYE) / dCeil;
-          const wx = px + rdx * zc, wy = py + rdy * zc;
-          const mx = ((wx % 12) + 12) % 12, my = ((wy % 12) + 12) % 12;
-          const edgeX = Math.min(mx, 12 - mx), edgeY = Math.min(my, 12 - my);
-          const beam = edgeX < 0.34 || edgeY < 0.34;
-          const gold = edgeX < 0.075 || edgeY < 0.075;
-          const inset = Math.min(mx, 12 - mx, my, 12 - my);
-          const panel = inset > 0.72 && inset < 5.35;
-          const grain = (hash2(Math.floor(wx * 1.7), Math.floor(wy * 1.7)) - 0.5) * 4;
-          let r = 224 + grain, g = 219 + grain, b = 205 + grain;
-          if (panel) { r += 8; g += 8; b += 7; }
-          if (beam) { r = 112; g = 65; b = 43; }
-          if (gold) { r = 194; g = 151; b = 83; }
-          const dx = mx - 6, dy = my - 6, rr = Math.sqrt(dx * dx + dy * dy);
-          if (rr > 1.75 && rr < 1.92) { r = 184; g = 142; b = 78; }
-          if (rr < 0.42) { r = 165; g = 105; b = 55; }
-          const fadeCeil = 1 - Math.exp(-zc * FOG_K * 0.55);
-          r += (FOG[0] - r) * fadeCeil; g += (FOG[1] - g) * fadeCeil; b += (FOG[2] - b) * fadeCeil;
-          buf[y * iw + cx] = pack(r | 0, g | 0, b | 0);
-        } else {
-          const t = Math.pow(clamp(y / Math.max(cy, 1), 0, 1), 1.5), k = 1 - t;
-          buf[y * iw + cx] = pack((SKY_HOR[0] * k + 18) | 0, (SKY_HOR[1] * k + 12) | 0, (SKY_HOR[2] * k + 8) | 0);
+        const dRoof = cy - (y + 0.5);
+        if (dRoof > 0.5) {
+          let zr = f * (RIDGE_H - EYE) / dRoof;
+          let wx = px, wy = py, lateral = 0, along = 0, roofH = RIDGE_H;
+          for (let it = 0; it < 3; it++) {
+            wx = px + rdx * zr; wy = py + rdy * zr;
+            const ox = wx - roofOrigin[0], oy = wy - roofOrigin[1];
+            lateral = ox * roofN[0] + oy * roofN[1];
+            along = ox * roofDir[0] + oy * roofDir[1];
+            const slope = clamp(1 - Math.abs(lateral) / HW, 0, 1);
+            roofH = EAVE_H + (RIDGE_H - EAVE_H) * slope;
+            zr = f * (roofH - EYE) / dRoof;
+          }
+          if (Math.abs(lateral) <= HW + 0.12) {
+            const tileU = ((along % 3.6) + 3.6) % 3.6;
+            const beamU = Math.min(tileU, 3.6 - tileU);
+            const absLat = Math.abs(lateral);
+            const purlin = [0, 1.75, 3.5, 5.15].some(v => Math.abs(absLat - v) < 0.13);
+            const rafter = beamU < 0.15;
+            const trim = Math.abs(absLat - HW) < 0.18;
+            const grain = (hash2(Math.floor(wx * 2.1), Math.floor(wy * 2.1)) - 0.5) * 5;
+            let r = 211 + grain, g = 194 + grain, b = 165 + grain;
+            if (purlin || rafter) { r = 91 + grain; g = 39 + grain * 0.5; b = 31 + grain * 0.35; }
+            if (trim) { r = 157; g = 105; b = 54; }
+            if (purlin && beamU < 0.3) { r = 190; g = 145; b = 73; }
+            const fadeRoof = 1 - Math.exp(-zr * FOG_K * 0.52);
+            r += (FOG[0] - r) * fadeRoof; g += (FOG[1] - g) * fadeRoof; b += (FOG[2] - b) * fadeRoof;
+            buf[y * iw + cx] = pack(r | 0, g | 0, b | 0);
+          } else {
+            const t = Math.pow(clamp(y / Math.max(cy, 1), 0, 1), 1.5), k = 1 - t;
+            buf[y * iw + cx] = pack((SKY_HOR[0] * k + 18) | 0, (SKY_HOR[1] * k + 12) | 0, (SKY_HOR[2] * k + 8) | 0);
+          }
         }
       }
 
