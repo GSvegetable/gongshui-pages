@@ -1,5 +1,5 @@
 /* =========================================================
-   收藏长廊（收藏页） — v1.0.0
+   收藏长廊（收藏页） — v1.1.0
    ---------------------------------------------------------
    一根金色的引导线，穿过一座巨大的宫殿长廊。
    两侧是高耸的墙，收藏的作品挂在每个拐角正对你的那面墙上。
@@ -555,8 +555,9 @@
     const r = view.getBoundingClientRect();
     cssW = Math.max(1, Math.round(r.width));
     cssH = Math.max(1, Math.round(r.height));
-    let p = Math.min(cssW, cssH) >= 700 ? 3 : 2;
-    p = Math.max(p, Math.ceil(Math.sqrt(cssW * cssH / 180000))) + pBias;
+    // 提升内部渲染分辨率：减少放大后的粗颗粒，同时按屏幕面积控制成本。
+    let p = Math.min(cssW, cssH) >= 700 ? 2 : 1;
+    p = Math.max(p, Math.ceil(Math.sqrt(cssW * cssH / 360000))) + pBias;
     P = p;
     iw = Math.max(96, Math.round(cssW / P));
     ih = Math.max(96, Math.round(cssH / P));
@@ -800,20 +801,41 @@
             }
           } else {
             if (tid === 0) {
-              const rowF = hh * (1 / 2.2), row = Math.floor(rowF), off = (row & 1) ? 2 : 0;
-              const colF = (s + off) * 0.25, col = Math.floor(colF);
+              // 暖灰石灰岩砌墙：错缝砖块、深色勾缝与细微天然色差。
+              const rowF = hh / 2.05, row = Math.floor(rowF);
+              const stagger = (row & 1) ? 2.25 : 0;
+              const colF = (s + stagger) / 4.8, col = Math.floor(colF);
               const fx = colF - col, fy = rowF - row;
-              let k = (fx < 0.05 || fy < 0.07) ? 0.58 : 1;
-              k *= JIT[(col & 15) + ((row & 15) << 4)];
-              r = 38 * k; g = 42 * k; b = 66 * k;
-              if (hh < 1.6) { if (hh > 1.35) { r = 150; g = 110; b = 40; } else { r *= 0.7; g *= 0.7; b *= 0.78; } }
-              else if (hh % 29 < 0.45) { r = 232; g = 176; b = 56; }
+              const mortar = fx < 0.035 || fx > 0.965 || fy < 0.045 || fy > 0.955;
+              const variation = (hash2(col + 31, row + 17) - 0.5) * 18;
+              const grain = (hash2(Math.floor(s * 3.1), Math.floor(hh * 4.2)) - 0.5) * 7;
+              const edgeLight = 0.88 + 0.12 * (1 - Math.abs(fx - 0.5) * 1.5);
+              let k = (mortar ? 0.48 : 1) * edgeLight;
+              if (hh < 1.65) k *= 0.78;
+              const base = 105 + variation + grain;
+              r = (base + 3) * k; g = (base - 9) * k; b = (base - 20) * k;
+              // 墙脚石台与檐口压边，建立清晰的建筑层次。
+              if (hh > 1.55 && hh < 1.78) { r = 119 * k; g = 91 * k; b = 67 * k; }
+              if (hh > 8.6 && hh < 8.82) { r = 145 * k; g = 111 * k; b = 78 * k; }
+              if (!mortar && hash2(col * 7 + 3, row * 11 + 5) > 0.94) { r += 8; g += 6; b += 3; }
             } else {
-              const face = tid === 1 ? Math.sin(Math.PI * clamp(s / seg.len, 0, 1)) : 0.55;
-              const sh = 0.42 + 0.58 * face;
-              if (hh < 1.5) { r = 70 * sh; g = 58 * sh; b = 56 * sh; }
-              else if (hh % 8 < 0.5 || hh < 1.9) { r = 238 * sh; g = 184 * sh; b = 58 * sh; }
-              else { r = 168 * sh; g = 38 * sh; b = 32 * sh; if (face > 0.92 && tid === 1) { r += 38; g += 14; b += 10; } }
+              // 深朱红木柱：立面明暗、纵向木纹、金色柱础与柱头箍线。
+              const face = tid === 1 ? Math.sin(Math.PI * clamp(s / seg.len, 0, 1)) : 0.46;
+              const sideShade = 0.48 + 0.52 * face;
+              const grain = Math.sin(s * 17.0 + hh * 0.7) * 2.8 + Math.sin(s * 39.0) * 1.4;
+              if (hh < 1.35) {
+                r = 91 * sideShade; g = 68 * sideShade; b = 49 * sideShade;
+              } else if (hh < 1.62 || (hh > 7.15 && hh < 7.42)) {
+                r = 190 * sideShade; g = 145 * sideShade; b = 66 * sideShade;
+              } else {
+                const wood = 1 + grain / 100;
+                r = (116 + 20 * face) * sideShade * wood;
+                g = (29 + 12 * face) * sideShade * wood;
+                b = (25 + 8 * face) * sideShade * wood;
+                const groove = Math.sin(s * 23) > 0.91 ? 0.76 : 1;
+                r *= groove; g *= groove; b *= groove;
+                if (hh > 6.8 && hh < 7.15) { r *= 1.22; g *= 1.18; b *= 1.08; }
+              }
             }
             const dh = (hh - LAN_H) * 0.1111;
             const Lc = I / (1 + dh * dh);
@@ -933,12 +955,25 @@
     ctx.globalCompositeOperation = 'source-over';
     for (const s of list) {
       const fa = Math.exp(-s.zc * FOG_K * 0.9);
-      const w = Math.max(2, Math.round(f * 0.62 / s.zc)), h = Math.max(3, Math.round(w * 1.3));
+      // 传统宫灯轮廓：顶盖、朱红灯身、暖色灯芯、金属箍与流苏。
+      const w = Math.max(3, Math.round(f * 0.92 / s.zc)), h = Math.max(5, Math.round(w * 1.72));
       const x = Math.round(s.sx - w / 2), y = Math.round(s.sy - h / 2);
       const mix = (c, k) => 'rgb(' + Math.round(c[0] * fa + FOG[0] * (1 - fa) * k) + ',' + Math.round(c[1] * fa + FOG[1] * (1 - fa) * k) + ',' + Math.round(c[2] * fa + FOG[2] * (1 - fa) * k) + ')';
-      ctx.fillStyle = mix([255, 138, 52], 1); ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = mix([255, 238, 176], 1); ctx.fillRect(x + Math.floor(w * 0.22), y + Math.floor(h * 0.18), Math.max(1, Math.ceil(w * 0.56)), Math.max(1, Math.ceil(h * 0.6)));
-      ctx.fillStyle = mix([232, 176, 56], 1); ctx.fillRect(x, y - 1, w, 1); ctx.fillRect(x, y + h, w, 1);
+      const cap = Math.max(2, Math.ceil(w * 0.82)), bodyY = y + Math.max(1, Math.floor(h * 0.18));
+      ctx.fillStyle = mix([91, 48, 27], 1);
+      ctx.fillRect(Math.round(s.sx - 1), y - Math.max(2, Math.floor(h * 0.16)), 2, Math.max(2, Math.floor(h * 0.16)));
+      ctx.fillStyle = mix([205, 157, 76], 1);
+      ctx.fillRect(Math.round(s.sx - cap / 2), y, cap, Math.max(1, Math.ceil(h * 0.12)));
+      ctx.fillRect(Math.round(s.sx - cap / 2), y + h - Math.ceil(h * 0.16), cap, Math.max(1, Math.ceil(h * 0.1)));
+      ctx.fillStyle = mix([132, 32, 27], 1);
+      ctx.fillRect(x, bodyY, w, Math.max(2, h - Math.floor(h * 0.3)));
+      ctx.fillStyle = mix([255, 195, 104], 1);
+      ctx.fillRect(x + Math.max(1, Math.floor(w * 0.22)), bodyY + 1, Math.max(1, Math.ceil(w * 0.18)), Math.max(1, h - Math.floor(h * 0.38)));
+      ctx.fillRect(x + Math.floor(w * 0.62), bodyY + 1, Math.max(1, Math.ceil(w * 0.14)), Math.max(1, h - Math.floor(h * 0.38)));
+      ctx.fillStyle = mix([244, 177, 76], 1);
+      ctx.fillRect(x, bodyY, w, 1);
+      ctx.fillRect(Math.round(s.sx), y + h - 1, 1, Math.max(2, Math.round(h * 0.24)));
+      ctx.fillRect(Math.round(s.sx) - 1, y + h + 1, 3, 1);
     }
     ctx.restore();
   }
