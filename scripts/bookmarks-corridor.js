@@ -773,7 +773,9 @@
             const ox = wx - roofOrigin[0], oy = wy - roofOrigin[1];
             lateral = ox * roofN[0] + oy * roofN[1];
             along = ox * roofDir[0] + oy * roofDir[1];
-            const slope = clamp(1 - Math.abs(lateral) / HW, 0, 1);
+            const across = clamp(Math.abs(lateral) / HW, 0, 1);
+            // 双坡曲线略带起翘，避免屋面像一张机械三角板。
+            const slope = 1 - Math.pow(across, 1.28) + 0.035 * Math.pow(across, 7);
             roofH = EAVE_H + (RIDGE_H - EAVE_H) * slope;
             zr = f * (roofH - EYE) / dRoof;
           }
@@ -877,6 +879,14 @@
                 const groove = Math.sin(s * 23) > 0.91 ? 0.76 : 1;
                 r *= groove; g *= groove; b *= groove;
                 if (hh > 9.05 && hh < 9.42) { r *= 1.22; g *= 1.18; b *= 1.08; }
+                // 柱顶不是平切：用逐层出挑的枋、栱、斗组合出简化斗拱轮廓。
+                if (hh >= 9.78 && hh < 10.8) {
+                  const edge = Math.abs(s / seg.len - 0.5) * 2;
+                  if (hh < 10.05 && edge < 0.96) { r = 145 * sideShade; g = 48 * sideShade; b = 35 * sideShade; }
+                  else if (hh < 10.32 && edge < 0.72) { r = 83 * sideShade; g = 34 * sideShade; b = 29 * sideShade; }
+                  else if (hh < 10.58 && edge < 0.94) { r = 170 * sideShade; g = 116 * sideShade; b = 58 * sideShade; }
+                  else if (hh >= 10.58 && edge < 0.66) { r = 88 * sideShade; g = 35 * sideShade; b = 29 * sideShade; }
+                }
               }
             }
             const dh = (hh - LAN_H) * 0.1111;
@@ -913,9 +923,9 @@
         const ix = Math.floor(gx), iy = Math.floor(gy);
         const fx = gx - ix, fy = gy - iy;
         const tone = TONE[(ix & 7) + ((iy & 7) << 3)];
-        let r = 119 * tone, g = 113 * tone, b = 101 * tone;
+        let r = 151 * tone, g = 145 * tone, b = 132 * tone;
         const seam = fx < 0.018 || fy < 0.018;
-        if (seam) { r *= 0.58; g *= 0.58; b *= 0.62; }
+        if (seam) { r *= 0.72; g *= 0.72; b *= 0.75; }
         const vein = Math.sin((wx + wy * 0.31) * 0.42) * Math.sin(wy * 0.17);
         r += vein * 3; g += vein * 3; b += vein * 2;
         guideAt(wx, wy, gl);
