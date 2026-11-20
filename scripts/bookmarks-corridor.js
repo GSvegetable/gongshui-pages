@@ -33,7 +33,7 @@
   const PILLAR_GAP = 12;      // 柱子间距
   const LAN_H = 6.2;          // 灯笼高度
   const LAN_R2 = 58;          // 灯笼光照半径²
-  const FOG = [13, 11, 26];
+  const FOG = [22, 15, 12];
 
   // 画框（贴图以「像素」为单位，世界尺寸 = 像素 × PXU）
   const FRAME_W = 10.4;
@@ -701,7 +701,7 @@
   const JIT = new Float32Array(256), TONE = new Float32Array(64);
   for (let i = 0; i < 256; i++) JIT[i] = 0.88 + 0.24 * hash2(i & 15, i >> 4);
   for (let i = 0; i < 64; i++) TONE[i] = 0.88 + 0.22 * hash2(i & 7, i >> 3);
-  const SKY_TOP = [3, 3, 10], SKY_HOR = [18, 14, 36];
+  const SKY_TOP = [5, 7, 12], SKY_HOR = [46, 28, 18];
   let skyR = null, skyG = null, skyB = null;
   const pack = (r, g, b) => (0xFF000000 | ((b > 255 ? 255 : b) << 16) | ((g > 255 ? 255 : g) << 8) | (r > 255 ? 255 : r)) >>> 0;
 
@@ -871,7 +871,7 @@
         const ix = Math.floor(gx), iy = Math.floor(gy);
         const fx = gx - ix, fy = gy - iy;
         const tone = TONE[(ix & 7) + ((iy & 7) << 3)];
-        let r = 27 * tone, g = 25 * tone, b = 42 * tone;
+        let r = 39 * tone, g = 30 * tone, b = 24 * tone;
         if (fx < 0.03 || fy < 0.03) { r *= 0.55; g *= 0.55; b *= 0.62; }
         guideAt(wx, wy, gl);
         const d = gD;
