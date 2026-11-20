@@ -1,5 +1,5 @@
 /* =========================================================
-   收藏长廊（收藏页） — v1.1.0
+   收藏长廊（收藏页） — v1.2.0
    ---------------------------------------------------------
    一根金色的引导线，穿过一座巨大的宫殿长廊。
    两侧是高耸的墙，收藏的作品挂在每个拐角正对你的那面墙上。
@@ -24,14 +24,15 @@
      0. 常量
      --------------------------------------------------------- */
   const HW = 6;               // 长廊半宽（整条走廊宽 12）
-  const WALL_H = 90;          // 墙高：高到看不见顶
+  const WALL_H = 12.2;        // 墙体止于檐口，天花板进入视野
+  const CEILING_H = 12.38;    // 室内顶棚高度
   const EYE = 2.1;            // 视线高度
   const VIEW_D = 13;          // 停下来看作品时，离正对的那面墙的距离
   const CELL = 38;            // 路线网格的格子边长（一段直路至少这么长）
   const FILLET = 3.2;         // 拐角处镜头走的圆角半径
   const FOG_K = 0.0185;       // 雾的浓度
   const PILLAR_GAP = 12;      // 柱子间距
-  const LAN_H = 6.2;          // 灯笼高度
+  const LAN_H = 9.15;         // 灯笼悬挂在梁架下方
   const LAN_R2 = 58;          // 灯笼光照半径²
   const FOG = [22, 15, 12];
 
@@ -386,7 +387,7 @@
         });
         if (n % 2 === 1) {
           const c = [A[0] + d[0] * t, A[1] + d[1] * t];
-          [[27, 30.6], [60, 64]].forEach(([h0, h1]) => {
+          [[10.25, 10.82], [11.28, 11.88]].forEach(([h0, h1]) => {
             addSeg(mv(c, nL(d), HW), mv(c, nR(d), HW), 'lintel', i, { sliver: true, h0, h1 });
           });
         }
@@ -756,14 +757,33 @@
       const hTop = cy - f * (WALL_H - EYE) / u, hBot = cy + f * EYE / u;
       y0 = Math.max(0, Math.ceil(hTop)); y1 = Math.min(ih - 1, Math.floor(hBot));
 
-      // 天空
+      // 宫殿藻井式平顶：水平面投影，梁枋与金线随透视收束到消失点。
       for (let y = 0; y < y0 && y < ih; y++) {
-        let r = skyR[y], g = skyG[y], b = skyB[y];
-        if (y < cy * 0.8) {
-          const h = hash2(cx + starOff, y);
-          if (h > 0.9965) { const tw = 0.55 + 0.45 * Math.sin(now * 2.5 + cx * 1.7 + y); const k = (0.35 + (h - 0.9965) * 150) * tw; r += 190 * k; g += 190 * k; b += 215 * k; }
+        const dCeil = cy - (y + 0.5);
+        if (dCeil > 0.5) {
+          const zc = f * (CEILING_H - EYE) / dCeil;
+          const wx = px + rdx * zc, wy = py + rdy * zc;
+          const mx = ((wx % 12) + 12) % 12, my = ((wy % 12) + 12) % 12;
+          const edgeX = Math.min(mx, 12 - mx), edgeY = Math.min(my, 12 - my);
+          const beam = edgeX < 0.34 || edgeY < 0.34;
+          const gold = edgeX < 0.075 || edgeY < 0.075;
+          const inset = Math.min(mx, 12 - mx, my, 12 - my);
+          const panel = inset > 0.72 && inset < 5.35;
+          const grain = (hash2(Math.floor(wx * 1.7), Math.floor(wy * 1.7)) - 0.5) * 4;
+          let r = 224 + grain, g = 219 + grain, b = 205 + grain;
+          if (panel) { r += 8; g += 8; b += 7; }
+          if (beam) { r = 112; g = 65; b = 43; }
+          if (gold) { r = 194; g = 151; b = 83; }
+          const dx = mx - 6, dy = my - 6, rr = Math.sqrt(dx * dx + dy * dy);
+          if (rr > 1.75 && rr < 1.92) { r = 184; g = 142; b = 78; }
+          if (rr < 0.42) { r = 165; g = 105; b = 55; }
+          const fadeCeil = 1 - Math.exp(-zc * FOG_K * 0.55);
+          r += (FOG[0] - r) * fadeCeil; g += (FOG[1] - g) * fadeCeil; b += (FOG[2] - b) * fadeCeil;
+          buf[y * iw + cx] = pack(r | 0, g | 0, b | 0);
+        } else {
+          const t = Math.pow(clamp(y / Math.max(cy, 1), 0, 1), 1.5), k = 1 - t;
+          buf[y * iw + cx] = pack((SKY_HOR[0] * k + 18) | 0, (SKY_HOR[1] * k + 12) | 0, (SKY_HOR[2] * k + 8) | 0);
         }
-        buf[y * iw + cx] = pack(r | 0, g | 0, b | 0);
       }
 
       if (bestSeg) {
@@ -801,23 +821,32 @@
             }
           } else {
             if (tid === 0) {
-              // 暖灰石灰岩砌墙：错缝砖块、深色勾缝与细微天然色差。
-              const rowF = hh / 2.05, row = Math.floor(rowF);
-              const stagger = (row & 1) ? 2.25 : 0;
-              const colF = (s + stagger) / 4.8, col = Math.floor(colF);
-              const fx = colF - col, fy = rowF - row;
-              const mortar = fx < 0.035 || fx > 0.965 || fy < 0.045 || fy > 0.955;
-              const variation = (hash2(col + 31, row + 17) - 0.5) * 18;
-              const grain = (hash2(Math.floor(s * 3.1), Math.floor(hh * 4.2)) - 0.5) * 7;
-              const edgeLight = 0.88 + 0.12 * (1 - Math.abs(fx - 0.5) * 1.5);
-              let k = (mortar ? 0.48 : 1) * edgeLight;
-              if (hh < 1.65) k *= 0.78;
-              const base = 105 + variation + grain;
-              r = (base + 3) * k; g = (base - 9) * k; b = (base - 20) * k;
-              // 墙脚石台与檐口压边，建立清晰的建筑层次。
-              if (hh > 1.55 && hh < 1.78) { r = 119 * k; g = 91 * k; b = 67 * k; }
-              if (hh > 8.6 && hh < 8.82) { r = 145 * k; g = 111 * k; b = 78 * k; }
-              if (!mortar && hash2(col * 7 + 3, row * 11 + 5) > 0.94) { r += 8; g += 6; b += 3; }
+              // 白灰墙身：石材勒脚、护墙板、连续壁柱与多层檐线。
+              const panelF = (s + 0.4) / 5.4, panel = Math.floor(panelF), px = panelF - panel;
+              const verticalEdge = px < 0.035 || px > 0.965;
+              const grain = (hash2(Math.floor(s * 2.7), Math.floor(hh * 3.1)) - 0.5) * 5;
+              const variation = (hash2(panel + 19, Math.floor(hh / 2.4)) - 0.5) * 5;
+              let base = 218 + grain + variation;
+              r = base + 3; g = base + 1; b = base - 7;
+              if (hh < 1.55) { r = 151 + grain; g = 145 + grain; b = 132 + grain; }
+              else if (hh < 3.15) {
+                const inset = px > 0.10 && px < 0.90;
+                r = inset ? 226 : 188; g = inset ? 220 : 179; b = inset ? 205 : 161;
+                if (verticalEdge || hh < 1.78 || hh > 3.02) { r -= 24; g -= 22; b -= 18; }
+              } else if (hh < 9.75) {
+                const band = (hh - 3.35) % 5.9;
+                if (verticalEdge && band > 0.2 && band < 5.65) { r -= 17; g -= 16; b -= 13; }
+                if (band < 0.09 || band > 5.78) { r -= 20; g -= 17; b -= 12; }
+                if (band > 0.22 && band < 5.55 && px > 0.13 && px < 0.87) {
+                  const insetShade = 1 - 0.035 * Math.abs(px - 0.5) * 2;
+                  r *= insetShade; g *= insetShade; b *= insetShade;
+                }
+              }
+              if (hh > 1.48 && hh < 1.72) { r = 157; g = 148; b = 130; }
+              if (hh > 3.02 && hh < 3.22) { r = 174; g = 151; b = 111; }
+              if (hh > 9.72 && hh < 9.96) { r = 174; g = 145; b = 99; }
+              if (hh > 10.02 && hh < 10.28) { r = 226; g = 218; b = 198; }
+              if (hh > 11.92) { r = 174; g = 145; b = 99; }
             } else {
               // 深朱红木柱：立面明暗、纵向木纹、金色柱础与柱头箍线。
               const face = tid === 1 ? Math.sin(Math.PI * clamp(s / seg.len, 0, 1)) : 0.46;
@@ -825,7 +854,7 @@
               const grain = Math.sin(s * 17.0 + hh * 0.7) * 2.8 + Math.sin(s * 39.0) * 1.4;
               if (hh < 1.35) {
                 r = 91 * sideShade; g = 68 * sideShade; b = 49 * sideShade;
-              } else if (hh < 1.62 || (hh > 7.15 && hh < 7.42)) {
+              } else if (hh < 1.62 || (hh > 9.45 && hh < 9.78)) {
                 r = 190 * sideShade; g = 145 * sideShade; b = 66 * sideShade;
               } else {
                 const wood = 1 + grain / 100;
@@ -834,7 +863,7 @@
                 b = (25 + 8 * face) * sideShade * wood;
                 const groove = Math.sin(s * 23) > 0.91 ? 0.76 : 1;
                 r *= groove; g *= groove; b *= groove;
-                if (hh > 6.8 && hh < 7.15) { r *= 1.22; g *= 1.18; b *= 1.08; }
+                if (hh > 9.05 && hh < 9.42) { r *= 1.22; g *= 1.18; b *= 1.08; }
               }
             }
             const dh = (hh - LAN_H) * 0.1111;
@@ -871,8 +900,11 @@
         const ix = Math.floor(gx), iy = Math.floor(gy);
         const fx = gx - ix, fy = gy - iy;
         const tone = TONE[(ix & 7) + ((iy & 7) << 3)];
-        let r = 39 * tone, g = 30 * tone, b = 24 * tone;
-        if (fx < 0.03 || fy < 0.03) { r *= 0.55; g *= 0.55; b *= 0.62; }
+        let r = 119 * tone, g = 113 * tone, b = 101 * tone;
+        const seam = fx < 0.018 || fy < 0.018;
+        if (seam) { r *= 0.58; g *= 0.58; b *= 0.62; }
+        const vein = Math.sin((wx + wy * 0.31) * 0.42) * Math.sin(wy * 0.17);
+        r += vein * 3; g += vein * 3; b += vein * 2;
         guideAt(wx, wy, gl);
         const d = gD;
         let fog = rowFog[y];
