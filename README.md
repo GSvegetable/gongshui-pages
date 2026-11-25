@@ -13,7 +13,7 @@
 [![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-2563EB?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-D94841?style=flat-square)](README.ja.md)
-[![Version](https://img.shields.io/badge/version-v2.12.20-7C3AED?style=flat-square)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v2.12.21-7C3AED?style=flat-square)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-0D9488?style=flat-square)](https://xn--3bts89a.com/)
 
 </div>
@@ -46,13 +46,6 @@ gongshui-pages/
 │   │   ├── banner.png         # README 顶部横幅
 │   │   ├── scene-gallery.png  # 项目场景预览图
 │   │   └── readme-banner.svg  # README 底部 X 账号宣传图
-│   ├── earth/
-│   │   ├── earth-blue-marble.jpg   # 地球白昼纹理
-│   │   ├── earth-night.jpg         # 地球夜间灯光纹理
-│   │   ├── earth-topology.png      # 地球地形/拓扑纹理
-│   │   └── night-sky.jpg           # 星空背景素材
-│   └── flags/
-│       └── *.svg              # 61 个国家和地区的旗帜矢量图，按代码命名
 ├── auth/
 │   ├── confirm.html          # 邮箱验证回调页面
 │   └── confirm/
@@ -67,27 +60,21 @@ gongshui-pages/
 │   ├── auth-config.js        # 身份认证客户端配置
 │   ├── auth-landing.js       # 登录/注册落地页逻辑
 │   ├── auth.js               # 登录、注册及认证流程
-│   ├── bookmarks-corridor.js # 收藏长廊渲染器（作品预览模式）
 │   ├── compare.js            # 对比功能逻辑
 │   ├── fingerprint.js        # 浏览器设备特征采集
-│   ├── globe.js              # 交互式地球与地图展示
 │   ├── home-page.js          # 首页交互逻辑
 │   ├── login-page.js         # 登录页面交互逻辑
 │   ├── main.js               # 网站主要初始化与通用逻辑
 │   ├── nav-history.js        # 页面导航历史管理
 │   ├── orbit-versions.js     # 轨道/版本展示逻辑
 │   ├── portfolio-actions.js  # 作品详情中的网站视图操作
-│   ├── portfolio-preview.js  # 作品集实时预览与导航交互
+│   ├── portfolio-preview.js  # 独立作品 iframe 与宿主数据桥接
 │   ├── privacy-cleanup.js    # 隐私数据清理逻辑
 │   ├── risk.js               # 注册与登录风险识别
 │   ├── scroll-ui.js           # 滚动相关界面交互
 │   ├── sync.js               # 用户数据同步逻辑
-│   └── vendor/
-│       └── globe.gl.min.js   # 第三方 globe.gl 地球渲染库
 ├── styles/
 │   ├── admin.css             # 管理后台样式
-│   ├── bookmarks-corridor.css # 收藏长廊作品预览样式
-│   ├── globe.css             # 地球与地图组件样式
 │   ├── orbit-art.css         # 轨道视觉效果样式
 │   ├── portfolio-works.css   # 作品预览与导航交互样式
 │   └── style.css             # 网站全局基础样式
@@ -113,7 +100,9 @@ gongshui-pages/
 
 ## 作品代码归属
 
-网站前五个作品并非全部来自独立作品仓库：前两个（Pixel Daylight Switch、Pixel Orbit）的源码在 [gongshui-open-source](https://github.com/GSvegetable/gongshui-open-source)；第三个投稿者地球、第四个收藏长廊和第五个导航交互系统目前属于本网站仓库。完整的文件级归属、依赖说明与迁移规则见[仓库职责与作品代码归属](docs/ARCHITECTURE.md)。
+网站展示的五个作品，其源码全部归属于 [gongshui-open-source](https://github.com/GSvegetable/gongshui-open-source)。本仓库只负责网站平台本身：UI、导航、账号登录、收藏与文件夹、搜索、设置、作品目录和宿主通信适配器。作品通过独立 GitHub Pages URL 嵌入，不在网站仓库保留第二份核心实现。
+
+收藏长廊通过来源校验的 `postMessage` 接收网站整理后的收藏数据；网站仍然负责账号、收藏持久化与详情导航。收藏导航页此前清空为黑色交接画布，它与作品集中的收藏长廊是两个不同入口。完整架构见[仓库职责与作品代码归属](docs/ARCHITECTURE.md)。
 
 ## 账号与隐私
 
