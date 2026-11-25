@@ -31,11 +31,21 @@ html.portfolio-embed body main{position:fixed!important;inset:0!important;width:
 html.portfolio-embed body #compass-view{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important;display:block!important}
 html.portfolio-embed body .globe-view{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important}
 html.portfolio-embed body .globe-stage{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
+/* In the portfolio piece, the globe is the artwork: no title, search, action buttons, or profile popover. */
+html.portfolio-embed body .globe-view .globe-title,
+html.portfolio-embed body .globe-view .globe-dock,
+html.portfolio-embed body .globe-view .globe-card{display:none!important}
+html.portfolio-embed body .globe-view .globe-status:not(.is-error){display:none!important}
 
 /* The hall preview is deliberately just the corridor scene: no chip, arrow,
    instruction text, pixel-axis indicator, or "open work" placard. */
 html.portfolio-embed body #bookmarks-view{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important}
-html.portfolio-embed body #bookmarks-view .bc-hud{display:none!important}
+html.portfolio-embed body #bookmarks-view .bc-hud,
+html.portfolio-embed body #bookmarks-view .bc-chip,
+html.portfolio-embed body #bookmarks-view .bc-dock,
+html.portfolio-embed body #bookmarks-view .bc-hint,
+html.portfolio-embed body #bookmarks-view .bc-placard,
+html.portfolio-embed body #bookmarks-view .bc-back{display:none!important}
 html.portfolio-embed body #bookmarks-view .bc-chip,
 html.portfolio-embed body #bookmarks-view .bc-hint,
 html.portfolio-embed body #bookmarks-view .bc-back,
