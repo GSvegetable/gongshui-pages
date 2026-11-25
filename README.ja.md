@@ -50,9 +50,6 @@ gongshui-pages/
 │   ├── confirm.html          # メール認証コールバックページ
 │   └── confirm/
 │       └── index.html        # メール認証コールバックのルート入口
-├── data/
-│   ├── contributors.json     # プロジェクト貢献者データ
-│   └── ne_110m_admin_0_countries.geojson  # 世界の国・地域の境界データ
 ├── scripts/
 │   ├── account.js            # アカウント情報・アカウント操作
 │   ├── admin-liquid-glass.js # 管理画面のリキッドグラス効果
@@ -72,7 +69,7 @@ gongshui-pages/
 │   ├── privacy-cleanup.js    # プライバシーデータのクリーンアップ
 │   ├── risk.js               # 登録・ログイン時のリスク検出
 │   ├── scroll-ui.js          # スクロール関連の UI 操作
-│   ├── sync.js               # ユーザーデータの同期
+│   └── sync.js               # ユーザーデータの同期
 ├── styles/
 │   ├── admin.css             # 管理画面のスタイル
 │   ├── orbit-art.css         # 軌道ビジュアル効果のスタイル
