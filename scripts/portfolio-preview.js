@@ -30,7 +30,6 @@
       }
 
       // 收藏长廊沿用原来的收藏数据与渲染器，只切到收藏视图。
-      document.getElementById('nav-bookmark')?.click();
       document.body.classList.add('is-bookmarks');
       const hall = document.getElementById('bookmarks-view');
       if (hall) hall.hidden = false;
