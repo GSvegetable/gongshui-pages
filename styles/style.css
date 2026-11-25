@@ -92,10 +92,10 @@ body.compass-mode .top-bar { opacity:0; visibility:hidden; pointer-events:none; 
 .top-bar {
   position: fixed;
   top: 24px;
-  left: 112px;
-  right: auto;
-  z-index: 19; /* 在遮罩(20)下面，规则同左侧导航 */
-  width: min(var(--site-search-w), calc(100vw - 152px));
+  left: 24px;
+  right: 24px;
+  z-index: 19;
+  width: auto;
   display: flex;
   flex-direction: column;
   gap: 7px;
@@ -218,7 +218,7 @@ html.search-collapsed .search-status { opacity: 0; }
 
 /* ---------- 页面基础布局 ---------- */
 main { min-height: calc(100vh + 420px); padding: 94px 24px 180px; }
-.grid { display:grid; grid-template-columns:repeat(var(--gallery-columns, 1), minmax(0,1fr)); gap:24px; padding-left:24px; }
+.grid { display:grid; grid-template-columns:repeat(var(--gallery-columns, 1), minmax(0,1fr)); gap:24px; padding-left:0; }
 
 /* 卡片：缩略态。尺寸 = 边框3 + 内边距8 + 作品框(边框2) */
 .preview-card {
@@ -529,14 +529,14 @@ body.view-closing .work-detail.is-active {
   .mario-block { width:50px; height:50px; }
   .mario-block svg { width:22px; height:22px; }
 
-  .top-bar { top: 16px; left: 78px; right: 14px; width: auto; }
+  .top-bar { top: 16px; left: 14px; right: 14px; width: auto; }
   .search-wrapper { height: 46px; padding: 0 11px 0 13px; gap: 9px; border-radius: 6px; --collapse-shift: -64px; }
   html.search-collapsed .search-wrapper { width: 50px; max-width: 50px; height: 50px; }
   html.search-collapsed .search-icon { width: 22px; height: 22px; }
   .search-status { font-size: 10px; }
 
   main { min-height: calc(100vh + 420px); padding:80px 14px 180px; }
-  .grid { padding-left:24px; }
+  .grid { padding-left:0; }
 
   .preview-actions { top: 14px; right: 14px; gap: 8px; }
   .action-btn { width: 40px; height: 40px; border-width: 2px; }
