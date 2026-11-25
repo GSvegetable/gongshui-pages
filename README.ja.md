@@ -61,6 +61,8 @@ gongshui-pages/
 │   ├── contributors.json     # プロジェクト貢献者データ
 │   └── ne_110m_admin_0_countries.geojson  # 世界の国・地域の境界データ
 ├── scripts/
+│       └── globe.gl.min.js   # サードパーティ製 globe.gl 描画ライブラリ
+│   └── vendor/
 │   ├── account.js            # アカウント情報・アカウント操作
 │   ├── admin-liquid-glass.js # 管理画面のリキッドグラス効果
 │   ├── admin.js              # 管理画面の操作・管理ロジック
@@ -68,8 +70,6 @@ gongshui-pages/
 │   ├── auth-landing.js       # ログイン・登録ランディングページの処理
 │   ├── auth.js               # ログイン・登録・認証フロー
 │   ├── bookmarks-corridor.js # ブックマーク回廊の描画（作品プレビュー用）
-│   ├── portfolio-actions.js  # 作品詳細からサイト内ビューを開く処理
-│   ├── portfolio-preview.js  # ライブプレビューとナビゲーション操作
 │   ├── compare.js            # 比較機能の処理
 │   ├── fingerprint.js        # ブラウザー・デバイス特性の収集
 │   ├── globe.js              # インタラクティブ地球・地図の表示
@@ -78,19 +78,19 @@ gongshui-pages/
 │   ├── main.js               # サイト全体の初期化・共通処理
 │   ├── nav-history.js        # ページ遷移履歴の管理
 │   ├── orbit-versions.js     # 軌道・バージョン展示の処理
+│   ├── portfolio-actions.js  # 作品詳細からサイト内ビューを開く処理
+│   ├── portfolio-preview.js  # ライブプレビューとナビゲーション操作
 │   ├── privacy-cleanup.js    # プライバシーデータのクリーンアップ
 │   ├── risk.js               # 登録・ログイン時のリスク検出
 │   ├── scroll-ui.js          # スクロール関連の UI 操作
 │   ├── sync.js               # ユーザーデータの同期
-│   └── vendor/
-│       └── globe.gl.min.js   # サードパーティ製 globe.gl 描画ライブラリ
 ├── styles/
+│   └── style.css             # サイト全体の基本スタイル
 │   ├── admin.css             # 管理画面のスタイル
 │   ├── bookmarks-corridor.css # 回廊プレビュー用スタイル
-│   ├── portfolio-works.css   # 作品プレビュー・ナビゲーション用スタイル
 │   ├── globe.css             # 地球・地図コンポーネントのスタイル
 │   ├── orbit-art.css         # 軌道ビジュアル効果のスタイル
-│   └── style.css             # サイト全体の基本スタイル
+│   ├── portfolio-works.css   # 作品プレビュー・ナビゲーション用スタイル
 ├── supabase/
 │   ├── account-usernames.sql # ユーザー名・アカウント関連の DB 定義
 │   ├── admin.sql             # 管理機能用 DB オブジェクト
