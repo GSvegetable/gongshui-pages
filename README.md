@@ -50,9 +50,6 @@ gongshui-pages/
 │   ├── confirm.html          # 邮箱验证回调页面
 │   └── confirm/
 │       └── index.html        # 邮箱验证回调路径入口
-├── data/
-│   ├── contributors.json     # 项目贡献者数据
-│   └── ne_110m_admin_0_countries.geojson  # 世界国家与地区地理边界数据
 ├── scripts/
 │   ├── account.js            # 账户资料与账户相关操作
 │   ├── admin-liquid-glass.js # 管理后台液态玻璃视觉效果
@@ -72,7 +69,7 @@ gongshui-pages/
 │   ├── privacy-cleanup.js    # 隐私数据清理逻辑
 │   ├── risk.js               # 注册与登录风险识别
 │   ├── scroll-ui.js           # 滚动相关界面交互
-│   ├── sync.js               # 用户数据同步逻辑
+│   └── sync.js               # 用户数据同步逻辑
 ├── styles/
 │   ├── admin.css             # 管理后台样式
 │   ├── orbit-art.css         # 轨道视觉效果样式
