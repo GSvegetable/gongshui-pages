@@ -61,8 +61,6 @@ gongshui-pages/
 │   ├── contributors.json     # 项目贡献者数据
 │   └── ne_110m_admin_0_countries.geojson  # 世界国家与地区地理边界数据
 ├── scripts/
-│       └── globe.gl.min.js   # 第三方 globe.gl 地球渲染库
-│   └── vendor/
 │   ├── account.js            # 账户资料与账户相关操作
 │   ├── admin-liquid-glass.js # 管理后台液态玻璃视觉效果
 │   ├── admin.js              # 管理后台交互与管理逻辑
@@ -81,16 +79,18 @@ gongshui-pages/
 │   ├── portfolio-actions.js  # 作品详情中的网站视图操作
 │   ├── portfolio-preview.js  # 作品集实时预览与导航交互
 │   ├── privacy-cleanup.js    # 隐私数据清理逻辑
-│   ├── risk.js               # 注册与登录风险识别逻辑
-│   ├── scroll-ui.js          # 滚动相关界面交互
+│   ├── risk.js               # 注册与登录风险识别
+│   ├── scroll-ui.js           # 滚动相关界面交互
 │   ├── sync.js               # 用户数据同步逻辑
+│   └── vendor/
+│       └── globe.gl.min.js   # 第三方 globe.gl 地球渲染库
 ├── styles/
-│   └── style.css             # 网站全局基础样式
 │   ├── admin.css             # 管理后台样式
 │   ├── bookmarks-corridor.css # 收藏长廊作品预览样式
 │   ├── globe.css             # 地球与地图组件样式
 │   ├── orbit-art.css         # 轨道视觉效果样式
 │   ├── portfolio-works.css   # 作品预览与导航交互样式
+│   └── style.css             # 网站全局基础样式
 ├── supabase/
 │   ├── account-usernames.sql # 用户名与账户数据相关数据库定义
 │   ├── admin.sql             # 管理后台数据库对象
