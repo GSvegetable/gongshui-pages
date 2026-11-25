@@ -50,3 +50,18 @@ html.portfolio-embed body #bookmarks-view .bc-chip,
 html.portfolio-embed body #bookmarks-view .bc-hint,
 html.portfolio-embed body #bookmarks-view .bc-back,
 html.portfolio-embed body #bookmarks-view .bc-placard{display:none!important}
+
+/* Strict globe artwork mode: the preview contains only the rendered Earth. */
+html.portfolio-embed body .globe-view > :not(.globe-stage){display:none!important;visibility:hidden!important;}
+html.portfolio-embed body .globe-view .globe-stage .gpin-wrap,
+html.portfolio-embed body .globe-view .globe-stage .gpin,
+html.portfolio-embed body .globe-view .globe-stage .globe-pin,
+html.portfolio-embed body .globe-view .globe-stage [data-globe-pin]{display:none!important;visibility:hidden!important;}
+html.portfolio-embed body .globe-view .globe-dock,
+html.portfolio-embed body .globe-view .globe-search-col,
+html.portfolio-embed body .globe-view .globe-tools,
+html.portfolio-embed body .globe-view .globe-roster,
+html.portfolio-embed body .globe-view button,
+html.portfolio-embed body .globe-view input,
+html.portfolio-embed body .globe-view a,
+html.portfolio-embed body .globe-view [role="button"]{display:none!important;visibility:hidden!important;}
