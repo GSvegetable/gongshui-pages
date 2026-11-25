@@ -13,7 +13,7 @@
 [![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-2563EB?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-D94841?style=flat-square)](README.ja.md)
-[![Version](https://img.shields.io/badge/version-v2.12.19-7C3AED?style=flat-square)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v2.12.20-7C3AED?style=flat-square)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-0D9488?style=flat-square)](https://xn--3bts89a.com/)
 
 </div>
@@ -37,7 +37,8 @@ gongshui-pages/
 ├── CNAME                      # GitHub Pages custom-domain configuration
 ├── vercel.json                # Vercel deployment and routing configuration
 ├── docs/
-│   └── CHANGELOG.md           # Project release history
+│   ├── CHANGELOG.md           # Project release history
+│   └── ARCHITECTURE.md       # Repository boundaries and work ownership
 ├── assets/
 │   ├── badges/
 │   │   └── tech-stack.svg     # Technology-stack badge displayed in the README
@@ -66,6 +67,7 @@ gongshui-pages/
 │   ├── auth-config.js        # Client-side authentication configuration
 │   ├── auth-landing.js       # Sign-in/sign-up landing page logic
 │   ├── auth.js               # Authentication and registration flows
+│   ├── bookmarks-corridor.js # Bookmark Hall renderer (portfolio preview mode)
 │   ├── compare.js            # Comparison feature logic
 │   ├── fingerprint.js        # Browser/device fingerprint collection
 │   ├── globe.js              # Interactive globe and map rendering
@@ -74,6 +76,8 @@ gongshui-pages/
 │   ├── main.js               # Main site initialization and shared logic
 │   ├── nav-history.js        # Page navigation history management
 │   ├── orbit-versions.js     # Orbit/version showcase logic
+│   ├── portfolio-actions.js  # Portfolio detail actions for site views
+│   ├── portfolio-preview.js  # Live portfolio previews and navigation demo
 │   ├── privacy-cleanup.js    # Privacy data cleanup logic
 │   ├── risk.js               # Registration and login risk detection
 │   ├── scroll-ui.js          # Scroll-related interface interactions
@@ -82,8 +86,10 @@ gongshui-pages/
 │       └── globe.gl.min.js   # Third-party globe.gl rendering library
 ├── styles/
 │   ├── admin.css             # Administration dashboard styles
+│   ├── bookmarks-corridor.css # Bookmark Hall portfolio-preview styles
 │   ├── globe.css             # Globe and map component styles
 │   ├── orbit-art.css         # Orbit visual-effect styles
+│   ├── portfolio-works.css   # Portfolio previews and navigation demo styles
 │   └── style.css             # Global website styles
 ├── supabase/
 │   ├── account-usernames.sql # Database definitions for usernames and accounts
@@ -104,6 +110,10 @@ gongshui-pages/
         ├── LICENSE           # Vitrio third-party component license
         └── vitrio.umd.js     # Bundled Vitrio third-party component
 ```
+
+## Where the works live
+
+The first two works (Pixel Daylight Switch and Pixel Orbit) are sourced from [gongshui-open-source](https://github.com/GSvegetable/gongshui-open-source). Works 3–5 (Contributors Globe, The Bookmark Hall and Navigation Interaction System) are currently site-owned modules in this repository. Their exact files, dependencies and extraction rules are documented in [Repository boundaries and work ownership](docs/ARCHITECTURE.md).
 
 ## Privacy
 

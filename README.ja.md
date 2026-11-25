@@ -13,7 +13,7 @@
 [![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-2563EB?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-D94841?style=flat-square)](README.ja.md)
-[![Version](https://img.shields.io/badge/version-v2.12.19-7C3AED?style=flat-square)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v2.12.20-7C3AED?style=flat-square)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-0D9488?style=flat-square)](https://xn--3bts89a.com/)
 
 </div>
@@ -37,7 +37,8 @@ gongshui-pages/
 ├── CNAME                      # GitHub Pages のカスタムドメイン設定
 ├── vercel.json                # Vercel のデプロイ・ルーティング設定
 ├── docs/
-│   └── CHANGELOG.md           # プロジェクトの更新履歴
+│   ├── CHANGELOG.md           # プロジェクトの更新履歴
+│   └── ARCHITECTURE.md       # リポジトリの役割と作品コードの配置
 ├── assets/
 │   ├── badges/
 │   │   └── tech-stack.svg     # README 上部に表示する技術スタックバッジ
@@ -66,6 +67,7 @@ gongshui-pages/
 │   ├── auth-config.js        # クライアント側の認証設定
 │   ├── auth-landing.js       # ログイン・登録ランディングページの処理
 │   ├── auth.js               # ログイン・登録・認証フロー
+│   ├── bookmarks-corridor.js # ブックマーク回廊の描画（作品プレビュー用）
 │   ├── compare.js            # 比較機能の処理
 │   ├── fingerprint.js        # ブラウザー・デバイス特性の収集
 │   ├── globe.js              # インタラクティブ地球・地図の表示
@@ -74,6 +76,8 @@ gongshui-pages/
 │   ├── main.js               # サイト全体の初期化・共通処理
 │   ├── nav-history.js        # ページ遷移履歴の管理
 │   ├── orbit-versions.js     # 軌道・バージョン展示の処理
+│   ├── portfolio-actions.js  # 作品詳細からサイト内ビューを開く処理
+│   ├── portfolio-preview.js  # ライブプレビューとナビゲーション操作
 │   ├── privacy-cleanup.js    # プライバシーデータのクリーンアップ
 │   ├── risk.js               # 登録・ログイン時のリスク検出
 │   ├── scroll-ui.js          # スクロール関連の UI 操作
@@ -82,8 +86,10 @@ gongshui-pages/
 │       └── globe.gl.min.js   # サードパーティ製 globe.gl 描画ライブラリ
 ├── styles/
 │   ├── admin.css             # 管理画面のスタイル
+│   ├── bookmarks-corridor.css # 回廊プレビュー用スタイル
 │   ├── globe.css             # 地球・地図コンポーネントのスタイル
 │   ├── orbit-art.css         # 軌道ビジュアル効果のスタイル
+│   ├── portfolio-works.css   # 作品プレビュー・ナビゲーション用スタイル
 │   └── style.css             # サイト全体の基本スタイル
 ├── supabase/
 │   ├── account-usernames.sql # ユーザー名・アカウント関連の DB 定義
@@ -104,6 +110,10 @@ gongshui-pages/
         ├── LICENSE           # Vitrio サードパーティコンポーネントのライセンス
         └── vitrio.umd.js     # Vitrio サードパーティコンポーネントのバンドル
 ```
+
+## 作品コードの配置
+
+最初の2作品（Pixel Daylight Switch、Pixel Orbit）のソースは [gongshui-open-source](https://github.com/GSvegetable/gongshui-open-source) にあります。3〜5番目（投稿者地球、ブックマーク回廊、ナビゲーション操作システム）は現在このサイトの専用モジュールです。具体的なファイル、依存関係、独立化の条件は[リポジトリの役割と作品コードの配置](docs/ARCHITECTURE.md)を参照してください。
 
 ## アカウントとプライバシー
 
