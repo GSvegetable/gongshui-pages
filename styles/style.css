@@ -93,7 +93,8 @@ body.compass-mode .top-bar { opacity:0; visibility:hidden; pointer-events:none; 
   position: fixed;
   top: 24px;
   left: 24px;
-  right: 24px;
+  /* 搜索栏与右上角三个工具按钮共用一行，右侧固定留出按钮组宽度和16px间距 */
+  right: 264px;
   z-index: 19;
   width: auto;
   display: flex;
@@ -518,7 +519,7 @@ body.view-closing .work-detail.is-active {
 
 /* ---------- 响应式 ---------- */
 @media (max-width:1024px) {
-  .top-bar { right: 24px; }
+  .top-bar { right: 264px; }
 }
 @media (max-width:760px) {
   .detail-overview { grid-template-columns:1fr; gap:22px; }
