@@ -61,6 +61,8 @@ gongshui-pages/
 │   ├── contributors.json     # Project contributor data
 │   └── ne_110m_admin_0_countries.geojson  # World country and region boundary data
 ├── scripts/
+│       └── globe.gl.min.js   # Third-party globe.gl rendering library
+│   └── vendor/
 │   ├── account.js            # Account profile and account operations
 │   ├── admin-liquid-glass.js # Liquid-glass effects for the admin dashboard
 │   ├── admin.js              # Admin dashboard interactions and logic
@@ -68,8 +70,6 @@ gongshui-pages/
 │   ├── auth-landing.js       # Sign-in/sign-up landing page logic
 │   ├── auth.js               # Authentication and registration flows
 │   ├── bookmarks-corridor.js # Bookmark Hall renderer (portfolio preview mode)
-│   ├── portfolio-actions.js  # Portfolio detail actions for site views
-│   ├── portfolio-preview.js  # Live portfolio previews and navigation demo
 │   ├── compare.js            # Comparison feature logic
 │   ├── fingerprint.js        # Browser/device fingerprint collection
 │   ├── globe.js              # Interactive globe and map rendering
@@ -78,19 +78,19 @@ gongshui-pages/
 │   ├── main.js               # Main site initialization and shared logic
 │   ├── nav-history.js        # Page navigation history management
 │   ├── orbit-versions.js     # Orbit/version showcase logic
+│   ├── portfolio-actions.js  # Portfolio detail actions for site views
+│   ├── portfolio-preview.js  # Live portfolio previews and navigation demo
 │   ├── privacy-cleanup.js    # Privacy data cleanup logic
 │   ├── risk.js               # Registration and login risk detection
 │   ├── scroll-ui.js          # Scroll-related interface interactions
 │   ├── sync.js               # User data synchronization
-│   └── vendor/
-│       └── globe.gl.min.js   # Third-party globe.gl rendering library
 ├── styles/
+│   └── style.css             # Global website styles
 │   ├── admin.css             # Administration dashboard styles
 │   ├── bookmarks-corridor.css # Bookmark Hall portfolio-preview styles
-│   ├── portfolio-works.css   # Portfolio previews and navigation demo styles
 │   ├── globe.css             # Globe and map component styles
 │   ├── orbit-art.css         # Orbit visual-effect styles
-│   └── style.css             # Global website styles
+│   ├── portfolio-works.css   # Portfolio previews and navigation demo styles
 ├── supabase/
 │   ├── account-usernames.sql # Database definitions for usernames and accounts
 │   ├── admin.sql             # Administration database objects
