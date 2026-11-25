@@ -13,7 +13,7 @@
 [![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-2563EB?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-D94841?style=flat-square)](README.ja.md)
-[![Version](https://img.shields.io/badge/version-v2.12.20-7C3AED?style=flat-square)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v2.12.21-7C3AED?style=flat-square)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-0D9488?style=flat-square)](https://xn--3bts89a.com/)
 
 </div>
@@ -46,13 +46,6 @@ gongshui-pages/
 │   │   ├── banner.png         # README header banner
 │   │   ├── scene-gallery.png  # Project scene preview image
 │   │   └── readme-banner.svg  # X account banner at the bottom of the README
-│   ├── earth/
-│   │   ├── earth-blue-marble.jpg   # Daytime Earth texture
-│   │   ├── earth-night.jpg         # Earth-at-night lights texture
-│   │   ├── earth-topology.png      # Earth terrain/topology texture
-│   │   └── night-sky.jpg           # Starfield background
-│   └── flags/
-│       └── *.svg              # 61 country and region flag vectors, named by code
 ├── auth/
 │   ├── confirm.html          # Email verification callback page
 │   └── confirm/
@@ -67,27 +60,21 @@ gongshui-pages/
 │   ├── auth-config.js        # Client-side authentication configuration
 │   ├── auth-landing.js       # Sign-in/sign-up landing page logic
 │   ├── auth.js               # Authentication and registration flows
-│   ├── bookmarks-corridor.js # Bookmark Hall renderer (portfolio preview mode)
 │   ├── compare.js            # Comparison feature logic
 │   ├── fingerprint.js        # Browser/device fingerprint collection
-│   ├── globe.js              # Interactive globe and map rendering
 │   ├── home-page.js          # Homepage interactions
 │   ├── login-page.js         # Login page interactions
 │   ├── main.js               # Main site initialization and shared logic
 │   ├── nav-history.js        # Page navigation history management
 │   ├── orbit-versions.js     # Orbit/version showcase logic
 │   ├── portfolio-actions.js  # Portfolio detail actions for site views
-│   ├── portfolio-preview.js  # Live portfolio previews and navigation demo
+│   ├── portfolio-preview.js  # Standalone project iframes and host data bridge
 │   ├── privacy-cleanup.js    # Privacy data cleanup logic
 │   ├── risk.js               # Registration and login risk detection
 │   ├── scroll-ui.js          # Scroll-related interface interactions
 │   ├── sync.js               # User data synchronization
-│   └── vendor/
-│       └── globe.gl.min.js   # Third-party globe.gl rendering library
 ├── styles/
 │   ├── admin.css             # Administration dashboard styles
-│   ├── bookmarks-corridor.css # Bookmark Hall portfolio-preview styles
-│   ├── globe.css             # Globe and map component styles
 │   ├── orbit-art.css         # Orbit visual-effect styles
 │   ├── portfolio-works.css   # Portfolio previews and navigation demo styles
 │   └── style.css             # Global website styles
@@ -113,7 +100,9 @@ gongshui-pages/
 
 ## Where the works live
 
-The first two works (Pixel Daylight Switch and Pixel Orbit) are sourced from [gongshui-open-source](https://github.com/GSvegetable/gongshui-open-source). Works 3–5 (Contributors Globe, The Bookmark Hall and Navigation Interaction System) are currently site-owned modules in this repository. Their exact files, dependencies and extraction rules are documented in [Repository boundaries and work ownership](docs/ARCHITECTURE.md).
+All five showcased works are sourced exclusively from [gongshui-open-source](https://github.com/GSvegetable/gongshui-open-source). This repository owns the website platform: UI, navigation, authentication, accounts, bookmark persistence and folders, search, settings, portfolio catalog, and host-side iframe adapters. The works are embedded from their own GitHub Pages URLs; their core renderers are not duplicated here.
+
+The Bookmark Hall receives normalized bookmark records through an origin-checked `postMessage` bridge. The website remains responsible for accounts, bookmark persistence, and opening detail views. The black bookmark navigation handoff page is a separate platform page, not the Bookmark Hall artwork. See [Repository boundaries and work ownership](docs/ARCHITECTURE.md).
 
 ## Privacy
 
