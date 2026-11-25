@@ -61,8 +61,6 @@ gongshui-pages/
 │   ├── contributors.json     # Project contributor data
 │   └── ne_110m_admin_0_countries.geojson  # World country and region boundary data
 ├── scripts/
-│       └── globe.gl.min.js   # Third-party globe.gl rendering library
-│   └── vendor/
 │   ├── account.js            # Account profile and account operations
 │   ├── admin-liquid-glass.js # Liquid-glass effects for the admin dashboard
 │   ├── admin.js              # Admin dashboard interactions and logic
@@ -84,13 +82,15 @@ gongshui-pages/
 │   ├── risk.js               # Registration and login risk detection
 │   ├── scroll-ui.js          # Scroll-related interface interactions
 │   ├── sync.js               # User data synchronization
+│   └── vendor/
+│       └── globe.gl.min.js   # Third-party globe.gl rendering library
 ├── styles/
-│   └── style.css             # Global website styles
 │   ├── admin.css             # Administration dashboard styles
 │   ├── bookmarks-corridor.css # Bookmark Hall portfolio-preview styles
 │   ├── globe.css             # Globe and map component styles
 │   ├── orbit-art.css         # Orbit visual-effect styles
 │   ├── portfolio-works.css   # Portfolio previews and navigation demo styles
+│   └── style.css             # Global website styles
 ├── supabase/
 │   ├── account-usernames.sql # Database definitions for usernames and accounts
 │   ├── admin.sql             # Administration database objects
