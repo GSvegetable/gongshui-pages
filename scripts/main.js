@@ -184,6 +184,36 @@ const searchInput = document.getElementById('search-input');
 const searchWrapper = document.getElementById('search-wrapper');
 const searchClear = document.getElementById('search-clear');
 
+/* 搜索栏自动避让右上角工具组：根据实际按钮组宽度计算，不使用写死的预留值。 */
+(() => {
+  const bar = document.getElementById('top-bar');
+  const tools = document.getElementById('top-utility');
+  if (!bar || !tools) return;
+  const update = () => {
+    const barStyle = getComputedStyle(bar);
+    const toolsStyle = getComputedStyle(tools);
+    if (barStyle.display === 'none' || toolsStyle.display === 'none' ||
+        toolsStyle.visibility === 'hidden') return;
+    const b = bar.getBoundingClientRect();
+    const t = tools.getBoundingClientRect();
+    const overlapsVertically = b.top < t.bottom && b.bottom > t.top;
+    const gap = 16;
+    const right = overlapsVertically
+      ? Math.max(14, window.innerWidth - t.left + gap)
+      : 24;
+    bar.style.right = `${right}px`;
+  };
+  update();
+  if ('ResizeObserver' in window) {
+    const observer = new ResizeObserver(update);
+    observer.observe(tools);
+  }
+  window.addEventListener('resize', update, { passive: true });
+  window.addEventListener('orientationchange', update, { passive: true });
+  window.addEventListener('load', update, { once: true });
+})();
+
+
 /* ---------- 模糊搜索 ----------
    整段包含算命中；再往前一步，查询的字符按顺序散落在标题里也算命中
    （搜「像素环」能命中「像素圆环」）。标题、英文名、标签、编号一起参与匹配；
