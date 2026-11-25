@@ -50,9 +50,6 @@ gongshui-pages/
 │   ├── confirm.html          # Email verification callback page
 │   └── confirm/
 │       └── index.html        # Email verification callback route entry
-├── data/
-│   ├── contributors.json     # Project contributor data
-│   └── ne_110m_admin_0_countries.geojson  # World country and region boundary data
 ├── scripts/
 │   ├── account.js            # Account profile and account operations
 │   ├── admin-liquid-glass.js # Liquid-glass effects for the admin dashboard
@@ -72,7 +69,7 @@ gongshui-pages/
 │   ├── privacy-cleanup.js    # Privacy data cleanup logic
 │   ├── risk.js               # Registration and login risk detection
 │   ├── scroll-ui.js          # Scroll-related interface interactions
-│   ├── sync.js               # User data synchronization
+│   └── sync.js               # User data synchronization
 ├── styles/
 │   ├── admin.css             # Administration dashboard styles
 │   ├── orbit-art.css         # Orbit visual-effect styles
