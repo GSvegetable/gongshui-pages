@@ -82,6 +82,7 @@
     frame.src = PROJECTS[kind];
     frames[kind] = frame;
     frame.addEventListener('load', () => {
+      frame.dataset.loaded = 'true';
       if (kind === 'corridor') sendBookmarkData(frame);
       if (kind === 'globe' && pendingGlobeWork) {
         frame.contentWindow.postMessage({
@@ -101,7 +102,7 @@
     selectWork(workId) {
       pendingGlobeWork = String(workId || '');
       const frame = frames.globe;
-      if (frame && frame.contentWindow && frame.contentDocument && frame.contentDocument.readyState === 'complete') {
+      if (frame && frame.contentWindow && frame.dataset.loaded === 'true') {
         frame.contentWindow.postMessage({
           type: 'gongshui:contributors-globe:select-work',
           workId: pendingGlobeWork
@@ -110,7 +111,6 @@
     }
   };
 
-  document.addEventListener('message', () => {});
   window.addEventListener('message', event => {
     const frame = frames.corridor;
     if (!frame || event.source !== frame.contentWindow || event.origin !== new URL(frame.src).origin) return;
