@@ -86,7 +86,7 @@ body.compass-mode .top-bar { opacity:0; visibility:hidden; pointer-events:none; 
 .compass-view-kicker { margin:0 0 12px;color:#f4bd3c;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:2.4px; }
 .compass-view h1 { margin:0;color:#f4f0e8;font-size:clamp(32px,6vw,54px);font-weight:900;letter-spacing:-1.8px;line-height:1.08; }
 .compass-view-note { margin:18px 0 0;color:#b8aa92;font-size:13px;line-height:1.95; }
-@media(max-width:600px){ .compass-view-inner { padding-left:64px; } }
+@media(max-width:600px){ .compass-view-inner { padding-left:24px; } }
 
 /* ---------- 搜索：仅在作品列表视图出现 ---------- */
 .top-bar {
@@ -218,7 +218,7 @@ html.search-collapsed .search-status { opacity: 0; }
 
 /* ---------- 页面基础布局 ---------- */
 main { min-height: calc(100vh + 420px); padding: 94px 24px 180px; }
-.grid { display:grid; grid-template-columns:repeat(var(--gallery-columns, 1), minmax(0,1fr)); gap:24px; padding-left:88px; }
+.grid { display:grid; grid-template-columns:repeat(var(--gallery-columns, 1), minmax(0,1fr)); gap:24px; padding-left:24px; }
 
 /* 卡片：缩略态。尺寸 = 边框3 + 内边距8 + 作品框(边框2) */
 .preview-card {
@@ -536,7 +536,7 @@ body.view-closing .work-detail.is-active {
   .search-status { font-size: 10px; }
 
   main { min-height: calc(100vh + 420px); padding:80px 14px 180px; }
-  .grid { padding-left:64px; }
+  .grid { padding-left:24px; }
 
   .preview-actions { top: 14px; right: 14px; gap: 8px; }
   .action-btn { width: 40px; height: 40px; border-width: 2px; }
