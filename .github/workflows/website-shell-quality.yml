@@ -1,0 +1,46 @@
+name: Website shell quality
+
+on:
+  pull_request:
+    paths:
+      - "index.html"
+      - "scripts/portfolio-preview.js"
+      - "styles/portfolio-works.css"
+      - "docs/ARCHITECTURE.md"
+      - ".github/workflows/website-shell-quality.yml"
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "scripts/portfolio-preview.js"
+      - "styles/portfolio-works.css"
+      - "docs/ARCHITECTURE.md"
+      - ".github/workflows/website-shell-quality.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  shell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check host adapter syntax
+        run: node --check scripts/portfolio-preview.js
+      - name: Verify independent project integration
+        run: |
+          grep -q 'contributors-globe/?v=1.0.0' scripts/portfolio-preview.js
+          grep -q 'bookmark-hall/?v=1.0.0' scripts/portfolio-preview.js
+          grep -q 'navigation-interaction/?v=1.0.0' scripts/portfolio-preview.js
+          grep -q 'gongshui:bookmark-hall:data' scripts/portfolio-preview.js
+          grep -q 'gongshui:bookmark-hall:open' scripts/portfolio-preview.js
+          grep -q 'gongshui:contributors-globe:select-work' scripts/portfolio-preview.js
+          ! grep -q 'scripts/globe.js' index.html
+          ! grep -q 'scripts/bookmarks-corridor.js' index.html
+          ! grep -q 'styles/globe.css' index.html
+          ! grep -q 'styles/bookmarks-corridor.css' index.html
+          grep -q 'id="bookmarks-view"' index.html
+          ! grep -q 'data-nav-sample=' index.html

@@ -13,7 +13,7 @@
 [![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-2563EB?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-D94841?style=flat-square)](README.ja.md)
-[![Version](https://img.shields.io/badge/version-v2.12.20-7C3AED?style=flat-square)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v2.12.21-7C3AED?style=flat-square)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-0D9488?style=flat-square)](https://xn--3bts89a.com/)
 
 </div>
@@ -46,20 +46,10 @@ gongshui-pages/
 │   │   ├── banner.png         # README 上部のバナー画像
 │   │   ├── scene-gallery.png  # プロジェクトのシーンプレビュー画像
 │   │   └── readme-banner.svg  # README 下部の X アカウント紹介画像
-│   ├── earth/
-│   │   ├── earth-blue-marble.jpg   # 昼間の地球テクスチャ
-│   │   ├── earth-night.jpg         # 夜の地球の光のテクスチャ
-│   │   ├── earth-topology.png      # 地形・トポロジーテクスチャ
-│   │   └── night-sky.jpg           # 星空の背景素材
-│   └── flags/
-│       └── *.svg              # 国・地域の旗を表す SVG 画像 61 点（コード名で管理）
 ├── auth/
 │   ├── confirm.html          # メール認証コールバックページ
 │   └── confirm/
 │       └── index.html        # メール認証コールバックのルート入口
-├── data/
-│   ├── contributors.json     # プロジェクト貢献者データ
-│   └── ne_110m_admin_0_countries.geojson  # 世界の国・地域の境界データ
 ├── scripts/
 │   ├── account.js            # アカウント情報・アカウント操作
 │   ├── admin-liquid-glass.js # 管理画面のリキッドグラス効果
@@ -67,27 +57,21 @@ gongshui-pages/
 │   ├── auth-config.js        # クライアント側の認証設定
 │   ├── auth-landing.js       # ログイン・登録ランディングページの処理
 │   ├── auth.js               # ログイン・登録・認証フロー
-│   ├── bookmarks-corridor.js # ブックマーク回廊の描画（作品プレビュー用）
 │   ├── compare.js            # 比較機能の処理
 │   ├── fingerprint.js        # ブラウザー・デバイス特性の収集
-│   ├── globe.js              # インタラクティブ地球・地図の表示
 │   ├── home-page.js          # ホームページの操作処理
 │   ├── login-page.js         # ログインページの操作処理
 │   ├── main.js               # サイト全体の初期化・共通処理
 │   ├── nav-history.js        # ページ遷移履歴の管理
 │   ├── orbit-versions.js     # 軌道・バージョン展示の処理
 │   ├── portfolio-actions.js  # 作品詳細からサイト内ビューを開く処理
-│   ├── portfolio-preview.js  # ライブプレビューとナビゲーション操作
+│   ├── portfolio-preview.js  # 独立作品 iframe とホストデータ連携
 │   ├── privacy-cleanup.js    # プライバシーデータのクリーンアップ
 │   ├── risk.js               # 登録・ログイン時のリスク検出
 │   ├── scroll-ui.js          # スクロール関連の UI 操作
-│   ├── sync.js               # ユーザーデータの同期
-│   └── vendor/
-│       └── globe.gl.min.js   # サードパーティ製 globe.gl 描画ライブラリ
+│   └── sync.js               # ユーザーデータの同期
 ├── styles/
 │   ├── admin.css             # 管理画面のスタイル
-│   ├── bookmarks-corridor.css # 回廊プレビュー用スタイル
-│   ├── globe.css             # 地球・地図コンポーネントのスタイル
 │   ├── orbit-art.css         # 軌道ビジュアル効果のスタイル
 │   ├── portfolio-works.css   # 作品プレビュー・ナビゲーション用スタイル
 │   └── style.css             # サイト全体の基本スタイル
@@ -113,7 +97,9 @@ gongshui-pages/
 
 ## 作品コードの配置
 
-最初の2作品（Pixel Daylight Switch、Pixel Orbit）のソースは [gongshui-open-source](https://github.com/GSvegetable/gongshui-open-source) にあります。3〜5番目（投稿者地球、ブックマーク回廊、ナビゲーション操作システム）は現在このサイトの専用モジュールです。具体的なファイル、依存関係、独立化の条件は[リポジトリの役割と作品コードの配置](docs/ARCHITECTURE.md)を参照してください。
+サイトに表示される5つの作品のソースは、すべて [gongshui-open-source](https://github.com/GSvegetable/gongshui-open-source) に一元管理されています。このリポジトリはウェブサイト本体、UI、ナビゲーション、ログイン、アカウント、ブックマークとフォルダー、検索、設定、作品一覧、および iframe ホストアダプターを担当します。作品の描画実装をサイト側に重複して保持しません。
+
+Bookmark Hall は、送信元を検証した `postMessage` によってサイトからブックマーク情報を受け取ります。アカウント、保存、詳細画面への遷移は引き続きサイト側が担当します。黒いブックマークナビゲーションページはプラットフォームのページであり、作品の Bookmark Hall とは別です。詳細は[リポジトリの役割と作品コードの配置](docs/ARCHITECTURE.md)を参照してください。
 
 ## アカウントとプライバシー
 
