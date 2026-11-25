@@ -76,7 +76,7 @@ body.compass-mode #compass-view { display:block; }
 body.compass-mode { overflow:hidden; }
 body.compass-mode .grid { display:none; }
 body.compass-mode .top-bar { opacity:0; visibility:hidden; pointer-events:none; }
-.compass-view-inner { width:min(620px,100%); padding-left:88px; }
+.compass-view-inner { width:min(620px,100%); padding-left:24px; }
 .compass-view-block {
   display:grid;place-items:center;width:74px;height:74px;margin:0 0 28px;
   border:3px solid #34220e;border-radius:5px;background:#ffd400;color:#1b2146;
