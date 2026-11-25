@@ -1,6 +1,4 @@
-/* New portfolio previews: restrained, native CSS artwork. */
-
-/* v1.1.0 — showcase the site's real experiences, not drawn imitations */
+/* Portfolio previews use the original live components, without cloning the site shell. */
 .portfolio-live-mount{--mount-ratio:1.6439;background:#070a12}
 .portfolio-live-mount [data-live-preview]{position:absolute;inset:0;z-index:1;width:100%;height:100%}
 .portfolio-live-frame{display:block;width:100%;height:100%;border:0;background:#070a12}
@@ -16,9 +14,29 @@
 .nav-showcase-button.is-sample-active{transform:translateY(5px);box-shadow:0 1px 0 var(--side),0 2px 0 #34220e}
 .nav-showcase-foot{margin:0;text-align:center;color:#82745c;font:800 9px/1 ui-monospace,monospace;letter-spacing:2px}
 @media(max-width:520px){.nav-showcase{gap:10px;padding:12px}.nav-showcase-grid{gap:8px 5px}.nav-showcase-button{width:clamp(30px,8vw,42px);height:clamp(30px,8vw,42px)}}
+
+/* Embedded preview: keep the real artwork, remove the surrounding portfolio UI. */
 html.portfolio-embed,html.portfolio-embed body{width:100%;height:100%;min-height:0;overflow:hidden!important;background:#070a12!important}
-html.portfolio-embed body #mario-nav,html.portfolio-embed body .top-utility-actions,html.portfolio-embed body .top-bar,html.portfolio-embed body .back-to-top,html.portfolio-embed body .site-version,html.portfolio-embed body .work-detail,html.portfolio-embed body .work-extras,html.portfolio-embed body .detail-content,html.portfolio-embed body main>.grid,html.portfolio-embed body .work-spacer{display:none!important}
+html.portfolio-embed body #mario-nav,
+html.portfolio-embed body .top-utility-actions,
+html.portfolio-embed body .top-bar,
+html.portfolio-embed body .back-to-top,
+html.portfolio-embed body .site-version,
+html.portfolio-embed body .work-detail,
+html.portfolio-embed body .work-extras,
+html.portfolio-embed body .detail-content,
+html.portfolio-embed body main>.grid,
+html.portfolio-embed body .work-spacer{display:none!important}
 html.portfolio-embed body main{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important;overflow:hidden!important}
 html.portfolio-embed body #compass-view{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important;display:block!important}
+html.portfolio-embed body .globe-view{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important}
+html.portfolio-embed body .globe-stage{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
+
+/* The hall preview is deliberately just the corridor scene: no chip, arrow,
+   instruction text, pixel-axis indicator, or "open work" placard. */
 html.portfolio-embed body #bookmarks-view{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important}
-html.portfolio-embed body .globe-view{position:fixed!important;inset:0!important;width:100%!important;height:100%!important}
+html.portfolio-embed body #bookmarks-view .bc-hud{display:none!important}
+html.portfolio-embed body #bookmarks-view .bc-chip,
+html.portfolio-embed body #bookmarks-view .bc-hint,
+html.portfolio-embed body #bookmarks-view .bc-back,
+html.portfolio-embed body #bookmarks-view .bc-placard{display:none!important}
