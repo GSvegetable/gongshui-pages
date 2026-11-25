@@ -216,18 +216,9 @@ const searchDescOf = card => {
 };
 
 const renderGallery = () => {
-  const inBookmarks = AppState.currentTab === 'bookmarks';
-  document.body.classList.toggle('is-bookmarks', inBookmarks);
-
-  const bookmarksView = document.getElementById('bookmarks-view');
-  if (bookmarksView) bookmarksView.hidden = !inBookmarks;
-
-  if (inBookmarks) {
-    galleryCards.forEach(card => card.classList.add('hidden'));
-    emptyState.classList.remove('visible');
-    return;
-  }
-
+  // The site is a single portfolio page; the old bookmarks tab is no longer navigable.
+  AppState.currentTab = 'home';
+  document.body.classList.remove('is-bookmarks', 'compass-mode');
   const query = norm(AppState.searchQuery);
   let visibleWorks = 0;
   galleryCards.forEach(item => {
@@ -261,56 +252,8 @@ const updateSearch = value => {
   syncSearchUI();
 };
 
-/* ---------- 指南针视图：首页里的另一个视图，不是新页面 ----------
-   点中间那个方块，作品列表收起、指南针内容出现；
-   左侧三个马里奥方块始终留在原位可见。 */
-const setCompassView = on => {
-  if (!navIndex || !compassView) return;
-  document.body.classList.toggle('compass-mode', on);
-  compassView.setAttribute('aria-hidden', String(!on));
-  navIndex.classList.toggle('active', on);
-  navIndex.setAttribute('aria-expanded', String(on));
-  navHome.classList.toggle('active', !on);
-  navHome.setAttribute('aria-pressed', String(!on));
-  if (on) {
-    window.siteNav?.open('globe', () => setCompassView(false));
-    AppState.currentTab = 'home';
-    navBookmark.classList.remove('active');
-    navBookmark.setAttribute('aria-pressed', 'false');
-    renderGallery();
-    // 指南针视图里的投稿地球：开
-    if (window.siteGlobe && typeof window.siteGlobe.open === 'function') window.siteGlobe.open();
-  } else {
-    window.siteNav?.close('globe');
-    if (window.siteGlobe && typeof window.siteGlobe.close === 'function') {
-      // 关
-      window.siteGlobe.close();
-    }
-  }
-};
-
-navHome.addEventListener('click', () => {
-  setCompassView(false);
-  AppState.currentTab = 'home';
-  navHome.classList.add('active'); navBookmark.classList.remove('active');
-  navHome.setAttribute('aria-pressed', 'true'); navBookmark.setAttribute('aria-pressed', 'false');
-  renderGallery();
-});
-
-navBookmark.addEventListener('click', () => {
-  setCompassView(false);
-  const wasBookmarks = AppState.currentTab === 'bookmarks';
-  AppState.currentTab = 'bookmarks';
-  // 已经在收藏页：再点一次就在「文件夹列表」和「打开的文件夹」之间切换
-  AppState.openFolderId = wasBookmarks ? (AppState.openFolderId ? null : AppState.openFolderId) : null;
-  navBookmark.classList.add('active'); navHome.classList.remove('active');
-  navBookmark.setAttribute('aria-pressed', 'true'); navHome.setAttribute('aria-pressed', 'false');
-  renderGallery();
-});
-
-navIndex?.addEventListener('click', () => {
-  setCompassView(!document.body.classList.contains('compass-mode'));
-});
+/* ---------- Single-page portfolio: no side navigation or secondary page views. ---------- */
+const setCompassView = () => {};
 
 searchInput.addEventListener('input', event => updateSearch(event.target.value));
 searchClear.addEventListener('click', () => { updateSearch(''); searchInput.focus(); });
@@ -1386,10 +1329,12 @@ syncSearchUI();
       event.stopPropagation();
       const workId = link.dataset.creatorWork;
       closeWork();
-      // 等卡片收回动画结束再打开地球，避免画面打架
+      // The separate compass page has been removed; open the contributor-globe portfolio card instead.
       setTimeout(() => {
-        setCompassView(true);
-        window.siteGlobe?.selectWork?.(workId);
+        const globeCard = document.getElementById('contributors-globe-card');
+        globeCard?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        globeCard?.click();
+        if (workId) window.siteGlobe?.selectWork?.(workId);
       }, getDuration() + 80);
     });
   });
