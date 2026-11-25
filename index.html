@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="./styles/orbit-art.css?v=1.2.2" />
   <link rel="stylesheet" href="./styles/globe.css?v=2.8.9" />
   <link rel="stylesheet" href="./styles/bookmarks-corridor.css?v=1.3.0" />
+  <link rel="stylesheet" href="./styles/portfolio-works.css?v=1.0.0" />
 <script src="./scripts/privacy-cleanup.js?v=1.0.0"></script>
 </head>
 <body>
@@ -86,6 +87,11 @@
         </div>
       </article>
       
+
+      <article class="preview-card portfolio-card" id="contributors-globe-card" data-id="contributors-globe" data-tags="地球 投稿者 交互 数据可视化" data-en="Contributors Globe" data-detail="globe-work-panel" tabindex="0" aria-label="打开投稿者地球作品详情"><div class="preview-mount"><div class="portfolio-scene portfolio-globe-scene" aria-hidden="true"><div class="globe-planet"><span class="globe-continent continent-a"></span><span class="globe-continent continent-b"></span><i class="globe-pin pin-a"></i><i class="globe-pin pin-b"></i><i class="globe-pin pin-c"></i></div><div class="globe-orbit orbit-one"></div><div class="globe-orbit orbit-two"></div><span class="scene-caption">CONTRIBUTORS / WORLDWIDE</span></div></div><div class="card-info"><span class="card-title">投稿者地球</span></div></article>
+      <article class="preview-card portfolio-card" id="bookmarks-corridor-card" data-id="bookmarks-corridor" data-tags="收藏 长廊 空间 像素 3D" data-en="The Bookmark Hall" data-detail="corridor-work-panel" tabindex="0" aria-label="打开收藏长廊作品详情"><div class="preview-mount"><div class="portfolio-scene portfolio-corridor-scene" aria-hidden="true"><div class="corridor-ceiling"></div><div class="corridor-floor"></div><div class="corridor-wall corridor-wall-left"></div><div class="corridor-wall corridor-wall-right"></div><div class="corridor-frame frame-one"></div><div class="corridor-frame frame-two"></div><div class="corridor-frame frame-three"></div><span class="scene-caption">A SPACE FOR WHAT YOU KEEP</span></div></div><div class="card-info"><span class="card-title">收藏长廊</span></div></article>
+      <article class="preview-card portfolio-card" id="navigation-system-card" data-id="navigation-system" data-tags="导航 图标 按钮 交互 系统" data-en="Navigation Interaction System" data-detail="navigation-work-panel" tabindex="0" aria-label="打开导航交互系统作品详情"><div class="preview-mount"><div class="portfolio-scene portfolio-navigation-scene" aria-hidden="true"><div class="nav-demo-rail"><span class="nav-demo-button nav-demo-home"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10H3zM9 20v-7h6v7"/></svg></span><span class="nav-demo-button nav-demo-compass"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m16 8-2.5 6L8 16l2.5-6z"/></svg></span><span class="nav-demo-button nav-demo-bookmark"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></span></div><span class="scene-caption">THREE ENTRY POINTS / ONE SYSTEM</span></div></div><div class="card-info"><span class="card-title">导航交互系统</span></div></article>
+
       <!-- 以后加新作品：整块复制上面的 <article class="preview-card">，改 id / data-id / 标题 / 内容；
            data-detail 填它详情面板的 id（面板加在下面，class 带上 work-detail）。
            展开、放大、关闭的动画 JS 会自动接管，不需要写任何动画代码。 -->
@@ -191,6 +197,11 @@
     </section>
   </section>
 
+
+  <section class="work-detail portfolio-detail" id="globe-work-panel" role="dialog" aria-modal="true" aria-labelledby="globe-work-title" aria-hidden="true"><div class="detail-overview"><div class="detail-copy"><h1 id="globe-work-title">投稿者地球</h1><p class="english-title">CONTRIBUTORS GLOBE</p><div class="detail-tags"><span class="work-tag portfolio-tag">交互体验</span><span class="work-tag portfolio-tag">数据可视化</span></div><p class="detail-description">把开源项目的贡献者放到一颗可以探索的地球上。旋转地球、查看旗帜与头像、搜索作者，并从人物信息卡直接进入其作品。它让原本分散在代码仓库里的协作关系，变成一个可以被看见的世界。</p><div class="detail-actions"><button class="project-link portfolio-open-view" type="button" data-open-site-view="globe"><span>进入指南针，探索地球</span><span class="link-arrow">↗</span></button></div></div></div><div class="portfolio-detail-note"><span>01 / INTERACTIVE DATA</span><p>Globe.gl · Three.js · Contributor network</p></div></section>
+  <section class="work-detail portfolio-detail" id="corridor-work-panel" role="dialog" aria-modal="true" aria-labelledby="corridor-work-title" aria-hidden="true"><div class="detail-overview"><div class="detail-copy"><h1 id="corridor-work-title">收藏长廊</h1><p class="english-title">THE BOOKMARK HALL</p><div class="detail-tags"><span class="work-tag portfolio-tag">空间交互</span><span class="work-tag portfolio-tag">程序化像素艺术</span></div><p class="detail-description">把收藏从一份列表变成一段可以走进去的空间。长廊由 Canvas 2D 射线投射实时绘制，收藏的作品会成为墙上的画框；沿着金色引导线前进，在作品前停下，再打开原本的实时作品。</p><div class="detail-actions"><button class="project-link portfolio-open-view" type="button" data-open-site-view="bookmarks"><span>进入收藏长廊</span><span class="link-arrow">↗</span></button></div></div></div><div class="portfolio-detail-note"><span>02 / SPATIAL INTERACTION</span><p>Canvas 2D · Ray casting · Procedural environment</p></div></section>
+  <section class="work-detail portfolio-detail" id="navigation-work-panel" role="dialog" aria-modal="true" aria-labelledby="navigation-work-title" aria-hidden="true"><div class="detail-overview"><div class="detail-copy"><h1 id="navigation-work-title">导航交互系统</h1><p class="english-title">NAVIGATION INTERACTION SYSTEM</p><div class="detail-tags"><span class="work-tag portfolio-tag">界面设计</span><span class="work-tag portfolio-tag">微交互</span></div><p class="detail-description">一套由三个像素方块构成的站点导航：主页、指南针与收藏。它不只是图标，而是一组具有明确状态、按压反馈、页面切换与历史行为的交互系统。三个入口始终保持在视线边缘，让不同空间之间的切换保持轻巧而连贯。</p><div class="portfolio-nav-specimen" aria-label="导航按钮示意"><span class="nav-demo-button nav-demo-home"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10H3zM9 20v-7h6v7"/></svg></span><span class="nav-demo-button nav-demo-compass"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m16 8-2.5 6L8 16l2.5-6z"/></svg></span><span class="nav-demo-button nav-demo-bookmark"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></span></div><div class="detail-actions"><button class="project-link portfolio-open-view" type="button" data-open-site-view="home"><span>返回主页，查看真实导航</span><span class="link-arrow">↗</span></button></div></div></div><div class="portfolio-detail-note"><span>03 / INTERFACE SYSTEM</span><p>Navigation · State design · Micro-interactions</p></div></section>
+
   <div class="work-extras" id="work-extras" hidden>
     <div class="compare-control" id="compare-control">
       <button class="compare-toggle" id="compare-toggle" type="button" aria-pressed="false">版本对比</button>
@@ -216,6 +227,7 @@
   <div class="site-version" aria-label="网站版本">v2.14.0</div>
   <script src="./scripts/globe.js?v=2.9.0"></script>
   <script src="./scripts/main.js?v=2.12.19"></script>
+  <script src="./scripts/portfolio-actions.js?v=1.0.0"></script>
   <script src="./scripts/nav-history.js?v=1.0.0"></script>
   <script src="./scripts/compare.js?v=1.3.2"></script>
   <script src="./scripts/orbit-versions.js?v=1.3.12"></script>
