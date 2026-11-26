@@ -814,6 +814,9 @@ syncSearchUI();
     if (workExtras && !workExtras.hidden) {
       contentBottom = Math.max(contentBottom, workExtras.getBoundingClientRect().bottom + window.scrollY);
     }
+    if (current.panel && current.panel.classList.contains('is-active')) {
+      contentBottom = Math.max(contentBottom, current.panel.getBoundingClientRect().bottom + window.scrollY);
+    }
     workSpacer.style.height = Math.max(0, Math.round(contentBottom + 40 - gridBottom)) + 'px';
   };
 
@@ -866,6 +869,7 @@ syncSearchUI();
     card.style.width = Math.round(r.width) + 'px';
     card.classList.add('is-settled');
     settled = true;
+    positionDetailPanel();
     unlockScroll();
     if (workExtras) workExtras.hidden = !['pixel-daylight-switch', 'pixel-orbit'].includes(current.id);
     // 手机上如果对比是开着的（极少见：动画途中点的开关），落地时直接按并排版式收好
@@ -897,8 +901,21 @@ syncSearchUI();
   const openBox = () => {
     if (isMobile()) return { left: 14, top: 18, width: Math.max(220, window.innerWidth - 28) };
     const detailWidth = Math.min(440, Math.max(300, window.innerWidth * 0.36));
-    const width = Math.min(860, window.innerWidth - 36 - detailWidth - 24);
+    // The artwork and its editorial notes meet edge-to-edge: no dark gutter between them.
+    const width = Math.min(860, window.innerWidth - 36 - detailWidth);
     return { left: 18, top: 18, width: Math.max(320, width) };
+  };
+
+  const positionDetailPanel = () => {
+    if (!isMobile() || !current?.panel) return;
+    const rect = current.card.getBoundingClientRect();
+    const panel = current.panel;
+    panel.style.position = 'absolute';
+    panel.style.left = '14px';
+    panel.style.right = '14px';
+    panel.style.top = Math.round(rect.bottom + window.scrollY) + 'px';
+    panel.style.bottom = 'auto';
+    panel.style.width = 'auto';
   };
 
   /* v2.8.5 — 手机上打开「版本对比」时，主视图缩到左半屏，副视图并排右半屏。
@@ -1025,6 +1042,9 @@ syncSearchUI();
       const on = w === work;
       w.panel.classList.toggle('is-active', on);
       w.panel.setAttribute('aria-hidden', String(!on));
+      if (!on) {
+        ['position', 'left', 'right', 'top', 'bottom', 'width'].forEach(prop => w.panel.style.removeProperty(prop));
+      }
     });
     // 版本对比只属于具备可切换视觉版本的两个像素作品。
     // 其他作品不显示空的对比入口，也不误调用 Pixel Daylight / Pixel Orbit 的对比路由。
@@ -1152,6 +1172,7 @@ syncSearchUI();
     body.classList.add('viewing');
     card.classList.add('is-open');
     applyBox(card, openBox());                    // ② 直接切到最终状态
+    positionDetailPanel();
     const last = snapshot(card);                  //    量出 Last
 
     window.siteNav?.open('work', () => closeWork());
@@ -1439,6 +1460,7 @@ syncSearchUI();
         current.card.style.left = box.left + 'px';
         if (box.top != null) current.card.style.top = box.top + 'px';
         current.card.style.width = box.width + 'px';
+        positionDetailPanel();
         positionWorkExtras();
         updateWorkSpacer();
       } else {
