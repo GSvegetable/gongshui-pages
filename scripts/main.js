@@ -898,10 +898,12 @@ syncSearchUI();
   /* ---------- 几何：展开后卡片 / 放大作品后卡片应该在哪 ---------- */
   const isMobile = () => window.matchMedia('(max-width: 680px)').matches;
 
+  const detailPanelWidth = () => Math.min(440, Math.max(300, window.innerWidth * 0.36));
+
   const openBox = () => {
     if (isMobile()) return { left: 14, top: 18, width: Math.max(220, window.innerWidth - 28) };
-    const detailWidth = Math.min(440, Math.max(300, window.innerWidth * 0.36));
-    // The artwork and its editorial notes meet edge-to-edge: no dark gutter between them.
+    const detailWidth = detailPanelWidth();
+    // Center the artwork + detail as one composition; the two surfaces meet edge-to-edge.
     const width = Math.min(860, window.innerWidth - 36 - detailWidth);
     const left = Math.round((window.innerWidth - width - detailWidth) / 2);
     return { left, top: 18, width: Math.max(320, width) };
@@ -925,11 +927,14 @@ syncSearchUI();
     } else {
       const box = openBox();
       panel.style.position = 'fixed';
-      panel.style.left = 'auto';
-      panel.style.right = Math.max(18, window.innerWidth - box.left - box.width) + 'px';
+      // Anchor the detail panel to the artwork's RIGHT edge, not to the same edge.
+      // This prevents the panel from covering the artwork and removes the dead space
+      // that the previous right-aligned positioning left beside the composition.
+      panel.style.left = Math.round(box.left + box.width) + 'px';
+      panel.style.right = 'auto';
       panel.style.top = '18px';
       panel.style.bottom = '18px';
-      panel.style.width = '';
+      panel.style.width = Math.round(detailPanelWidth()) + 'px';
     }
   };
 
