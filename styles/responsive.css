@@ -206,6 +206,24 @@ main {
     gap: 9px;
   }
 
+  .cmp-edge--top,
+  .cmp-edge--bottom {
+    height: 20px;
+  }
+
+  .cmp-edge--left,
+  .cmp-edge--right {
+    width: 20px;
+  }
+
+  body.compare-mode .preview-card.is-open .card-info {
+    display: none;
+  }
+
+  .work-detail .compare-control {
+    margin-top: 16px;
+  }
+
   .scene-choice {
     flex-basis: clamp(150px, 42vw, 190px);
   }
