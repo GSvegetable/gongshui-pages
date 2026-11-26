@@ -1,0 +1,238 @@
+/* 宫水.com Responsive System 1.0
+   Layout follows available space, not device labels.
+   Compact: <=760px · Medium: 761–1099px · Expanded: >=1100px
+   Keep this file after the page's existing styles so it acts as the final layout layer. */
+
+:root {
+  --responsive-gutter: clamp(14px, 2.2vw, 36px);
+  --responsive-gap: clamp(14px, 1.8vw, 26px);
+  --responsive-content-max: 1920px;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+main {
+  width: 100%;
+  max-width: var(--responsive-content-max);
+  margin-inline: auto;
+  padding-left: var(--responsive-gutter);
+  padding-right: var(--responsive-gutter);
+}
+
+.grid {
+  min-width: 0;
+  gap: var(--responsive-gap);
+}
+
+.preview-card,
+.preview-mount,
+.detail-content,
+.work-detail,
+.folder-grid,
+.folder-works-grid {
+  min-width: 0;
+}
+
+.work-detail {
+  width: clamp(300px, 36vw, 440px);
+  min-width: 300px;
+  max-width: 440px;
+  padding-left: clamp(18px, 2vw, 28px);
+  padding-right: clamp(18px, 2vw, 28px);
+  padding-bottom: max(28px, env(safe-area-inset-bottom));
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+}
+
+.detail-copy,
+.detail-description,
+.detail-facts,
+.detail-actions,
+.detail-feature,
+.embed-snippet {
+  min-width: 0;
+}
+
+.detail-description,
+.detail-copy,
+.detail-facts strong {
+  overflow-wrap: anywhere;
+}
+
+.scene-picker {
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.folder-grid,
+.folder-works-grid {
+  min-width: 0;
+}
+
+@media (min-width: 1600px) {
+  :root {
+    --responsive-gutter: clamp(36px, 3vw, 56px);
+    --responsive-gap: clamp(24px, 1.8vw, 32px);
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1099px) {
+  .work-detail {
+    width: clamp(300px, 36vw, 396px);
+    min-width: 300px;
+    max-width: 396px;
+    padding-top: clamp(54px, 7vh, 76px);
+  }
+
+  .detail-overview {
+    gap: 18px;
+  }
+
+  .detail-copy h1 {
+    font-size: clamp(25px, 3vw, 34px);
+  }
+
+  .detail-description {
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  #mario-nav {
+    left: 14px;
+    gap: 14px;
+  }
+
+  .mario-block {
+    width: 50px;
+    height: 50px;
+  }
+
+  .mario-block svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  main {
+    padding-top: 88px;
+  }
+}
+
+/* Compact windows use a continuous single-column composition. The dedicated
+   editorial detail layer owns the poster positioning and typography. */
+@media (max-width: 760px) {
+  :root {
+    --responsive-gutter: 14px;
+    --responsive-gap: 14px;
+  }
+
+  main {
+    padding-top: 82px;
+    padding-bottom: max(120px, calc(100px + env(safe-area-inset-bottom)));
+  }
+
+  #mario-nav {
+    left: 14px;
+    gap: 12px;
+  }
+
+  .mario-block {
+    width: 46px;
+    height: 46px;
+  }
+
+  .mario-block svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .scene-picker {
+    gap: 9px;
+  }
+
+  .cmp-edge--top,
+  .cmp-edge--bottom {
+    height: 20px;
+  }
+
+  .cmp-edge--left,
+  .cmp-edge--right {
+    width: 20px;
+  }
+
+  body.compare-mode .preview-card.is-open .card-info {
+    display: none;
+  }
+
+  .work-detail .compare-control {
+    margin-top: 16px;
+  }
+
+  .scene-choice {
+    flex-basis: clamp(150px, 42vw, 190px);
+  }
+
+  .bookmarks-toolbar {
+    padding-left: 0;
+    gap: 9px;
+  }
+
+  .folder-grid {
+    padding-left: 0;
+  }
+
+  .folder-works-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .compass-view-inner {
+    width: min(620px, 100%);
+    padding-left: 0;
+  }
+
+  .back-to-top {
+    bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Compact landscape keeps the same continuous layout with reduced page chrome. */
+@media (max-height: 560px) and (max-width: 760px) {
+  .work-detail {
+    height: min(68vh, 360px);
+    height: min(68dvh, 360px);
+    max-height: calc(100vh - 54px);
+    max-height: calc(100dvh - 54px - env(safe-area-inset-top));
+    padding-top: 12px;
+  }
+
+  main {
+    padding-top: 68px;
+  }
+}
+
+@media (pointer: coarse) {
+  .action-btn,
+  .back-to-top,
+  .bookmarks-back,
+  .folder-new,
+  .top-utility-actions button {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-detail,
+  .preview-card,
+  .scene-choice,
+  .folder-card {
+    scroll-behavior: auto;
+  }
+}

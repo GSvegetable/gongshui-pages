@@ -1,0 +1,61 @@
+name: Responsive layout quality
+
+on:
+  pull_request:
+    paths:
+      - "index.html"
+      - "login.html"
+      - "admin.html"
+      - "privacy.html"
+      - "auth/confirm.html"
+      - "auth/confirm/index.html"
+      - "scripts/main.js"
+      - "styles/**"
+      - "docs/RESPONSIVE-DESIGN.md"
+      - ".github/workflows/responsive-quality.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  responsive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check browser script syntax
+        run: node --check scripts/main.js
+      - name: Verify responsive layout wiring
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const read = (path) => readFileSync(path, 'utf8');
+          const css = read('styles/responsive.css');
+          const js = read('scripts/main.js');
+          const checks = [
+            ['portfolio loads responsive layer', read('index.html').includes('styles/responsive.css')],
+            ['account loads responsive layer', read('login.html').includes('styles/responsive.css')],
+            ['confirmation pages load responsive layer', read('auth/confirm.html').includes('styles/responsive.css') && read('auth/confirm/index.html').includes('styles/responsive.css')],
+            ['compact CSS breakpoint exists', /@media\s*\(max-width:\s*760px\)/.test(css)],
+            ['work viewer JS uses compact breakpoint', /matchMedia\('\(max-width:\s*760px\)'\)/.test(js)],
+            ['gallery sizing uses compact breakpoint', /viewport\s*<=\s*760/.test(js)],
+            ['admin has narrow-screen layout', /@media\s*\(max-width:\s*560px\)/.test(read('styles/admin.css'))],
+            ['all public pages opt into safe-area viewport', ['index.html','login.html','admin.html','privacy.html','auth/confirm.html','auth/confirm/index.html'].every(path => read(path).includes('viewport-fit=cover'))],
+          ];
+          let failed = false;
+          for (const [label, pass] of checks) {
+            console.log(`${pass ? 'PASS' : 'FAIL'} ${label}`);
+            failed ||= !pass;
+          }
+          let depth = 0;
+          for (const char of css) {
+            if (char === '{') depth++;
+            if (char === '}') depth--;
+            if (depth < 0) failed = true;
+          }
+          console.log(`${depth === 0 ? 'PASS' : 'FAIL'} responsive CSS block balance`);
+          failed ||= depth !== 0;
+          if (failed) process.exit(1);
+          NODE

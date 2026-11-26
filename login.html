@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#171717">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://izvdwjqixnhsxskjsolq.supabase.co; frame-src 'none'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
@@ -81,6 +81,27 @@
 .privacy-note summary{cursor:pointer;font-weight:900;color:#51432e}
 .privacy-note p{margin:9px 0 0}
 .privacy-note a{color:#8a6a1c;font-weight:900}
+</style>
+<link rel="stylesheet" href="./styles/responsive.css?v=1.0.0">
+<style>
+/* Compact authentication layout: safe-area aware and resilient to narrow windows. */
+.auth-page {
+  width: min(440px, calc(100% - 28px));
+  padding-top: clamp(22px, 7svh, 68px);
+  padding-bottom: max(32px, env(safe-area-inset-bottom));
+}
+.auth-card { min-width: 0; }
+.auth-head, .auth-form, .auth-social { min-width: 0; }
+.auth-title { overflow-wrap: anywhere; }
+.auth-field input { min-width: 0; }
+@media (max-width: 380px) {
+  .auth-head { gap: 10px; padding: 13px 12px; }
+  .auth-form { padding: 15px 12px 13px; }
+  .auth-social { grid-template-columns: 1fr; padding-inline: 12px; }
+  .auth-code-row { grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+  .auth-resend { padding-inline: 7px; font-size: 9px; }
+  .auth-tabs .auth-tab { padding-inline: 5px; font-size: 10px; }
+}
 </style>
 <script src="./scripts/privacy-cleanup.js?v=1.0.0"></script>
 </head>

@@ -574,3 +574,52 @@ button{cursor:pointer}
     transition-duration:.01ms!important;scroll-behavior:auto!important;
   }
 }
+/* ───────── Responsive refinements: compact windows and safe areas ───────── */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{min-height:100vh;min-height:100svh}
+.sheet{min-width:0}
+.sheet-head,.sheet-tools,.directory,.analytics,.ledger{min-width:0}
+.search{min-width:0}
+.users-table td,.users-table th{overflow-wrap:anywhere}
+.panel{padding-bottom:env(safe-area-inset-bottom)}
+.panel-body{padding-bottom:max(28px,env(safe-area-inset-bottom))}
+@media (max-width:560px){
+  :root{--pad:14px;--gutter:12px}
+  .sheet{width:calc(100% - 16px);margin:8px auto}
+  .topbar{align-items:flex-start;flex-wrap:wrap;padding:10px 12px}
+  .topbar .brand{max-width:100%}
+  .topbar-meta{max-width:100%;flex-wrap:wrap;justify-content:flex-end}
+  .topbar .admin-email{max-width:min(54vw,220px)}
+  .sheet-head{padding-top:18px}
+  .sheet-tools{align-items:center;gap:10px;flex-wrap:wrap}
+  .stamp{max-width:100%;overflow-wrap:anywhere}
+  .ledger{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ledger-item{min-width:0;padding:12px 10px}
+  .ledger-value{font-size:clamp(22px,7vw,30px)}
+  .analytics{grid-template-columns:minmax(0,1fr)}
+  .chart,.chart:first-child,.analytics>.chart:nth-child(2){
+    grid-column:1/-1;padding:14px 0;border-left:0;border-bottom:1px solid var(--hair)
+  }
+  .chart:last-child{border-bottom:0}
+  .directory{margin-top:22px}
+  .directory-title{flex-wrap:wrap}
+  .directory-title h2{font-size:16px}
+  .users-table tbody tr{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 10px}
+  .users-table tbody td:nth-child(2),
+  .users-table tbody td:nth-child(3),
+  .users-table tbody td:nth-child(4){white-space:normal;overflow-wrap:anywhere}
+  .users-table tbody td:nth-child(5){grid-column:1}
+  .users-table tbody td:nth-child(6){grid-column:2}
+  .users-table tbody td:nth-child(7){display:none}
+  .pagination{align-items:flex-start;flex-direction:column}
+  .sheet-foot{align-items:flex-start;flex-direction:column;gap:6px}
+  .panel{width:min(440px,100%);border-left-width:2px}
+  .panel-head{padding:14px 14px 12px}
+  .panel-body{padding:16px 14px max(28px,env(safe-area-inset-bottom))}
+}
+@media (max-width:360px){
+  .topbar .admin-email{max-width:48vw}
+  .ledger-item{padding-inline:8px}
+  .users-table tbody tr{gap:6px 8px}
+  .profile{gap:9px}
+}

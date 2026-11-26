@@ -592,13 +592,13 @@ syncSearchUI();
     const viewport = document.documentElement.clientWidth || window.innerWidth;
     const currentCardMin = parseFloat(getComputedStyle(main).getPropertyValue('--gallery-card-min')) || 300;
     const zoomScale = Math.max(0.5, Math.min(1.87, currentCardMin / 300));
-    const minCardWidth = (viewport <= 600 ? 200 : viewport <= 1024 ? 190 : 280) * zoomScale;
+    const minCardWidth = (viewport <= 760 ? 200 : viewport <= 1099 ? 190 : 280) * zoomScale;
     const measured = Math.max(1, Math.floor((usableWidth + gap) / (minCardWidth + gap)));
 
     // 大屏触控平板（包括 iQOO Pad 2 横屏）统一默认三列，切换后四列。
     if (isLargeTouchDevice()) return 3;
-    if (viewport <= 600) return Math.max(2, measured);
-    if (viewport <= 1024) return Math.max(3, measured);
+    if (viewport <= 760) return Math.max(2, measured);
+    if (viewport <= 1099) return Math.max(3, measured);
     return measured;
   };
 
@@ -814,6 +814,9 @@ syncSearchUI();
     if (workExtras && !workExtras.hidden) {
       contentBottom = Math.max(contentBottom, workExtras.getBoundingClientRect().bottom + window.scrollY);
     }
+    if (isMobile() && current.panel && current.panel.classList.contains('is-active')) {
+      contentBottom = Math.max(contentBottom, current.panel.getBoundingClientRect().bottom + window.scrollY);
+    }
     workSpacer.style.height = Math.max(0, Math.round(contentBottom + 40 - gridBottom)) + 'px';
   };
 
@@ -872,6 +875,7 @@ syncSearchUI();
     if (isMobile() && compareOn) applyMobileWorkBox(mobileCompareBox());
     syncCompareUI();
     positionWorkExtras();
+    positionDetailPanel();
     updateWorkSpacer();
   };
 
@@ -892,13 +896,41 @@ syncSearchUI();
   };
 
   /* ---------- 几何：展开后卡片 / 放大作品后卡片应该在哪 ---------- */
-  const isMobile = () => window.matchMedia('(max-width: 600px)').matches;
+  const isMobile = () => window.matchMedia('(max-width: 760px)').matches;
 
   const openBox = () => {
     if (isMobile()) return { left: 14, top: 18, width: Math.max(220, window.innerWidth - 28) };
-    const detailWidth = Math.min(520, Math.max(300, window.innerWidth * 0.38 - 36));
-    const width = Math.min(860, window.innerWidth - 36 - detailWidth - 24);
-    return { left: 18, top: 18, width: Math.max(320, width) };
+    const detailWidth = Math.min(440, Math.max(300, window.innerWidth * 0.36));
+    // The artwork and its editorial notes meet edge-to-edge: no dark gutter between them.
+    const width = Math.min(860, window.innerWidth - 36 - detailWidth);
+    const left = Math.round((window.innerWidth - width - detailWidth) / 2);
+    return { left, top: 18, width: Math.max(320, width) };
+  };
+
+  const positionDetailPanel = () => {
+    if (!current?.panel) return;
+    const panel = current.panel;
+    if (isMobile()) {
+      const rect = current.card.getBoundingClientRect();
+      let panelTop = rect.bottom + window.scrollY;
+      if (workExtras && !workExtras.hidden && compareView && !compareView.hidden) {
+        panelTop = Math.max(panelTop, workExtras.getBoundingClientRect().bottom + window.scrollY);
+      }
+      panel.style.position = 'absolute';
+      panel.style.left = '14px';
+      panel.style.right = '14px';
+      panel.style.top = Math.round(panelTop) + 'px';
+      panel.style.bottom = 'auto';
+      panel.style.width = 'auto';
+    } else {
+      const box = openBox();
+      panel.style.position = 'fixed';
+      panel.style.left = 'auto';
+      panel.style.right = Math.max(18, window.innerWidth - box.left - box.width) + 'px';
+      panel.style.top = '18px';
+      panel.style.bottom = '18px';
+      panel.style.width = '';
+    }
   };
 
   /* v2.8.5 — 手机上打开「版本对比」时，主视图缩到左半屏，副视图并排右半屏。
@@ -1025,6 +1057,9 @@ syncSearchUI();
       const on = w === work;
       w.panel.classList.toggle('is-active', on);
       w.panel.setAttribute('aria-hidden', String(!on));
+      if (!on) {
+        ['position', 'left', 'right', 'top', 'bottom', 'width'].forEach(prop => w.panel.style.removeProperty(prop));
+      }
     });
     // 版本对比只属于具备可切换视觉版本的两个像素作品。
     // 其他作品不显示空的对比入口，也不误调用 Pixel Daylight / Pixel Orbit 的对比路由。
@@ -1152,6 +1187,7 @@ syncSearchUI();
     body.classList.add('viewing');
     card.classList.add('is-open');
     applyBox(card, openBox());                    // ② 直接切到最终状态
+    positionDetailPanel();
     const last = snapshot(card);                  //    量出 Last
 
     window.siteNav?.open('work', () => closeWork());
@@ -1440,6 +1476,7 @@ syncSearchUI();
         if (box.top != null) current.card.style.top = box.top + 'px';
         current.card.style.width = box.width + 'px';
         positionWorkExtras();
+        positionDetailPanel();
         updateWorkSpacer();
       } else {
         applyBox(current.card, expanded ? expandedBox(current) : openBox());
