@@ -101,7 +101,7 @@
     width:52px;
     height:100dvh;
     min-height:420px;
-    margin:0 0 -100dvh -68px;
+    margin:-26px 0 -100dvh -68px;
   }
 }
 
@@ -115,11 +115,12 @@
   width:58px;
   height:calc(100dvh - 36px);
   min-height:360px;
-  margin:0 0 calc(-1 * (100dvh - 36px)) -78px;
+  margin:calc(-1 * clamp(24px,3vw,38px)) 0 calc(-1 * (100dvh - 36px)) -78px;
   overflow:hidden;
   align-self:flex-start;
   z-index:30;
 }
+.work-detail .db-foot{position:absolute;left:0;right:0;bottom:0;width:100%;padding:0 8px 12px;}
 .work-detail .db-nav{
   position:absolute;
   top:0;
