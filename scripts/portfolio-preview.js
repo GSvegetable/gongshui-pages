@@ -12,7 +12,7 @@
   let pendingGlobeNight = false;
   let hasPendingGlobeNight = false;
   let globeNightRevision = 0;
-  let pendingNavigationIconColor = 'black';
+  const pendingNavigationConfig = { iconColor: 'black', animations: true, clickBehavior: 'rebound', reboundDelay: 360, groupBehavior: 'exclusive' };
 
   const applyGlobeNight = api => {
     const revision = globeNightRevision;
@@ -218,7 +218,7 @@
 
     instances[kind] = detail.api;
     if (kind === 'globe' && hasPendingGlobeNight) applyGlobeNight(detail.api);
-    if (kind === 'navigation' && typeof detail.api.setIconColor === 'function') detail.api.setIconColor(pendingNavigationIconColor);
+    if (kind === 'navigation' && typeof detail.api.configure === 'function') detail.api.configure(pendingNavigationConfig);
     // The wrapper's ready event only means its API object exists. Wait for the
     // embedded document itself; globe and corridor send explicit first-frame signals.
     Promise.resolve(detail.api.ready).then(ok => {
@@ -257,20 +257,32 @@
     }
   });
 
-  document.querySelectorAll('[data-navigation-icon-color]').forEach(button => {
-    button.addEventListener('click', () => {
-      const color = button.getAttribute('data-navigation-icon-color') === 'white' ? 'white' : 'black';
-      pendingNavigationIconColor = color;
-      document.querySelectorAll('[data-navigation-icon-color]').forEach(option => {
-        const selected = option === button;
-        option.setAttribute('aria-pressed', String(selected));
-        option.classList.toggle('is-active', selected);
-      });
-      if (instances.navigation && typeof instances.navigation.setIconColor === 'function') {
-        instances.navigation.setIconColor(color);
-      }
-    });
+  const navigationControls = {
+    iconColor: document.getElementById('navigation-icon-color'),
+    animations: document.getElementById('navigation-animations'),
+    clickBehavior: document.getElementById('navigation-click-behavior'),
+    reboundDelay: document.getElementById('navigation-rebound-delay'),
+    groupBehavior: document.getElementById('navigation-group-behavior'),
+    delayRow: document.getElementById('navigation-delay-row')
+  };
+  const applyNavigationSettings = () => {
+    const controls = navigationControls;
+    if (!controls.iconColor || !controls.animations || !controls.clickBehavior || !controls.reboundDelay || !controls.groupBehavior) return;
+    pendingNavigationConfig.iconColor = controls.iconColor.value === 'white' ? 'white' : 'black';
+    pendingNavigationConfig.animations = controls.animations.checked;
+    pendingNavigationConfig.clickBehavior = ['none','hold','rebound'].includes(controls.clickBehavior.value) ? controls.clickBehavior.value : 'rebound';
+    pendingNavigationConfig.reboundDelay = Math.max(0, Math.min(5000, Number(controls.reboundDelay.value) || 360));
+    pendingNavigationConfig.groupBehavior = ['independent','exclusive','one-required'].includes(controls.groupBehavior.value) ? controls.groupBehavior.value : 'exclusive';
+    if (controls.delayRow) controls.delayRow.hidden = pendingNavigationConfig.clickBehavior !== 'rebound';
+    const api = instances.navigation;
+    if (api && typeof api.configure === 'function') api.configure({ ...pendingNavigationConfig });
+  };
+  Object.values(navigationControls).forEach(control => {
+    if (control && control.addEventListener) {
+      control.addEventListener('change', applyNavigationSettings);
+    }
   });
+  applyNavigationSettings();
 
   // Preserve the website's existing main.js integration point; it now delegates
   // to the independent component API rather than reaching into the artwork iframe.
