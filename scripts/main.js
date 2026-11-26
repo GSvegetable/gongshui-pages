@@ -903,19 +903,30 @@ syncSearchUI();
     const detailWidth = Math.min(440, Math.max(300, window.innerWidth * 0.36));
     // The artwork and its editorial notes meet edge-to-edge: no dark gutter between them.
     const width = Math.min(860, window.innerWidth - 36 - detailWidth);
-    return { left: 18, top: 18, width: Math.max(320, width) };
+    const left = Math.round((window.innerWidth - width - detailWidth) / 2);
+    return { left, top: 18, width: Math.max(320, width) };
   };
 
   const positionDetailPanel = () => {
-    if (!isMobile() || !current?.panel) return;
-    const rect = current.card.getBoundingClientRect();
+    if (!current?.panel) return;
     const panel = current.panel;
-    panel.style.position = 'absolute';
-    panel.style.left = '14px';
-    panel.style.right = '14px';
-    panel.style.top = Math.round(rect.bottom + window.scrollY) + 'px';
-    panel.style.bottom = 'auto';
-    panel.style.width = 'auto';
+    if (isMobile()) {
+      const rect = current.card.getBoundingClientRect();
+      panel.style.position = 'absolute';
+      panel.style.left = '14px';
+      panel.style.right = '14px';
+      panel.style.top = Math.round(rect.bottom + window.scrollY) + 'px';
+      panel.style.bottom = 'auto';
+      panel.style.width = 'auto';
+    } else {
+      const box = openBox();
+      panel.style.position = 'fixed';
+      panel.style.left = 'auto';
+      panel.style.right = Math.max(18, window.innerWidth - box.left - box.width) + 'px';
+      panel.style.top = '18px';
+      panel.style.bottom = '18px';
+      panel.style.width = '';
+    }
   };
 
   /* v2.8.5 — 手机上打开「版本对比」时，主视图缩到左半屏，副视图并排右半屏。
