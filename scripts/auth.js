@@ -234,7 +234,8 @@
     saveAccountToken(payload.user?.id, payload.refresh_token);
     return payload.user;
   };
-  const switchAccount = async userId => {
+  const switchAccount = async userId => withSessionLock(userId, async () => {
+    // Read the latest rotated token only after acquiring the cross-tab lock.
     const refreshToken = readAccountTokens()[userId];
     if (!refreshToken) throw new Error('这台设备没有保存该账号的登录凭据，请先用该账号登录一次');
     try {
@@ -258,7 +259,7 @@
       }
       throw error;
     }
-  };
+  });
 
   /* ---------- 第三方登录：OAuth 2.0 Authorization Code + PKCE ---------- */
   const OAUTH_FLOW_KEY = 'site-auth-oauth-flow';
