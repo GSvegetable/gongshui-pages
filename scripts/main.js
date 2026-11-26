@@ -814,7 +814,7 @@ syncSearchUI();
     if (workExtras && !workExtras.hidden) {
       contentBottom = Math.max(contentBottom, workExtras.getBoundingClientRect().bottom + window.scrollY);
     }
-    if (current.panel && current.panel.classList.contains('is-active')) {
+    if (isMobile() && current.panel && current.panel.classList.contains('is-active')) {
       contentBottom = Math.max(contentBottom, current.panel.getBoundingClientRect().bottom + window.scrollY);
     }
     workSpacer.style.height = Math.max(0, Math.round(contentBottom + 40 - gridBottom)) + 'px';
