@@ -13,7 +13,7 @@
 [![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-2563EB?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-D94841?style=flat-square)](README.ja.md)
-[![Version](https://img.shields.io/badge/version-v2.12.21-7C3AED?style=flat-square)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v2.12.24-7C3AED?style=flat-square)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-0D9488?style=flat-square)](https://xn--3bts89a.com/)
 
 </div>
@@ -99,7 +99,7 @@ gongshui-pages/
 
 网站展示的五个作品，其源码全部归属于 [gongshui-open-source](https://github.com/GSvegetable/gongshui-open-source)。本仓库只负责网站平台本身：UI、导航、账号登录、收藏与文件夹、搜索、设置、作品目录和宿主通信适配器。作品通过独立 GitHub Pages URL 嵌入，不在网站仓库保留第二份核心实现。
 
-收藏长廊通过来源校验的 `postMessage` 接收网站整理后的收藏数据；网站仍然负责账号、收藏持久化与详情导航。收藏导航页此前清空为黑色交接画布，它与作品集中的收藏长廊是两个不同入口。完整架构见[仓库职责与作品代码归属](docs/ARCHITECTURE.md)。
+第三至第五个作品均提供两行式 `embed.js` 加载器和独立 API。收藏长廊通过来源校验的 `postMessage` 接收网站整理后的收藏数据；网站仍然负责账号、收藏持久化与详情导航。收藏导航页此前清空为黑色交接画布，它与作品集中的收藏长廊是两个不同入口。完整架构见[仓库职责与作品代码归属](docs/ARCHITECTURE.md)。
 
 ## 账号与隐私
 
