@@ -65,10 +65,15 @@
     event.stopPropagation();
   }, true);
 
-  // 键盘：左右方向键同样能切换作品的空间状态
-  grid.addEventListener('keydown', event => {
+  // 键盘：左右方向键同样能切换作品的空间状态。
+  // 挂在 document 上——焦点不在作品网格里的时候（点在页边、标题栏），
+  // 挂在 grid 上的监听根本收不到事件。
+  document.addEventListener('keydown', event => {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    if (event.defaultPrevented) return;                                  // 别的控件（如昼夜轨道太阳）已经处理过
     if (event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+    if (document.body.classList.contains('viewing')) return;             // 作品详情打开时让位给详情本身
+    if (event.target.closest('.work-detail')) return;
     event.preventDefault();
     post('end', event.key === 'ArrowLeft' ? -SWIPE_KEY : SWIPE_KEY);
   });
