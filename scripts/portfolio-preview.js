@@ -63,6 +63,27 @@
     }, { rootMargin: '180px' });
     observer.observe(mount);
   };
+  const PREVIEW_ORIGIN = 'https://gsvegetable.github.io';
+  const previewFrames = [...document.querySelectorAll('.preview-card .preview-mount iframe')];
+  window.addEventListener('message', event => {
+    if (event.origin !== PREVIEW_ORIGIN || !event.data) return;
+    const frame = previewFrames.find(item => item.contentWindow === event.source);
+    if (!frame) return;
+    const mount = frame.closest('.preview-mount');
+    if (frame.matches('[data-pds-preview]') && event.data.type === 'pds-preview-ready') {
+      setMountState(mount, 'ready');
+    } else if (frame.matches('[data-composition-frame]') && event.data.type === 'pixel-orbit-ready') {
+      setMountState(mount, 'ready');
+    }
+  });
+
+  const pingPreview = frame => {
+    if (!frame.contentWindow) return;
+    const type = frame.matches('[data-pds-preview]') ? 'pds-ping'
+      : frame.matches('[data-composition-frame]') ? 'pixel-orbit-ping' : '';
+    if (type) frame.contentWindow.postMessage({ type }, PREVIEW_ORIGIN);
+  };
+
   const initArtworkLoading = () => {
     document.querySelectorAll('.preview-card .preview-mount').forEach(mount => {
       const live = mount.querySelector('[data-live-preview]');
@@ -73,7 +94,11 @@
         return; // Live embeds report readiness through gongshui:embed:ready.
       }
       if (frame) {
-        frame.addEventListener('load', () => setMountState(mount, 'ready'), { once: true });
+        frame.addEventListener('load', () => {
+          const label = mount.querySelector('.card-load-label');
+          if (label && mount.classList.contains('is-loading')) label.textContent = '作品文档已载入，正在等待首帧';
+          pingPreview(frame);
+        }, { once: true });
         frame.addEventListener('error', () => setMountState(mount, 'error', '作品画面加载失败'), { once: true });
         watchVisibleMount(mount, () => setMountState(mount, 'error', '作品加载超时，请稍后重试'));
       } else {
@@ -82,6 +107,8 @@
     });
   };
   initArtworkLoading();
+  // Re-ping in case an eager iframe finished before this script installed its listener.
+  previewFrames.forEach(pingPreview);
 
   const readState = () => {
     try {
