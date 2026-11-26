@@ -11,18 +11,20 @@
    if(!target||items.some(x=>x.target===target))return;
    items.push({target,label,eyebrow});
   };
-  panel.querySelectorAll(':scope > .detail-overview').forEach(el=>add(el,'作品概览','OVERVIEW'));
-  panel.querySelectorAll(':scope > .gallery-heading').forEach(el=>{
-   const title=el.querySelector('h2')?.textContent?.trim()||'作品细节';
-   add(el,title,'DISCOVER');
-  });
-  panel.querySelectorAll(':scope > .detail-feature').forEach(el=>{
-   const title=el.querySelector('h2')?.textContent?.trim()||'交互体验';
-   add(el,title,'EXPERIENCE');
-  });
-  panel.querySelectorAll(':scope > .embed-snippet').forEach(el=>{
-   const title=el.querySelector('h2')?.textContent?.trim()||'嵌入方式';
-   add(el,title,'INTEGRATION');
+  // Read direct children in their real document order so the rail never
+  // presents a chapter sequence different from the content below it.
+  [...panel.children].forEach(el=>{
+   if(el.classList.contains('detail-overview'))add(el,'作品概览','OVERVIEW');
+   else if(el.classList.contains('gallery-heading')){
+    const title=el.querySelector('h2')?.textContent?.trim()||'作品细节';
+    add(el,title,'DISCOVER');
+   } else if(el.classList.contains('detail-feature')){
+    const title=el.querySelector('h2')?.textContent?.trim()||'交互体验';
+    add(el,title,'EXPERIENCE');
+   } else if(el.classList.contains('embed-snippet')){
+    const title=el.querySelector('h2')?.textContent?.trim()||'嵌入方式';
+    add(el,title,'INTEGRATION');
+   }
   });
   if(!items.length)add(panel.querySelector('.detail-copy')||panel,'作品概览','OVERVIEW');
   return items;
