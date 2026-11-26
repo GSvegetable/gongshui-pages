@@ -104,3 +104,69 @@
     margin:0 0 -100dvh -68px;
   }
 }
+
+
+/* Final rail geometry: viewport-pinned shell + full-document chapter track. */
+.work-detail .db-rail{
+  position:sticky;
+  top:0;
+  inset:auto;
+  float:left;
+  width:58px;
+  height:calc(100dvh - 36px);
+  min-height:360px;
+  margin:0 0 calc(-1 * (100dvh - 36px)) -78px;
+  overflow:hidden;
+  align-self:flex-start;
+  z-index:30;
+}
+.work-detail .db-nav{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  display:block;
+  flex:none;
+  width:100%;
+  min-height:0;
+  height:100%;
+  padding:0;
+  overflow:visible;
+  will-change:transform;
+}
+.work-detail .db-track,
+.work-detail .db-fill{
+  left:27px;
+  width:3px;
+}
+.work-detail .db-stop{
+  position:absolute;
+  left:0;
+  min-height:58px;
+  height:58px;
+  padding-left:19px;
+}
+.work-detail .db-sun{
+  left:10px;
+  top:0;
+  will-change:top,transform;
+}
+.work-detail.db-ready{padding-left:78px}
+.work-detail.db-ready:has(.db-rail.is-open){padding-left:238px}
+@media(max-width:680px){
+  .work-detail.db-ready{padding-left:68px}
+  .work-detail.db-ready:has(.db-rail.is-open){padding-left:238px}
+  .work-detail .db-rail{
+    position:sticky;
+    top:0;
+    inset:auto;
+    float:left;
+    width:52px;
+    height:100dvh;
+    min-height:360px;
+    margin:0 0 -100dvh -68px;
+  }
+  .work-detail .db-stop{min-height:54px;height:54px;padding-left:16px}
+  .work-detail .db-track,.work-detail .db-fill{left:24px}
+  .work-detail .db-sun{left:7px}
+}
