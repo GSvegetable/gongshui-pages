@@ -532,7 +532,7 @@ body.view-closing .work-detail.is-active {
 @media (max-width:1024px) {
   .top-bar { right: 14px; }
 }
-@media (max-width:760px) {
+@media (max-width:680px) {
   .detail-overview { grid-template-columns:1fr; gap:22px; }
   .detail-facts { max-width:none; }
 }
