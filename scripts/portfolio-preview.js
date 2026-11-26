@@ -10,6 +10,79 @@
   const instances = Object.create(null);
   let pendingGlobeWork = '';
 
+  // Loading UI belongs to each artwork mount, not to the whole page.
+  const loadingTimers = new WeakMap();
+  const getLoader = mount => {
+    let loader = mount.querySelector(':scope > .card-load-state');
+    if (loader) return loader;
+    loader = document.createElement('div');
+    loader.className = 'card-load-state';
+    loader.setAttribute('role', 'status');
+    loader.setAttribute('aria-live', 'polite');
+    loader.innerHTML = '<span class="card-load-pixels" aria-hidden="true"><i></i><i></i><i></i></span><span class="card-load-label">正在载入作品</span>';
+    mount.appendChild(loader);
+    mount.classList.add('is-loading');
+    return loader;
+  };
+  const setMountState = (mount, state, message) => {
+    if (!mount) return;
+    const loader = getLoader(mount);
+    const timer = loadingTimers.get(mount);
+    if (timer) { clearTimeout(timer); loadingTimers.delete(mount); }
+    mount.classList.remove('is-loading', 'is-load-error');
+    if (state === 'ready') {
+      mount.classList.add('is-loaded');
+      loader.classList.remove('is-error');
+      loader.innerHTML = '<span class="card-load-pixels" aria-hidden="true"><i></i><i></i><i></i></span><span class="card-load-label">正在载入作品</span>';
+      const placeholder = mount.querySelector('.portfolio-live-placeholder');
+      if (placeholder) placeholder.hidden = true;
+      loader.classList.add('is-hidden');
+      window.setTimeout(() => loader.remove(), 260);
+      return;
+    }
+    if (state === 'error') {
+      mount.classList.add('is-load-error');
+      loader.classList.add('is-error');
+      loader.innerHTML = '<span class="card-load-error-mark" aria-hidden="true">!</span><span class="card-load-label"></span>';
+      loader.querySelector('.card-load-label').textContent = message || '暂时无法载入，请稍后重试';
+    }
+  };
+  const watchVisibleMount = (mount, onTimeout) => {
+    let started = false;
+    const start = () => {
+      if (started || mount.classList.contains('is-loaded')) return;
+      started = true;
+      loadingTimers.set(mount, window.setTimeout(onTimeout, 15000));
+    };
+    if (!('IntersectionObserver' in window)) { start(); return; }
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        start();
+        observer.disconnect();
+      }
+    }, { rootMargin: '180px' });
+    observer.observe(mount);
+  };
+  const initArtworkLoading = () => {
+    document.querySelectorAll('.preview-card .preview-mount').forEach(mount => {
+      const live = mount.querySelector('[data-live-preview]');
+      const frame = mount.querySelector('iframe');
+      getLoader(mount);
+      if (live) {
+        watchVisibleMount(mount, () => setMountState(mount, 'error', '作品初始化超时，请刷新页面重试'));
+        return; // Live embeds report readiness through gongshui:embed:ready.
+      }
+      if (frame) {
+        frame.addEventListener('load', () => setMountState(mount, 'ready'), { once: true });
+        frame.addEventListener('error', () => setMountState(mount, 'error', '作品画面加载失败'), { once: true });
+        watchVisibleMount(mount, () => setMountState(mount, 'error', '作品加载超时，请稍后重试'));
+      } else {
+        setMountState(mount, 'ready');
+      }
+    });
+  };
+  initArtworkLoading();
+
   const readState = () => {
     try {
       return {
@@ -81,6 +154,7 @@
     if (mount !== detail.element) return;
 
     instances[kind] = detail.api;
+    setMountState(mount, 'ready');
     if (kind === 'globe') {
       detail.api.onOpenWork(message => openWorkCard(message.workId));
       if (pendingGlobeWork) detail.api.selectWork(pendingGlobeWork);
