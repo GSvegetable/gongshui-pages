@@ -10,6 +10,7 @@ on:
       - "auth/confirm.html"
       - "auth/confirm/index.html"
       - "scripts/main.js"
+      - "scripts/daybreak-rail.js"
       - "styles/**"
       - "docs/RESPONSIVE-DESIGN.md"
       - ".github/workflows/responsive-quality.yml"
@@ -38,9 +39,9 @@ jobs:
             ['portfolio loads responsive layer', read('index.html').includes('styles/responsive.css')],
             ['account loads responsive layer', read('login.html').includes('styles/responsive.css')],
             ['confirmation pages load responsive layer', read('auth/confirm.html').includes('styles/responsive.css') && read('auth/confirm/index.html').includes('styles/responsive.css')],
-            ['compact CSS breakpoint exists', /@media\s*\(max-width:\s*760px\)/.test(css)],
-            ['work viewer JS uses compact breakpoint', /matchMedia\('\(max-width:\s*760px\)'\)/.test(js)],
-            ['gallery sizing uses compact breakpoint', /viewport\s*<=\s*760/.test(js)],
+            ['compact CSS breakpoint exists', /@media\s*\(max-width:\s*680px\)/.test(css)],
+            ['work viewer JS uses compact breakpoint', /matchMedia\('\(max-width:\s*680px\)'\)/.test(js)],
+            ['gallery sizing uses compact breakpoint', /viewport\s*<=\s*680/.test(js)],
             ['admin has narrow-screen layout', /@media\s*\(max-width:\s*560px\)/.test(read('styles/admin.css'))],
             ['all public pages opt into safe-area viewport', ['index.html','login.html','admin.html','privacy.html','auth/confirm.html','auth/confirm/index.html'].every(path => read(path).includes('viewport-fit=cover'))],
           ];
