@@ -169,6 +169,22 @@
     if (api && typeof api.setItems === 'function') api.setItems(collectBookmarkItems());
   };
 
+  const liveReadySignals = {
+    globe: 'gongshui:contributors-globe:ready',
+    corridor: 'gongshui:bookmark-hall:ready'
+  };
+  window.addEventListener('message', event => {
+    if (event.origin !== 'https://gsvegetable.github.io' || !event.data) return;
+    for (const kind of Object.keys(liveReadySignals)) {
+      const api = instances[kind];
+      if (!api || !api.iframe || api.iframe.contentWindow !== event.source) continue;
+      if (event.data.type !== liveReadySignals[kind]) return;
+      const mount = document.querySelector('[data-live-preview="' + kind + '"]');
+      setMountState(mount, 'ready');
+      return;
+    }
+  });
+
   const registerEmbed = detail => {
     if (!detail || !detail.api || !detail.element || !detail.iframe) return;
     const kind = ({
@@ -181,7 +197,22 @@
     if (mount !== detail.element) return;
 
     instances[kind] = detail.api;
-    setMountState(mount, 'ready');
+    // The wrapper's ready event only means its API object exists. Wait for the
+    // embedded document itself; globe and corridor send explicit first-frame signals.
+    Promise.resolve(detail.api.ready).then(ok => {
+      if (!ok) {
+        setMountState(mount, 'error', '作品内部页面加载失败');
+        return;
+      }
+      if (kind === 'navigation') {
+        requestAnimationFrame(() => requestAnimationFrame(() => setMountState(mount, 'ready')));
+      } else {
+        try {
+          const origin = new URL(detail.iframe.src).origin;
+          detail.iframe.contentWindow.postMessage({ type: 'gongshui:embed:ping' }, origin);
+        } catch (_) {}
+      }
+    }).catch(() => setMountState(mount, 'error', '作品内部页面加载失败'));
     if (kind === 'globe') {
       detail.api.onOpenWork(message => openWorkCard(message.workId));
       if (pendingGlobeWork) detail.api.selectWork(pendingGlobeWork);
