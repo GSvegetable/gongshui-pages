@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-src 'none'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
   <meta name="theme-color" content="#111214">
@@ -33,7 +33,7 @@
     .callout{margin:18px 0;padding:16px 18px;border:1px solid #5b4a2b;border-radius:8px;background:#1c1a16;color:#d6d0c2}
     .callout p{margin:0}
     footer{display:flex;gap:20px;flex-wrap:wrap;margin-top:38px;padding-top:22px;border-top:1px solid var(--line);font-size:13px}
-    @media(max-width:560px){main{padding-top:30px}.toc{gap:7px}.toc a{font-size:11px}}
+    @media(max-width:560px){main{width:calc(100% - 28px);padding-top:28px}.toc{gap:7px}.toc a{font-size:11px}}\n    main{padding-bottom:max(64px,env(safe-area-inset-bottom))}
   </style>
   <script src="./scripts/privacy-cleanup.js?v=1.0.0"></script>
 </head>
