@@ -133,8 +133,12 @@ main {
     --responsive-gap: 14px;
   }
 
+  /* v2.14.0 — 修复顶栏压住卡片：移动端搜索栏(16+46px)下方还有一排
+     固定工具按钮(top:72px + 38px 高，底缘到 110px)。内容区必须从
+     126px 起步，给卡片留出 16px 呼吸空间，否则第一行卡片右上角
+     会被工具按钮盖住。 */
   main {
-    padding-top: 82px;
+    padding-top: 126px;
     padding-bottom: max(120px, calc(100px + env(safe-area-inset-bottom)));
   }
 
@@ -212,8 +216,9 @@ main {
     padding-top: 12px;
   }
 
+  /* v2.14.0 — 横屏矮窗同样要让开顶栏工具行（72+38px），不再压卡。 */
   main {
-    padding-top: 68px;
+    padding-top: 126px;
   }
 }
 

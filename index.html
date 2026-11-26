@@ -8,13 +8,13 @@
   <meta name="theme-color" content="#171717" />
   <title>宫水.com | UI标本 Specimen</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="./styles/style.css?v=2.13.2" />
+  <link rel="stylesheet" href="./styles/style.css?v=2.14.0" />
   <link rel="stylesheet" href="./styles/card-loading.css?v=1.0.0" />
   <link rel="stylesheet" href="./styles/orbit-art.css?v=1.2.2" />
 
 
   <link rel="stylesheet" href="./styles/portfolio-works.css?v=2.0.5" />
-  <link rel="stylesheet" href="./styles/responsive.css?v=1.0.2" />
+  <link rel="stylesheet" href="./styles/responsive.css?v=1.1.0" />
   <link rel="stylesheet" href="./styles/detail-editorial.css?v=1.2.0" />
   <link rel="stylesheet" href="./styles/daybreak-rail.css?v=2.3.0" />
 <script src="./scripts/privacy-cleanup.js?v=1.0.0"></script>
@@ -29,7 +29,7 @@
     <button class="settings-toggle" id="settings-toggle" type="button" aria-label="设置" aria-expanded="false" aria-controls="settings-panel" title="设置">
       <svg class="settings-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.8 9h16.4M3.8 15h16.4M12 3.5c2.2 2.3 3.3 5.1 3.3 8.5s-1.1 6.2-3.3 8.5c-2.2-2.3-3.3-5.1-3.3-8.5S9.8 5.8 12 3.5Z"/><path d="m16.8 5.4 2.1-1.1M18.9 4.3l-.1 2.2"/></svg>
     </button>
-    <a class="account-entry" id="account-entry" href="./login.html" aria-label="Sign in">Sign in</a>
+    <a class="account-entry" id="account-entry" href="./login.html" aria-label="登录 / 注册">登录 / 注册</a>
     <div class="settings-panel" id="settings-panel" hidden>
       <div class="settings-row"><span>语言 / Language</span><button class="language-toggle" id="language-toggle" type="button" aria-label="切换语言" title="切换语言">EN</button></div>
     </div>
@@ -50,6 +50,12 @@
   </header>
 
   <main>
+    <header class="site-hero" aria-label="站点介绍">
+      <p class="hero-kicker">PIXEL WORKS ARCHIVE · 像素交互陈列</p>
+      <h1 class="hero-title">宫水.com</h1>
+      <p class="hero-sub">把像素交互装进浏览器的小展馆 —— 每一件作品都能点、能拖、能玩。</p>
+      <div class="hero-rule" aria-hidden="true"></div>
+    </header>
     <div id="compass-view" class="compass-view" aria-hidden="true"></div>
     <div id="bookmarks-view" hidden aria-label="收藏长廊"></div>
     <div class="grid" id="works">
@@ -58,7 +64,7 @@
         <div class="preview-mount">
           <iframe data-pds-preview src="https://gsvegetable.github.io/gongshui-open-source/pixel-daylight-switch/preview.html" title="Pixel Daylight Switch 像素昼夜开关作品展示" loading="lazy" referrerpolicy="no-referrer" allow="fullscreen"></iframe>
         </div>
-        <div class="card-info"><span class="card-title">像素昼夜开关</span></div>
+        <div class="card-info"><div class="card-copy"><span class="card-title">像素昼夜开关</span><span class="card-sub">Pixel Daylight Switch</span></div></div>
       </article>
       
       <!-- 作品 2 -->
@@ -67,22 +73,22 @@
           <iframe data-composition-frame src="https://gsvegetable.github.io/gongshui-open-source/showcase.html?v=1.3.9&scene=planet&composition=art" title="Pixel Orbit 像素圆环作品展示" loading="lazy" referrerpolicy="no-referrer" allow="fullscreen"></iframe>
         </div>
         <div class="card-info orbit-card-info">
-          <div class="orbit-card-heading"><span class="card-title">像素圆环</span></div>
+          <div class="orbit-card-heading"><div class="card-copy"><span class="card-title">像素圆环</span><span class="card-sub">Pixel Orbit</span></div></div>
         </div>
       </article>
       
 
       <article class="preview-card portfolio-card" id="contributors-globe-card" data-id="contributors-globe" data-tags="地球 投稿者 交互 数据可视化" data-en="Contributors Globe" data-detail="globe-work-panel" tabindex="0" aria-label="打开投稿者地球作品详情">
         <div class="preview-mount portfolio-live-mount"><div class="portfolio-live-placeholder"><span class="portfolio-live-mark">GLOBE / LIVE</span><span>真实投稿者地球 · 可旋转探索</span></div><div data-live-preview="globe" data-contributors-globe-embed data-embed-fill></div><script src="https://gsvegetable.github.io/gongshui-open-source/contributors-globe/embed.js?v=1.3.2" data-flag="0" data-search="0" data-controls="0" data-contributors-src="https://xn--3bts89a.com/assets/data/contributors-globe.json"></script></div>
-        <div class="card-info"><span class="card-title">投稿者地球</span></div>
+        <div class="card-info"><div class="card-copy"><span class="card-title">投稿者地球</span><span class="card-sub">Contributors Globe</span></div></div>
       </article>
       <article class="preview-card portfolio-card" id="bookmarks-corridor-card" data-id="bookmarks-corridor" data-tags="收藏 长廊 空间 像素 3D" data-en="The Bookmark Hall" data-detail="corridor-work-panel" tabindex="0" aria-label="打开收藏长廊作品详情">
         <div class="preview-mount portfolio-live-mount"><div data-live-preview="corridor" data-bookmark-hall-embed data-embed-fill></div><script src="https://gsvegetable.github.io/gongshui-open-source/bookmark-hall/embed.js?v=1.1.2" data-controls="0"></script></div>
-        <div class="card-info"><span class="card-title">收藏长廊</span></div>
+        <div class="card-info"><div class="card-copy"><span class="card-title">收藏长廊</span><span class="card-sub">The Bookmark Hall</span></div></div>
       </article>
       <article class="preview-card portfolio-card" id="navigation-system-card" data-id="navigation-system" data-tags="导航 图标 按钮 交互 系统" data-en="Navigation Interaction System" data-detail="navigation-work-panel" tabindex="0" aria-label="打开导航交互系统作品详情">
         <div class="preview-mount portfolio-live-mount"><div data-live-preview="navigation" data-navigation-interaction-embed data-embed-fill></div><script src="https://gsvegetable.github.io/gongshui-open-source/navigation-interaction/embed.js?v=1.4.2"></script></div>
-        <div class="card-info"><span class="card-title">导航交互系统</span></div>
+        <div class="card-info"><div class="card-copy"><span class="card-title">导航交互系统</span><span class="card-sub">Navigation Interaction System</span></div></div>
       </article>
 
       <!-- 以后加新作品：整块复制上面的 <article class="preview-card">，改 id / data-id / 标题 / 内容；
@@ -285,7 +291,7 @@
     </button>
   </div>
   <!-- v2.13.3: reliable globe theme control and touch-feedback cleanup -->
-  <div class="site-version" aria-label="网站版本">v2.13.5</div>
+  <div class="site-version" aria-label="网站版本">v2.14.0</div>
 
   <script src="./scripts/main.js?v=2.13.7"></script>
   <script src="./scripts/daybreak-rail.js?v=2.3.0"></script>
@@ -297,10 +303,10 @@
   <!-- 账号：配置 → 客户端 → 顶栏入口 → 数据同步，顺序不能换（sync 依赖 auth） -->
   <script src="./scripts/auth-config.js?v=1.0.1"></script>
   <script src="./scripts/auth.js?v=1.2.6"></script>
-  <script src="./scripts/account.js?v=1.5.2"></script>
+  <script src="./scripts/account.js?v=1.6.0"></script>
   <script src="./scripts/sync.js?v=1.1.0"></script>
   <script src="./scripts/risk.js?v=1.0.3"></script>
-  <script src="./scripts/home-page.js?v=1.0.3"></script>
+  <script src="./scripts/home-page.js?v=1.1.0"></script>
 
 
   <script src="./scripts/portfolio-preview.js?v=2.4.5"></script>

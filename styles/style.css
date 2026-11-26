@@ -52,7 +52,7 @@ body.view-closing #mario-nav { transition: none; }
 .mario-block {
   --face:#efa02c; --side:#a85f10; --ink:#1b2146;
   position:relative; display:grid; place-items:center; width:58px; height:58px; padding:0;
-  border:3px solid #34220e; border-radius:5px; color:var(--ink);
+  border:3px solid #34220e; border-radius:4px; color:var(--ink);
   cursor:pointer; background:var(--face);
   box-shadow:0 5px 0 var(--side),0 7px 0 #34220e;
   image-rendering:pixelated;
@@ -79,7 +79,7 @@ body.compass-mode .top-bar { opacity:0; visibility:hidden; pointer-events:none; 
 .compass-view-inner { width:min(620px,100%); padding-left:24px; }
 .compass-view-block {
   display:grid;place-items:center;width:74px;height:74px;margin:0 0 28px;
-  border:3px solid #34220e;border-radius:5px;background:#ffd400;color:#1b2146;
+  border:3px solid #34220e;border-radius:4px;background:#ffd400;color:#1b2146;
   box-shadow:0 5px 0 #b58f00,0 7px 0 #34220e;
 }
 .compass-view-block svg { width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round; }
@@ -123,7 +123,7 @@ body.view-closing .top-bar { transition: none; }
   color: #211d15;
   background: #f5ecd9;
   border: 2px solid #080808;
-  border-radius: 7px;
+  border-radius: 4px;
   box-shadow: 4px 4px 0 #080808;
   cursor: text;
   /* 收起时向左缩回，滑到左侧导航那一列：112px(搜索栏左缘) - 28px(导航左缘) */
@@ -167,7 +167,7 @@ body.view-closing .top-bar { transition: none; }
   height: 28px;
   padding: 0;
   border: 0;
-  border-radius: 5px;
+  border-radius: 4px;
   color: #5c4b32;
   background: transparent;
   cursor: pointer;
@@ -193,7 +193,7 @@ html.search-collapsed .search-wrapper {
   justify-content: center;
   transform: translateX(var(--collapse-shift));
   border: 3px solid #34220e;
-  border-radius: 5px;
+  border-radius: 4px;
   background: #ffd400;
   box-shadow: 0 5px 0 #b58f00, 0 7px 0 #34220e;
 }
@@ -225,7 +225,7 @@ main { min-height: calc(100vh + 420px); padding: 94px 24px 180px; }
 .preview-card {
   position: relative; align-self: start; width: 100%;
   background: #f5ecd9; color: #1a1712;
-  border: 2px solid #080808; border-radius: 3px; padding: 5px;
+  border: 2px solid #080808; border-radius: 4px; padding: 5px;
   cursor: zoom-in;
   box-shadow: 8px 8px 0 rgba(0,0,0,.68), 0 18px 42px rgba(0,0,0,.18);
   transition: box-shadow var(--dur) var(--ease);
@@ -316,7 +316,7 @@ main { min-height: calc(100vh + 420px); padding: 94px 24px 180px; }
 .detail-tags { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px; }
 .detail-tags .work-tag {
   display:inline-flex; align-items:center; gap:5px;
-  padding:5px 10px 6px; border:2px solid #211d15; border-radius:3px;
+  padding:5px 10px 6px; border:2px solid #211d15; border-radius:4px;
   background:#f4d78e; color:#3a2c12;
   box-shadow:2px 3px 0 #211d15;
   font:900 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -449,7 +449,7 @@ body.view-closing .work-detail.is-active {
 /* 颜色取左侧「指南针」方块的马里奥金 */
 .creator-link{
   display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:11px 15px;
-  border:2px solid #211d15;border-radius:8px;background:#ffd400;color:#1b160e;text-decoration:none;
+  border:2px solid #211d15;border-radius:4px;background:#ffd400;color:#1b160e;text-decoration:none;
   font-size:13px;font-weight:900;box-shadow:0 3px 0 #211d15;
   transition:transform .15s,box-shadow .15s,background .15s;
 }
@@ -474,9 +474,9 @@ body.view-closing .work-detail.is-active {
 .embed-note:last-child{margin:12px 0 0}
 .detail-actions .creator-link,.detail-actions .project-link{min-height:44px}
 .detail-actions .creator-link{margin:0}
-.code-block{display:flex;flex-direction:column;border:2px solid #211d15;border-radius:6px;background:#efe6d2;overflow:hidden}
+.code-block{display:flex;flex-direction:column;border:2px solid #211d15;border-radius:4px;background:#efe6d2;overflow:hidden}
 .code-block pre{margin:0;padding:13px 14px;overflow-x:auto;color:#2a2418;font:12px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace}
-.code-copy{align-self:flex-end;margin:0 10px 10px;padding:6px 11px;border:2px solid #211d15;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.3px;cursor:pointer;box-shadow:2px 2px 0 #211d15;transition:transform .1s,box-shadow .1s,background .15s}
+.code-copy{align-self:flex-end;margin:0 10px 10px;padding:6px 11px;border:2px solid #211d15;border-radius:4px;background:#f4bd3c;color:#211d15;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.3px;cursor:pointer;box-shadow:2px 2px 0 #211d15;transition:transform .1s,box-shadow .1s,background .15s}
 .code-copy:hover{background:#ffd36a}
 .code-copy:active{transform:translate(2px,2px);box-shadow:none}
 .code-copy.is-done{background:#5c7a54;color:#f7f1e5}
@@ -542,7 +542,7 @@ body.view-closing .work-detail.is-active {
   .mario-block svg { width:22px; height:22px; }
 
   .top-bar { top: 16px; left: 14px; right: 14px; width: auto; }
-  .search-wrapper { height: 46px; padding: 0 11px 0 13px; gap: 9px; border-radius: 6px; --collapse-shift: -64px; }
+  .search-wrapper { height: 46px; padding: 0 11px 0 13px; gap: 9px; border-radius: 4px; --collapse-shift: -64px; }
   html.search-collapsed .search-wrapper { width: 50px; max-width: 50px; height: 50px; }
   html.search-collapsed .search-icon { width: 22px; height: 22px; }
   .search-status { font-size: 10px; }
@@ -599,7 +599,7 @@ body.view-closing .work-detail.is-active {
 /* ---------- Unified project detail actions and section headings ---------- */
 .project-link {
   min-height:46px;
-  border-radius:8px;
+  border-radius:4px;
   box-shadow:0 3px 0 #211d15;
 }
 .project-link:hover { transform:translateY(1px); box-shadow:0 2px 0 #211d15; }
@@ -627,14 +627,14 @@ body.view-closing .work-detail.is-active {
 html.top-utility-hidden .top-utility-actions{transform:translateY(calc(-100% - 34px));opacity:0;pointer-events:none}
 .top-utility-actions .contributors-toggle{
   position:static;display:grid;place-items:center;gap:0;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;
-  border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;
+  border:3px solid #080808;border-radius:4px;background:#f4bd3c;color:#211d15;
   box-shadow:3px 4px 0 #000;cursor:pointer;text-decoration:none;
   transition:transform .1s,box-shadow .1s,background .15s;
 }
 .top-utility-actions .contributors-toggle:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #000;background:#ffd36a}
 .top-utility-actions .contributors-toggle:active{transform:translate(3px,4px);box-shadow:none}
 .top-utility-actions .contributors-toggle svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.top-utility-actions .language-toggle{position:static;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 12px;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.25px;text-decoration:none;white-space:nowrap;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
+.top-utility-actions .language-toggle{position:static;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 12px;border:3px solid #080808;border-radius:4px;background:#f4bd3c;color:#211d15;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.25px;text-decoration:none;white-space:nowrap;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
 .top-utility-actions .language-toggle:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #000;background:#ffd36a}
 .top-utility-actions .language-toggle:active{transform:translate(3px,4px);box-shadow:none}
 .top-utility-actions :focus-visible{outline:2px solid #f5ecd9;outline-offset:4px}
@@ -657,12 +657,12 @@ html.top-utility-hidden .top-utility-actions{transform:translateY(calc(-100% - 3
 .contributor-list + .lab-links::before,.contributor-list + .lab-links::after{content:none!important;display:none!important}
 
 /* Settings menu */
-.top-utility-actions .settings-toggle{position:static;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
+.top-utility-actions .settings-toggle{position:static;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:3px solid #080808;border-radius:4px;background:#f4bd3c;color:#211d15;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
 .top-utility-actions .settings-toggle:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #000;background:#ffd36a}
 .top-utility-actions .settings-toggle:active{transform:translate(3px,4px);box-shadow:none}
 .top-utility-actions .settings-toggle .settings-icon{display:block;width:24px;height:24px;flex:none;overflow:visible;transform:none;vertical-align:middle}
 
-.top-utility-actions .layout-toggle{position:static;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
+.top-utility-actions .layout-toggle{position:static;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:3px solid #080808;border-radius:4px;background:#f4bd3c;color:#211d15;box-shadow:3px 4px 0 #000;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s}
 .top-utility-actions .layout-toggle:hover{transform:translate(1px,2px);box-shadow:2px 2px 0 #000;background:#ffd36a}
 .top-utility-actions .layout-toggle:active{transform:translate(3px,4px);box-shadow:none}
 .top-utility-actions .layout-toggle.is-tapping{animation:layout-button-tap 180ms ease-out}
@@ -673,7 +673,7 @@ html.top-utility-hidden .top-utility-actions{transform:translateY(calc(-100% - 3
 .top-utility-actions .layout-toggle svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @media(prefers-reduced-motion:reduce){.top-utility-actions .layout-toggle.is-tapping{animation:none}}
 
-.settings-panel{position:absolute;top:calc(100% + 12px);right:0;width:230px;padding:12px 14px 12px;background:#f4ecd9;color:#211d15;border:3px solid #080808;border-radius:3px;box-shadow:5px 6px 0 #000;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.settings-panel{position:absolute;top:calc(100% + 12px);right:0;width:230px;padding:12px 14px 12px;background:#f4ecd9;color:#211d15;border:3px solid #080808;border-radius:4px;box-shadow:5px 6px 0 #000;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 .settings-panel[hidden]{display:none}
 /* 面板开合用站点一贯的干脆时序，和马里奥方块的 0.1s 反馈一致 */
 @keyframes settings-panel-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
@@ -712,7 +712,7 @@ body.view-closing .top-utility-actions{
 .top-utility-actions .settings-toggle{
   width:44px;height:44px;min-width:44px;min-height:44px;padding:0;
   display:grid;place-items:center;gap:0;
-  border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;
+  border:3px solid #080808;border-radius:4px;background:#f4bd3c;color:#211d15;
   box-shadow:3px 4px 0 #000;cursor:pointer;
 }
 .top-utility-actions .settings-toggle svg{
@@ -814,7 +814,7 @@ body.is-bookmarks main { padding-top: 78px; }
 }
 .folder-card {
   position: relative; padding: 14px 12px; text-align: left;
-  border: 3px solid #080808; border-radius: 5px; background: #f5ecd9; color: #1a1712;
+  border: 3px solid #080808; border-radius: 4px; background: #f5ecd9; color: #1a1712;
   box-shadow: 4px 4px 0 rgba(0,0,0,.5);
   cursor: pointer; transition: transform .12s ease, box-shadow .12s ease;
 }
@@ -822,7 +822,7 @@ body.is-bookmarks main { padding-top: 78px; }
 .folder-card:focus-visible { outline: 3px solid #f4bd3c; outline-offset: 4px; }
 .folder-thumbs { display: flex; gap: 6px; min-height: 40px; margin-bottom: 10px; }
 .folder-thumb {
-  width: 60px; height: 40px; border: 2px solid #080808; border-radius: 3px;
+  width: 60px; height: 40px; border: 2px solid #080808; border-radius: 4px;
   background: #211d15; flex: 0 0 auto;
 }
 .folder-thumb[data-work="pixel-daylight-switch"] {
@@ -844,7 +844,7 @@ body.is-bookmarks main { padding-top: 78px; }
 .folder-actions { display: none; } /* 去掉重命名/删除按钮 */
 .folder-name-input {
   width: 100%; height: 32px; padding: 0 8px;
-  border: 2px solid #080808; border-radius: 3px; background: #fffdf7; color: #1a1712;
+  border: 2px solid #080808; border-radius: 4px; background: #fffdf7; color: #1a1712;
   font: 900 14px/1 ui-monospace, SFMono-Regular, Menlo, monospace; outline: none;
 }
 .folder-hint { padding: 60px 20px; margin: 0; text-align: center; color: #8b7d67; font-size: 13px; font-weight: 700; }
@@ -911,7 +911,7 @@ body.is-bookmarks .bookmark-desc { display: none; }
 body.is-bookmarks.folder-open .bookmark-remove {
   display: grid; place-items: center; position: absolute; top: 16px; right: 16px; z-index: 3;
   width: 26px; height: 26px; padding: 0; cursor: pointer;
-  border: 2px solid #080808; border-radius: 3px; background: #f5ecd9; color: #211d15;
+  border: 2px solid #080808; border-radius: 4px; background: #f5ecd9; color: #211d15;
   font: 900 13px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
   box-shadow: 2px 2px 0 #000; transition: transform .1s, box-shadow .1s, background .15s;
 }
@@ -921,7 +921,7 @@ body.is-bookmarks.folder-open .bookmark-remove:active { transform: translate(2px
 /* 「收藏到文件夹」弹层 */
 .folder-picker {
   position: fixed; z-index: 130; width: 264px; padding: 14px;
-  border: 3px solid #080808; border-radius: 5px; background: #f5ecd9; color: #1a1712;
+  border: 3px solid #080808; border-radius: 4px; background: #f5ecd9; color: #1a1712;
   box-shadow: 6px 7px 0 rgba(0,0,0,.72);
 }
 .folder-picker[hidden] { display: none; }
@@ -932,7 +932,7 @@ body.is-bookmarks.folder-open .bookmark-remove:active { transform: translate(2px
 }
 .fp-close {
   display: grid; place-items: center; width: 22px; height: 22px; padding: 0;
-  border: 2px solid #080808; border-radius: 3px; background: #f5ecd9; cursor: pointer;
+  border: 2px solid #080808; border-radius: 4px; background: #f5ecd9; cursor: pointer;
   font: 900 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: #211d15;
 }
 .fp-close:hover { background: #f4bd3c; }
@@ -940,7 +940,7 @@ body.is-bookmarks.folder-open .bookmark-remove:active { transform: translate(2px
 .fp-empty { margin: 2px 0 4px; color: #8a7a5c; font: 700 11px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; }
 .fp-row {
   display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 9px;
-  border: 2px solid transparent; border-radius: 3px; background: #efe6d2; color: #211d15;
+  border: 2px solid transparent; border-radius: 4px; background: #efe6d2; color: #211d15;
   font: 800 12px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; text-align: left; cursor: pointer;
 }
 .fp-row:hover { background: #f7eeda; }
@@ -957,13 +957,13 @@ body.is-bookmarks.folder-open .bookmark-remove:active { transform: translate(2px
 .fp-new { display: flex; gap: 6px; margin-top: 10px; }
 .fp-new input {
   flex: 1 1 auto; min-width: 0; height: 32px; padding: 0 8px;
-  border: 2px solid #211d15; border-radius: 3px; background: #fffdf7; color: #1a1712;
+  border: 2px solid #211d15; border-radius: 4px; background: #fffdf7; color: #1a1712;
   font: 700 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; outline: none;
 }
 .fp-new input:focus { border-color: #f4bd3c; box-shadow: 0 0 0 3px rgba(244,189,60,.25); }
 .fp-new button {
   width: 34px; height: 32px; padding: 0; cursor: pointer;
-  border: 2px solid #080808; border-radius: 3px; background: #f4bd3c; color: #211d15;
+  border: 2px solid #080808; border-radius: 4px; background: #f4bd3c; color: #211d15;
   font: 900 15px/1 ui-monospace, SFMono-Regular, Menlo, monospace; box-shadow: 2px 2px 0 #000;
 }
 
@@ -987,7 +987,7 @@ body.is-bookmarks.folder-open .bookmark-remove:active { transform: translate(2px
 .top-utility-actions .settings-panel .language-toggle {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 56px; height: 32px; min-height: 32px; padding: 0 11px;
-  border: 2px solid #080808; border-radius: 3px;
+  border: 2px solid #080808; border-radius: 4px;
   font: 900 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
   box-shadow: 2px 3px 0 #000;
 }
@@ -1088,7 +1088,7 @@ body.artwork-only .cmp-ring, body.view-closing .cmp-ring { display:none !importa
 .back-to-top{
   position:fixed;right:28px;bottom:24px;z-index:121;
   display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;
-  border:3px solid #080808;border-radius:3px;background:#ffd400;color:#1b2146;
+  border:3px solid #080808;border-radius:4px;background:#ffd400;color:#1b2146;
   box-shadow:3px 4px 0 #000;cursor:pointer;
   opacity:0;visibility:hidden;pointer-events:none;
   transform:translateY(calc(100% + 34px));
@@ -1117,7 +1117,7 @@ body.is-bookmarks .bookmarks-toolbar .folder-new {
 .folder-delete {
   position:absolute; top:9px; right:9px; z-index:2;
   display:grid; place-items:center; width:27px; height:27px; padding:0;
-  border:2px solid #080808; border-radius:3px; background:#efe6d2; color:#211d15;
+  border:2px solid #080808; border-radius:4px; background:#efe6d2; color:#211d15;
   box-shadow:2px 2px 0 #000; cursor:pointer;
   font:900 18px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
   transition:background .12s, color .12s, transform .1s, box-shadow .1s;
@@ -1139,12 +1139,12 @@ body.is-bookmarks .bookmarks-toolbar .folder-new {
 .account-modal-head { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 18px; border-bottom:3px solid #080808; background:#efe6d2; }
 .account-modal-kicker { margin:0 0 5px; color:#a2701a; font:900 9px/1 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:1.8px; }
 .account-modal-head h2 { margin:0; font-size:19px; font-weight:900; }
-.account-modal-close { width:30px; height:30px; border:2px solid #080808; border-radius:3px; background:#f4bd3c; color:#211d15; font:900 20px/1 ui-monospace,monospace; cursor:pointer; box-shadow:2px 3px 0 #000; }
+.account-modal-close { width:30px; height:30px; border:2px solid #080808; border-radius:4px; background:#f4bd3c; color:#211d15; font:900 20px/1 ui-monospace,monospace; cursor:pointer; box-shadow:2px 3px 0 #000; }
 .account-modal-body { padding:20px 18px 18px; }
 .account-modal-label { display:block; margin-bottom:7px; color:#8b7d67; font:800 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:1px; }
 .account-modal-username { display:block; overflow-wrap:anywhere; font-size:17px; font-weight:900; }
 .account-modal-actions { display:flex; gap:10px; margin-top:22px; }
-.account-modal-actions button { flex:1; min-height:40px; padding:0 12px; border:2px solid #080808; border-radius:3px; font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace; cursor:pointer; box-shadow:2px 3px 0 #000; }
+.account-modal-actions button { flex:1; min-height:40px; padding:0 12px; border:2px solid #080808; border-radius:4px; font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace; cursor:pointer; box-shadow:2px 3px 0 #000; }
 .account-modal-logout,.account-modal-confirm { background:#f4bd3c; color:#211d15; }
 .account-modal-cancel { background:#fffdf7; color:#211d15; }
 .account-modal-actions button:active { transform:translate(2px,3px); box-shadow:none; }
@@ -1162,7 +1162,7 @@ body.is-bookmarks .bookmarks-toolbar .folder-new {
   min-height:44px;
   padding:0 12px;
   border:3px solid #080808;
-  border-radius:3px;
+  border-radius:4px;
   background:#f4bd3c;
   color:#211d15;
   font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -1216,7 +1216,7 @@ body.is-bookmarks .bookmarks-toolbar .folder-new {
   max-width:220px;
   padding:7px 9px;
   border:1px solid rgba(8,8,8,.25);
-  border-radius:3px;
+  border-radius:4px;
   background:#f4ecd9;
   box-shadow:2px 3px 0 rgba(0,0,0,.35);
 }
@@ -1242,7 +1242,7 @@ body.is-bookmarks .bookmarks-toolbar .folder-new {
 
 /* v2.11.0 — square account avatar and refreshed account dialog */
 .account-modal-backdrop{z-index:700}
-.account-modal{border-radius:10px;box-shadow:0 22px 70px rgba(0,0,0,.28)}
+.account-modal{border-radius:4px;box-shadow:0 22px 70px rgba(0,0,0,.28)}
 .account-modal-kicker{display:none!important}
 .account-avatar{border-radius:0!important}
 
@@ -1289,3 +1289,102 @@ body.is-bookmarks #bookmarks-view {
   padding: 0 !important;
   background: #000 !important;
 }
+
+/* =========================================================
+   v2.14.0 — 首页身份区（Hero）· 压轴卡 · 卡片信息强化 · 几何统一收尾
+   ---------------------------------------------------------
+   ① Hero：页面终于有名字了。像素字 + 硬阴影 + 一句话定位 + 像素分隔线，
+      和卡片共享同一套黑底/奶油/黄语言，不新增任何颜色。
+   ② 压轴卡：作品数量凑不满整行时（现在是 5 张），最后一张通栏居中，
+      把"孤行+右侧死区"变成有意图的收尾。列数怎么变都成立（1 / -1）。
+   ③ 卡片下巴：标题加大、加英文小注（双语信息层次），hover 用像素 UI
+      经典的"抬起+阴影加深"反馈。
+   ========================================================= */
+
+/* ---------- Hero ---------- */
+.site-hero {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
+  margin: 2px 0 30px; padding: 14px 2px 0;
+}
+body.compass-mode .site-hero { display: none; }
+.hero-kicker {
+  margin: 0; color: #f4bd3c;
+  font: 900 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 2.6px; white-space: nowrap;
+}
+.hero-title {
+  margin: 0; color: #f4f0e8;
+  font-size: clamp(40px, 6.2vw, 76px); font-weight: 900;
+  letter-spacing: -2.4px; line-height: 1.02;
+  /* 纯实色硬投影：像素风要的就是锐利的错位块，半透明会发灰发脏 */
+  text-shadow: 5px 5px 0 #efa02c;
+}
+.hero-title .hero-title-dot { color: #f4bd3c; }
+.hero-sub {
+  margin: 0; max-width: 560px; color: #c9bda7;
+  font-size: 14px; font-weight: 600; line-height: 1.9;
+  letter-spacing: .2px;
+}
+/* 像素点分隔线：6px 方块阵列，从黄渐隐到透明，像老游戏里的血条/加载条 */
+.hero-rule {
+  width: 148px; height: 6px; margin-top: 6px;
+  background: repeating-linear-gradient(90deg, #f4bd3c 0 6px, transparent 6px 12px);
+  opacity: .92;
+}
+@media (max-width: 600px) {
+  .site-hero { gap: 9px; margin-bottom: 22px; padding-top: 6px; }
+  .hero-kicker { font-size: 9px; letter-spacing: 2px; }
+  .hero-title { font-size: 38px; letter-spacing: -1.6px; text-shadow: 4px 4px 0 #efa02c; }
+  .hero-sub { font-size: 12.5px; line-height: 1.75; }
+  .hero-rule { width: 108px; }
+  /* v2.14.0 — 小屏压轴卡是通栏的，固定角落的版本徽章会压在卡片内容上，干脆收起 */
+  .site-version { display: none; }
+}
+
+/* ---------- 压轴卡：最后一张通栏居中 ----------
+   只在网格态生效（展开/关闭动画时还原普通卡片几何），
+   --mount-ratio 不动，舞台缩放逻辑零改动。 */
+.grid > .preview-card:last-of-type {
+  grid-column: 1 / -1;
+  justify-self: center;
+  max-width: 672px;
+}
+@media (max-width: 680px) {
+  .grid > .preview-card:last-of-type { max-width: 100%; }
+}
+
+/* ---------- 卡片下巴：标题 + 英文小注 ---------- */
+.card-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.card-title { font-size: 15px; }
+.preview-card.is-open .card-title { font-size: 18px; }
+.card-sub {
+  color: #7a6b4d;
+  font: 800 9.5px/1.25 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .9px; text-transform: uppercase;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.preview-card.is-open .card-sub { display: none; }
+
+/* ---------- hover：像素 UI 的"抬起"反馈 ----------
+   只作用在网格里的静止卡片；展开/动画/触屏都不参与。 */
+@media (hover: hover) and (pointer: fine) {
+  .grid > .preview-card:not(.is-open):not(.is-animating) {
+    transition: transform .18s var(--ease), box-shadow .18s var(--ease);
+  }
+  .grid > .preview-card:not(.is-open):not(.is-animating):hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 11px 11px 0 rgba(0,0,0,.68), 0 24px 48px rgba(0,0,0,.22);
+  }
+}
+
+/* ---------- 搜索栏收窄：顶栏不再横贯全屏 ---------- */
+.search-wrapper { max-width: 560px; }
+@media (max-width: 600px) { .search-wrapper { max-width: 100%; } }
+
+/* v2.14.1 — 顶栏基线对齐：搜索栏高 52px（中线 y=50），工具方块 44px
+   下移到 top:28 让两者中线重合，顶栏不再有 4px 的隐形错位。 */
+.top-utility-actions { top: 28px; }
+@media (max-width: 600px) {
+  .top-utility-actions { top: 76px; }
+}
+

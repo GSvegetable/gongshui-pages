@@ -8,20 +8,32 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://izvdwjqixnhsxskjsolq.supabase.co; frame-src 'none'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
 <title>账号 | 宫水.com</title>
 <meta name="description" content="宫水.com 的账号入口。">
-<link rel="stylesheet" href="./styles/style.css?v=2.10.0">
+<link rel="stylesheet" href="./styles/style.css?v=2.14.0">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>">
 <style>
+/* v2.14.0 — 登录页氛围层：1px 像素星点 + 品牌行，让黑底不再是空黑板 */
+.auth-stars{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    radial-gradient(rgba(244,189,60,.8) 1.5px,transparent 2px),
+    radial-gradient(rgba(244,240,232,.42) 1px,transparent 1.6px),
+    radial-gradient(rgba(244,240,232,.26) 1px,transparent 1.6px),
+    radial-gradient(rgba(255,244,200,.95) 2px,transparent 2.8px);
+  background-size:150px 150px,150px 150px,150px 150px,430px 430px;
+  background-position:14px 22px,71px 131px,137px 83px,233px 341px}
 .auth-page{width:min(420px,calc(100% - 32px));margin:0 auto;padding:clamp(28px,7vh,72px) 0 60px}
 
 .auth-nav{display:flex;justify-content:flex-end;align-items:center;gap:16px;padding-bottom:14px;border-bottom:3px solid #080808;color:#a99b82;font:900 11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.3px}
 .auth-nav a{color:#f4bd3c;text-decoration:none}
 .auth-nav a:hover{color:#ffd36a}
+.auth-brand{display:flex;align-items:center;gap:9px;margin-right:auto;color:#f4f0e8;text-decoration:none}
+.auth-brand-block{width:16px;height:16px;border:2px solid #080808;background:#f4bd3c;box-shadow:2px 2px 0 #000}
+.auth-brand-name{font-size:13px;font-weight:900;letter-spacing:.6px}
 .auth-lang{appearance:none;min-width:40px;height:28px;padding:0 9px;border:2px solid #080808;border-radius:2px;background:#f4bd3c;color:#211d15;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;box-shadow:2px 3px 0 #000;cursor:pointer}
 .auth-lang:active{transform:translate(2px,3px);box-shadow:none}
 
-.auth-card{margin-top:34px;border:3px solid #080808;border-radius:3px;background:#f5ecd9;box-shadow:4px 5px 0 #080808;overflow:hidden}
+.auth-card{margin-top:34px;border:3px solid #080808;border-radius:4px;background:#f5ecd9;box-shadow:4px 5px 0 #080808;overflow:hidden}
 .auth-head{display:flex;align-items:center;gap:13px;padding:16px 16px 14px;border-bottom:3px solid #080808;background:#efe6d2}
-.auth-block{display:grid;place-items:center;width:44px;height:44px;flex:0 0 auto;border:3px solid #34220e;border-radius:3px;background:#f4bd3c;color:#211d15;box-shadow:0 4px 0 #a85f10}
+.auth-block{display:grid;place-items:center;width:44px;height:44px;flex:0 0 auto;border:3px solid #34220e;border-radius:4px;background:#f4bd3c;color:#211d15;box-shadow:0 4px 0 #a85f10}
 .auth-block svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .auth-head-text{display:flex;flex-direction:column;gap:5px;min-width:0}
 .auth-kicker{color:#a2701a;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:2.2px}
@@ -36,7 +48,7 @@
 
 .auth-social{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:16px 16px 0}
 .auth-social[hidden],.auth-divider[hidden]{display:none}
-.auth-social-btn{display:flex;align-items:center;justify-content:center;gap:9px;min-width:0;height:42px;padding:0 9px;border:2px solid #211d15;border-radius:3px;background:#fffdf7;color:#211d15;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer;transition:background .15s,transform .1s}
+.auth-social-btn{display:flex;align-items:center;justify-content:center;gap:9px;min-width:0;height:42px;padding:0 9px;border:2px solid #211d15;border-radius:4px;background:#fffdf7;color:#211d15;font:900 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer;transition:background .15s,transform .1s}
 .auth-social-btn:hover{background:#f4bd3c}
 .auth-social-btn:active{transform:translateY(1px)}
 .auth-social-btn:disabled{opacity:.55;cursor:wait}
@@ -48,7 +60,7 @@
 .auth-field[hidden]{display:none}
 .auth-field label{color:#5c4b32;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:1.4px}
 .auth-field input{
-  width:100%;height:42px;padding:0 11px;border:2px solid #211d15;border-radius:3px;
+  width:100%;height:42px;padding:0 11px;border:2px solid #211d15;border-radius:4px;
   background:#fffdf7;color:#211d15;font:700 13px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
   outline:0;appearance:none;transition:box-shadow .15s,border-color .15s;
 }
@@ -56,15 +68,15 @@
 .auth-field input::placeholder{color:#a89b82;font-weight:500}
 .auth-code-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
 .auth-code-row input{min-width:0}
-.auth-resend{height:42px;padding:0 10px;border:2px solid #211d15;border-radius:3px;background:#e7dcc4;color:#51432e;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer}
+.auth-resend{height:42px;padding:0 10px;border:2px solid #211d15;border-radius:4px;background:#e7dcc4;color:#51432e;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer}
 .auth-resend:disabled{opacity:.5;cursor:wait}
 
-.auth-submit{appearance:none;width:100%;height:46px;margin-top:2px;border:3px solid #080808;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.6px;cursor:pointer;box-shadow:3px 4px 0 #080808;transition:transform .1s,box-shadow .1s,background .15s}
+.auth-submit{appearance:none;width:100%;height:46px;margin-top:2px;border:3px solid #080808;border-radius:4px;background:#f4bd3c;color:#211d15;font:900 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.6px;cursor:pointer;box-shadow:3px 4px 0 #080808;transition:transform .1s,box-shadow .1s,background .15s}
 .auth-submit:hover{background:#ffd36a}
 .auth-submit:active{transform:translate(3px,4px);box-shadow:none}
 .auth-submit[disabled]{opacity:.55;cursor:not-allowed;box-shadow:none}
 
-.auth-message{margin:0;padding:10px 11px;border:2px solid #b5402a;border-radius:3px;background:#fbe9e3;color:#8c2f1e;font:700 11px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace}
+.auth-message{margin:0;padding:10px 11px;border:2px solid #b5402a;border-radius:4px;background:#fbe9e3;color:#8c2f1e;font:700 11px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace}
 .auth-message[hidden]{display:none}
 .auth-message.is-ok{border-color:#5c7a54;background:#eaf0e6;color:#3f5738}
 
@@ -73,22 +85,25 @@
 .auth-link{appearance:none;padding:0;border:0;background:none;color:#8a6a1c;font:700 11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .auth-link:hover{color:#211d15}
 
-.auth-mode{margin:14px 0 0;padding:10px 11px;border:2px dashed rgba(41,35,25,.35);border-radius:3px;color:#6b5d47;font:700 10px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2px}
+.auth-mode{margin:14px 0 0;padding:10px 11px;border:2px dashed rgba(41,35,25,.35);border-radius:4px;color:#6b5d47;font:700 10px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.2px}
 .auth-foot{margin-top:22px;text-align:center;color:#827969;font:700 11px/1.8 ui-monospace,SFMono-Regular,Menlo,monospace}
 .auth-foot a{color:#f4bd3c;text-decoration:none}
 .auth-foot a:hover{color:#ffd36a}
-.privacy-note{margin:16px 0 0;padding:12px 13px;border:1px solid rgba(41,35,25,.25);border-radius:3px;background:rgba(245,236,217,.72);color:#5c4b32;font:600 11px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace}
-.privacy-note summary{cursor:pointer;font-weight:900;color:#51432e}
+.privacy-note{margin:16px auto 0;max-width:400px;padding:10px 12px;border:2px dashed rgba(244,189,60,.55);border-radius:4px;background:transparent;color:#d8cbb4;font:600 11px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center}
+.privacy-note summary{cursor:pointer;font-weight:900;color:#d8cbb4}
 .privacy-note p{margin:9px 0 0}
-.privacy-note a{color:#8a6a1c;font-weight:900}
+.privacy-note a{color:#f4bd3c;font-weight:900;text-decoration:underline;text-underline-offset:3px}
+.privacy-note a:hover{color:#ffd36a}
 </style>
-<link rel="stylesheet" href="./styles/responsive.css?v=1.0.0">
+<link rel="stylesheet" href="./styles/responsive.css?v=1.1.0">
 <style>
 /* Compact authentication layout: safe-area aware and resilient to narrow windows. */
 .auth-page {
   width: min(440px, calc(100% - 28px));
   padding-top: clamp(22px, 7svh, 68px);
   padding-bottom: max(32px, env(safe-area-inset-bottom));
+  position: relative;
+  z-index: 1;
 }
 .auth-card { min-width: 0; }
 .auth-head, .auth-form, .auth-social { min-width: 0; }
@@ -106,8 +121,13 @@
 <script src="./scripts/privacy-cleanup.js?v=1.0.0"></script>
 </head>
 <body>
+<div class="auth-stars" aria-hidden="true"></div>
 <main class="auth-page">
   <nav class="auth-nav">
+    <a class="auth-brand" href="./index.html" aria-label="宫水.com 首页">
+      <span class="auth-brand-block" aria-hidden="true"></span>
+      <span class="auth-brand-name">宫水.com</span>
+    </a>
     <span style="display:flex;align-items:center;gap:12px">
       <a href="./index.html" data-i18n="backHome">返回首页　↗</a>
       <button class="auth-lang" id="auth-lang" type="button">EN</button>

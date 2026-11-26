@@ -114,10 +114,18 @@
     const esc=e=>{if(e.key==='Escape'){close();document.removeEventListener('keydown',esc);}};document.addEventListener('keydown',esc);
     await load();
   };
+  // v2.14.0 — 登出/未登录态的入口文案跟着页面语言走，
+  // 不再硬编码英文 "Sign in"（中文页面上会显得语言错乱）。
+  const entryStrings = () => {
+    const lang = document.documentElement.lang;
+    if (lang === 'en') return { text: 'Sign in / Sign up', aria: 'Sign in / Sign up' };
+    if (lang === 'ja') return { text: 'ログイン / 新規登録', aria: 'ログイン / 新規登録' };
+    return { text: '登录 / 注册', aria: '登录 / 注册' };
+  };
   const render=user=>{
     if(user&&(user.username||user.email)){
       entry.replaceChildren(avatar(user));entry.classList.add('is-signed-in');entry.title=document.documentElement.lang==='en'?'Account options':document.documentElement.lang==='ja'?'アカウント設定':'账号选项';entry.setAttribute('aria-label',(user.username||user.email)+' account options');
-    }else{close();entry.textContent='Sign in';entry.classList.remove('is-signed-in');entry.title='';entry.setAttribute('aria-label','Sign in / Sign up');}
+    }else{close();const s=entryStrings();entry.textContent=s.text;entry.classList.remove('is-signed-in');entry.title='';entry.setAttribute('aria-label',s.aria);}
   };
   entry.addEventListener('click',e=>{if(!entry.classList.contains('is-signed-in'))return;e.preventDefault();open(window.siteAuth.getUser()||{});});
   window.siteAuth.onChange(render);

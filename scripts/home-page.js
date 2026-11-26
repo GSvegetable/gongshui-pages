@@ -49,6 +49,8 @@
     if (!button) return;
 
     const strings = {
+      'hero.kicker': 'PIXEL WORKS ARCHIVE',
+      'hero.sub': 'A little gallery of pixel interactions for your browser — every piece is made to be played.',
       'nav.contributors': 'Contributors',
       'nav.settings': 'Settings',
       'layout.toggle.two': 'Add one column',
@@ -86,6 +88,12 @@
       'bookmark.remove': 'Remove',
       'card.daylight': 'Pixel Daylight Switch',
       'card.orbit': 'Pixel Orbit',
+      /* v2.14.0 — 卡片英文小注：中文页面显示英文名，英文/日文页面显示中文名，双语互补 */
+      'card.daylight.sub': '像素昼夜开关',
+      'card.orbit.sub': '像素圆环',
+      'card.globe.sub': '投稿者地球',
+      'card.corridor.sub': '收藏长廊',
+      'card.navigation.sub': '导航交互系统',
 
       'card.globe': 'Contributors Globe','card.corridor': 'The Bookmark Hall','card.navigation': 'Navigation Interaction System',
       'card.globe.aria': 'Open Contributors Globe details','card.corridor.aria': 'Open Bookmark Hall details','card.navigation.aria': 'Open Navigation Interaction System details',
@@ -169,6 +177,9 @@
     };
 
     const japanese = {
+      'hero.kicker': 'PIXEL WORKS ARCHIVE',
+      'hero.sub': 'ブラウザの中に広がる小さなピクセルの展覧会。どの作品も触って遊べます。',
+      'card.daylight.sub': '像素昼夜开关','card.orbit.sub': '像素圆环','card.globe.sub': '投稿者地球','card.corridor.sub': '收藏长廊','card.navigation.sub': '导航交互系统',
       'nav.contributors':'クリエイター・貢献者',
       'nav.settings':'設定','layout.toggle.two':'列を1つ増やす','layout.toggle.auto':'既定の列数に戻す',
       'nav.language':'言語を切り替え','account.entry':'ログイン / 新規登録','account.signout':'ログアウト',
@@ -236,6 +247,8 @@
 
     // [字符串 key, 目标选择器, 属性名(留空表示改文本)]
     const targets = [
+      ['hero.kicker', '.hero-kicker'],
+      ['hero.sub', '.hero-sub'],
       ['nav.settings', '#settings-toggle', 'aria-label'],
       ['layout.toggle.two', '#layout-toggle', 'aria-label'],
       ['layout.toggle.two', '#layout-toggle', 'title'],
@@ -257,6 +270,11 @@
       ['empty.title', '#empty-state .empty-title'],
       ['card.daylight', '#lighthouse-card .card-title'],
       ['card.orbit', '#pixel-orbit-card .card-title'],
+      ['card.daylight.sub', '#lighthouse-card .card-sub'],
+      ['card.orbit.sub', '#pixel-orbit-card .card-sub'],
+      ['card.globe.sub', '#contributors-globe-card .card-sub'],
+      ['card.corridor.sub', '#bookmarks-corridor-card .card-sub'],
+      ['card.navigation.sub', '#navigation-system-card .card-sub'],
       ['card.daylight.aria', '#lighthouse-card', 'aria-label'],
       ['card.orbit.aria', '#pixel-orbit-card', 'aria-label'],
 
