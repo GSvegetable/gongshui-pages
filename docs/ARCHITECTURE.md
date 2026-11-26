@@ -1,6 +1,6 @@
 # 仓库职责与作品代码归属
 
-> 适用版本：gongshui-pages v2.14.0  
+> 适用版本：gongshui-pages v2.14.1  
 > 最后核对：2026-11-26
 
 ## 一、两个仓库分别负责什么
@@ -86,7 +86,7 @@
 
 ## 六、版本、缓存与发布
 
-- 网站版本以首页角落版本号、三份 README 徽章和 `docs/CHANGELOG.md` 为准；本次升级为 **v2.14.0**。
+- 网站版本以首页角落版本号、三份 README 徽章和 `docs/CHANGELOG.md` 为准；本次升级为 **v2.14.1**。
 - `?v=` 是资源缓存标识。只有真正修改的资源才更新对应缓存号。
 - 每个作品维护自己的版本、CHANGELOG、依赖许可说明和测试。
 - 根目录 GitHub Actions workflow 将五个项目分别组装到 Pages 对应 URL；源码路径中的 `projects/` 不出现在最终 URL 中。
