@@ -89,7 +89,7 @@
   night.addEventListener('click',()=>{manualNight=!manualNight;refresh()});
   const pointFromY=y=>{
    const rect=nav.getBoundingClientRect();
-   const docY=y-rect.top+scrollNow();
+   const docY=y-rect.top;
    return clamp(docY,0,content);
   };
   sun.addEventListener('pointerdown',e=>{dragging=true;rail.setPointerCapture(e.pointerId);e.preventDefault()});
