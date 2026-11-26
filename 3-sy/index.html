@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>3_sy · 双轨卡片空间</title>
+  <script type="module" crossorigin src="./assets/index-DlcvOGkd.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-BrWBtNsy.css">
+</head>
+<body>
+  <main id="app">
+    <section class="stage" id="stage" aria-label="双轨卡片空间">
+      <div class="ghost" aria-hidden="true">
+        <span class="ghost-word ghost-agent">AI AGENT</span>
+        <span class="ghost-word ghost-ripple">RIPPLE</span>
+        <span class="ghost-word ghost-water">WATER</span>
+        <span class="ghost-word ghost-system">SYSTEM</span>
+        <span class="ghost-word ghost-ripple ghost-ripple-2">RIPPLE</span>
+      </div>
+
+      <div class="rail rail-back" id="railBack"></div>
+      <div class="rail rail-front" id="railFront"></div>
+
+      <div class="status" id="statusLabel" aria-hidden="true">01 · NEAR</div>
+
+      <div class="search-dock">
+        <input id="searchInput" class="search-input" type="search" autocomplete="off" spellcheck="false"
+               placeholder="搜索卡片 · 中文 / 拼音" aria-label="搜索卡片">
+        <button id="searchToggle" class="search-toggle" type="button" aria-label="打开搜索" aria-expanded="false">⌕</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

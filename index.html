@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="./styles/responsive.css?v=1.0.2" />
   <link rel="stylesheet" href="./styles/detail-editorial.css?v=1.3.0" />
   <link rel="stylesheet" href="./styles/daybreak-rail.css?v=2.4.2" />
+  <link rel="stylesheet" href="./styles/sy-stage.css?v=1.0.0" />
 <script src="./scripts/privacy-cleanup.js?v=1.0.0"></script>
 </head>
 <body>
@@ -53,6 +54,13 @@
     <div id="compass-view" class="compass-view" aria-hidden="true"></div>
     <div id="bookmarks-view" hidden aria-label="收藏长廊"></div>
     <div class="grid" id="works">
+      <!-- 第六个作品：3_sy 双轨卡片空间。
+           它不做成格子卡片：整层铺在作品网格底下，被上面五个作品盖住，
+           横向拖动可以左右切换它的空间状态。 -->
+      <div class="sy-stage" id="sy-stage" aria-hidden="true">
+        <iframe id="sy-frame" title="3_sy 双轨卡片空间" src="./3-sy/?embed=1" loading="lazy" referrerpolicy="no-referrer" tabindex="-1"></iframe>
+      </div>
+
       <!-- 作品 1 -->
       <article class="preview-card" id="lighthouse-card" data-id="pixel-daylight-switch" data-tags="像素风" data-en="Pixel Daylight Switch" data-detail="detail-panel" tabindex="0" aria-label="打开像素昼夜开关作品详情">
         <div class="preview-mount">
@@ -284,10 +292,11 @@
     </button>
   </div>
   <!-- v2.13.3: reliable globe theme control and touch-feedback cleanup -->
-  <div class="site-version" aria-label="网站版本">v2.15.0</div>
+  <div class="site-version" aria-label="网站版本">v2.16.0</div>
 
   <script src="./scripts/main.js?v=2.13.8"></script>
   <script src="./scripts/daybreak-rail.js?v=2.4.1"></script>
+  <script src="./scripts/sy-stage.js?v=1.0.0"></script>
   <script src="./scripts/portfolio-actions.js?v=1.1.0"></script>
   <script src="./scripts/nav-history.js?v=1.0.0"></script>
   <script src="./scripts/compare.js?v=1.3.2"></script>

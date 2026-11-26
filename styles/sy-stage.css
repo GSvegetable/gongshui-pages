@@ -1,0 +1,29 @@
+/* 3_sy 双轨卡片空间 —— 首页作品网格底下的那一层。
+   它不做成格子卡片：整层铺在网格下面，被上面五个作品卡片盖住，
+   只有卡片之间的缝隙和网格外围能看见它的轨道。
+   作品自己拿不到指针事件（它被盖住了），横向手势由首页转发给它，
+   所以这一层是 pointer-events: none。 */
+
+.grid {
+  position: relative;
+}
+
+.sy-stage {
+  position: absolute;
+  inset: 0 0 -220px 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.sy-stage iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* 作品卡片浮在这一层上面 */
+.preview-card {
+  z-index: 1;
+}
