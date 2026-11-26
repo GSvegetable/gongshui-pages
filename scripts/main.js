@@ -592,12 +592,12 @@ syncSearchUI();
     const viewport = document.documentElement.clientWidth || window.innerWidth;
     const currentCardMin = parseFloat(getComputedStyle(main).getPropertyValue('--gallery-card-min')) || 300;
     const zoomScale = Math.max(0.5, Math.min(1.87, currentCardMin / 300));
-    const minCardWidth = (viewport <= 760 ? 200 : viewport <= 1099 ? 190 : 280) * zoomScale;
+    const minCardWidth = (viewport <= 680 ? 200 : viewport <= 1099 ? 190 : 280) * zoomScale;
     const measured = Math.max(1, Math.floor((usableWidth + gap) / (minCardWidth + gap)));
 
     // 大屏触控平板（包括 iQOO Pad 2 横屏）统一默认三列，切换后四列。
     if (isLargeTouchDevice()) return 3;
-    if (viewport <= 760) return Math.max(2, measured);
+    if (viewport <= 680) return Math.max(2, measured);
     if (viewport <= 1099) return Math.max(3, measured);
     return measured;
   };
@@ -896,7 +896,7 @@ syncSearchUI();
   };
 
   /* ---------- 几何：展开后卡片 / 放大作品后卡片应该在哪 ---------- */
-  const isMobile = () => window.matchMedia('(max-width: 760px)').matches;
+  const isMobile = () => window.matchMedia('(max-width: 680px)').matches;
 
   const openBox = () => {
     if (isMobile()) return { left: 14, top: 18, width: Math.max(220, window.innerWidth - 28) };
