@@ -1,135 +1,74 @@
-/* Daybreak Rail — a living navigation instrument for Gongshui */
-:root{
-  --rail-collapsed:76px;
-  --rail-open:292px;
-  --rail-ink:#2b2b2e;
-  --rail-cream:#f2efe8;
-  --rail-yellow:#f2b63d;
-  --rail-ease:cubic-bezier(.7,0,.2,1);
-}
-#daybreak-rail{
-  --rail-fg:var(--rail-ink);
-  --rail-node:var(--rail-cream);
-  --rail-card:rgba(255,255,255,.56);
-  position:fixed;inset:0 auto 0 0;z-index:140;
-  width:var(--rail-collapsed);height:100dvh;min-height:420px;
-  display:flex;flex-direction:column;overflow:hidden;
-  color:var(--rail-fg);
-  background:linear-gradient(180deg,#ddecf0 0%,#f0a04b 100%);
-  border-right:4px solid var(--rail-ink);
-  box-shadow:7px 0 0 var(--rail-yellow);
+/* Daybreak Rail — scoped to the currently opened work-detail panel only. */
+.work-detail .db-rail{
+  --db-ink:#292b30;--db-paper:#f4efe3;--db-gold:#f1b943;
+  position:absolute;z-index:8;inset:0 auto 0 0;width:58px;min-height:100%;
+  display:flex;flex-direction:column;align-items:center;overflow:hidden;
+  color:var(--db-ink);background:linear-gradient(180deg,#dcebf0 0%,#f0a04b 100%);
+  border-right:2px solid var(--db-ink);box-shadow:4px 0 0 var(--db-gold);
+  transition:width .42s cubic-bezier(.7,0,.2,1),color .3s;
   isolation:isolate;
-  transition:width .55s var(--rail-ease),color .35s ease;
 }
-#daybreak-rail[data-tone="night"]{
-  --rail-fg:var(--rail-cream);
-  --rail-node:#232640;
-  --rail-card:rgba(255,255,255,.08);
-  background:linear-gradient(180deg,#20253c 0%,#33314c 58%,#59445b 100%);
-}
-#daybreak-rail.is-open{width:min(var(--rail-open),calc(100vw - var(--rail-collapsed) - 10px))}
-#daybreak-rail *{box-sizing:border-box}
-#daybreak-rail button{font:inherit}
-#daybreak-rail .db-sky{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
-#daybreak-rail .db-stars{position:absolute;inset:0;opacity:0;transition:opacity .5s}
-#daybreak-rail[data-tone="night"] .db-stars{opacity:1}
-#daybreak-rail .db-stars i{position:absolute;width:3px;height:3px;background:#fff6d8;animation:db-twinkle 2.6s steps(2,end) infinite}
-@keyframes db-twinkle{50%{opacity:.14}}
-#daybreak-rail .db-clouds{position:absolute;inset:0;opacity:1;transition:opacity .5s}
-#daybreak-rail[data-tone="night"] .db-clouds{opacity:0}
-#daybreak-rail .db-cloud{
-  position:absolute;left:-32px;width:6px;height:6px;background:#fff;
-  box-shadow:6px -6px #fff,12px -6px #fff,6px 0 #fff,12px 0 #fff,18px 0 #fff;
-  animation:db-drift 48s steps(90,end) infinite;
-}
-#daybreak-rail .db-cloud:nth-child(1){top:18%}
-#daybreak-rail .db-cloud:nth-child(2){top:56%;scale:1.5;animation-duration:70s;animation-delay:-30s}
-#daybreak-rail .db-cloud:nth-child(3){top:82%;animation-duration:58s;animation-delay:-12s}
-@keyframes db-drift{to{transform:translateX(340px)}}
-#daybreak-rail .db-head{position:relative;z-index:2;flex:none;height:92px;display:flex;align-items:center;gap:14px;padding-left:14px}
-#daybreak-rail .db-logo{
-  flex:none;display:grid;place-items:center;width:48px;height:48px;
-  border:3px solid var(--rail-ink);background:var(--rail-yellow);color:var(--rail-ink);
-  box-shadow:4px 4px 0 var(--rail-ink);font-size:24px;font-weight:950;line-height:1;
-  cursor:pointer;transition:transform .12s,box-shadow .12s;
-}
-#daybreak-rail .db-logo:hover{transform:translate(-1px,-1px)}
-#daybreak-rail .db-logo:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--rail-ink)}
-#daybreak-rail .db-brand{white-space:nowrap;font:800 11px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.15em;opacity:0;transform:translateX(-12px);transition:opacity .25s,transform .45s var(--rail-ease)}
-#daybreak-rail .db-brand small{display:block;font-size:9px;opacity:.62;letter-spacing:.2em}
-#daybreak-rail.is-open .db-brand{opacity:1;transform:none;transition-delay:.16s}
-#daybreak-rail .db-nav{position:relative;z-index:2;flex:1;min-height:0;padding:8px 0 12px;display:flex;flex-direction:column;justify-content:flex-start}
-#daybreak-rail .db-track,#daybreak-rail .db-fill{position:absolute;left:35px;top:0;width:4px;pointer-events:none}
-#daybreak-rail .db-track{background:repeating-linear-gradient(var(--rail-fg) 0 6px,transparent 6px 12px);opacity:.48}
-#daybreak-rail .db-fill{background:var(--rail-yellow);transform-origin:top;transform:scaleY(0)}
-#daybreak-rail .db-stop{
-  --stop-index:0;position:relative;z-index:2;display:flex;align-items:center;flex:none;
-  width:100%;height:clamp(52px,8.4dvh,66px);min-height:52px;padding:0 0 0 27px;
-  border:0;background:transparent;color:inherit;text-decoration:none;text-align:left;white-space:nowrap;cursor:pointer;
-}
-#daybreak-rail .db-stop:focus-visible,#daybreak-rail .db-logo:focus-visible,#daybreak-rail .db-sun:focus-visible{outline:3px solid var(--rail-yellow);outline-offset:-3px}
-#daybreak-rail .db-node{flex:none;width:18px;height:18px;border:3px solid var(--rail-fg);background:var(--rail-node);transition:background .25s,border-color .35s,transform .35s cubic-bezier(.3,1.8,.5,1)}
-#daybreak-rail .db-stop.is-past .db-node{background:var(--rail-yellow);border-color:var(--rail-ink)}
-#daybreak-rail .db-stop:hover .db-node{transform:scale(1.24) rotate(45deg)}
-#daybreak-rail .db-label{display:flex;flex-direction:column;margin-left:22px;opacity:0;transform:translateX(-14px);transition:opacity .25s,transform .45s var(--rail-ease)}
-#daybreak-rail .db-label b{font:850 16px/1.2 system-ui,-apple-system,"PingFang SC",sans-serif}
-#daybreak-rail .db-label em{margin-top:4px;font:700 9px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.17em;opacity:.62;font-style:normal}
-#daybreak-rail .db-stop.is-current .db-label b{box-shadow:inset 0 -7px 0 rgba(242,182,61,.68)}
-#daybreak-rail .db-stop:hover .db-label b{transform:translateX(4px)}
-#daybreak-rail.is-open .db-label{opacity:1;transform:none;transition-delay:calc(var(--stop-index)*45ms + 150ms)}
-#daybreak-rail .db-sun{
-  position:absolute;z-index:4;left:18px;top:0;width:34px;height:34px;padding:0;border:0;
-  background:transparent;cursor:grab;touch-action:none;will-change:transform;outline:none;
-  filter:drop-shadow(3px 3px 0 rgba(0,0,0,.28));
-}
-#daybreak-rail .db-sun:active,#daybreak-rail.is-dragging .db-sun{cursor:grabbing}
-#daybreak-rail .db-sun i{position:absolute;display:block}
-#daybreak-rail .db-sun .db-ring,#daybreak-rail .db-sun .db-core{clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%)}
-#daybreak-rail .db-sun .db-ring{inset:0;background:var(--rail-ink)}
-#daybreak-rail .db-sun .db-core{inset:4px;background:var(--rail-yellow);transition:background .4s,box-shadow .4s}
-#daybreak-rail .db-sun .db-rays{left:14px;top:14px;width:6px;height:6px;background:var(--rail-ink);box-shadow:0 -24px 0 var(--rail-ink),0 24px 0 var(--rail-ink),-24px 0 0 var(--rail-ink),24px 0 0 var(--rail-ink);animation:db-spin 1.4s steps(2,end) infinite}
+.work-detail .db-rail[data-tone="night"]{--db-ink:#f2eee4;--db-paper:#282b43;background:linear-gradient(180deg,#20253c,#343149 62%,#5a465b)}
+.work-detail .db-rail.is-open{width:218px}
+.work-detail .db-rail *{box-sizing:border-box}
+.work-detail .db-sky{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.work-detail .db-stars{position:absolute;inset:0;opacity:0}
+.work-detail .db-rail[data-tone="night"] .db-stars{opacity:1}
+.work-detail .db-stars i{position:absolute;width:3px;height:3px;background:#fff5d5;animation:db-twinkle 2.6s steps(2,end) infinite}
+.work-detail .db-clouds{position:absolute;inset:0;transition:opacity .4s}
+.work-detail .db-rail[data-tone="night"] .db-clouds{opacity:0}
+.work-detail .db-cloud{position:absolute;left:-28px;width:6px;height:6px;background:#fff;box-shadow:6px -6px #fff,12px -6px #fff,6px 0 #fff,12px 0 #fff,18px 0 #fff;animation:db-drift 48s steps(90,end) infinite}
+.work-detail .db-cloud:nth-child(1){top:18%}.work-detail .db-cloud:nth-child(2){top:56%;scale:1.5;animation-duration:70s;animation-delay:-30s}.work-detail .db-cloud:nth-child(3){top:82%;animation-duration:58s;animation-delay:-12s}
+@keyframes db-twinkle{50%{opacity:.16}}@keyframes db-drift{to{transform:translateX(260px)}}
+.work-detail .db-head{position:relative;z-index:2;flex:none;width:100%;height:76px;display:flex;align-items:center;gap:12px;padding:0 10px}
+.work-detail .db-logo{flex:none;width:36px;height:36px;display:grid;place-items:center;border:2px solid var(--db-ink);background:var(--db-gold);color:#292b30;box-shadow:3px 3px 0 var(--db-ink);font:950 20px/1 system-ui;cursor:pointer}
+.work-detail .db-brand{white-space:nowrap;font:850 10px/1.5 ui-monospace,monospace;letter-spacing:.13em;opacity:0;transform:translateX(-8px);transition:opacity .2s,transform .3s}
+.work-detail .db-brand small{display:block;font-size:8px;opacity:.65}
+.work-detail .db-rail.is-open .db-brand{opacity:1;transform:none;transition-delay:.1s}
+.work-detail .db-nav{position:relative;z-index:2;flex:1;min-height:90px;width:100%;display:flex;flex-direction:column;justify-content:flex-start;padding:4px 0}
+.work-detail .db-track,.work-detail .db-fill{position:absolute;left:27px;top:0;width:3px;pointer-events:none}
+.work-detail .db-track{background:repeating-linear-gradient(var(--db-ink) 0 5px,transparent 5px 10px);opacity:.42}
+.work-detail .db-fill{background:var(--db-gold);transform-origin:top;transform:scaleY(0)}
+.work-detail .db-stop{position:relative;z-index:2;display:flex;align-items:center;flex:none;width:100%;min-height:58px;padding:0 0 0 19px;border:0;background:transparent;color:inherit;text-align:left;white-space:nowrap;cursor:pointer}
+.work-detail .db-node{flex:none;width:17px;height:17px;border:2px solid var(--db-ink);background:var(--db-paper);transition:transform .25s,background .25s}
+.work-detail .db-stop.is-past .db-node{background:var(--db-gold);border-color:#292b30}
+.work-detail .db-stop:hover .db-node{transform:scale(1.2) rotate(45deg)}
+.work-detail .db-label{display:flex;flex-direction:column;margin-left:18px;opacity:0;transform:translateX(-8px);transition:opacity .2s,transform .3s}
+.work-detail .db-label b{font:800 13px/1.2 system-ui,sans-serif}
+.work-detail .db-label em{margin-top:4px;font:700 8px/1 ui-monospace,monospace;letter-spacing:.12em;opacity:.65;font-style:normal}
+.work-detail .db-stop.is-current .db-label b{box-shadow:inset 0 -6px 0 rgba(241,185,67,.65)}
+.work-detail .db-rail.is-open .db-label{opacity:1;transform:none;transition-delay:calc(var(--stop-index)*35ms + 100ms)}
+.work-detail .db-sun{position:absolute;z-index:4;left:10px;top:0;width:34px;height:34px;padding:0;border:0;background:transparent;cursor:grab;touch-action:none;filter:drop-shadow(2px 2px 0 rgba(0,0,0,.25))}
+.work-detail .db-sun:active{cursor:grabbing}
+.work-detail .db-sun i{position:absolute;display:block}
+.work-detail .db-sun .db-ring,.work-detail .db-sun .db-core{clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%)}
+.work-detail .db-sun .db-ring{inset:0;background:#292b30}.work-detail .db-sun .db-core{inset:4px;background:var(--db-gold);transition:background .3s}
+.work-detail .db-sun .db-rays{left:14px;top:14px;width:6px;height:6px;background:#292b30;box-shadow:0 -23px #292b30,0 23px #292b30,-23px 0 #292b30,23px 0 #292b30;animation:db-spin 1.4s steps(2,end) infinite}
 @keyframes db-spin{50%{transform:rotate(45deg)}}
-#daybreak-rail .db-sun.is-moon .db-core{background:#f3ebd2;box-shadow:inset -9px 0 0 #c4b88f}
-#daybreak-rail .db-sun.is-moon .db-rays{opacity:0}
-#daybreak-rail .db-sun.is-pop{animation:db-pop .48s cubic-bezier(.3,1.8,.5,1)}
-@keyframes db-pop{35%{scale:1.42}100%{scale:1}}
-#daybreak-rail .db-foot{position:relative;z-index:2;flex:none;width:var(--rail-open);padding:0 22px 22px 14px;opacity:0;transform:translateY(14px);transition:opacity .25s,transform .45s var(--rail-ease);pointer-events:none}
-#daybreak-rail.is-open .db-foot{opacity:1;transform:none;transition-delay:.3s;pointer-events:auto}
-#daybreak-rail .db-card{border:3px solid var(--rail-fg);background:var(--rail-card);box-shadow:4px 4px 0 var(--rail-fg);padding:11px 13px;transition:border-color .35s,box-shadow .35s}
-#daybreak-rail .db-k{font:800 9px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.22em;opacity:.62}
-#daybreak-rail .db-phase{margin:6px 0 10px;font-size:19px;font-weight:950;white-space:nowrap}
-#daybreak-rail .db-meter{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
-#daybreak-rail .db-meter i{height:8px;border:2px solid var(--rail-fg)}
-#daybreak-rail .db-meter i.is-on{background:var(--rail-yellow);border-color:var(--rail-ink)}
-#daybreak-rail .db-tip{margin-top:9px;font:700 9px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em;opacity:.65;white-space:nowrap}
-#daybreak-rail .db-night-toggle{position:absolute;right:10px;top:30px;width:26px;height:26px;border:2px solid var(--rail-ink);background:var(--rail-yellow);color:var(--rail-ink);font:900 13px/1 ui-monospace,monospace;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s}
-#daybreak-rail.is-open .db-night-toggle{opacity:1;pointer-events:auto;transition-delay:.25s}
-#daybreak-rail :focus-visible{outline-offset:3px}
-body{--daybreak-space:var(--rail-collapsed)}
-body main{width:calc(100% - var(--rail-collapsed));max-width:none;margin-left:var(--rail-collapsed);margin-right:0}
-body .top-bar{left:calc(var(--rail-collapsed) + var(--responsive-gutter,24px));}
-body .top-utility-actions{z-index:150}
+.work-detail .db-sun.is-moon .db-core{background:#f3ebd2;box-shadow:inset -9px 0 #c4b88f}.work-detail .db-sun.is-moon .db-rays{opacity:0}
+.work-detail .db-foot{position:relative;z-index:2;flex:none;width:100%;padding:0 12px 16px;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .3s;pointer-events:none}
+.work-detail .db-rail.is-open .db-foot{opacity:1;transform:none;pointer-events:auto;transition-delay:.18s}
+.work-detail .db-card{border:2px solid var(--db-ink);background:rgba(255,255,255,.48);box-shadow:3px 3px 0 var(--db-ink);padding:9px 10px}
+.work-detail .db-k{font:800 8px/1 ui-monospace,monospace;letter-spacing:.18em;opacity:.65}
+.work-detail .db-phase{margin:6px 0 8px;font-size:15px;font-weight:900;white-space:nowrap}
+.work-detail .db-meter{display:grid;grid-template-columns:repeat(10,1fr);gap:2px}.work-detail .db-meter i{height:6px;border:1px solid var(--db-ink)}.work-detail .db-meter i.is-on{background:var(--db-gold)}
+.work-detail .db-night-toggle{position:absolute;right:8px;top:25px;width:24px;height:24px;border:2px solid #292b30;background:var(--db-gold);color:#292b30;font-weight:900;cursor:pointer}
+.work-detail .db-rail button:focus-visible{outline:3px solid var(--db-gold);outline-offset:2px}
+.work-detail.db-ready{padding-left:78px;transition:padding-left .42s cubic-bezier(.7,0,.2,1)}
+.work-detail.db-ready:has(.db-rail.is-open){padding-left:238px}
 @media(max-width:680px){
-  :root{--rail-collapsed:58px;--rail-open:min(286px,calc(100vw - 68px))}
-  #daybreak-rail{min-height:360px;border-right-width:3px;box-shadow:5px 0 0 var(--rail-yellow)}
-  #daybreak-rail .db-head{height:78px;padding-left:7px}
-  #daybreak-rail .db-logo{width:40px;height:40px;font-size:20px}
-  #daybreak-rail .db-nav{padding-top:4px}
-  #daybreak-rail .db-track,#daybreak-rail .db-fill{left:26px}
-  #daybreak-rail .db-stop{height:58px;min-height:58px;padding-left:18px}
-  #daybreak-rail .db-sun{left:9px;width:34px;height:34px}
-  #daybreak-rail .db-foot{padding:0 12px 14px 8px}
-  #daybreak-rail .db-card{padding:9px 10px}
-  #daybreak-rail .db-phase{font-size:16px}
-  body main{width:calc(100% - var(--rail-collapsed));margin-left:var(--rail-collapsed)}
-  body .top-bar{left:calc(var(--rail-collapsed) + 10px);right:12px}
-  body .top-utility-actions{right:12px}
-}
-@media(max-height:520px){
-  #daybreak-rail .db-head{height:64px}
-  #daybreak-rail .db-stop{height:48px;min-height:48px}
-  #daybreak-rail .db-foot{padding-bottom:10px}
+ .work-detail.db-ready{padding-left:68px}
+ .work-detail.db-ready:has(.db-rail.is-open){padding-left:238px}
+ .work-detail .db-rail{position:sticky;float:left;top:0;inset:auto;width:52px;height:100dvh;min-height:420px;margin:0 0 -100dvh -68px}
+ .work-detail .db-rail.is-open{width:218px}
+ .work-detail .db-head{height:68px;padding-left:8px}
+ .work-detail .db-logo{width:34px;height:34px}
+ .work-detail .db-stop{min-height:54px;padding-left:16px}
+ .work-detail .db-track,.work-detail .db-fill{left:24px}
+ .work-detail .db-sun{left:7px}
+ .work-detail .db-foot{padding:0 9px 14px}
 }
 @media(prefers-reduced-motion:reduce){
-  #daybreak-rail *,#daybreak-rail *::before,#daybreak-rail *::after{animation:none!important;transition-duration:1ms!important;scroll-behavior:auto!important}
+ .work-detail .db-rail *, .work-detail .db-rail *::before,.work-detail .db-rail *::after{animation:none!important;transition-duration:1ms!important}
+ .work-detail.db-ready{transition-duration:1ms!important}
 }
