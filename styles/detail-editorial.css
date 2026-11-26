@@ -653,3 +653,36 @@ body.view-closing .work-detail.is-active {
 @media (prefers-reduced-motion: reduce) {
   .scene-choice, .detail-actions .project-link, .detail-actions .creator-link { transition-duration: 1ms !important; }
 }
+
+
+/* Daybreak edition — align every detail surface with the pixel / paper visual language. */
+.work-detail {
+  --paper:#f4efe3;--ink:#292b30;--muted:#756d60;--accent:#d39a31;
+  background-color:var(--paper);
+  background-image:linear-gradient(rgba(41,43,48,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(41,43,48,.035) 1px,transparent 1px),radial-gradient(ellipse at 90% 4%,var(--wash),transparent 38%);
+  background-size:24px 24px,24px 24px,auto;color:var(--ink);
+}
+.work-detail .detail-copy h1{font-family:"Iowan Old Style","Baskerville","Songti SC","Noto Serif SC",serif;font-weight:650;letter-spacing:-.055em}
+.work-detail .english-title,.work-detail .detail-feature-meta,.work-detail .gallery-heading>span{font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.16em}
+.work-detail .detail-tags .work-tag{border:1px solid rgba(41,43,48,.35);border-radius:2px;background:rgba(255,255,255,.24);color:#514a3f;font:750 9px/1.2 ui-monospace,monospace;letter-spacing:.07em}
+.work-detail .detail-actions{gap:9px;margin:24px 0 30px;padding:15px 0;border-top:2px solid var(--ink);border-bottom:1px solid rgba(41,43,48,.32)}
+.work-detail .detail-actions .project-link,.work-detail .detail-actions .creator-link{min-height:38px;padding:0 10px;border:2px solid var(--ink);border-radius:2px;background:#f7f1e5;color:var(--ink);box-shadow:3px 3px 0 var(--ink);font:800 9px/1 ui-monospace,monospace;letter-spacing:.04em;transform:translate(0,0)}
+.work-detail .detail-actions .project-link:hover,.work-detail .detail-actions .creator-link:hover{border-color:var(--ink);background:#f2b63d;color:var(--ink);box-shadow:1px 1px 0 var(--ink);transform:translate(2px,2px)}
+.work-detail .detail-actions .lab-link{border-color:var(--ink);background:#f2b63d}
+.work-detail .gallery-heading{margin:30px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--ink)}
+.work-detail .gallery-heading h2,.work-detail .embed-snippet h2{font-family:"Iowan Old Style","Songti SC","Noto Serif SC",serif;font-size:20px;font-weight:700;letter-spacing:-.035em}
+.work-detail .detail-feature{margin-top:28px;padding-top:18px;border-top:1px solid rgba(41,43,48,.35)}
+.work-detail .detail-feature>p:not(.detail-feature-meta){color:#4e493f;font-family:"Iowan Old Style","Songti SC","Noto Serif SC",serif;font-size:14px;line-height:1.95}
+.work-detail .detail-facts{margin:22px 0 8px;border-top:2px solid var(--ink)}
+.work-detail .detail-facts div{padding:12px 10px 12px 0;border-bottom:1px solid rgba(41,43,48,.25)}
+.work-detail .detail-facts span{color:#8a7040;font:800 8px/1.4 ui-monospace,monospace;letter-spacing:.14em}
+.work-detail .detail-facts strong{font-family:"Iowan Old Style","Songti SC","Noto Serif SC",serif;font-size:13px}
+.work-detail .scene-choice{border:2px solid rgba(41,43,48,.28);border-radius:2px;background:rgba(255,255,255,.28);box-shadow:2px 2px 0 rgba(41,43,48,.18)}
+.work-detail .scene-choice:hover,.work-detail .scene-choice.is-active{border-color:var(--ink);border-radius:2px;background:#f2b63d;box-shadow:3px 3px 0 var(--ink);transform:translate(-1px,-1px)}
+.work-detail .scene-thumb{border-radius:0}
+.work-detail .embed-snippet{margin-top:30px;padding-top:18px;border-top:2px solid var(--ink)}
+.work-detail .embed-snippet pre,.work-detail .code-block{border:2px solid var(--ink);border-radius:2px;background:#e9e1d1;box-shadow:3px 3px 0 rgba(41,43,48,.2)}
+.work-detail .code-copy{border:2px solid var(--ink);border-radius:2px;background:#f2b63d;box-shadow:2px 2px 0 var(--ink);color:var(--ink);font:800 10px ui-monospace,monospace}
+.work-detail .detail-description{color:#454137;font-family:"Iowan Old Style","Songti SC","Noto Serif SC",serif;font-size:15px;line-height:1.95}
+.work-detail :focus-visible{outline:3px solid #d39a31;outline-offset:3px}
+@media(max-width:680px){.work-detail .detail-actions{gap:10px}.work-detail .detail-actions .project-link,.work-detail .detail-actions .creator-link{min-height:40px}.work-detail .detail-feature{margin-top:24px}}
