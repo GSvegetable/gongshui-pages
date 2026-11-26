@@ -1,27 +1,35 @@
 /* Daybreak Rail — scoped to the currently opened work-detail panel only. */
 .work-detail .db-rail{
   --db-ink:#292b30;--db-paper:#f4efe3;--db-gold:#f1b943;
+  /* 昼夜强度：0 = 白天，1 = 满月。这些值由 daybreak-rail.js 逐帧插值写进来，
+     所以太阳变月亮、天空换色是一条连续的曲线，不会出现"先跳一下再变"。 */
+  --db-night:0;
+  --db-sky-1:#cfe6ef;--db-sky-2:#f2c98a;--db-sky-3:#f0a04b;
+  --db-core-1:#fff3c4;--db-core-2:#ffd35c;--db-core-3:#ef9c2a;
+  --db-ray:#f9d06a;--db-halo-rgb:255 217 138;--db-crescent-rgb:196 184 143;
+  --db-card-bg:rgba(255,255,255,.48);
   position:absolute;z-index:8;inset:0 auto 0 0;width:58px;min-height:100%;
   display:flex;flex-direction:column;align-items:center;overflow:hidden;
-  color:var(--db-ink);background:linear-gradient(180deg,#dcebf0 0%,#f0a04b 100%);
-  border-right:2px solid var(--db-ink);box-shadow:4px 0 0 var(--db-gold);
+  color:var(--db-ink);
+  background:linear-gradient(180deg,var(--db-sky-1) 0%,var(--db-sky-2) 56%,var(--db-sky-3) 100%);
+  border-right:2px solid var(--db-ink);
   transition:width .42s cubic-bezier(.7,0,.2,1),color .3s,margin-left .42s cubic-bezier(.7,0,.2,1);
   isolation:isolate;
 }
-.work-detail .db-rail[data-tone="night"]{--db-ink:#f2eee4;--db-paper:#282b43;background:linear-gradient(180deg,#20253c,#343149 62%,#5a465b)}
 .work-detail .db-rail.is-open{width:176px}
 .work-detail .db-rail *{box-sizing:border-box}
 .work-detail .db-sky{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
-.work-detail .db-stars{position:absolute;inset:0;opacity:0}
-.work-detail .db-rail[data-tone="night"] .db-stars{opacity:1}
+.work-detail .db-stars{position:absolute;inset:0;opacity:var(--db-night)}
 .work-detail .db-stars i{position:absolute;width:3px;height:3px;background:#fff5d5;animation:db-twinkle 2.6s steps(2,end) infinite}
-.work-detail .db-clouds{position:absolute;inset:0;transition:opacity .4s}
-.work-detail .db-rail[data-tone="night"] .db-clouds{opacity:0}
+.work-detail .db-clouds{position:absolute;inset:0;opacity:calc(1 - var(--db-night))}
 .work-detail .db-cloud{position:absolute;left:-28px;width:6px;height:6px;background:#fff;box-shadow:6px -6px #fff,12px -6px #fff,6px 0 #fff,12px 0 #fff,18px 0 #fff;animation:db-drift 48s steps(90,end) infinite}
 .work-detail .db-cloud:nth-child(1){top:18%}.work-detail .db-cloud:nth-child(2){top:56%;scale:1.5;animation-duration:70s;animation-delay:-30s}.work-detail .db-cloud:nth-child(3){top:82%;animation-duration:58s;animation-delay:-12s}
 @keyframes db-twinkle{50%{opacity:.16}}@keyframes db-drift{to{transform:translateX(260px)}}
 .work-detail .db-head{position:relative;z-index:2;flex:none;width:100%;height:76px;display:flex;align-items:center;gap:12px;padding:0 10px}
-.work-detail .db-logo{flex:none;width:36px;height:36px;display:grid;place-items:center;border:2px solid var(--db-ink);background:var(--db-gold);color:#292b30;box-shadow:3px 3px 0 var(--db-ink);font:950 20px/1 system-ui;cursor:pointer}
+/* 顶端的箭头：告诉人"点这里能展开导航"。展开后旋转 180°，变成收起箭头。 */
+.work-detail .db-logo{flex:none;width:36px;height:36px;display:grid;place-items:center;padding:0;border:2px solid var(--db-ink);background:var(--db-gold);color:#292b30;box-shadow:3px 3px 0 var(--db-ink);cursor:pointer}
+.work-detail .db-logo svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:3.5;stroke-linecap:square;stroke-linejoin:miter;transition:transform .42s cubic-bezier(.7,0,.2,1)}
+.work-detail .db-rail.is-open .db-logo svg{transform:rotate(180deg)}
 .work-detail .db-brand{white-space:nowrap;font:850 10px/1.5 ui-monospace,monospace;letter-spacing:.13em;opacity:0;transform:translateX(-8px);transition:opacity .2s,transform .3s}
 .work-detail .db-brand small{display:block;font-size:8px;opacity:.65}
 .work-detail .db-rail.is-open .db-brand{opacity:1;transform:none;transition-delay:.1s}
@@ -33,26 +41,37 @@
 .work-detail .db-node{flex:none;width:17px;height:17px;border:2px solid var(--db-ink);background:var(--db-paper);transition:transform .25s,background .25s}
 .work-detail .db-stop.is-past .db-node{background:var(--db-gold);border-color:#292b30}
 .work-detail .db-stop:hover .db-node{transform:scale(1.2) rotate(45deg)}
-.work-detail .db-label{display:flex;flex-direction:column;margin-left:18px;opacity:0;transform:translateX(-8px);transition:opacity .2s,transform .3s}
+.work-detail .db-label{display:flex;flex-direction:column;margin-left:20px;opacity:0;transform:translateX(-8px);transition:opacity .2s,transform .3s}
 .work-detail .db-label b{font:800 13px/1.2 system-ui,sans-serif}
 .work-detail .db-label em{margin-top:4px;font:700 8px/1 ui-monospace,monospace;letter-spacing:.12em;opacity:.65;font-style:normal}
 .work-detail .db-stop.is-current .db-label b{box-shadow:inset 0 -6px 0 rgba(241,185,67,.65)}
 .work-detail .db-rail.is-open .db-label{opacity:1;transform:none;transition-delay:calc(var(--stop-index)*35ms + 100ms)}
-.work-detail .db-sun{position:absolute;z-index:4;left:10px;top:0;width:34px;height:34px;padding:0;border:0;background:transparent;cursor:grab;touch-action:none;filter:drop-shadow(2px 2px 0 rgba(0,0,0,.25))}
+
+/* ---------- 太阳 / 月亮 ----------
+   同一颗圆盘：外圈是像素轮廓，里面是渐变内核。
+   白天内核是发光的暖金色，入夜时逐层插值成月亮的奶油色，
+   同时右侧浮出一道月牙阴影；光芒和光晕随 --db-night 一起淡出。 */
+.work-detail .db-sun{position:absolute;z-index:4;left:10px;top:0;width:34px;height:34px;padding:0;border:0;background:transparent;cursor:grab;touch-action:none}
 .work-detail .db-sun:active{cursor:grabbing}
 .work-detail .db-sun i{position:absolute;display:block}
+.work-detail .db-sun .db-halo{inset:-11px;background:radial-gradient(circle at 50% 50%,rgb(var(--db-halo-rgb) / .46) 0%,rgb(var(--db-halo-rgb) / .14) 40%,rgb(var(--db-halo-rgb) / 0) 68%);opacity:calc(1 - var(--db-night));filter:blur(2px)}
 .work-detail .db-sun .db-ring,.work-detail .db-sun .db-core{clip-path:polygon(25% 0,75% 0,75% 12%,88% 12%,88% 25%,100% 25%,100% 75%,88% 75%,88% 88%,75% 88%,75% 100%,25% 100%,25% 88%,12% 88%,12% 75%,0 75%,0 25%,12% 25%,12% 12%,25% 12%)}
-.work-detail .db-sun .db-ring{inset:0;background:#292b30}.work-detail .db-sun .db-core{inset:4px;background:var(--db-gold);transition:background .3s}
-.work-detail .db-sun .db-rays{left:14px;top:14px;width:6px;height:6px;background:#292b30;box-shadow:0 -23px #292b30,0 23px #292b30,-23px 0 #292b30,23px 0 #292b30;animation:db-spin 1.4s steps(2,end) infinite}
+.work-detail .db-sun .db-ring{inset:0;background:var(--db-ink)}
+.work-detail .db-sun .db-core{inset:3px;background:radial-gradient(circle at 50% 34%,var(--db-core-1) 0%,var(--db-core-2) 48%,var(--db-core-3) 86%);box-shadow:inset -9px 0 rgb(var(--db-crescent-rgb) / var(--db-night))}
+/* 四条长光芒 + 四条短光芒（斜的）。转 45° 时长短互换，就有了"闪一下"的感觉。 */
+.work-detail .db-sun .db-rays{left:14px;top:14px;width:6px;height:6px;background:var(--db-ray);opacity:calc(1 - var(--db-night));box-shadow:0 -21px 0 var(--db-ray),0 21px 0 var(--db-ray),-21px 0 0 var(--db-ray),21px 0 0 var(--db-ray);animation:db-spin 2.4s steps(2,end) infinite}
+.work-detail .db-sun .db-rays-b{left:15px;top:15px;width:4px;height:4px;background:var(--db-ray);opacity:calc(1 - var(--db-night));box-shadow:-15px -15px 0 var(--db-ray),15px -15px 0 var(--db-ray),-15px 15px 0 var(--db-ray),15px 15px 0 var(--db-ray);animation:db-spin 2.4s steps(2,end) infinite}
 @keyframes db-spin{50%{transform:rotate(45deg)}}
-.work-detail .db-sun.is-moon .db-core{background:#f3ebd2;box-shadow:inset -9px 0 #c4b88f}.work-detail .db-sun.is-moon .db-rays{opacity:0}
+
 .work-detail .db-foot{position:relative;z-index:2;flex:none;width:100%;padding:0 12px 16px;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .3s;pointer-events:none}
 .work-detail .db-rail.is-open .db-foot{opacity:1;transform:none;pointer-events:auto;transition-delay:.18s}
-.work-detail .db-card{border:2px solid var(--db-ink);background:rgba(255,255,255,.48);box-shadow:3px 3px 0 var(--db-ink);padding:9px 10px}
+.work-detail .db-card{border:2px solid var(--db-ink);background:var(--db-card-bg);box-shadow:3px 3px 0 var(--db-ink);padding:9px 10px}
 .work-detail .db-k{font:800 8px/1 ui-monospace,monospace;letter-spacing:.18em;opacity:.65}
 .work-detail .db-phase{margin:6px 0 8px;font-size:15px;font-weight:900;white-space:nowrap}
 .work-detail .db-meter{display:grid;grid-template-columns:repeat(10,1fr);gap:2px}.work-detail .db-meter i{height:6px;border:1px solid var(--db-ink)}.work-detail .db-meter i.is-on{background:var(--db-gold)}
+.work-detail .db-pct{margin-top:7px;font:700 9px/1 ui-monospace,monospace;letter-spacing:.08em;opacity:.75}
 .work-detail .db-night-toggle{position:absolute;right:8px;top:25px;width:24px;height:24px;border:2px solid #292b30;background:var(--db-gold);color:#292b30;font-weight:900;cursor:pointer}
+.work-detail .db-night-toggle[aria-pressed="true"]{background:#292b30;color:var(--db-gold)}
 .work-detail .db-rail button:focus-visible{outline:3px solid var(--db-gold);outline-offset:2px}
 /* The rail keeps its own anchor: the panel's gutter never changes, so opening
    the rail cannot shift the rail itself out from under the pointer (which used
@@ -63,13 +82,13 @@
 @media(max-width:680px){
  .work-detail.db-ready{padding-left:68px}
   .work-detail .db-rail{position:sticky;float:left;top:0;inset:auto;width:52px;height:100dvh;min-height:420px;margin:0 0 -100dvh -68px}
- .work-detail .db-rail.is-open{width:176px}
- .work-detail .db-head{height:68px;padding-left:8px}
- .work-detail .db-logo{width:34px;height:34px}
- .work-detail .db-stop{min-height:54px;padding-left:16px}
- .work-detail .db-track,.work-detail .db-fill{left:24px}
- .work-detail .db-sun{left:7px}
- .work-detail .db-foot{padding:0 9px 14px}
+  .work-detail .db-rail.is-open{width:176px}
+  .work-detail .db-head{height:68px;padding-left:8px}
+  .work-detail .db-logo{width:34px;height:34px}
+  .work-detail .db-stop{min-height:54px;padding-left:16px}
+  .work-detail .db-track,.work-detail .db-fill{left:24px}
+  .work-detail .db-sun{left:7px}
+  .work-detail .db-foot{padding:0 9px 14px}
 }
 @media(prefers-reduced-motion:reduce){
  .work-detail .db-rail *, .work-detail .db-rail *::before,.work-detail .db-rail *::after{animation:none!important;transition-duration:1ms!important}
@@ -101,7 +120,8 @@
   z-index:30;
 }
 .work-detail .db-head{height:68px;align-items:flex-start;padding-top:8px}
-.work-detail .db-logo{width:30px;height:30px;font-size:16px}
+.work-detail .db-logo{width:30px;height:30px}
+.work-detail .db-logo svg{width:20px;height:20px}
 .work-detail .db-night-toggle{left:11px;right:auto;top:42px}
 .work-detail .db-foot{position:absolute;left:0;right:0;bottom:0;width:100%;padding:0 8px 12px}
 
@@ -156,10 +176,9 @@
   background:transparent;
   cursor:grab;
   touch-action:none;
-  filter:drop-shadow(2px 2px 0 rgba(0,0,0,.25));
 }
-/* Pinned open (clicked the logo): the rail keeps its labels even when the
-   pointer leaves, and the logo shows it is latched. */
+/* Pinned open (clicked the arrow): the rail keeps its labels even when the
+   pointer leaves, and the arrow shows it is latched. */
 .work-detail .db-rail.is-pinned .db-logo{box-shadow:3px 3px 0 var(--db-ink),0 0 0 2px var(--db-gold)}
 .work-detail.db-ready{padding-left:78px}
 @media(max-width:680px){

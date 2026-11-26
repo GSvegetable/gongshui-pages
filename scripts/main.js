@@ -757,6 +757,37 @@ syncSearchUI();
   };
   const getEasing = () => readCss('--ease') || 'cubic-bezier(.22,.8,.2,1)';
 
+  /* ---------- 把 --ease 的 cubic-bezier 变成可以逐帧算的函数 ---------- */
+  // 关闭作品时，页面回位和卡片回位必须走同一条曲线、同一个时长。
+  // 只要有一条自己另算，卡片就会先落到旧位置，页面再瞬移一下 —— 看着像"跳"。
+  const bezierEase = (x1, y1, x2, y2) => {
+    const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+    const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+    const sx = t => ((ax * t + bx) * t + cx) * t;
+    const sy = t => ((ay * t + by) * t + cy) * t;
+    const dx = t => (3 * ax * t + 2 * bx) * t + cx;
+    return x => {
+      let t = x;
+      for (let i = 0; i < 8; i++) {
+        const d = dx(t);
+        if (!d) break;
+        const err = sx(t) - x;
+        if (Math.abs(err) < 1e-6) break;
+        t -= err / d;
+      }
+      t = Math.max(0, Math.min(1, t));
+      return sy(t);
+    };
+  };
+  const easeOf = () => {
+    const m = /cubic-bezier\(([^)]+)\)/.exec(getEasing());
+    if (!m) return t => t;
+    const n = m[1].split(',').map(v => parseFloat(v));
+    if (n.length < 4 || n.some(v => !Number.isFinite(v))) return t => t;
+    return bezierEase(n[0], n[1], n[2], n[3]);
+  };
+  const clampNum = (v, a, b) => Math.max(a, Math.min(b, v));
+
   /* ---------- 尺寸常量（和 style.css 对应） ---------- */
   const DEFAULT_RATIO = 1.6439;
   const CLOSED_CHROME = 26; // 缩略卡：边框 3×2 + 内边距 8×2 + 作品框边框 2×2
@@ -766,6 +797,7 @@ syncSearchUI();
   let current = null;       // 当前作品
   let expanded = false;     // 是否处于"放大作品展示区域"
   let anim = null;          // 正在跑的动画
+  let scrollAnim = null;    // 正在跑的"页面回位"滚动
 
   /* ---------- 作品视图：左侧随页面滚动（取消吸顶），右侧面板独立滚动 ---------- */
   let settled = false;
@@ -892,7 +924,9 @@ syncSearchUI();
     settled = false;
     lockScroll();
     if (workExtras) workExtras.hidden = true;
-    if (workSpacer) workSpacer.style.height = '';
+    // 这里不能清占位高度：文档一收窄，浏览器会立刻把滚动位置夹回去，
+    // 页面"啪"地弹一下，卡片也就跟着落错位置。
+    // 高度留到 finishClose() 再撤，动画全程文档高度不变，滚动位置不会被动。
   };
 
   /* ---------- 几何：展开后卡片 / 放大作品后卡片应该在哪 ---------- */
@@ -1156,7 +1190,32 @@ syncSearchUI();
     }).catch(() => {});
   };
 
+  /* ---------- 页面回位：和卡片同曲线、同时长的一段滚动 ---------- */
+  // 关闭作品时页面可能已经被用户滚下去过。回位必须和卡片同步走，
+  // 否则卡片先落到"旧位置"，页面再瞬移一下 —— 这正是之前看到的错位。
+  const stopScrollAnim = () => {
+    if (!scrollAnim) return;
+    cancelAnimationFrame(scrollAnim.raf);
+    scrollAnim = null;
+  };
+  const animateScrollTo = (from, to, duration, ease) => {
+    stopScrollAnim();
+    if (!Number.isFinite(to) || duration <= 0 || Math.abs(to - from) < 1) {
+      window.scrollTo(0, Number.isFinite(to) ? to : from);
+      return;
+    }
+    const t0 = performance.now();
+    const step = now => {
+      const p = Math.min(1, (now - t0) / duration);
+      window.scrollTo(0, from + (to - from) * ease(p));
+      if (p < 1) scrollAnim.raf = requestAnimationFrame(step);
+      else scrollAnim = null;
+    };
+    scrollAnim = { raf: requestAnimationFrame(step) };
+  };
+
   const stopAnim = () => {
+    stopScrollAnim();
     if (!anim) return;
     anim.cancelled = true;
     anim.animations.forEach(a => a.cancel());
@@ -1179,6 +1238,9 @@ syncSearchUI();
     setExpandControl(false);
 
     const first = snapshot(card);                 // ① First：现在的样子
+    // 记住"当初被点中的那个槽位"在视口里的高度。关闭时页面回到这个高度，
+    // 卡片就正好落回点击它时的那个位置，不会落到别处再瞬移。
+    work.openViewTop = first.top;
 
     work.ghost = makeGhost(card);                 // 原位放占位，周围不动
     card.parentNode.insertBefore(work.ghost, card);
@@ -1224,6 +1286,11 @@ syncSearchUI();
     selectedView = null;
     if (workExtras) workExtras.hidden = true;
     if (workSpacer) workSpacer.style.height = '';
+    // 撤掉占位高度后文档变矮，浏览器可能把滚动位置夹回去；
+    // 把它钉回回位目标，页面和卡片就停在同一个地方。
+    if (Number.isFinite(work.finalScroll) && Math.abs(window.scrollY - work.finalScroll) > 1) {
+      window.scrollTo(0, work.finalScroll);
+    }
     document.body.classList.remove('compare-mode');
     if (compareView) compareView.hidden = true;
     window.siteCompare?.hide?.();
@@ -1240,11 +1307,19 @@ syncSearchUI();
     const card = work.card;
     if (settled) unsettle();
 
+    const scrollFrom = window.scrollY;
     const first = snapshot(card);                 // 中途点关闭，也从当前画面接着走
     stopAnim();
 
     const ghost = snapshot(work.ghost);           // 终点 = 占位卡片的实时位置
-    const last = { left: ghost.left, top: ghost.top, width: ghost.width, height: ghost.height, padding: ghost.padding, titleSize: ghost.titleSize };
+    // 占位卡片留在网格原位，它的文档坐标不会变；
+    // 只要页面滚回"打开时的高度"，它就回到当初被点中的那个槽位。
+    const ghostDocTop = work.ghost.getBoundingClientRect().top + window.scrollY;
+    const homeTop = Number.isFinite(work.openViewTop) ? work.openViewTop : ghost.top;
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const scrollTo = clampNum(ghostDocTop - homeTop, 0, maxScroll);
+    work.finalScroll = scrollTo;
+    const last = { left: ghost.left, top: homeTop, width: ghost.width, height: ghost.height, padding: ghost.padding, titleSize: ghost.titleSize };
 
     mode = 'closing';
     expanded = false;
@@ -1259,6 +1334,10 @@ syncSearchUI();
     applyBox(card, last);
 
     animateCard(work, first, last, () => finishClose(work));
+    // 页面和卡片一起回位：同一条曲线、同一个时长。
+    // 以前这里是 scrollTo(0) —— 页面先瞬移到顶部，卡片再从瞬移后的画面飞回去，
+    // 于是先落到一个错位置，再跳到正确位置。
+    animateScrollTo(scrollFrom, scrollTo, getDuration(), easeOf());
   };
 
   const closeWork = () => {
@@ -1266,10 +1345,6 @@ syncSearchUI();
     window.siteFolderPicker?.close?.();
     window.siteNav?.close('work');
     if (compareOn) setCompareOn(false);
-    // 页面向下滚过时，先回到顶部再关闭，避免卡片从屏幕外飞回
-    if (settled && window.scrollY > 0) {
-      try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch (_) { window.scrollTo(0, 0); }
-    }
     doCloseWork();
   };
 
