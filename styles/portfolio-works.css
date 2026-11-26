@@ -23,3 +23,17 @@
 .navigation-icon-theme-option{min-width:58px;padding:7px 13px;border:1px solid rgba(120,110,90,.28);border-radius:999px;background:transparent;color:inherit;font:inherit;font-size:13px;cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease}
 .navigation-icon-theme-option.is-active{border-color:currentColor;background:rgba(120,110,90,.12);font-weight:650}
 .navigation-icon-theme-option:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+
+
+/* Navigation Interaction System — compact detail-page controls */
+.navigation-settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px;margin:16px 0 10px;padding:4px 16px;border:1px solid rgba(245,236,217,.14);border-radius:8px;background:rgba(245,236,217,.035)}
+.navigation-setting-row{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:52px;border-bottom:1px solid rgba(245,236,217,.09)}
+.navigation-setting-row:nth-last-child(-n+2){border-bottom:0}
+.navigation-setting-row[hidden]{display:none}
+.navigation-setting-row>label:first-child{color:inherit;font-size:13px;font-weight:650;white-space:nowrap}
+.navigation-setting-row select{width:min(190px,62%);min-width:0;padding:8px 28px 8px 10px;border:1px solid rgba(245,236,217,.2);border-radius:5px;background:#211f1b;color:#f5ecd9;font:inherit;font-size:12px;outline:none}
+.navigation-setting-row select:focus-visible{border-color:#f4bd3c;box-shadow:0 0 0 2px rgba(244,189,60,.18)}
+.navigation-switch{display:inline-flex;align-items:center;gap:8px;color:#f5ecd9;font-size:12px;cursor:pointer}
+.navigation-switch input{width:16px;height:16px;margin:0;accent-color:#f4bd3c}
+.navigation-settings-note{margin:8px 0 0;color:rgba(245,236,217,.58);font-size:11px;line-height:1.65}
+@media(max-width:560px){.navigation-settings{grid-template-columns:1fr;padding:2px 12px}.navigation-setting-row:nth-last-child(-n+2){border-bottom:1px solid rgba(245,236,217,.09)}.navigation-setting-row:last-child{border-bottom:0}.navigation-setting-row select{width:min(58%,220px)}}
