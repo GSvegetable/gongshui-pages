@@ -653,10 +653,34 @@ syncSearchUI();
         const sx = first.width / last.width;
         const sy = first.height / last.height;
         if (!dx && !dy && sx === 1 && sy === 1) continue;
-        card.animate([
+
+        const duration = 520;
+        const easing = 'cubic-bezier(.2,.75,.25,1)';
+        const keyframes = [
           { transformOrigin: 'top left', transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})` },
           { transformOrigin: 'top left', transform: 'none' }
-        ], { duration: 520, easing: 'cubic-bezier(.2,.75,.25,1)' });
+        ];
+
+        // FLIP 仍然让整张卡片平滑过渡尺寸，但不能让信息区和标题也被
+        // 一起压扁/拉长。下巴的宽度继续跟随新卡片宽度；高度抵消纵向缩放，
+        // 标题抵消横向缩放，保证文字在动画中保持稳定的视觉字重与字号。
+        card.animate(keyframes, { duration, easing });
+
+        const info = card.querySelector('.card-info');
+        if (info && sy !== 1) {
+          info.animate([
+            { transformOrigin: 'top left', transform: `scaleY(${1 / sy})` },
+            { transformOrigin: 'top left', transform: 'none' }
+          ], { duration, easing });
+        }
+
+        const title = card.querySelector('.card-info .card-title');
+        if (title && sx !== 1) {
+          title.animate([
+            { transformOrigin: 'left center', transform: `scaleX(${1 / sx})` },
+            { transformOrigin: 'left center', transform: 'none' }
+          ], { duration, easing });
+        }
       }
     });
 
