@@ -98,7 +98,7 @@ Deno.serve(async (req: Request) => {
     const authRes = await fetch(url + "/auth/v1/token?grant_type=password", {
       method: "POST",
       headers: { apikey: anon, "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email: authEmail, password }),
     });
     const session = await authRes.json();
     if (!resolvedEmail || !authRes.ok || !session?.user?.id) {
