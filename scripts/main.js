@@ -869,13 +869,13 @@ syncSearchUI();
     card.style.width = Math.round(r.width) + 'px';
     card.classList.add('is-settled');
     settled = true;
-    positionDetailPanel();
     unlockScroll();
     if (workExtras) workExtras.hidden = !['pixel-daylight-switch', 'pixel-orbit'].includes(current.id);
     // 手机上如果对比是开着的（极少见：动画途中点的开关），落地时直接按并排版式收好
     if (isMobile() && compareOn) applyMobileWorkBox(mobileCompareBox());
     syncCompareUI();
     positionWorkExtras();
+    positionDetailPanel();
     updateWorkSpacer();
   };
 
@@ -912,10 +912,14 @@ syncSearchUI();
     const panel = current.panel;
     if (isMobile()) {
       const rect = current.card.getBoundingClientRect();
+      let panelTop = rect.bottom + window.scrollY;
+      if (workExtras && !workExtras.hidden && compareView && !compareView.hidden) {
+        panelTop = Math.max(panelTop, workExtras.getBoundingClientRect().bottom + window.scrollY);
+      }
       panel.style.position = 'absolute';
       panel.style.left = '14px';
       panel.style.right = '14px';
-      panel.style.top = Math.round(rect.bottom + window.scrollY) + 'px';
+      panel.style.top = Math.round(panelTop) + 'px';
       panel.style.bottom = 'auto';
       panel.style.width = 'auto';
     } else {
@@ -1471,8 +1475,8 @@ syncSearchUI();
         current.card.style.left = box.left + 'px';
         if (box.top != null) current.card.style.top = box.top + 'px';
         current.card.style.width = box.width + 'px';
-        positionDetailPanel();
         positionWorkExtras();
+        positionDetailPanel();
         updateWorkSpacer();
       } else {
         applyBox(current.card, expanded ? expandedBox(current) : openBox());
