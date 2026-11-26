@@ -32,12 +32,16 @@ jobs:
         run: node --check scripts/portfolio-preview.js
       - name: Verify independent project integration
         run: |
-          grep -q 'contributors-globe/?v=1.0.0' scripts/portfolio-preview.js
-          grep -q 'bookmark-hall/?v=1.0.0' scripts/portfolio-preview.js
-          grep -q 'navigation-interaction/?v=1.0.0' scripts/portfolio-preview.js
-          grep -q 'gongshui:bookmark-hall:data' scripts/portfolio-preview.js
-          grep -q 'gongshui:bookmark-hall:open' scripts/portfolio-preview.js
-          grep -q 'gongshui:contributors-globe:select-work' scripts/portfolio-preview.js
+          grep -q 'contributors-globe/embed.js' index.html
+          grep -q 'bookmark-hall/embed.js' index.html
+          grep -q 'navigation-interaction/embed.js' index.html
+          grep -q 'https://gsvegetable.github.io' index.html
+          grep -q 'gongshui:embed:ready' scripts/portfolio-preview.js
+          grep -q 'onOpenWork' scripts/portfolio-preview.js
+          grep -q 'setItems' scripts/portfolio-preview.js
+          grep -q 'onOpen' scripts/portfolio-preview.js
+          grep -q 'site:bookmarkchange' scripts/portfolio-preview.js
+          ! grep -q 'createElement(.*iframe' scripts/portfolio-preview.js
           ! grep -q 'scripts/globe.js' index.html
           ! grep -q 'scripts/bookmarks-corridor.js' index.html
           ! grep -q 'styles/globe.css' index.html

@@ -3,11 +3,11 @@
 
   const PROJECT_ROOT = 'https://gsvegetable.github.io/gongshui-open-source/';
   const PROJECTS = {
-    globe: PROJECT_ROOT + 'contributors-globe/?v=1.0.0',
-    corridor: PROJECT_ROOT + 'bookmark-hall/?v=1.0.0',
-    navigation: PROJECT_ROOT + 'navigation-interaction/?v=1.0.0'
+    globe: PROJECT_ROOT + 'contributors-globe/',
+    corridor: PROJECT_ROOT + 'bookmark-hall/',
+    navigation: PROJECT_ROOT + 'navigation-interaction/'
   };
-  const frames = Object.create(null);
+  const instances = Object.create(null);
   let pendingGlobeWork = '';
 
   const readState = () => {
@@ -27,18 +27,17 @@
     cards.forEach(card => {
       const id = card.dataset.id;
       const panel = card.dataset.detail ? document.getElementById(card.dataset.detail) : null;
-      const iframe = card.querySelector('.preview-mount iframe');
-      const knownProject = id === 'contributors-globe' ? PROJECTS.globe
+      const mount = card.querySelector('.preview-mount');
+      const src = id === 'contributors-globe' ? PROJECTS.globe
         : id === 'bookmarks-corridor' ? PROJECTS.corridor
         : id === 'navigation-system' ? PROJECTS.navigation : '';
-      const mount = card.querySelector('.preview-mount');
       byId.set(id, {
         id,
         title: (card.querySelector('.card-title') || {}).textContent || id,
         en: card.dataset.en || '',
         desc: ((panel && panel.querySelector('.detail-description')) || {}).textContent || '',
         github: (panel && panel.querySelector('.project-link') && panel.querySelector('.project-link').href) || '',
-        src: knownProject || (iframe && iframe.getAttribute('src')) || '',
+        src,
         ratio: mount ? (parseFloat(getComputedStyle(mount).getPropertyValue('--mount-ratio')) || 1.6439) : 1.6439,
         folder: ''
       });
@@ -57,70 +56,61 @@
     return ordered.map(id => ({ ...byId.get(id), folder: folderNames.get(id) || '' }));
   };
 
-  const sendBookmarkData = frame => {
-    if (!frame || !frame.contentWindow) return;
-    const origin = new URL(frame.src).origin;
-    frame.contentWindow.postMessage({
-      type: 'gongshui:bookmark-hall:data',
-      items: collectBookmarkItems()
-    }, origin);
+  const openWorkCard = workId => {
+    if (typeof workId !== 'string' || !workId) return;
+    const card = [...document.querySelectorAll('.preview-card[data-id]')].find(item => item.dataset.id === workId);
+    if (card) card.click();
   };
 
-  const createFrame = kind => {
+  const sendBookmarkData = () => {
+    const api = instances.corridor;
+    if (api && typeof api.setItems === 'function') api.setItems(collectBookmarkItems());
+  };
+
+  const registerEmbed = detail => {
+    if (!detail || !detail.api || !detail.element || !detail.iframe) return;
+    const kind = ({
+      'contributors-globe': 'globe',
+      'bookmark-hall': 'corridor',
+      'navigation-interaction': 'navigation'
+    })[detail.kind];
+    if (!kind || instances[kind] === detail.api) return;
     const mount = document.querySelector('[data-live-preview="' + kind + '"]');
-    if (!mount || frames[kind]) return;
-    const frame = document.createElement('iframe');
-    frame.className = 'portfolio-live-frame';
-    frame.title = ({
-      globe: '投稿者地球交互预览',
-      corridor: '收藏长廊空间预览',
-      navigation: '导航交互系统按钮样本'
-    })[kind];
-    frame.loading = 'lazy';
-    frame.referrerPolicy = 'strict-origin-when-cross-origin';
-    frame.allow = 'fullscreen';
-    frame.src = PROJECTS[kind];
-    frames[kind] = frame;
-    frame.addEventListener('load', () => {
-      frame.dataset.loaded = 'true';
-      if (kind === 'corridor') sendBookmarkData(frame);
-      if (kind === 'globe' && pendingGlobeWork) {
-        frame.contentWindow.postMessage({
-          type: 'gongshui:contributors-globe:select-work',
-          workId: pendingGlobeWork
-        }, new URL(frame.src).origin);
-      }
-    });
-    mount.appendChild(frame);
-  };
+    if (mount !== detail.element) return;
 
-  createFrame('globe');
-  createFrame('corridor');
-  createFrame('navigation');
-
-  window.siteGlobe = {
-    selectWork(workId) {
-      pendingGlobeWork = String(workId || '');
-      const frame = frames.globe;
-      if (frame && frame.contentWindow && frame.dataset.loaded === 'true') {
-        frame.contentWindow.postMessage({
-          type: 'gongshui:contributors-globe:select-work',
-          workId: pendingGlobeWork
-        }, new URL(frame.src).origin);
-      }
+    instances[kind] = detail.api;
+    if (kind === 'globe') {
+      detail.api.onOpenWork(message => openWorkCard(message.workId));
+      if (pendingGlobeWork) detail.api.selectWork(pendingGlobeWork);
+    } else if (kind === 'corridor') {
+      detail.api.onOpen(message => openWorkCard(message.id));
+      detail.api.setItems(collectBookmarkItems());
     }
   };
 
-  window.addEventListener('message', event => {
-    const frame = frames.corridor;
-    if (!frame || event.source !== frame.contentWindow || event.origin !== new URL(frame.src).origin) return;
-    const message = event.data;
-    if (!message || message.type !== 'gongshui:bookmark-hall:open' || typeof message.id !== 'string') return;
-    const card = [...document.querySelectorAll('.preview-card[data-id]')].find(item => item.dataset.id === message.id);
-    if (card) card.click();
+  window.addEventListener('gongshui:embed:ready', event => registerEmbed(event.detail));
+  ['globe', 'corridor', 'navigation'].forEach(kind => {
+    const mount = document.querySelector('[data-live-preview="' + kind + '"]');
+    if (mount && mount.gongshuiEmbed) {
+      registerEmbed({
+        kind: kind === 'globe' ? 'contributors-globe' : kind === 'corridor' ? 'bookmark-hall' : 'navigation-interaction',
+        element: mount,
+        iframe: mount.gongshuiEmbed.iframe,
+        api: mount.gongshuiEmbed
+      });
+    }
   });
 
+  // Preserve the website's existing main.js integration point; it now delegates
+  // to the independent component API rather than reaching into the artwork iframe.
+  window.siteGlobe = {
+    selectWork(workId) {
+      pendingGlobeWork = String(workId || '');
+      if (instances.globe) instances.globe.selectWork(pendingGlobeWork);
+    }
+  };
+
   ['site:bookmarkchange', 'site:folders', 'site:synced'].forEach(name => {
-    document.addEventListener(name, () => sendBookmarkData(frames.corridor));
+    document.addEventListener(name, sendBookmarkData);
   });
 })();

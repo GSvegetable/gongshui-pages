@@ -13,7 +13,7 @@
 [![简体中文](https://img.shields.io/badge/lang-简体中文-16A34A?style=flat-square)](README.md)
 [![English](https://img.shields.io/badge/lang-English-2563EB?style=flat-square)](README.en.md)
 [![日本語](https://img.shields.io/badge/lang-日本語-D94841?style=flat-square)](README.ja.md)
-[![Version](https://img.shields.io/badge/version-v2.12.21-7C3AED?style=flat-square)](docs/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-v2.12.24-7C3AED?style=flat-square)](docs/CHANGELOG.md)
 [![Platform](https://img.shields.io/badge/platform-Web-0D9488?style=flat-square)](https://xn--3bts89a.com/)
 
 </div>
@@ -99,7 +99,7 @@ gongshui-pages/
 
 サイトに表示される5つの作品のソースは、すべて [gongshui-open-source](https://github.com/GSvegetable/gongshui-open-source) に一元管理されています。このリポジトリはウェブサイト本体、UI、ナビゲーション、ログイン、アカウント、ブックマークとフォルダー、検索、設定、作品一覧、および iframe ホストアダプターを担当します。作品の描画実装をサイト側に重複して保持しません。
 
-Bookmark Hall は、送信元を検証した `postMessage` によってサイトからブックマーク情報を受け取ります。アカウント、保存、詳細画面への遷移は引き続きサイト側が担当します。黒いブックマークナビゲーションページはプラットフォームのページであり、作品の Bookmark Hall とは別です。詳細は[リポジトリの役割と作品コードの配置](docs/ARCHITECTURE.md)を参照してください。
+3〜5番目の作品には、2行で利用できる `embed.js` ローダーと公開 API があります。Bookmark Hall は、送信元を検証した `postMessage` によってサイトからブックマーク情報を受け取ります。アカウント、保存、詳細画面への遷移は引き続きサイト側が担当します。黒いブックマークナビゲーションページはプラットフォームのページであり、作品の Bookmark Hall とは別です。詳細は[リポジトリの役割と作品コードの配置](docs/ARCHITECTURE.md)を参照してください。
 
 ## アカウントとプライバシー
 
