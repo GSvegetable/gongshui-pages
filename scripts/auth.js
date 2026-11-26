@@ -340,10 +340,14 @@
         notify();
         return user;
       } catch (error) {
-        if (saved.id && [400, 401, 403].includes(error && error.status)) removeAccountToken(saved.id);
-        storeSession(null);
-        user = null;
-        notify();
+        // Only discard a refresh token when Auth explicitly rejects it.
+        // Network outages and transient 5xx responses must not sign users out.
+        if ([400, 401, 403].includes(error && error.status)) {
+          if (saved.id) removeAccountToken(saved.id);
+          storeSession(null);
+          user = null;
+          notify();
+        }
         return null;
       }
     });
@@ -353,12 +357,14 @@
 
   const cloudSignOut = async () => {
     const accountId = (session && session.id) || (user && user.id);
-    try { await api('/logout', { token: session && session.accessToken }); } catch (_) {}
-    if (accountId) removeAccountToken(accountId);
-    clearAccountTokens();
-    storeSession(null);
-    user = null;
-    notify();
+    return withSessionLock(accountId, async () => {
+      try { await api('/logout', { token: session && session.accessToken }); } catch (_) {}
+      if (accountId) removeAccountToken(accountId);
+      clearAccountTokens();
+      storeSession(null);
+      user = null;
+      notify();
+    });
   };
 
   /* ---------- 对外的接口 ---------- */
