@@ -12,6 +12,7 @@
   let pendingGlobeNight = false;
   let hasPendingGlobeNight = false;
   let globeNightRevision = 0;
+  let pendingNavigationIconColor = 'black';
 
   const applyGlobeNight = api => {
     const revision = globeNightRevision;
@@ -217,6 +218,7 @@
 
     instances[kind] = detail.api;
     if (kind === 'globe' && hasPendingGlobeNight) applyGlobeNight(detail.api);
+    if (kind === 'navigation' && typeof detail.api.setIconColor === 'function') detail.api.setIconColor(pendingNavigationIconColor);
     // The wrapper's ready event only means its API object exists. Wait for the
     // embedded document itself; globe and corridor send explicit first-frame signals.
     Promise.resolve(detail.api.ready).then(ok => {
@@ -253,6 +255,21 @@
         api: mount.gongshuiEmbed
       });
     }
+  });
+
+  document.querySelectorAll('[data-navigation-icon-color]').forEach(button => {
+    button.addEventListener('click', () => {
+      const color = button.getAttribute('data-navigation-icon-color') === 'white' ? 'white' : 'black';
+      pendingNavigationIconColor = color;
+      document.querySelectorAll('[data-navigation-icon-color]').forEach(option => {
+        const selected = option === button;
+        option.setAttribute('aria-pressed', String(selected));
+        option.classList.toggle('is-active', selected);
+      });
+      if (instances.navigation && typeof instances.navigation.setIconColor === 'function') {
+        instances.navigation.setIconColor(color);
+      }
+    });
   });
 
   // Preserve the website's existing main.js integration point; it now delegates
