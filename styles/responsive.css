@@ -161,7 +161,9 @@ main {
     width: auto;
     min-width: 0;
     max-width: none;
+    height: min(520px, max(220px, 48vh));
     height: min(520px, max(220px, 48dvh));
+    max-height: calc(100vh - 76px);
     max-height: calc(100dvh - 76px - env(safe-area-inset-top));
     padding: 18px 18px max(22px, env(safe-area-inset-bottom));
     border-radius: 5px;
@@ -254,7 +256,9 @@ main {
 /* Very short landscape windows need a shorter drawer, not a fixed portrait height. */
 @media (max-height: 560px) and (max-width: 760px) {
   .work-detail {
+    height: min(68vh, 360px);
     height: min(68dvh, 360px);
+    max-height: calc(100vh - 54px);
     max-height: calc(100dvh - 54px - env(safe-area-inset-top));
     padding-top: 12px;
   }
