@@ -1,0 +1,17 @@
+/* Per-artwork loading state: the placeholder occupies only the preview that is waiting. */
+.preview-mount.is-loading .card-load-state,
+.preview-mount.is-load-error .card-load-state {
+  position:absolute; inset:0; z-index:8; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:12px;
+  background:#171717; color:#e9dfcb; pointer-events:none;
+}
+.preview-mount .card-load-state.is-hidden { opacity:0; transition:opacity .22s ease; }
+.preview-mount .card-load-state.is-error { background:#211f1b; color:#e6d6b9; }
+.card-load-pixels { display:flex; align-items:flex-end; gap:5px; height:18px; }
+.card-load-pixels i { width:8px; height:8px; display:block; background:#f4bd3c; border:1px solid #080808; box-shadow:1px 1px 0 #080808; animation:card-load-hop .62s steps(2,end) infinite alternate; }
+.card-load-pixels i:nth-child(2) { height:12px; animation-delay:.1s; }
+.card-load-pixels i:nth-child(3) { height:16px; animation-delay:.2s; }
+.card-load-label { max-width:85%; color:inherit; font:700 10px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.8px; text-align:center; }
+.card-load-error-mark { display:grid; place-items:center; width:22px; height:22px; border:2px solid #f4bd3c; color:#f4bd3c; font:900 14px/1 ui-monospace,monospace; }
+@keyframes card-load-hop { to { transform:translateY(-5px); } }
+@media(prefers-reduced-motion:reduce) { .card-load-pixels i { animation:none; } }
