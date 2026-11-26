@@ -125,8 +125,8 @@ main {
   }
 }
 
-/* Compact windows use a bottom sheet: artwork remains visible above it.
-   This breakpoint also covers narrow tablet windows and split-screen mode. */
+/* Compact windows use a continuous single-column composition. The dedicated
+   editorial detail layer owns the poster positioning and typography. */
 @media (max-width: 760px) {
   :root {
     --responsive-gutter: 14px;
@@ -151,57 +151,6 @@ main {
   .mario-block svg {
     width: 21px;
     height: 21px;
-  }
-
-  .work-detail {
-    top: auto;
-    left: 14px;
-    right: 14px;
-    bottom: max(10px, env(safe-area-inset-bottom));
-    width: auto;
-    min-width: 0;
-    max-width: none;
-    height: min(520px, max(220px, 48vh));
-    height: min(520px, max(220px, 48dvh));
-    max-height: calc(100vh - 76px);
-    max-height: calc(100dvh - 76px - env(safe-area-inset-top));
-    padding: 18px 18px max(22px, env(safe-area-inset-bottom));
-    border-radius: 5px;
-    box-shadow: 0 -18px 48px rgba(0,0,0,.35);
-    transform: translateY(calc(110% + env(safe-area-inset-bottom)));
-    scrollbar-gutter: auto;
-  }
-
-  body.viewing:not(.artwork-only) .work-detail.is-active {
-    transform: none;
-  }
-
-  body.artwork-only .work-detail.is-active,
-  body.view-closing .work-detail.is-active {
-    transform: translateY(calc(110% + env(safe-area-inset-bottom)));
-  }
-
-  .detail-overview {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 18px;
-  }
-
-  .detail-copy h1 {
-    font-size: clamp(23px, 5.4vw, 32px);
-  }
-
-  .detail-description {
-    font-size: 13px;
-    line-height: 1.8;
-  }
-
-  .detail-actions {
-    gap: 9px;
-  }
-
-  .detail-actions .project-link,
-  .detail-actions .creator-link {
-    min-height: 44px;
   }
 
   .scene-picker {
@@ -253,7 +202,7 @@ main {
   }
 }
 
-/* Very short landscape windows need a shorter drawer, not a fixed portrait height. */
+/* Compact landscape keeps the same continuous layout with reduced page chrome. */
 @media (max-height: 560px) and (max-width: 760px) {
   .work-detail {
     height: min(68vh, 360px);
