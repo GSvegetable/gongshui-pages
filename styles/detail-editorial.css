@@ -62,7 +62,8 @@ body.view-closing .work-detail.is-active {
   margin: 0;
 }
 
-.detail-copy {
+ .detail-copy {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -77,6 +78,23 @@ body.view-closing .work-detail.is-active {
   font: 800 9px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
   letter-spacing: .2em;
 }
+
+.detail-copy::after {
+  position: absolute;
+  top: -38px;
+  right: -4px;
+  color: rgba(166,91,62,.10);
+  font-family: "Iowan Old Style", "Baskerville", "Songti SC", serif;
+  font-size: clamp(76px, 8vw, 112px);
+  font-weight: 600;
+  line-height: 1;
+  pointer-events: none;
+}
+#detail-panel .detail-copy::after { content: "01"; }
+#orbit-detail-panel .detail-copy::after { content: "02"; }
+#globe-work-panel .detail-copy::after { content: "03"; }
+#corridor-work-panel .detail-copy::after { content: "04"; }
+#navigation-work-panel .detail-copy::after { content: "05"; }
 
 .detail-copy h1 {
   max-width: 100%;
