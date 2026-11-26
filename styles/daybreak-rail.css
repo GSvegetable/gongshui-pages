@@ -72,3 +72,35 @@
  .work-detail .db-rail *, .work-detail .db-rail *::before,.work-detail .db-rail *::after{animation:none!important;transition-duration:1ms!important}
  .work-detail.db-ready{transition-duration:1ms!important}
 }
+
+/* Scroll-linked rail: keep the navigator alongside the entire reading journey. */
+.work-detail .db-rail{
+  position:sticky;
+  top:0;
+  inset:auto;
+  float:left;
+  width:58px;
+  height:calc(100dvh - 36px);
+  min-height:420px;
+  margin-top:calc(-1 * clamp(24px,3vw,38px));
+  margin-left:-78px;
+  margin-right:0;
+  margin-bottom:calc(-1 * (100dvh - 36px));
+  align-self:flex-start;
+}
+.work-detail.db-ready{padding-left:78px}
+.work-detail.db-ready:has(.db-rail.is-open){padding-left:238px}
+@media(max-width:680px){
+  .work-detail.db-ready{padding-left:68px}
+  .work-detail.db-ready:has(.db-rail.is-open){padding-left:238px}
+  .work-detail .db-rail{
+    position:sticky;
+    float:left;
+    top:0;
+    inset:auto;
+    width:52px;
+    height:100dvh;
+    min-height:420px;
+    margin:0 0 -100dvh -68px;
+  }
+}
