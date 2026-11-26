@@ -32,6 +32,8 @@
     mount.classList.remove('is-loading', 'is-load-error');
     if (state === 'ready') {
       mount.classList.add('is-loaded');
+      loader.classList.remove('is-error');
+      loader.innerHTML = '<span class="card-load-pixels" aria-hidden="true"><i></i><i></i><i></i></span><span class="card-load-label">正在载入作品</span>';
       const placeholder = mount.querySelector('.portfolio-live-placeholder');
       if (placeholder) placeholder.hidden = true;
       loader.classList.add('is-hidden');
