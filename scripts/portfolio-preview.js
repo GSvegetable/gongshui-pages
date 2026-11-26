@@ -28,9 +28,11 @@
       const id = card.dataset.id;
       const panel = card.dataset.detail ? document.getElementById(card.dataset.detail) : null;
       const mount = card.querySelector('.preview-mount');
-      const src = id === 'contributors-globe' ? PROJECTS.globe
+      const iframe = mount && mount.querySelector('iframe');
+      const knownProject = id === 'contributors-globe' ? PROJECTS.globe
         : id === 'bookmarks-corridor' ? PROJECTS.corridor
         : id === 'navigation-system' ? PROJECTS.navigation : '';
+      const src = knownProject || (iframe && iframe.getAttribute('src')) || '';
       byId.set(id, {
         id,
         title: (card.querySelector('.card-title') || {}).textContent || id,
