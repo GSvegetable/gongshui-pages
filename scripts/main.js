@@ -663,7 +663,7 @@ syncSearchUI();
 
         // FLIP 仍然让整张卡片平滑过渡尺寸，但不能让信息区和标题也被
         // 一起压扁/拉长。下巴的宽度继续跟随新卡片宽度；高度抵消纵向缩放，
-        // 标题抵消横向缩放，保证文字在动画中保持稳定的视觉字重与字号。
+        // 标题不做反向放大：跟随卡片自然过渡，避免列数增加时文字短暂显大。
         card.animate(keyframes, { duration, easing });
 
         const info = card.querySelector('.card-info');
@@ -674,13 +674,6 @@ syncSearchUI();
           ], { duration, easing });
         }
 
-        const title = card.querySelector('.card-info .card-title');
-        if (title && sx !== 1) {
-          title.animate([
-            { transformOrigin: 'left center', transform: `scaleX(${1 / sx})` },
-            { transformOrigin: 'left center', transform: 'none' }
-          ], { duration, easing });
-        }
       }
     });
 
