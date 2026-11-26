@@ -51,10 +51,11 @@
   for(let i=0;i<10;i++)meter.appendChild(document.createElement('i'));
   let manualNight=false,dragging=false,centers=[],raf=0;
   const scroller=()=>mobile()?window:panel;
-  const maxScroll=()=>mobile()?Math.max(1,document.documentElement.scrollHeight-innerHeight):Math.max(1,panel.scrollHeight-panel.clientHeight);
-  const currentScroll=()=>mobile()?window.scrollY:panel.scrollTop;
+  const mobileOrigin=()=>panel.getBoundingClientRect().top+window.scrollY;
+  const maxScroll=()=>mobile()?Math.max(1,panel.offsetHeight-innerHeight):Math.max(1,panel.scrollHeight-panel.clientHeight);
+  const currentScroll=()=>mobile()?Math.max(0,window.scrollY-mobileOrigin()):panel.scrollTop;
   const offsetOf=target=>{
-   if(mobile())return target.getBoundingClientRect().top+window.scrollY;
+   if(mobile())return target.getBoundingClientRect().top+window.scrollY-mobileOrigin();
    return target.getBoundingClientRect().top-panel.getBoundingClientRect().top+panel.scrollTop;
   };
   const refresh=()=>{
@@ -81,7 +82,7 @@
   night.addEventListener('click',()=>{manualNight=!manualNight;refresh()});
   const setScroll=p=>{
    const target=clamp(p,0,1)*maxScroll();
-   if(mobile())window.scrollTo({top:target,behavior:reduce.matches?'auto':'instant'});
+   if(mobile())window.scrollTo({top:mobileOrigin()+target,behavior:reduce.matches?'auto':'instant'});
    else panel.scrollTo({top:target,behavior:'instant'});
    refresh();
   };
