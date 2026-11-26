@@ -308,32 +308,44 @@
     location.assign(authorize.toString());
   };
 
-  // Refresh tokens are single-use/rotating. All callers must share one in-flight request.
+  // Refresh tokens are single-use/rotating. Serialize refreshes both within
+  // this tab and across tabs where the Web Locks API is available. Each tab
+  // re-reads localStorage only after acquiring the lock, so it never races
+  // another tab with the same one-time refresh token.
+  const withSessionLock = (userId, task) => {
+    const locks = window.navigator && window.navigator.locks;
+    if (!locks || typeof locks.request !== 'function') return task();
+    const lockName = 'site-auth-session:' + String(userId || 'current');
+    return locks.request(lockName, { mode: 'exclusive' }, task);
+  };
+
   let refreshPromise = null;
   const refresh = () => {
     if (refreshPromise) return refreshPromise;
-    const current = (async () => {
-    const saved = readSession();
-    if (!saved || !saved.refreshToken) return null;
-    try {
-      const data = await api('/token?grant_type=refresh_token', { body: { refresh_token: saved.refreshToken } });
-      session = { accessToken: data.access_token, refreshToken: data.refresh_token, email: saved.email, id: saved.id };
-      storeSession(session);
-      const me = await api('/user', { method: 'GET', token: session.accessToken });
-      const mail = (me && me.email) || saved.email;
-      user = { id: (me && me.id) || saved.id, email: mail, username: toUsername(mail, me && me.user_metadata), avatarUrl: (me && me.user_metadata && (me.user_metadata.avatar_url || me.user_metadata.picture)) || '' };
-      session.id = user.id;
-      storeSession(session);
-      notify();
-      return user;
-    } catch (error) {
-      if (saved.id && [400, 401, 403].includes(error && error.status)) removeAccountToken(saved.id);
-      storeSession(null);
-      user = null;
-      notify();
-      return null;
-    }
-    })();
+    const initial = readSession();
+    if (!initial || !initial.refreshToken) return Promise.resolve(null);
+    const current = withSessionLock(initial.id, async () => {
+      const saved = readSession();
+      if (!saved || !saved.refreshToken) return null;
+      try {
+        const data = await api('/token?grant_type=refresh_token', { body: { refresh_token: saved.refreshToken } });
+        session = { accessToken: data.access_token, refreshToken: data.refresh_token, email: saved.email, id: saved.id };
+        storeSession(session);
+        const me = await api('/user', { method: 'GET', token: session.accessToken });
+        const mail = (me && me.email) || saved.email;
+        user = { id: (me && me.id) || saved.id, email: mail, username: toUsername(mail, me && me.user_metadata), avatarUrl: (me && me.user_metadata && (me.user_metadata.avatar_url || me.user_metadata.picture)) || '' };
+        session.id = user.id;
+        storeSession(session);
+        notify();
+        return user;
+      } catch (error) {
+        if (saved.id && [400, 401, 403].includes(error && error.status)) removeAccountToken(saved.id);
+        storeSession(null);
+        user = null;
+        notify();
+        return null;
+      }
+    });
     refreshPromise = current;
     return current.finally(() => { if (refreshPromise === current) refreshPromise = null; });
   };
