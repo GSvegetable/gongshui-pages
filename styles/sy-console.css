@@ -1,0 +1,257 @@
+/* 3_sy 双轨卡片空间 —— 首页的「控制台」。
+   第六个作品，形态跟前五个完全不是一路：
+   前五个是米色作品卡片（放大可看详情），它是台设备 —— 深色仪表面板，
+   里面嵌一块屏幕显示作品画面，底下三个按钮切换作品的三种空间状态。
+   刻意做成小长方形、斜着、压着网格边，让整页看起来更挤一点。 */
+
+.sy-console {
+  position: relative;
+  align-self: start;
+  justify-self: end;
+  width: min(100%, 286px);
+  margin: -14px -18px 0 0;      /* 往右上压一点：错开网格节奏 */
+  transform: rotate(-0.9deg);
+  z-index: 2;
+}
+
+.sy-console-shell {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto auto auto auto;
+  gap: 7px;
+  padding: 9px 10px 8px;
+  border: 2px solid #000;
+  border-radius: 4px;
+  background:
+    radial-gradient(circle at 7px 7px, #4a525d 0 1.9px, #0a0b0d 1.9px 2.9px, transparent 2.9px),
+    radial-gradient(circle at calc(100% - 7px) 7px, #4a525d 0 1.9px, #0a0b0d 1.9px 2.9px, transparent 2.9px),
+    radial-gradient(circle at 7px calc(100% - 7px), #4a525d 0 1.9px, #0a0b0d 1.9px 2.9px, transparent 2.9px),
+    radial-gradient(circle at calc(100% - 7px) calc(100% - 7px), #4a525d 0 1.9px, #0a0b0d 1.9px 2.9px, transparent 2.9px),
+    linear-gradient(168deg, #1c2026 0%, #12151a 46%, #0b0d10 100%);
+  box-shadow:
+    0 0 0 1px rgba(244, 189, 60, .34),
+    6px 7px 0 rgba(0, 0, 0, .72),
+    0 18px 40px rgba(0, 0, 0, .5);
+  color: #cfd6de;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ---------- 顶部条 ---------- */
+.sy-console-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(244, 189, 60, .28);
+  font-size: 9px;
+  letter-spacing: 1.1px;
+}
+
+.sy-console-led {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: #f4bd3c;
+  box-shadow: 0 0 7px rgba(244, 189, 60, .85);
+  animation: sy-led 2.1s steps(1, end) infinite;
+}
+
+@keyframes sy-led {
+  0%, 62% { opacity: 1; }
+  63%, 100% { opacity: .32; }
+}
+
+.sy-console-id {
+  color: #f4bd3c;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+}
+
+.sy-console-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #8e99a6;
+}
+
+.sy-console-code {
+  flex: none;
+  padding: 1px 5px;
+  border: 1px solid rgba(244, 189, 60, .42);
+  border-radius: 2px;
+  color: #f4bd3c;
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+/* ---------- 屏幕（作品画面） ---------- */
+.sy-console-screen {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 2px solid #000;
+  border-radius: 2px;
+  background: #07090c;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .07), inset 0 10px 22px rgba(0, 0, 0, .6);
+}
+
+.sy-console-screen iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* 扫描线：屏幕感 */
+.sy-console-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, .05) 0 1px,
+    transparent 1px 3px
+  );
+  mix-blend-mode: overlay;
+}
+
+/* ---------- 读数行 ---------- */
+.sy-console-readout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 8px;
+  letter-spacing: .8px;
+  color: #6f7b88;
+}
+
+.sy-console-readout span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.sy-console-readout b {
+  color: #dfe6ee;
+  font-weight: 700;
+  font-size: 9px;
+}
+
+.sy-console-sig {
+  margin-left: auto;
+  align-items: flex-end !important;
+  gap: 2px !important;
+  height: 11px;
+}
+
+.sy-console-sig i {
+  width: 2px;
+  background: #f4bd3c;
+  opacity: .25;
+  animation: sy-sig 1.4s ease-in-out infinite;
+}
+
+.sy-console-sig i:nth-child(1) { height: 4px;  animation-delay: 0s; }
+.sy-console-sig i:nth-child(2) { height: 7px;  animation-delay: .1s; }
+.sy-console-sig i:nth-child(3) { height: 11px; animation-delay: .2s; }
+.sy-console-sig i:nth-child(4) { height: 6px;  animation-delay: .3s; }
+.sy-console-sig i:nth-child(5) { height: 9px;  animation-delay: .4s; }
+.sy-console-sig i:nth-child(6) { height: 5px;  animation-delay: .5s; }
+.sy-console-sig i:nth-child(7) { height: 8px;  animation-delay: .6s; }
+
+@keyframes sy-sig {
+  0%, 100% { opacity: .22; }
+  50% { opacity: .95; }
+}
+
+/* ---------- 三个状态按钮 ---------- */
+.sy-console-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.sy-state-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 7px 2px 6px;
+  border: 2px solid #000;
+  border-radius: 2px;
+  background: linear-gradient(#232830, #171b21);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, .6);
+  color: #9aa6b3;
+  font: 800 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 1.1px;
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease),
+              transform 120ms var(--ease), box-shadow 120ms var(--ease);
+}
+
+.sy-state-btn em {
+  font-style: normal;
+  font-size: 8px;
+  opacity: .62;
+}
+
+.sy-state-btn:hover {
+  color: #e7edf4;
+  background: linear-gradient(#2b313a, #1c2128);
+}
+
+.sy-state-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 rgba(0, 0, 0, .6);
+}
+
+.sy-state-btn:focus-visible {
+  outline: 2px solid #f4bd3c;
+  outline-offset: 2px;
+}
+
+/* 当前状态：金色面板 + 下沉，像被按进去 */
+.sy-state-btn.is-active {
+  background: linear-gradient(#f7c95a, #e2a824);
+  color: #1b1405;
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, .28), 0 0 12px rgba(244, 189, 60, .32);
+  transform: translateY(1px);
+}
+
+.sy-state-btn.is-active em { opacity: .72; }
+
+/* ---------- 底栏 ---------- */
+.sy-console-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+  font-size: 7.5px;
+  letter-spacing: 1.1px;
+  color: #5c6673;
+}
+
+.sy-console-foot span:nth-child(2) {
+  flex: 1;
+  text-align: center;
+  color: #79838f;
+}
+
+/* 窄屏：不再压边、不再斜着，整条铺满 */
+@media (max-width: 680px) {
+  .sy-console {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    width: 100%;
+    margin: 0;
+    transform: none;
+  }
+}

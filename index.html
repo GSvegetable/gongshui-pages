@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="./styles/responsive.css?v=1.0.2" />
   <link rel="stylesheet" href="./styles/detail-editorial.css?v=1.3.0" />
   <link rel="stylesheet" href="./styles/daybreak-rail.css?v=2.4.2" />
-  <link rel="stylesheet" href="./styles/sy-stage.css?v=1.0.0" />
+  <link rel="stylesheet" href="./styles/sy-console.css?v=1.0.0" />
 <script src="./scripts/privacy-cleanup.js?v=1.0.0"></script>
 </head>
 <body>
@@ -54,13 +54,6 @@
     <div id="compass-view" class="compass-view" aria-hidden="true"></div>
     <div id="bookmarks-view" hidden aria-label="收藏长廊"></div>
     <div class="grid" id="works">
-      <!-- 第六个作品：3_sy 双轨卡片空间。
-           它不做成格子卡片：整层铺在作品网格底下，被上面五个作品盖住，
-           横向拖动可以左右切换它的空间状态。 -->
-      <div class="sy-stage" id="sy-stage" aria-hidden="true">
-        <iframe id="sy-frame" title="3_sy 双轨卡片空间" src="./3-sy/?embed=1" loading="lazy" referrerpolicy="no-referrer" tabindex="-1"></iframe>
-      </div>
-
       <!-- 作品 1 -->
       <article class="preview-card" id="lighthouse-card" data-id="pixel-daylight-switch" data-tags="像素风" data-en="Pixel Daylight Switch" data-detail="detail-panel" tabindex="0" aria-label="打开像素昼夜开关作品详情">
         <div class="preview-mount">
@@ -92,6 +85,44 @@
         <div class="preview-mount portfolio-live-mount"><div data-live-preview="navigation" data-navigation-interaction-embed data-embed-fill></div><script src="https://gsvegetable.github.io/gongshui-open-source/navigation-interaction/embed.js?v=1.4.2"></script></div>
         <div class="card-info"><span class="card-title">导航交互系统</span></div>
       </article>
+
+      <!-- 第六个作品：3_sy 双轨卡片空间。
+           不做成格子卡片，而是一台塞在网格空位里的设备：屏幕里是作品画面，
+           底下三个按钮直接点名它的三种空间状态（EDGE / LEFT / RIGHT）。
+           源码归属 GSvegetable/3_sy；这里用嵌入模式 ?embed=1。 -->
+      <aside class="sy-console" id="sy-console" aria-label="3_sy 双轨卡片空间 控制台">
+        <div class="sy-console-shell">
+          <header class="sy-console-bar">
+            <span class="sy-console-led" aria-hidden="true"></span>
+            <span class="sy-console-id">3_sy</span>
+            <span class="sy-console-name">双轨卡片空间</span>
+            <span class="sy-console-code" id="sy-console-code">ST-02 LEFT</span>
+          </header>
+
+          <div class="sy-console-screen">
+            <iframe id="sy-frame" title="3_sy 双轨卡片空间" src="https://gsvegetable.github.io/gongshui-open-source/3-sy/?embed=1" loading="lazy" referrerpolicy="no-referrer" tabindex="-1"></iframe>
+          </div>
+
+          <div class="sy-console-readout">
+            <span>PEAK <b data-readout="peak">21.5</b></span>
+            <span>CURVE <b data-readout="curve">16</b></span>
+            <span>TILT <b data-readout="tilt">65</b></span>
+            <span class="sy-console-sig" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+          </div>
+
+          <div class="sy-console-buttons" role="group" aria-label="切换 3_sy 的空间状态">
+            <button type="button" class="sy-state-btn" data-index="0"><em>01</em>EDGE</button>
+            <button type="button" class="sy-state-btn is-active" data-index="1" aria-pressed="true"><em>02</em>LEFT</button>
+            <button type="button" class="sy-state-btn" data-index="2"><em>03</em>RIGHT</button>
+          </div>
+
+          <footer class="sy-console-foot">
+            <span>SN-3SY-0019</span>
+            <span>RIPPLE SYSTEM</span>
+            <span>v0.19.0</span>
+          </footer>
+        </div>
+      </aside>
 
       <!-- 以后加新作品：整块复制上面的 <article class="preview-card">，改 id / data-id / 标题 / 内容；
            data-detail 填它详情面板的 id（面板加在下面，class 带上 work-detail）。
@@ -292,11 +323,11 @@
     </button>
   </div>
   <!-- v2.13.3: reliable globe theme control and touch-feedback cleanup -->
-  <div class="site-version" aria-label="网站版本">v2.16.1</div>
+  <div class="site-version" aria-label="网站版本">v2.17.0</div>
 
   <script src="./scripts/main.js?v=2.13.8"></script>
   <script src="./scripts/daybreak-rail.js?v=2.4.1"></script>
-  <script src="./scripts/sy-stage.js?v=1.1.0"></script>
+  <script src="./scripts/sy-console.js?v=1.0.0"></script>
   <script src="./scripts/portfolio-actions.js?v=1.1.0"></script>
   <script src="./scripts/nav-history.js?v=1.0.0"></script>
   <script src="./scripts/compare.js?v=1.3.2"></script>
