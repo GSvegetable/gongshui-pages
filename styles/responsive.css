@@ -1,6 +1,6 @@
 /* 宫水.com Responsive System 1.0
    Layout follows available space, not device labels.
-   Compact: <=760px · Medium: 761–1099px · Expanded: >=1100px
+   Compact: <=680px · Medium: 761–1099px · Expanded: >=1100px
    Keep this file after the page's existing styles so it acts as the final layout layer. */
 
 :root {
@@ -84,7 +84,7 @@ main {
   }
 }
 
-@media (min-width: 761px) and (max-width: 1099px) {
+@media (min-width: 681px) and (max-width: 1099px) {
   .work-detail {
     width: clamp(300px, 36vw, 396px);
     min-width: 300px;
@@ -127,7 +127,7 @@ main {
 
 /* Compact windows use a continuous single-column composition. The dedicated
    editorial detail layer owns the poster positioning and typography. */
-@media (max-width: 760px) {
+@media (max-width: 680px) {
   :root {
     --responsive-gutter: 14px;
     --responsive-gap: 14px;
@@ -203,7 +203,7 @@ main {
 }
 
 /* Compact landscape keeps the same continuous layout with reduced page chrome. */
-@media (max-height: 560px) and (max-width: 760px) {
+@media (max-height: 560px) and (max-width: 680px) {
   .work-detail {
     height: min(68vh, 360px);
     height: min(68dvh, 360px);
