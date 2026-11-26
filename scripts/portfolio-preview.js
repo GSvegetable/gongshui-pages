@@ -250,8 +250,20 @@
     selectWork(workId) {
       pendingGlobeWork = String(workId || '');
       if (instances.globe) instances.globe.selectWork(pendingGlobeWork);
+    },
+    setNight(enabled) {
+      if (instances.globe && typeof instances.globe.setNight === 'function') instances.globe.setNight(!!enabled);
     }
   };
+
+  document.querySelectorAll('[data-globe-theme-toggle]').forEach(button => {
+    button.addEventListener('click', () => {
+      const night = button.getAttribute('aria-pressed') !== 'true';
+      button.setAttribute('aria-pressed', String(night));
+      button.textContent = night ? '切换至白天' : '切换至夜晚';
+      window.siteGlobe.setNight(night);
+    });
+  });
 
   ['site:bookmarkchange', 'site:folders', 'site:synced'].forEach(name => {
     document.addEventListener(name, sendBookmarkData);
