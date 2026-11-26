@@ -27,6 +27,17 @@
    }
   });
   if(!items.length)add(panel.querySelector('.detail-copy')||panel,'作品概览','OVERVIEW');
+  // Curated chapter names make the expanded rail a real table of contents,
+  // not a generic set of labels copied from unrelated page headings.
+  const chapterNames={
+   'detail-panel':['作品概览','场景切换','组件接入','时间机制'],
+   'orbit-detail-panel':['作品概览','视觉版本','组件接入','时间轨道'],
+   'globe-work-panel':['作品概览','交互探索','空间关系','组件接入','人物与地点'],
+   'corridor-work-panel':['作品概览','空间体验','空间索引','组件接入','漫游收藏'],
+   'navigation-work-panel':['作品概览','动作语言','组件接入','微交互']
+  };
+  const names=chapterNames[panel.id]||[];
+  items.forEach((item,i)=>{if(names[i])item.label=names[i];item.eyebrow=String(i+1).padStart(2,'0')+' / '+(i===0?'START':i===names.length-1?'FINISH':'CHAPTER')});
   return items;
  };
  const build=panel=>{
