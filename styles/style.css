@@ -221,11 +221,11 @@ html.search-collapsed .search-status { opacity: 0; }
 main { min-height: calc(100vh + 420px); padding: 94px 24px 180px; }
 .grid { display:grid; grid-template-columns:repeat(var(--gallery-columns, 1), minmax(0,1fr)); gap:24px; padding-left:0; }
 
-/* 卡片：缩略态。尺寸 = 边框3 + 内边距8 + 作品框(边框2) */
+/* 卡片：缩略态。外框收紧，给作品画面更多空间。 */
 .preview-card {
   position: relative; align-self: start; width: 100%;
   background: #f5ecd9; color: #1a1712;
-  border: 3px solid #080808; border-radius: 3px; padding: 8px;
+  border: 2px solid #080808; border-radius: 3px; padding: 5px;
   cursor: zoom-in;
   box-shadow: 8px 8px 0 rgba(0,0,0,.68), 0 18px 42px rgba(0,0,0,.18);
   transition: box-shadow var(--dur) var(--ease);
@@ -302,14 +302,14 @@ main { min-height: calc(100vh + 420px); padding: 94px 24px 180px; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-top: 12px;
-  padding: 0 4px;
+  gap: 8px;
+  margin-top: 7px;
+  padding: 0 2px;
   color: #000;
   cursor: zoom-in;
   transition: opacity var(--dur) var(--ease);
 }
-.card-title { font-size: 13px; font-weight: 900; letter-spacing: 1px; }
+.card-title { font-size: 13px; line-height: 1.1; font-weight: 900; letter-spacing: 1px; }
 .preview-card.is-open .card-title { font-size: 18px; }
 /* v2.8.6 — 「像素风」标签离开卡片下巴，搬到详情面板里做成真正的标签样式 */
 .work-tags { display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; }
