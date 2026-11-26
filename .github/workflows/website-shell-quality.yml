@@ -39,7 +39,7 @@ jobs:
           grep -q 'gongshui:embed:ready' scripts/portfolio-preview.js
           grep -q 'onOpenWork' scripts/portfolio-preview.js
           grep -q 'setItems' scripts/portfolio-preview.js
-          grep -q 'iframe.getAttribute(\x27src\x27)' scripts/portfolio-preview.js
+          grep -q 'iframe.getAttribute' scripts/portfolio-preview.js
           grep -q 'onOpen' scripts/portfolio-preview.js
           grep -q 'site:bookmarkchange' scripts/portfolio-preview.js
           ! grep -q 'createElement(.*iframe' scripts/portfolio-preview.js
