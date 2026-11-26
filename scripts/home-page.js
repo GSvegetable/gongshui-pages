@@ -280,18 +280,18 @@
       ['project.link', '#globe-work-panel .detail-actions > a.project-link span:first-of-type'],
       ['project.link', '#corridor-work-panel .detail-actions > a.project-link span:first-of-type'],
       ['project.link', '#navigation-work-panel .detail-actions > a.project-link span:first-of-type'],
-      ['gallery.scenes', '#detail-panel .gallery-heading h2'],
-      ['gallery.versions', '#orbit-detail-panel .gallery-heading h2'],
+      ['gallery.scenes', '#detail-panel > .gallery-heading h2'],
+      ['gallery.versions', '#orbit-detail-panel > .gallery-heading h2'],
       ['compare.toggle', '#compare-toggle'],
       ['compare.hint', '.compare-hint'],
       ['compare.selected', '.cmp-ring-badge'],
       ['contributors.title', '.creator-link-label'],
       ['feature.globe.title', '#globe-feature-title'],
-      ['feature.globe.description', '#globe-work-panel .detail-feature > p:not(.detail-feature-meta)'],
+      ['feature.globe.description', '#globe-work-panel > .detail-feature:first-of-type > p:first-of-type'],
       ['feature.corridor.title', '#corridor-feature-title'],
-      ['feature.corridor.description', '#corridor-work-panel .detail-feature > p:not(.detail-feature-meta)'],
+      ['feature.corridor.description', '#corridor-work-panel > .detail-feature:first-of-type > p:first-of-type'],
       ['feature.navigation.title', '#navigation-feature-title'],
-      ['feature.navigation.description', '#navigation-work-panel .detail-feature > p:not(.detail-feature-meta)'],
+      ['feature.navigation.description', '#navigation-work-panel > .detail-feature:first-of-type > p:first-of-type'],
       ['compass.view.title', '#compass-view-title'],
       ['compass.view.note', '.compass-view-note'],
       ['embed.title', '#detail-panel .embed-snippet h2'],
@@ -333,15 +333,19 @@
     };
 
     let language = (() => { try { const saved = localStorage.getItem('site-language'); return ['zh','en','ja'].includes(saved) ? saved : 'zh'; } catch (_) { return 'zh'; } })();
-    const original = new Map();
+    // 中文原文按「元素」缓存，不按 key 缓存。
+    // 同一个 key 可能命中多个元素（例如选择器写宽了，命中了面板里的全部段落）。
+    // 若按 key 缓存，缓存里只会留下第一个元素的中文，
+    // 切回中文时其余元素会被写成同一句话——段落就重复了。
+    const original = new WeakMap();
 
-    const remember = (key, el, attr) => {
-      if (!original.has(key)) original.set(key, attr ? el.getAttribute(attr) : el.textContent);
-      return original.get(key);
+    const remember = (el, attr) => {
+      if (!original.has(el)) original.set(el, attr ? el.getAttribute(attr) : el.textContent);
+      return original.get(el);
     };
     const put = (key, el, attr, lang) => {
       if (!el || !strings[key]) return;
-      const zh = remember(key, el, attr);
+      const zh = remember(el, attr);
       const translated = lang === 'en' ? strings[key] : lang === 'ja' ? (japanese[key] || strings[key]) : zh;
       if (attr) el.setAttribute(attr, translated);
       else el.textContent = translated;

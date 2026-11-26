@@ -686,3 +686,99 @@ body.view-closing .work-detail.is-active {
 .work-detail .detail-description{color:#454137;font-family:"Iowan Old Style","Songti SC","Noto Serif SC",serif;font-size:15px;line-height:1.95}
 .work-detail :focus-visible{outline:3px solid #d39a31;outline-offset:3px}
 @media(max-width:680px){.work-detail .detail-actions{gap:10px}.work-detail .detail-actions .project-link,.work-detail .detail-actions .creator-link{min-height:40px}.work-detail .detail-feature{margin-top:24px}}
+
+/* ============================================================
+   Detail masthead — 作品详情介绍区（五个作品共用同一套版式）
+   ---------------------------------------------------------
+   旧版把介绍区当海报做：右上角挂一枚装饰圆，正压在标题上像脏点；
+   横线也失控——操作区底边、章节顶边、章节标题底边三条线叠在一起，
+   中间还夹着大片空白，读起来像排版事故。
+   这里重排成一条能读下去的编辑版式：
+     编号牌 + 英文名 → 标题 → 主标尺线 → 标签 → 正文 → 操作区
+   横线只保留一套：章节标题自己那条，其余全部让位。
+   ============================================================ */
+
+/* 1. 撤掉压在标题上的装饰圆与废弃的编号水印 */
+.work-detail .detail-copy::before,
+.work-detail .detail-copy::after { content: none !important; }
+
+/* 2. 抬头行：编号牌 + 英文名 */
+.work-detail .detail-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  margin: 0 0 16px;
+}
+.work-detail .detail-eyebrow .detail-index {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  min-width: 27px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  background: var(--ink);
+  color: var(--paper);
+  font: 800 10px/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  letter-spacing: .06em;
+}
+.work-detail .detail-eyebrow .english-title {
+  order: 0;
+  margin: 0;
+  color: var(--accent);
+  font: 750 9px/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+/* 3. 标题：让出装饰圆的位置，直接顶到纸边 */
+.work-detail .detail-copy h1 {
+  max-width: 100%;
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(32px,3.4vw,44px);
+}
+
+/* 4. 主标尺线压在标签上方，锚住整个介绍区 */
+.work-detail .detail-tags {
+  margin: 0 0 16px;
+  padding: 14px 0 0;
+  border-top: 2px solid var(--ink);
+}
+
+/* 5. 操作区只留一条上标尺；去掉底边，避免与下一节顶边叠成双线 */
+.work-detail .detail-actions {
+  margin: 20px 0 0;
+  padding: 15px 0 0;
+  border-top: 2px solid var(--ink);
+  border-bottom: 0;
+}
+
+/* 6. 章节之间不再各留一条顶线，边界统一交给章节标题 */
+.work-detail .detail-feature,
+.work-detail .embed-snippet {
+  margin-top: 30px;
+  padding-top: 0;
+  border-top: 0;
+}
+.work-detail .detail-feature .gallery-heading { margin-top: 0; }
+.work-detail .embed-snippet h2 {
+  margin: 0 0 13px;
+  padding: 0 0 10px;
+  border-bottom: 2px solid var(--ink);
+}
+
+/* 7. 断点适配 */
+@media (min-width:681px) and (max-width:1099px) {
+  .work-detail .detail-copy h1 { font-size: clamp(30px,3.4vw,38px); }
+}
+@media (max-width:680px) {
+  .work-detail .detail-copy h1 { font-size: clamp(32px,8.5vw,44px); }
+  .work-detail .detail-eyebrow { margin-bottom: 14px; }
+  .work-detail .detail-tags { padding-top: 12px; }
+  .work-detail .detail-actions { margin-top: 18px; padding-top: 14px; }
+  .work-detail .detail-feature,
+  .work-detail .embed-snippet { margin-top: 26px; }
+}

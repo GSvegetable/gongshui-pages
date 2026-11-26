@@ -1,4 +1,8 @@
-/* Daybreak Rail — a real, section-aligned navigator for both detail scroll modes. */
+/* Daybreak Rail — a real, section-aligned navigator for both detail scroll modes.
+
+   The rail is a mini-map: the chapters sit evenly under the head and the sun
+   slides along the track between them, following how far the panel is read.
+   Clicking the logo latches the rail open so the labels stay reachable. */
 (()=> {
  const panels=[...document.querySelectorAll('.work-detail')];
  if(!panels.length)return;
@@ -37,7 +41,7 @@
    const b=document.createElement('button');b.type='button';b.className='db-stop';b.innerHTML='<span class="db-node"></span><span class="db-label"><b></b><em></em></span>';
    b.querySelector('b').textContent=item.label;b.querySelector('em').textContent=item.eyebrow;
    b.setAttribute('aria-label','跳转到'+item.label);
-   b.addEventListener('click',()=>{goTo(offsetOf(item.target));if(mobile())setOpen(false)});
+   b.addEventListener('click',()=>{goTo(keys[i]);if(mobile())setOpen(false)});
    nav.appendChild(b);return b;
   });
   panel.insertBefore(rail,panel.firstChild);panel.classList.add('db-ready');
@@ -45,14 +49,33 @@
   let seed=19;const rand=()=>((seed=seed*16807%2147483647)-1)/2147483646;
   for(let i=0;i<24;i++){const s=document.createElement('i');s.style.left=(rand()*94+3)+'%';s.style.top=(rand()*96+2)+'%';s.style.animationDelay=(-rand()*3)+'s';stars.appendChild(s)}
   for(let i=0;i<10;i++)meter.appendChild(document.createElement('i'));
-  let manualNight=false,dragging=false,offsets=[],raf=0,viewport=0,content=0,max=1;
+  let manualNight=false,dragging=false,pinned=false,keys=[],nodeY=[],raf=0,viewport=0,content=0,max=1;
   const scrollNow=()=>mobile()?Math.max(0,window.scrollY-(panel.getBoundingClientRect().top+window.scrollY)):panel.scrollTop;
   const offsetOf=target=>mobile()?target.getBoundingClientRect().top-panel.getBoundingClientRect().top:target.getBoundingClientRect().top-panel.getBoundingClientRect().top+panel.scrollTop;
   const measure=()=>{
    viewport=mobile()?window.innerHeight:panel.clientHeight;
    content=panel.scrollHeight;
    max=Math.max(1,content-viewport);
-   offsets=items.map(item=>clamp(offsetOf(item.target),0,content));
+   // 每一章对应一个滚动位置：这一章的内容刚落到阅读线时的滚动量。
+   // 首尾钉死在两端，滚到底必定抵达最后一章，中间保持严格递增。
+   const at=items.map(item=>clamp(offsetOf(item.target)-viewport*.5,0,max));
+   at[0]=0;at[at.length-1]=max;
+   for(let i=1;i<at.length-1;i++)at[i]=clamp(at[i],at[i-1]+1,max-1);
+   keys=at;
+  };
+  // Where the chapters sit inside the rail, measured from the real layout.
+  const measureNodes=()=>{nodeY=stops.map(s=>s.offsetTop+s.offsetHeight/2)};
+  // Content position → fractional chapter index, and back.
+  const invOf=(arr,v)=>{
+   if(arr.length<2)return 0;
+   if(v<=arr[0])return 0;
+   for(let i=arr.length-2;i>=0;i--)if(v>=arr[i])return Math.min(arr.length-1,i+(v-arr[i])/Math.max(1,arr[i+1]-arr[i]));
+   return 0;
+  };
+  const lerpOf=(arr,f)=>{
+   if(arr.length<2)return arr[0]||0;
+   const i=Math.max(0,Math.min(arr.length-2,Math.floor(f)));
+   return arr[i]+(f-i)*(arr[i+1]-arr[i]);
   };
   const goTo=offset=>{
    const dest=clamp(offset-18,0,max);
@@ -61,19 +84,21 @@
   };
   const refresh=()=>{
    const scroll=clamp(scrollNow(),0,max),p=scroll/max;
-   const first=offsets[0]||0,last=offsets[offsets.length-1]||content;
-   // The rail stays viewport-height; its long chapter map moves underneath it
-   // by the exact same amount as the content panel.
-   nav.style.height=Math.max(content,viewport)+'px';
-   nav.style.transform='translate3d(0,'+(-scroll)+'px,0)';
-   const sunY=scroll+viewport*.43;
-   sun.style.top=sunY+'px';sun.style.transform='translateY(-50%)';
-   track.style.top=first+'px';track.style.height=Math.max(1,last-first)+'px';
-   fill.style.top=first+'px';fill.style.height=Math.max(1,last-first)+'px';
-   fill.style.transform='scaleY('+clamp((scroll-first)/Math.max(1,last-first),0,1)+')';
-   const threshold=scroll+viewport*.34;
-   let active=0;offsets.forEach((o,i)=>{if(o<=threshold)active=i});
-   stops.forEach((stop,i)=>{stop.style.top=offsets[i]+'px';stop.style.transform='translateY(-50%)';stop.classList.toggle('is-current',i===active);stop.classList.toggle('is-past',i<=active);stop.setAttribute('aria-current',i===active?'location':'false')});
+   measureNodes();
+   // The sun rides the track: reading position maps onto the chapter list.
+   const f=invOf(keys,scroll);
+   const y=lerpOf(nodeY,f);
+   sun.style.top=y+'px';sun.style.transform='translateY(-50%)';
+   const first=nodeY[0]||0,last=nodeY[nodeY.length-1]||first,span=Math.max(1,last-first);
+   track.style.top=first+'px';track.style.height=span+'px';
+   fill.style.top=first+'px';fill.style.height=span+'px';
+   fill.style.transform='scaleY('+clamp((y-first)/span,0,1)+')';
+   const active=clamp(Math.round(f),0,items.length-1);
+   stops.forEach((stop,i)=>{
+    stop.classList.toggle('is-current',i===active);
+    stop.classList.toggle('is-past',i<=active);
+    stop.setAttribute('aria-current',i===active?'location':'false');
+   });
    const tone=manualNight||p>.68?'night':'day';rail.dataset.tone=tone;
    sun.classList.toggle('is-moon',manualNight||p>.72);
    phase.textContent=manualNight?'夜间 NIGHT':p<.34?'白昼 DAY':p<.68?'黄昏 DUSK':'夜晚 NIGHT';
@@ -82,20 +107,39 @@
   };
   const schedule=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;measure();refresh()})};
   const layout=()=>{measure();refresh()};
-  const setOpen=value=>{rail.classList.toggle('is-open',value);logo.setAttribute('aria-expanded',String(value));logo.setAttribute('aria-label',value?'收起详情导航':'展开详情导航')};
-  logo.addEventListener('click',()=>setOpen(!rail.classList.contains('is-open')));
-  rail.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')setOpen(true)});
-  rail.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&!dragging)setOpen(false)});
-  night.addEventListener('click',()=>{manualNight=!manualNight;refresh()});
-  const pointFromY=y=>{
-   const rect=nav.getBoundingClientRect();
-   const docY=y-rect.top;
-   return clamp(docY,0,content);
+  const setOpen=value=>{
+   rail.classList.toggle('is-open',value);
+   rail.classList.toggle('is-pinned',pinned&&value);
+   logo.setAttribute('aria-expanded',String(value));
+   logo.setAttribute('aria-label',value?'收起详情导航':'展开详情导航');
   };
+  // The logo latches the rail open. Hovering already expands it, so a plain
+  // toggle would immediately close it again — clicking has to pin it instead.
+  logo.addEventListener('click',()=>{
+   pinned=!pinned;
+   setOpen(pinned?true:false);
+  });
+  rail.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&!pinned)setOpen(true)});
+  rail.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&!pinned&&!dragging)setOpen(false)});
+  document.addEventListener('pointerdown',e=>{
+   if(pinned&&!rail.contains(e.target)){pinned=false;setOpen(false)}
+  });
+  night.addEventListener('click',()=>{manualNight=!manualNight;refresh()});
   sun.addEventListener('pointerdown',e=>{dragging=true;rail.setPointerCapture(e.pointerId);e.preventDefault()});
-  sun.addEventListener('pointermove',e=>{if(dragging){manualNight=false;goTo(pointFromY(e.clientY))}});
+  sun.addEventListener('pointermove',e=>{
+   if(!dragging)return;
+   manualNight=false;
+   const rect=nav.getBoundingClientRect();
+   const f=invOf(nodeY,e.clientY-rect.top);
+   goTo(lerpOf(keys,f));
+  });
   const end=()=>{dragging=false};sun.addEventListener('pointerup',end);sun.addEventListener('pointercancel',end);
-  sun.addEventListener('keydown',e=>{const d={ArrowUp:-1,ArrowLeft:-1,ArrowDown:1,ArrowRight:1}[e.key];if(!d)return;e.preventDefault();manualNight=false;goTo(scrollNow()+d*max/Math.max(2,items.length))});
+  sun.addEventListener('keydown',e=>{
+   const d={ArrowUp:-1,ArrowLeft:-1,ArrowDown:1,ArrowRight:1}[e.key];if(!d)return;e.preventDefault();
+   manualNight=false;
+   const f=clamp(invOf(keys,clamp(scrollNow(),0,max))+d,0,items.length-1);
+   goTo(keys[Math.round(f)]||0);
+  });
   const onScroll=()=>schedule();
   panel.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',layout,{passive:true});
   let ro;if('ResizeObserver'in window){ro=new ResizeObserver(schedule);ro.observe(panel);items.forEach(x=>ro.observe(x.target))}
