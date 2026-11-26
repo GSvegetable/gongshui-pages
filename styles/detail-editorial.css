@@ -385,7 +385,7 @@ body.view-closing .work-detail.is-active {
   outline-offset: 4px;
 }
 
-@media (min-width: 761px) and (max-width: 1099px) {
+@media (min-width: 681px) and (max-width: 1099px) {
   .work-detail {
     width: min(396px, max(300px, 36vw));
     padding: 34px 22px 32px;
@@ -402,7 +402,7 @@ body.view-closing .work-detail.is-active {
 }
 
 /* On compact screens the poster becomes the next page section, not a drawer. */
-@media (max-width: 760px) {
+@media (max-width: 680px) {
   .work-detail {
     position: absolute;
     top: 0;
