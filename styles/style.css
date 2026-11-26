@@ -444,7 +444,7 @@ body.view-closing .work-detail.is-active {
 .project-link svg { width:18px; height:18px; fill:currentColor; }
 
 /* ---------- 详情页动作区：查看 GitHub 项目 + 开发者与贡献者 ---------- */
-.detail-actions{display:flex;flex-direction:column;align-items:flex-start;gap:12px;margin-top:20px}
+.detail-actions{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px;margin-top:20px}
 .detail-actions .project-link{margin-top:0}
 /* 颜色取左侧「指南针」方块的马里奥金 */
 .creator-link{
@@ -458,11 +458,20 @@ body.view-closing .work-detail.is-active {
 .creator-link svg{width:18px;height:18px}
 .creator-link:focus-visible{outline:2px solid #f4bd3c;outline-offset:3px}
 
+/* ---------- 统一详情页的专属功能区 ---------- */
+.detail-feature{margin-top:26px;padding-top:16px;border-top:1px solid #d9cbb1}
+.detail-feature .gallery-heading{margin:0 0 10px;padding:0}
+.detail-feature .gallery-heading h2{font-size:20px}
+.detail-feature>p:not(.detail-feature-meta){margin:0;color:#514a3d;font-size:13px;line-height:1.85}
+.detail-feature-meta{margin:12px 0 0;color:#9b7542;font:800 10px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.45px}
+
 /* ---------- 详情页里的嵌入式代码 ---------- */
-.embed-snippet{margin-top:30px}
-.embed-snippet h2{margin:0;padding:18px 0 8px;color:#191711;font-size:18px}
+.embed-snippet{margin-top:26px;padding-top:16px;border-top:1px solid #d9cbb1}
+.embed-snippet h2{margin:0;padding:0 0 10px;color:#191711;font-size:20px}
 .embed-note{margin:0 0 12px;color:#6b5d47;font-size:12px;line-height:1.8}
 .embed-note:last-child{margin:12px 0 0}
+.detail-actions .creator-link,.detail-actions .project-link{min-height:44px}
+.detail-actions .creator-link{margin:0}
 .code-block{display:flex;flex-direction:column;border:2px solid #211d15;border-radius:6px;background:#efe6d2;overflow:hidden}
 .code-block pre{margin:0;padding:13px 14px;overflow-x:auto;color:#2a2418;font:12px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace}
 .code-copy{align-self:flex-end;margin:0 10px 10px;padding:6px 11px;border:2px solid #211d15;border-radius:3px;background:#f4bd3c;color:#211d15;font:900 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.3px;cursor:pointer;box-shadow:2px 2px 0 #211d15;transition:transform .1s,box-shadow .1s,background .15s}
@@ -1024,7 +1033,7 @@ body.is-bookmarks.folder-open .bookmark-remove:active { transform: translate(2px
 .preview-card.is-compare-selected .preview-mount { border-color: #f4bd3c; box-shadow: 0 0 0 3px #f4bd3c; }
 
 /* ===== v2.8.5 — 「版本对比」开关搬进右侧面板（「嵌进你的网页」上方） ===== */
-.work-detail .compare-control { display:flex; flex-direction:column; gap:7px; margin:24px 0 8px; }
+.work-detail .compare-control { display:flex; flex-direction:column; gap:7px; margin:26px 0 0; padding-top:16px; border-top:1px solid #d9cbb1; }
 .work-detail .compare-toggle { align-self:flex-start; }
 .compare-hint { margin:0; color:#8a7a5c; font:700 11px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; }
 

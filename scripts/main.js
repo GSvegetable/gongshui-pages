@@ -837,7 +837,7 @@ syncSearchUI();
   };
 
   const setCompareOn = on => {
-    if (!current) return;
+    if (!current || !['pixel-daylight-switch', 'pixel-orbit'].includes(current.id)) return;
     compareOn = on;
     if (on) {
       window.siteCompare?.show?.(scopeOf(current.id), mainVersion());
@@ -867,7 +867,7 @@ syncSearchUI();
     card.classList.add('is-settled');
     settled = true;
     unlockScroll();
-    if (workExtras) workExtras.hidden = false;
+    if (workExtras) workExtras.hidden = !['pixel-daylight-switch', 'pixel-orbit'].includes(current.id);
     // 手机上如果对比是开着的（极少见：动画途中点的开关），落地时直接按并排版式收好
     if (isMobile() && compareOn) applyMobileWorkBox(mobileCompareBox());
     syncCompareUI();
@@ -1026,14 +1026,23 @@ syncSearchUI();
       w.panel.classList.toggle('is-active', on);
       w.panel.setAttribute('aria-hidden', String(!on));
     });
-    // v2.8.5：「版本对比」开关搬进右侧详情面板，放在「嵌进你的网页」标题上方。
-    // 面板是互斥的，所以只要把这一个节点挪进当前面板即可。
+    // 版本对比只属于具备可切换视觉版本的两个像素作品。
+    // 其他作品不显示空的对比入口，也不误调用 Pixel Daylight / Pixel Orbit 的对比路由。
     const control = document.getElementById('compare-control');
-    if (work?.panel && control) {
-      const embed = work.panel.querySelector('.embed-snippet');
-      if (embed) work.panel.insertBefore(control, embed);
-      else work.panel.appendChild(control);
+    const host = document.getElementById('work-extras');
+    const canCompare = !!work && (work.id === 'pixel-daylight-switch' || work.id === 'pixel-orbit');
+    if (control && host) {
+      if (canCompare && work.panel) {
+        const embed = work.panel.querySelector('.embed-snippet');
+        if (embed) work.panel.insertBefore(control, embed);
+        else work.panel.appendChild(control);
+        control.hidden = false;
+      } else {
+        host.insertBefore(control, host.firstChild);
+        control.hidden = true;
+      }
     }
+    if (host) host.hidden = !canCompare;
   };
 
   /* ---------- 可切换展示构图的作品：打开时完整显示，关闭时回到首页裁切 ---------- */
