@@ -1,0 +1,17 @@
+{
+  "_说明": [
+    "这是宫水.com 自己维护的投稿者地球数据，与可复用的 Contributors Globe UI 组件分离。",
+    "更新投稿者资料只修改这个文件，不要把真实个人资料放回 gongshui-open-source 组件包。"
+  ],
+  "contributors": [
+    {
+      "id": "gsvegetable",
+      "name": "GSvegetable",
+      "github": "GSvegetable",
+      "country": "NZ",
+      "pin": "avatar",
+      "works": ["pixel-daylight-switch", "pixel-orbit"],
+      "note": "这个网站的主人，两件作品的作者。"
+    }
+  ]
+}
