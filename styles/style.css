@@ -457,6 +457,8 @@ body.view-closing .work-detail.is-active {
 .creator-link:active{transform:translateY(3px);box-shadow:none}
 .creator-link svg{width:18px;height:18px}
 .creator-link:focus-visible{outline:2px solid #f4bd3c;outline-offset:3px}
+.lab-link{background:#f5ecd9;color:#211d15;border-style:dashed}
+.lab-link:hover{background:#f4bd3c}
 
 /* ---------- 统一详情页的专属功能区 ---------- */
 .detail-feature{margin-top:26px;padding-top:16px;border-top:1px solid #d9cbb1}
