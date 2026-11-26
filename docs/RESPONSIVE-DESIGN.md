@@ -6,8 +6,8 @@
 
 | Band | CSS viewport width | Layout behavior |
 | --- | ---: | --- |
-| Compact | 0–760px | Single-column-first page layout. The work viewer uses a bottom sheet so the artwork remains visible. Controls and content use compact spacing. |
-| Medium | 761–1099px | Work artwork and details sit side by side when the available width supports both. Gallery density is tuned for tablet-sized windows. |
+| Compact | 0–760px | Single-column-first page layout. The artwork is followed by the full editorial poster in normal page flow; no bottom drawer. Controls and content use compact spacing. |
+| Medium | 761–1099px | Work artwork and editorial details sit flush edge-to-edge as one composition when the available width supports both. Gallery density is tuned for tablet-sized windows. |
 | Expanded | 1100px and above | Full side-by-side work viewer, flexible gallery density, and wider content rhythm. |
 | Wide | 1600px and above | Increase gutters and gaps while keeping the content measure bounded. |
 
