@@ -263,7 +263,10 @@
     clickBehavior: document.getElementById('navigation-click-behavior'),
     reboundDelay: document.getElementById('navigation-rebound-delay'),
     groupBehavior: document.getElementById('navigation-group-behavior'),
-    delayRow: document.getElementById('navigation-delay-row')
+    groupRow: document.getElementById('navigation-group-behavior')?.closest('.navigation-setting-row'),
+    delayRow: document.getElementById('navigation-delay-row'),
+    reset: document.getElementById('navigation-settings-reset'),
+    status: document.getElementById('navigation-settings-status')
   };
   const applyNavigationSettings = () => {
     const controls = navigationControls;
@@ -272,15 +275,28 @@
     pendingNavigationConfig.animations = controls.animations.checked;
     pendingNavigationConfig.clickBehavior = ['none','hold','rebound'].includes(controls.clickBehavior.value) ? controls.clickBehavior.value : 'rebound';
     pendingNavigationConfig.reboundDelay = Math.max(0, Math.min(5000, Number(controls.reboundDelay.value) || 360));
-    pendingNavigationConfig.groupBehavior = ['independent','exclusive','one-required'].includes(controls.groupBehavior.value) ? controls.groupBehavior.value : 'exclusive';
+    pendingNavigationConfig.groupBehavior = ['independent','exclusive'].includes(controls.groupBehavior.value) ? controls.groupBehavior.value : 'exclusive';
     if (controls.delayRow) controls.delayRow.hidden = pendingNavigationConfig.clickBehavior !== 'rebound';
+    if (controls.groupBehavior) controls.groupBehavior.disabled = pendingNavigationConfig.clickBehavior === 'none';
+    if (controls.groupRow) controls.groupRow.classList.toggle('is-disabled', pendingNavigationConfig.clickBehavior === 'none');
     const api = instances.navigation;
     if (api && typeof api.configure === 'function') api.configure({ ...pendingNavigationConfig });
+    if (controls.status) controls.status.textContent = api ? '已应用 · 点击上方按钮查看交互' : '设置已保存，预览载入后自动应用';
   };
   Object.values(navigationControls).forEach(control => {
-    if (control && control.addEventListener) {
+    if (control && control.addEventListener && control !== navigationControls.status && control !== navigationControls.reset && control !== navigationControls.delayRow) {
       control.addEventListener('change', applyNavigationSettings);
     }
+  });
+  if (navigationControls.reset) navigationControls.reset.addEventListener('click', () => {
+    if (navigationControls.iconColor) navigationControls.iconColor.value = 'black';
+    if (navigationControls.animations) navigationControls.animations.checked = true;
+    if (navigationControls.clickBehavior) navigationControls.clickBehavior.value = 'rebound';
+    if (navigationControls.reboundDelay) navigationControls.reboundDelay.value = '360';
+    if (navigationControls.groupBehavior) navigationControls.groupBehavior.value = 'exclusive';
+    if (instances.navigation && typeof instances.navigation.reset === 'function') instances.navigation.reset();
+    applyNavigationSettings();
+    if (navigationControls.status) navigationControls.status.textContent = '已恢复默认设置';
   });
   applyNavigationSettings();
 
