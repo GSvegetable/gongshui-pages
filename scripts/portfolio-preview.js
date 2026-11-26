@@ -9,6 +9,16 @@
   };
   const instances = Object.create(null);
   let pendingGlobeWork = '';
+  let pendingGlobeNight = false;
+  let hasPendingGlobeNight = false;
+  let globeNightRevision = 0;
+
+  const applyGlobeNight = api => {
+    const revision = globeNightRevision;
+    Promise.resolve(api && api.ready).then(ok => {
+      if (ok && revision === globeNightRevision && typeof api.setNight === 'function') api.setNight(pendingGlobeNight);
+    }).catch(() => {});
+  };
 
   // Loading UI belongs to each artwork mount, not to the whole page.
   const loadingTimers = new WeakMap();
@@ -206,6 +216,7 @@
     if (mount !== detail.element) return;
 
     instances[kind] = detail.api;
+    if (kind === 'globe' && hasPendingGlobeNight) applyGlobeNight(detail.api);
     // The wrapper's ready event only means its API object exists. Wait for the
     // embedded document itself; globe and corridor send explicit first-frame signals.
     Promise.resolve(detail.api.ready).then(ok => {
@@ -252,7 +263,10 @@
       if (instances.globe) instances.globe.selectWork(pendingGlobeWork);
     },
     setNight(enabled) {
-      if (instances.globe && typeof instances.globe.setNight === 'function') instances.globe.setNight(!!enabled);
+      pendingGlobeNight = !!enabled;
+      hasPendingGlobeNight = true;
+      globeNightRevision += 1;
+      if (instances.globe) applyGlobeNight(instances.globe);
     }
   };
 
