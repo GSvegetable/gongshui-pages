@@ -1,22 +1,22 @@
-/* 3_sy 双轨卡片空间 —— 首页控制台。
-   第六个作品：作品画面嵌在面板的屏幕里，底下三个按钮直接点名它的三种空间状态
-   （EDGE / LEFT / RIGHT）。左右滑动那套交互已经收起来，改成按钮点选。
+/* 3_sy 双轨卡片空间 —— 首页大格子里的状态切换。
+   第六个作品：作品画面嵌在格子里的 iframe，标题栏上三个按钮直接点名它的三种
+   空间状态（EDGE / LEFT / RIGHT）。左右滑动那套交互已经收起来，改成按钮点选。
    协议：宿主发 { type: '3sy:preset', index }，作品切到第 index 个状态；
         作品每次切完回 { type: '3sy:state', index, label, peak, curve, tilt }，
         宿主据此高亮按钮并刷新读数。 */
 (() => {
   'use strict';
 
-  const console_ = document.getElementById('sy-console');
+  const card = document.getElementById('sy-card');
   const frame = document.getElementById('sy-frame');
-  if (!console_ || !frame) return;
+  if (!card || !frame) return;
 
-  const buttons = [...console_.querySelectorAll('.sy-state-btn')];
-  const codeEl = console_.querySelector('.sy-console-code');
+  const buttons = [...card.querySelectorAll('.sy-state-btn')];
+  const codeEl = card.querySelector('.sy-code');
   const readouts = {
-    peak: console_.querySelector('[data-readout="peak"]'),
-    curve: console_.querySelector('[data-readout="curve"]'),
-    tilt: console_.querySelector('[data-readout="tilt"]'),
+    peak: card.querySelector('[data-readout="peak"]'),
+    curve: card.querySelector('[data-readout="curve"]'),
+    tilt: card.querySelector('[data-readout="tilt"]'),
   };
 
   // 目标 origin 按 iframe 实际地址算，作品换托管位置时不用改这里。
