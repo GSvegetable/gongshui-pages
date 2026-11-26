@@ -24,7 +24,16 @@
     mount.classList.add('is-loading');
     return loader;
   };
-  const setMountState = (mount, state, message) => {
+  const resolvePreviewMount = element => element && (
+    element.matches && element.matches('.preview-mount')
+      ? element
+      : element.closest ? element.closest('.preview-mount') : null
+  );
+
+  const setMountState = (element, state, message) => {
+    // Live embed events originate from the inner slot, while the loader and
+    // timeout belong to its .preview-mount parent. Always update that same node.
+    const mount = resolvePreviewMount(element);
     if (!mount) return;
     const loader = getLoader(mount);
     const timer = loadingTimers.get(mount);
