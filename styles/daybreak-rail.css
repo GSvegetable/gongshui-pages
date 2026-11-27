@@ -73,22 +73,10 @@
 .work-detail .db-night-toggle{position:absolute;right:8px;top:25px;width:24px;height:24px;border:2px solid #292b30;background:var(--db-gold);color:#292b30;font-weight:900;cursor:pointer}
 .work-detail .db-night-toggle[aria-pressed="true"]{background:#292b30;color:var(--db-gold)}
 .work-detail .db-rail button:focus-visible{outline:3px solid var(--db-gold);outline-offset:2px}
-/* The rail keeps its own anchor: the panel's gutter never changes, so opening
-   the rail cannot shift the rail itself out from under the pointer (which used
-   to make hover-open flicker). The content is pushed aside instead. */
-.work-detail.db-ready{padding-left:78px;--db-gap:78px;--db-shift:104px}
-.work-detail.db-ready:has(.db-rail.is-open) > *:not(.db-rail){margin-left:var(--db-shift)}
-.work-detail.db-ready > *:not(.db-rail){transition:margin-left .42s cubic-bezier(.7,0,.2,1)}
+/* Fixed-width rail gutter: expansion is visual only; detail content never reflows. */
+.work-detail.db-ready{padding-left:78px;--db-gap:78px}
 @media(max-width:680px){
- .work-detail.db-ready{padding-left:68px}
-  .work-detail .db-rail{position:sticky;float:left;top:0;inset:auto;width:52px;height:100dvh;min-height:420px;margin:0 0 -100dvh -68px}
-  .work-detail .db-rail.is-open{width:176px}
-  .work-detail .db-head{height:68px;padding-left:8px}
-  .work-detail .db-logo{width:34px;height:34px}
-  .work-detail .db-stop{min-height:54px;padding-left:16px}
-  .work-detail .db-track,.work-detail .db-fill{left:24px}
-  .work-detail .db-sun{left:7px}
-  .work-detail .db-foot{padding:0 9px 14px}
+  .work-detail.db-ready{padding-left:68px;--db-gap:68px}
 }
 @media(prefers-reduced-motion:reduce){
  .work-detail .db-rail *, .work-detail .db-rail *::before,.work-detail .db-rail *::after{animation:none!important;transition-duration:1ms!important}
@@ -182,16 +170,10 @@
 .work-detail .db-rail.is-pinned .db-logo{box-shadow:3px 3px 0 var(--db-ink),0 0 0 2px var(--db-gold)}
 .work-detail.db-ready{padding-left:78px}
 @media(max-width:680px){
-  .work-detail.db-ready{padding-left:68px;--db-gap:68px;--db-shift:104px}
+  .work-detail.db-ready{padding-left:68px;--db-gap:68px}
   .work-detail .db-rail{
-    position:sticky;
-    inset:auto;
-    float:left;
-    top:0;
-    width:52px;
-    height:100dvh;
-    min-height:360px;
-    margin:0 0 -100dvh calc(-1 * var(--db-gap,68px));
+    position:sticky;inset:auto;float:left;top:0;width:52px;height:100dvh;
+    min-height:360px;margin:0 0 -100dvh calc(-1 * var(--db-gap,68px));
   }
   .work-detail .db-stop{height:clamp(46px,8vh,58px);padding-left:16px}
   .work-detail .db-track,.work-detail .db-fill{left:24px}
