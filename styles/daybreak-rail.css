@@ -198,3 +198,36 @@
   .work-detail .db-sun{left:7px}
   .work-detail .db-foot{padding:0 9px 14px}
 }
+
+
+/* Overlay expansion — keep the rail's layout footprint fixed.
+   The expanded panel paints over the copy instead of pushing it sideways. */
+.work-detail .db-rail {
+  --db-overlay-overlap: 118px;
+  transition:
+    width .42s cubic-bezier(.7,0,.2,1),
+    margin-right .42s cubic-bezier(.7,0,.2,1),
+    color .3s;
+}
+.work-detail .db-rail.is-open {
+  width: 176px;
+  margin-right: calc(-1 * var(--db-overlay-overlap));
+  box-shadow: 10px 0 26px rgba(31, 34, 39, .12);
+}
+.work-detail.db-ready:has(.db-rail.is-open) > *:not(.db-rail) {
+  margin-left: 0 !important;
+}
+.work-detail.db-ready > *:not(.db-rail) { transition: none; }
+.work-detail .db-rail.is-open .db-label { max-width: 124px; }
+.work-detail .db-label b {
+  overflow: hidden;
+  max-width: 124px;
+  text-overflow: ellipsis;
+}
+@media (max-width: 680px) {
+  .work-detail .db-rail { --db-overlay-overlap: 124px; }
+  .work-detail .db-rail.is-open {
+    width: 176px;
+    margin-right: calc(-1 * var(--db-overlay-overlap));
+  }
+}
