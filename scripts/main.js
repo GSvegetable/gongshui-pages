@@ -932,7 +932,10 @@ syncSearchUI();
   /* ---------- 几何：展开后卡片 / 放大作品后卡片应该在哪 ---------- */
   const isMobile = () => window.matchMedia('(max-width: 680px)').matches;
 
-  const detailPanelWidth = () => Math.min(440, Math.max(300, window.innerWidth * 0.36));
+  // Keep the detail rail and artwork geometry on the same responsive scale.
+  const detailPanelWidth = () => window.innerWidth <= 1099
+    ? Math.min(396, Math.max(300, window.innerWidth * 0.36))
+    : Math.min(500, Math.max(420, window.innerWidth * 0.40));
 
   const openBox = () => {
     if (isMobile()) return { left: 14, top: 18, width: Math.max(220, window.innerWidth - 28) };
