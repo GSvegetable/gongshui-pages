@@ -16,7 +16,6 @@
   transition:width .42s cubic-bezier(.7,0,.2,1),color .3s,margin-left .42s cubic-bezier(.7,0,.2,1);
   isolation:isolate;
 }
-.work-detail .db-rail.is-open{width:176px}
 .work-detail .db-rail *{box-sizing:border-box}
 .work-detail .db-sky{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
 .work-detail .db-stars{position:absolute;inset:0;opacity:var(--db-night)}
