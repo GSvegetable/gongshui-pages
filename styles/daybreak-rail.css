@@ -200,34 +200,147 @@
 }
 
 
-/* Overlay expansion — keep the rail's layout footprint fixed.
-   The expanded panel paints over the copy instead of pushing it sideways. */
-.work-detail .db-rail {
-  --db-overlay-overlap: 118px;
-  transition:
-    width .42s cubic-bezier(.7,0,.2,1),
-    margin-right .42s cubic-bezier(.7,0,.2,1),
-    color .3s;
-}
+
+/* Daybreak Rail / 2.5 — expand visually, never expand its layout box.
+   The sticky/floated rail keeps a constant 58px footprint. Its painted surface,
+   navigation rows and labels may extend over the editorial column. */
+.work-detail .db-rail,
 .work-detail .db-rail.is-open {
-  width: 176px;
-  margin-right: calc(-1 * var(--db-overlay-overlap));
-  box-shadow: 10px 0 26px rgba(31, 34, 39, .12);
+  width:58px !important;
+  min-width:58px;
+  overflow:visible !important;
+  align-items:flex-start;
+  background:transparent !important;
+  border:0 !important;
+  margin-right:0 !important;
+  transition:color .3s;
+}
+.work-detail .db-rail::before {
+  content:"";
+  position:absolute;
+  z-index:-2;
+  inset:0 auto 0 0;
+  width:58px;
+  background:linear-gradient(180deg,
+    color-mix(in srgb,var(--db-sky-1) 72%,#f4efe3 28%) 0%,
+    color-mix(in srgb,var(--db-sky-2) 70%,#f4efe3 30%) 56%,
+    color-mix(in srgb,var(--db-sky-3) 68%,#f4efe3 32%) 100%);
+  border-right:1px solid rgba(41,43,48,.22);
+  box-shadow:none;
+  transition:width .34s cubic-bezier(.2,.75,.25,1),box-shadow .34s;
+  pointer-events:none;
+}
+.work-detail .db-rail.is-open::before {
+  width:168px;
+  box-shadow:8px 0 24px rgba(33,30,24,.13),1px 0 0 rgba(255,255,255,.38) inset;
+}
+.work-detail .db-sky {
+  width:58px;
+  max-width:58px;
+  right:auto;
+  transition:max-width .34s cubic-bezier(.2,.75,.25,1);
+}
+.work-detail .db-rail.is-open .db-sky {max-width:168px}
+.work-detail .db-head,
+.work-detail .db-nav,
+.work-detail .db-foot {
+  width:168px !important;
+  max-width:168px;
+}
+.work-detail .db-head {padding-left:10px}
+.work-detail .db-stop {
+  width:168px !important;
+  min-width:168px;
+  min-height:54px;
+  padding-left:19px;
+}
+.work-detail .db-node {
+  width:13px;
+  height:13px;
+  border-width:1px;
+}
+.work-detail .db-track,
+.work-detail .db-fill {
+  left:25px;
+  width:1px;
+}
+.work-detail .db-label {margin-left:17px}
+.work-detail .db-label b {
+  max-width:112px;
+  overflow:hidden;
+  color:#292b30;
+  font-size:12px;
+  font-weight:700;
+  text-overflow:ellipsis;
+}
+.work-detail .db-label em {
+  color:#655e52;
+  font-size:7px;
+  letter-spacing:.1em;
+}
+.work-detail .db-logo {
+  width:30px;
+  height:30px;
+  border:1px solid rgba(41,43,48,.72);
+  background:#f0c36b;
+  color:#292b30;
+  box-shadow:1px 2px 0 rgba(41,43,48,.2);
+}
+.work-detail .db-logo svg {width:16px;height:16px;stroke-width:2.6}
+.work-detail .db-night-toggle {
+  width:22px;
+  height:22px;
+  border:1px solid rgba(41,43,48,.5);
+  background:rgba(255,255,255,.34);
+  box-shadow:none;
+}
+.work-detail .db-foot {
+  padding:0 10px 14px;
+}
+.work-detail .db-card {
+  border:1px solid rgba(41,43,48,.3);
+  background:rgba(248,244,234,.68);
+  box-shadow:0 2px 8px rgba(41,43,48,.06);
+  backdrop-filter:blur(8px);
+  padding:10px;
+}
+.work-detail .db-k {font-size:7px;letter-spacing:.12em}
+.work-detail .db-phase {font-size:13px}
+.work-detail .db-meter i {height:4px;border-width:1px}
+.work-detail .db-pct {font-size:8px}
+.work-detail.db-ready > *:not(.db-rail) {
+  margin-left:0 !important;
+  transition:none !important;
 }
 .work-detail.db-ready:has(.db-rail.is-open) > *:not(.db-rail) {
-  margin-left: 0 !important;
+  margin-left:0 !important;
 }
-.work-detail.db-ready > *:not(.db-rail) { transition: none; }
-.work-detail .db-rail.is-open .db-label { max-width: 124px; }
-.work-detail .db-label b {
-  overflow: hidden;
-  max-width: 124px;
-  text-overflow: ellipsis;
-}
-@media (max-width: 680px) {
-  .work-detail .db-rail { --db-overlay-overlap: 124px; }
+@media(max-width:680px) {
+  .work-detail.db-ready {padding-left:68px}
+  .work-detail .db-rail,
   .work-detail .db-rail.is-open {
-    width: 176px;
-    margin-right: calc(-1 * var(--db-overlay-overlap));
+    width:52px !important;
+    min-width:52px;
+    overflow:visible !important;
+    margin-right:0 !important;
   }
+  .work-detail .db-rail::before {width:52px}
+  .work-detail .db-rail.is-open::before {width:min(164px,calc(100vw - 28px))}
+  .work-detail .db-sky {width:52px;max-width:52px}
+  .work-detail .db-rail.is-open .db-sky {max-width:min(164px,calc(100vw - 28px))}
+  .work-detail .db-head,
+  .work-detail .db-nav,
+  .work-detail .db-foot,
+  .work-detail .db-stop {
+    width:min(164px,calc(100vw - 28px)) !important;
+    min-width:min(164px,calc(100vw - 28px));
+  }
+  .work-detail .db-head {padding-left:8px}
+  .work-detail .db-stop {padding-left:16px}
+  .work-detail .db-track,.work-detail .db-fill {left:23px}
+  .work-detail .db-sun {left:7px}
+  .work-detail .db-foot {padding:0 9px 14px}
+}
+@media(prefers-reduced-motion:reduce) {
+  .work-detail .db-rail::before,.work-detail .db-sky {transition:none !important}
 }
