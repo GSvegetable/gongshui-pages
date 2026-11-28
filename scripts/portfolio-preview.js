@@ -210,7 +210,8 @@
     const kind = ({
       'contributors-globe': 'globe',
       'bookmark-hall': 'corridor',
-      'navigation-interaction': 'navigation'
+      'navigation-interaction': 'navigation',
+      'seven-components': 'seven'
     })[detail.kind];
     if (!kind || instances[kind] === detail.api) return;
     const mount = document.querySelector('[data-live-preview="' + kind + '"]');
@@ -226,7 +227,7 @@
         setMountState(mount, 'error', '作品内部页面加载失败');
         return;
       }
-      if (kind === 'navigation') {
+      if (kind === 'navigation' || kind === 'seven') {
         requestAnimationFrame(() => requestAnimationFrame(() => setMountState(mount, 'ready')));
       } else {
         try {
@@ -245,11 +246,11 @@
   };
 
   window.addEventListener('gongshui:embed:ready', event => registerEmbed(event.detail));
-  ['globe', 'corridor', 'navigation'].forEach(kind => {
+  ['globe', 'corridor', 'navigation', 'seven'].forEach(kind => {
     const mount = document.querySelector('[data-live-preview="' + kind + '"]');
     if (mount && mount.gongshuiEmbed) {
       registerEmbed({
-        kind: kind === 'globe' ? 'contributors-globe' : kind === 'corridor' ? 'bookmark-hall' : 'navigation-interaction',
+        kind: kind === 'globe' ? 'contributors-globe' : kind === 'corridor' ? 'bookmark-hall' : kind === 'navigation' ? 'navigation-interaction' : 'seven-components',
         element: mount,
         iframe: mount.gongshuiEmbed.iframe,
         api: mount.gongshuiEmbed
