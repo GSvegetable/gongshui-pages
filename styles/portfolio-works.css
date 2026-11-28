@@ -1,4 +1,8 @@
 /* Host-side iframe mounts only. Artwork and its visual implementation live in gongshui-open-source. */
+
+/* Eight Components renders a warm paper contact sheet — match the mount so the
+   card never flashes dark navy while the artwork boots. */
+#eight-components-card .portfolio-live-mount { background: #eae5d7; }
 .portfolio-live-mount{--mount-ratio:1.6439;position:relative;overflow:hidden;background:#070a12}
 .portfolio-live-mount [data-live-preview]{position:absolute;inset:0;z-index:1;width:100%;height:100%}
 .portfolio-live-frame{position:absolute;inset:0;display:block;width:100%;height:100%;border:0;background:#070a12}
