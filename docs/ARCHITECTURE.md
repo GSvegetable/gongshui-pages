@@ -9,7 +9,7 @@
 
 这是宫水.com 的网站平台本体，负责 UI、页面布局、导航与路由、登录注册、账号、收藏数据与文件夹、搜索、设置、国际化、Supabase、作品目录、作品详情，以及宿主侧 iframe / 数据通信适配器。
 
-网站保留所有平台业务能力，但不再保存第三至第五个作品的核心渲染实现。
+网站保留所有平台业务能力，但不再保存第三至第七个作品的核心渲染实现。
 
 ### `GSvegetable/gongshui-open-source`
 
@@ -26,14 +26,15 @@
 | 3 | 投稿者地球 / Contributors Globe | `gongshui-open-source/projects/contributors-globe/` | iframe；独立数据、地图边界、国旗与贴图 |
 | 4 | 收藏长廊 / The Bookmark Hall | `gongshui-open-source/projects/bookmark-hall/` | iframe；网站通过 postMessage 传入收藏作品记录 |
 | 5 | 导航交互系统 / Navigation Interaction System | `gongshui-open-source/projects/navigation-interaction/` | iframe；仅展示独立按钮交互样本 |
+| 7 | 七个组件 / Seven Components | `gongshui-open-source/projects/seven-components/` | iframe；独立微交互样本集合 |
 
-第三至第五个作品的部署入口分别为：
+第三至第六个作品的部署入口分别为：
 
 - `https://gsvegetable.github.io/gongshui-open-source/contributors-globe/`
 - `https://gsvegetable.github.io/gongshui-open-source/bookmark-hall/`
 - `https://gsvegetable.github.io/gongshui-open-source/navigation-interaction/`
 
-## 三、宿主与作品的边界
+### Seven Components\n\n七个组件是独立的微交互样本集合，通过 `embed.js` 挂载独立 iframe；页面不访问宿主账号、收藏或 Supabase。\n\n## 三、宿主与作品的边界
 
 网站仓库可以保留：
 - 作品卡片、详情面板、收藏按钮与收藏夹管理；
@@ -103,8 +104,8 @@
 
 ## 六、版本、缓存与发布
 
-- 网站版本以首页角落版本号、三份 README 徽章和 `docs/CHANGELOG.md` 为准；本次升级为 **v2.18.0**。
+- 网站版本以首页角落版本号、三份 README 徽章和 `docs/CHANGELOG.md` 为准；本次升级为 **v2.21.0**。
 - `?v=` 是资源缓存标识。只有真正修改的资源才更新对应缓存号。
 - 每个作品维护自己的版本、CHANGELOG、依赖许可说明和测试。
-- 根目录 GitHub Actions workflow 将五个项目分别组装到 Pages 对应 URL；源码路径中的 `projects/` 不出现在最终 URL 中。
+- 根目录 GitHub Actions workflow 将各个项目分别组装到 Pages 对应 URL；源码路径中的 `projects/` 不出现在最终 URL 中。
 - 不允许只复制源码而不切换唯一所有权，也不允许网站仓库和作品仓库长期维护两份活动实现。
